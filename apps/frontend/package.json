@@ -1,0 +1,31 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "node esbuild/esbuild",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@jgoz/esbuild-plugin-typecheck": "^4.0.4",
+    "@tsconfig/node24": "^24.0.4",
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.9.1",
+    "del": "^8.0.1",
+    "esbuild": "^0.28.0",
+    "esbuild-plugin-copy": "^2.1.1",
+    "esbuild-plugin-manifest": "^1.0.5",
+    "esbuild-sass-plugin": "^3.7.0",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.10",
+    "typescript": "^6.0.3"
+  }
+}
