@@ -20,4 +20,5 @@ export default {
   branchName: get('GIT_BRANCH', 'xxxxxxxxxxxxxxxxxxx', requiredInProduction),
   production,
   staticResourceCacheDuration: '1h',
+  environmentName: get('ENVIRONMENT_NAME', '')
 }

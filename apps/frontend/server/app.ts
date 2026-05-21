@@ -2,7 +2,7 @@ import express from 'express'
 
 import createError from 'http-errors'
 
-// import nunjucksSetup from './utils/nunjucksSetup'
+import nunjucksSetup from './utils/nunjucksSetup'
 import errorHandler from './errorHandler'
 import setUpHealthChecks from './middleware/setUpHealthChecks'
 import setUpStaticResources from './middleware/setUpStaticResources'
@@ -23,7 +23,7 @@ export default function createApp(services: Services): express.Application {
   app.use(setUpWebSecurity())
   app.use(setUpWebRequestParsing())
   app.use(setUpStaticResources())
-  // nunjucksSetup(app)
+  nunjucksSetup(app)
 
   app.use(routes(services))
 

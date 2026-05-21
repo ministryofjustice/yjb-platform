@@ -4,12 +4,15 @@ import routes from '../index'
 import errorHandler from '../../errorHandler'
 import type { Services } from '../../services'
 import ExampleService from '../../services/exampleService'
+import nunjucksSetup from '../../utils/nunjucksSetup'
 
 export const user = { username: 'user1' }
 
 function appSetup(services: Services, production: boolean): Express {
   const app = express()
+  app.set('view engine', 'njk')
 
+  nunjucksSetup(app)
   app.use((_req, res, next) => {
     res.locals.user = user
     next()
