@@ -1,7 +1,5 @@
-import express from 'express'
-import type { Request, Response } from 'express'
-const app = express()
+import app from './server/index'
 
-app.get('/', (req: Request, res: Response) => res.send('Hi'))
-
-app.listen(3001)
+app.listen(app.get('port'), () => {
+  console.log(`Server listening on port ${app.get('port')}`)
+})

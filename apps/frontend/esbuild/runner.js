@@ -20,7 +20,7 @@ async function main() {
     process.stderr.write(`${styleText('bold', `${emojis.eyes} Starting ESBuild watchers...`)}\n`)
 
     return Promise.all(
-      [appConfig, assetsConfig, additionalAssetsConfig].map(async config => {
+      [appConfig].map(async config => {
         const ctx = await esbuild.context(config)
         await ctx.watch()
       }),
