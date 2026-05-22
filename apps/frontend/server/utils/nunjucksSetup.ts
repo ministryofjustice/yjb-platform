@@ -5,6 +5,7 @@ import express from 'express'
 import fs from 'fs'
 import { initialiseName } from './utils'
 import config from '../config'
+import { WORKSPACE_ROOT, NODE_MODULES } from '../../workspace.config'
 
 export default function nunjucksSetup(app: express.Express): void {
   app.set('view engine', 'njk')
@@ -24,9 +25,9 @@ export default function nunjucksSetup(app: express.Express): void {
 
   const njkEnv = nunjucks.configure(
     [
-      path.resolve(process.cwd(), 'dist/server/views'),
-      path.resolve(process.cwd(), '../../node_modules/govuk-frontend/dist/'),
-      path.resolve(process.cwd(), '../../node_modules/@ministryofjustice/frontend/'),
+      path.resolve(WORKSPACE_ROOT, './dist/server/views'),
+      path.resolve(NODE_MODULES, './govuk-frontend/dist/'),
+      path.resolve(NODE_MODULES, './@ministryofjustice/frontend/'),
     ],
     {
       autoescape: true,

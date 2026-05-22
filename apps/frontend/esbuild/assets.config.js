@@ -4,6 +4,7 @@ const { sassPlugin } = require('esbuild-sass-plugin')
 const manifestPlugin = require('esbuild-plugin-manifest')
 const { globSync } = require('node:fs')
 const { buildNotificationPlugin, cleanPlugin } = require('./utils')
+const { WORKSPACE_ROOT, REPOSITORY_ROOT, NODE_MODULES } = require('../workspace.config')
 
 /**
  * Copy additional assets into distribution
@@ -40,7 +41,7 @@ const getAssetsConfig = buildConfig => ({
     }),
     sassPlugin({
       quietDeps: true,
-      loadPaths: [process.cwd(), path.resolve(process.cwd(), '../..'), path.resolve(process.cwd(), '../../node_modules')],
+      loadPaths: [WORKSPACE_ROOT, REPOSITORY_ROOT, NODE_MODULES],
     }),
     buildNotificationPlugin('Assets', buildConfig.isWatchMode),
   ],

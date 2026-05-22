@@ -24,6 +24,11 @@ const getBuildConfig = () => {
           to: path.join(cwd, 'dist/server/views'),
           watch: isWatchMode,
         },
+        {
+          from: path.join(cwd, 'workspace.config.js'),
+          to: path.join(cwd, 'dist'),
+          watch: isWatchMode,
+        },
       ],
     },
 
