@@ -2,13 +2,13 @@
   "name": "yjb-platform",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "workspaces": [
     "apps/*"
   ],
   "scripts": {
     "build": "npm run build -w apps/frontend",
-    "start:dev": "npm run dev -w apps/frontend",
+    "start:dev": "concurrently \"npm run dev -w apps/frontend\" \"npm run dev -w apps/api\"",
     "test": "npm run test -w apps/frontend"
   },
   "repository": {
