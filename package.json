@@ -1,0 +1,25 @@
+{
+  "name": "yjb-platform",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w apps/frontend",
+    "start:dev": "npm run dev -w apps/frontend",
+    "test": "npm run test -w apps/frontend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ministryofjustice/yjb-platform.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ministryofjustice/yjb-platform/issues"
+  },
+  "homepage": "https://github.com/ministryofjustice/yjb-platform#readme"
+}
