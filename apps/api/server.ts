@@ -1,18 +1,5 @@
-import express, { Request, Response } from 'express'
+import app from './index'
 
-const app = express()
-const port = process.env.PORT || 3001
-
-app.use(express.json())
-
-app.get('/', (_req: Request, res: Response) => {
-  res.send('This is the root api response')
-})
-
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({ status: 'ok' })
-})
-
-app.listen(port, () => {
-  console.log(`API server listening on port ${port}`)
+app.listen(app.get('port'), () => {
+    console.log(`Server listening on port ${app.get('port')}`)
 })
