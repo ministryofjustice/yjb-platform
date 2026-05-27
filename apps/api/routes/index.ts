@@ -10,5 +10,9 @@ export default function routes(): Router{
         res.send('Health status');
     });
 
+    router.get('/test-api', (req: Request, res: Response) => {
+        res.json({"name": "test-name"});
+    });
+
     return router;
 }
