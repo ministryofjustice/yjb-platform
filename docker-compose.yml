@@ -15,6 +15,22 @@ services:
       test: ["CMD", "sh", "-c", "echo > /dev/tcp/localhost/3000"]
     environment:
       - PRODUCT_ID=UNASSIGNED
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      args:
+        BUILD_NUMBER: "1.0.0"
+        GIT_REF: "a1b2c3"
+        GIT_BRANCH: main
+    networks:
+      - yjb
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo > /dev/tcp/localhost/3001"]
+    environment:
+      - PRODUCT_ID=UNASSIGNED
 
 networks:
   yjb:
