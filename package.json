@@ -7,10 +7,13 @@
     "apps/*"
   ],
   "scripts": {
+    "build": "concurrently \"npm run build -w apps/frontend\" \"npm run build -w apps/api\"",
     "build:fe": "npm run build -w apps/frontend",
     "build:api": "npm run build -w apps/api",
     "start:dev": "concurrently \"npm run dev -w apps/frontend\" \"npm run dev -w apps/api\"",
-    "test:fe": "npm run test -w apps/frontend"
+    "test": "concurrently \"npm run test -w apps/frontend\" \"npm run test -w apps/api\"",
+    "test:fe": "npm run test -w apps/frontend",
+    "test:api": "npm run test -w apps/api"
   },
   "repository": {
     "type": "git",

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node esbuild/esbuild",
     "dev": "concurrently \"node esbuild/esbuild --watch\" \"nodemon --watch dist dist/server.js\"",
-    "test": "jest --passWithNoTests"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
