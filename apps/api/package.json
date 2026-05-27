@@ -4,12 +4,14 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
-    "dev": "tsx --watch server.ts"
+    "build": "node esbuild/esbuild",
+    "dev": "concurrently \"node esbuild/esbuild --watch\" \"nodemon --watch dist dist/server.js\""
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "esbuild": "^0.28.0",
     "express": "^5.2.1"
   },
   "devDependencies": {
@@ -17,7 +19,6 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.9.1",
     "nodemon": "^3.1.14",
-    "tsx": "^4.22.3",
     "typescript": "^6.0.3"
   }
 }
