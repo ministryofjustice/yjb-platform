@@ -1,0 +1,38 @@
+.git
+.gitignore
+
+# Dependencies — reinstalled inside the image
+node_modules
+apps/*/node_modules
+
+# Build output — rebuilt inside the image
+apps/*/dist
+
+# Environment files
+.env
+.env.*
+!.env.example
+apps/*/.env
+apps/*/.env.*
+!apps/*/.env.example
+
+# Test and coverage output
+coverage
+.nyc_output
+apps/*/coverage
+apps/*/.nyc_output
+
+# Caches
+.cache
+.npm
+.eslintcache
+.stylelintcache
+
+# Logs
+*.log
+logs
+
+# Editor and OS
+.idea
+.vscode
+.DS_Store
