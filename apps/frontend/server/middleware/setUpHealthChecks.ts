@@ -12,6 +12,7 @@ export default function setUpHealthChecks(applicationInfo: ApplicationInfo): Rou
 
   router.get('/info', middleware.info)
   router.get('/ping', middleware.ping)
+  router.get('/health', middleware.health)
 
   return router
 }
