@@ -15,6 +15,7 @@ services:
       test: ["CMD", "sh", "-c", "echo > /dev/tcp/localhost/3000"]
     environment:
       - PRODUCT_ID=UNASSIGNED
+      - API_URL=http://api:3001
   api:
     build:
       context: .
