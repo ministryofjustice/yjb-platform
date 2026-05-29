@@ -4,6 +4,7 @@ import routes from '../index'
 import errorHandler from '../../errorHandler'
 import type { Services } from '../../services'
 import ExampleService from '../../services/exampleService'
+import YjbApiClient from '../../data/yjbApi'
 import nunjucksSetup from '../../utils/nunjucksSetup'
 
 export const user = { username: 'user1' }
@@ -30,6 +31,7 @@ export function appWithAllRoutes({
   production = false,
   services = {
     exampleService: new ExampleService() as jest.Mocked<ExampleService>,
+    yjbApiClient: new YjbApiClient() as jest.Mocked<YjbApiClient>,
   },
 }: {
   production?: boolean
