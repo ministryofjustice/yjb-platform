@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node esbuild/esbuild",
     "dev": "concurrently \"node esbuild/esbuild --watch\" \"nodemon --watch dist dist/server.js\"",
-    "test": "jest"
+    "test": "jest",
+    "test:no-logs": "jest --config jest.config.suppress-logs.js"
   },
   "keywords": [],
   "author": "",
