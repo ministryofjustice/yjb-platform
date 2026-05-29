@@ -1,4 +1,4 @@
-const logger = {
+const testLogger = {
   error: jest.fn(),
   warn: jest.fn(),
   info: jest.fn(),
@@ -8,4 +8,4 @@ const logger = {
   child: jest.fn().mockReturnThis(),
 }
 
-export default logger
+export default testLogger
