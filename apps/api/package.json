@@ -1,0 +1,31 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "description": "",
+  "main": "server.ts",
+  "scripts": {
+    "build": "node esbuild/esbuild",
+    "dev": "concurrently \"node esbuild/esbuild --watch\" \"nodemon --watch dist dist/server.js\"",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@ministryofjustice/hmpps-monitoring": "^2.1.0",
+    "esbuild": "^0.28.0",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@tsconfig/node24": "^24.0.4",
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.9.1",
+    "@types/supertest": "^7.2.0",
+    "jest": "^30.4.2",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.10",
+    "typescript": "^6.0.3"
+  }
+}

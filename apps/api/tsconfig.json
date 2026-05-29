@@ -1,0 +1,17 @@
+{
+  "extends": "@tsconfig/node24/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "sourceMap": true,
+    "noEmit": false,
+    "strict": true,
+    "noImplicitAny": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["../../node_modules/@types"],
+    "types": ["node", "jest"],
+    "rootDir": "."
+  },
+  "exclude": ["node_modules", "dist"],
+  "include": ["**/*.ts"]
+}

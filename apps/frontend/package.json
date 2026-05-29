@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node esbuild/esbuild",
     "dev": "concurrently \"node esbuild/esbuild --watch\" \"nodemon --watch dist dist/server.js\"",
-    "test": "jest"
+    "test": "jest",
+    "test:no-logs": "jest --config jest.config.suppress-logs.js"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +15,7 @@
   "dependencies": {
     "@ministryofjustice/frontend": "^9.0.0",
     "@ministryofjustice/hmpps-monitoring": "^2.1.0",
+    "@ministryofjustice/hmpps-rest-client": "^2.1.0",
     "bunyan": "^1.8.15",
     "bunyan-format": "^0.2.1",
     "compression": "^1.8.1",
@@ -43,6 +45,7 @@
     "esbuild-plugin-manifest": "^1.0.5",
     "esbuild-sass-plugin": "^3.7.0",
     "jest": "^30.4.2",
+    "nock": "^14.0.15",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.10",
