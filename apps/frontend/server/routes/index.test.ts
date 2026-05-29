@@ -1,6 +1,6 @@
 import type { Express } from 'express'
 import request from 'supertest'
-import { appWithAllRoutes } from './testutils/appSetup'
+import { appWithAllRoutes } from '../testutils/appSetup'
 import ExampleService from '../services/exampleService'
 import YjbApiClient from '../data/yjbApi'
 

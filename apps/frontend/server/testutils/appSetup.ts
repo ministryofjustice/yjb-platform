@@ -1,11 +1,11 @@
 import express, { Express } from 'express'
 import { NotFound } from 'http-errors'
-import routes from '../index'
-import errorHandler from '../../errorHandler'
-import type { Services } from '../../services'
-import ExampleService from '../../services/exampleService'
-import YjbApiClient from '../../data/yjbApi'
-import nunjucksSetup from '../../utils/nunjucksSetup'
+import routes from '../routes/index'
+import errorHandler from '../errorHandler'
+import type { Services } from '../services'
+import ExampleService from '../services/exampleService'
+import YjbApiClient from '../data/yjbApi'
+import nunjucksSetup from '../utils/nunjucksSetup'
 
 export const user = { username: 'user1' }
 
