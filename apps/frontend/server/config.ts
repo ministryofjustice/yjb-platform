@@ -1,3 +1,5 @@
+import { AgentConfig } from '@ministryofjustice/hmpps-rest-client'
+
 const production = process.env.NODE_ENV === 'production'
 
 function get<T>(name: string, fallback: T, options = { requireInProduction: false }): T | string {
@@ -28,7 +30,8 @@ export default {
       timeout: {
         response: Number(get('EXAMPLE_API_TIMEOUT_RESPONSE', 5000)),
         deadline: Number(get('EXAMPLE_API_TIMEOUT_DEADLINE', 5000)),
-      }
+      },
+      agent: new AgentConfig(Number(get('EXAMPLE_API_TIMEOUT_RESPONSE', 5000))),
     },
   }
 }
