@@ -16,7 +16,8 @@
     "test:fe": "npm run test -w apps/frontend",
     "test:fe:no-logs": "npm run test:no-logs -w apps/frontend",
     "test:api": "npm run test -w apps/api",
-    "test:e2e": "npm run test -w e2e-tests"
+    "test:e2e": "npm run test -w e2e-tests",
+    "prepare": "hmpps-precommit-hooks-prepare"
   },
   "repository": {
     "type": "git",
@@ -28,5 +29,8 @@
   "bugs": {
     "url": "https://github.com/ministryofjustice/yjb-platform/issues"
   },
-  "homepage": "https://github.com/ministryofjustice/yjb-platform#readme"
+  "homepage": "https://github.com/ministryofjustice/yjb-platform#readme",
+  "devDependencies": {
+    "@ministryofjustice/hmpps-precommit-hooks": "^3.0.1"
+  }
 }
