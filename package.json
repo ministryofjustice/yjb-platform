@@ -11,7 +11,9 @@
     "build": "concurrently \"npm run build -w apps/frontend\" \"npm run build -w apps/api\"",
     "build:fe": "npm run build -w apps/frontend",
     "build:api": "npm run build -w apps/api",
-    "lint": "eslint . --cache --max-warnings 0",
+    "lint": "concurrently \"npm run lint -w apps/frontend\" \"npm run lint -w apps/api\"",
+    "lint:fe": "npm run lint -w apps/frontend",
+    "lint:api": "npm run lint -w apps/api",
     "start:dev": "concurrently \"npm run dev -w apps/frontend\" \"npm run dev -w apps/api\"",
     "test": "concurrently \"npm run test -w apps/frontend\" \"npm run test -w apps/api\"",
     "test:fe": "npm run test -w apps/frontend",
@@ -29,5 +31,9 @@
   "bugs": {
     "url": "https://github.com/ministryofjustice/yjb-platform/issues"
   },
-  "homepage": "https://github.com/ministryofjustice/yjb-platform#readme"
+  "homepage": "https://github.com/ministryofjustice/yjb-platform#readme",
+  "allowScripts": {
+    "esbuild@0.28.0": true,
+    "fsevents@2.3.3": true
+  }
 }
