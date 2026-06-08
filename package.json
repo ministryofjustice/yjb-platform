@@ -21,7 +21,7 @@
     "test:fe:no-logs": "npm run test:no-logs -w apps/frontend",
     "test:api": "npm run test -w apps/api",
     "test:e2e": "npm run test -w e2e-tests",
-    "setup": "npm run build"
+    "setup": ""
   },
   "repository": {
     "type": "git",
