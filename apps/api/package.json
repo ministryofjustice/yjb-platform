@@ -5,6 +5,7 @@
   "main": "server.ts",
   "scripts": {
     "build": "node esbuild/esbuild",
+    "lint": "eslint . --cache --max-warnings 0",
     "dev": "concurrently \"node esbuild/esbuild --watch\" \"nodemon --watch dist dist/server.js\"",
     "test": "jest"
   },
@@ -17,6 +18,7 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
+    "@ministryofjustice/eslint-config-hmpps": "2.0.0-alpha.2",
     "@tsconfig/node24": "^24.0.4",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",

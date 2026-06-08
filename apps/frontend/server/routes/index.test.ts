@@ -59,9 +59,6 @@ describe('GET /api-test-proxy', () => {
   it('returns data from the API', () => {
     yjbApiClient.getTestApiData.mockResolvedValue({ name: 'test-name' })
 
-    return request(app)
-      .get('/api-test-proxy')
-      .expect('Content-Type', /json/)
-      .expect(200, { name: 'test-name' })
+    return request(app).get('/api-test-proxy').expect('Content-Type', /json/).expect(200, { name: 'test-name' })
   })
 })

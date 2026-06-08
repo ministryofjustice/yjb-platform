@@ -13,9 +13,6 @@ describe('GET /', () => {
 
 describe('GET /test-api', () => {
   it('should return req headers in a json', () => {
-      return request(app)
-        .get('/test-api')
-        .expect(200, {'name': 'test-name'})
+    return request(app).get('/test-api').expect(200, { name: 'test-name' })
   })
-
 })
