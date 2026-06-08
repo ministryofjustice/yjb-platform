@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yjb-platform-deployment
+  labels:
+    app: yjb-platform
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: yjb-platform # this should match the selector in service.yml
+  template:
+    metadata:
+      labels:
+        app: yjb-platform # this should match the selector in service.yml
+    spec:
+      containers:
+        - name: yjb-platform
+          image: ${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}
+          ports:
+            - containerPort: 8080
