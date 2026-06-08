@@ -8,6 +8,7 @@
     "lint": "eslint . --cache --max-warnings 0",
     "dev": "concurrently \"node esbuild/esbuild --watch\" \"nodemon --watch dist dist/server.js\"",
     "test": "jest",
+    "test:ci": "jest --runInBand",
     "test:no-logs": "jest --config jest.config.suppress-logs.js"
   },
   "keywords": [],
