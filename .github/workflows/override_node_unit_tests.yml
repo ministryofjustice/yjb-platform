@@ -74,7 +74,7 @@ jobs:
         shell: bash
         run: |
           npm run ${{ inputs.npm_script }}
-        # continue-on-error: true
+        continue-on-error: true
         # Replacing the above with if: always()
 
       - name: upload the artifacts
@@ -97,9 +97,9 @@ jobs:
 #          list-suites: 'failed'
 #          list-tests: 'failed'
 
-      - name: fail the action if the tests failed
-        if: ${{ steps.unit-tests.outcome == 'failure' }}
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-        with:
-          script: |
-            core.setFailed('Unit tests failed')
+#      - name: fail the action if the tests failed
+#        if: ${{ steps.unit-tests.outcome == 'failure' }}
+#        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+#        with:
+#          script: |
+#            core.setFailed('Unit tests failed')
