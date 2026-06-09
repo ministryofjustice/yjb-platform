@@ -43,7 +43,6 @@ jobs:
       - name: Set publish flag
         run: echo "Publishing enabled ${{ github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null) }}"
 
-  # TODO: fix this job
   # main node build workflow
   node_build:
     name: node build
@@ -55,12 +54,15 @@ jobs:
 #      install_command: 'npm run setup'
 
   # TODO: fix this job
-  #  # generic node unit tests - feel free to override with local tests if required
-  #  node_unit_tests:
-  #    name: node unit tests
-  #    uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_unit_tests.yml@v2 # WORKFLOW_VERSION
-  #    needs: [node_build]
-  #    secrets: inherit
+  # generic node unit tests - feel free to override with local tests if required
+  node_unit_tests:
+    name: node unit tests
+#    uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_unit_tests.yml@v2 # WORKFLOW_VERSION
+    uses: ./.github/workflows/override_node_unit_tests.yml
+    needs: [node_build]
+    secrets: inherit
+    with:
+      npm_script: 'test'
 
   # TODO: remove this job until we have integration tests
   #  # generic node integration tests using wiremock - feel free to override with local tests if required
@@ -86,7 +88,7 @@ jobs:
   #    name: Build docker image from hmpps-github-actions
   #    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
   #    needs:
-  #      - node_integration_tests
+  # #      - node_integration_tests
   #      - node_unit_tests
   #      - check_publish
   #    with:
