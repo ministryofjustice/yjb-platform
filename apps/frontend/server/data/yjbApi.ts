@@ -1,4 +1,4 @@
-import { ApiConfig, RestClient, asSystem } from '@ministryofjustice/hmpps-rest-client'
+import { RestClient } from '@ministryofjustice/hmpps-rest-client'
 import logger from '../../logger'
 import config from '../config'
 

@@ -19,7 +19,7 @@ export default function nunjucksSetup(app: express.Express): void {
   try {
     const assetMetadataPath = path.resolve(__dirname, '../../assets/manifest.json')
     assetManifest = JSON.parse(fs.readFileSync(assetMetadataPath, 'utf8'))
-  } catch (e) {
+  } catch {
     // manifest won't exist until assets are built
   }
 
