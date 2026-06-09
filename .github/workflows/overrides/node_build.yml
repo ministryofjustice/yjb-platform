@@ -18,44 +18,44 @@ permissions:
   contents: read
 
 jobs:
-  # TODO: fix this job
   node-build:
     name: Run the node build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-#      - name: Use Node.js ${{ inputs.node_version_file }}
-#        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
-#        with:
-#          node-version-file: ${{ inputs.node_version_file }}
+      - name: Use Node.js ${{ inputs.node_version_file }}
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version-file: ${{ inputs.node_version_file }}
 
-#      - name: update npm
-#        shell: bash
-#        run: |
-#          npm install -g npm@latest
+      - name: update npm
+        shell: bash
+        run: |
+          npm install -g npm@latest
 
-#      - name: restore cache
-#        id: restore-cache
-#        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-#        env:
-#          cache-name: node-modules
-#        with:
-#          path: |
-#            ./node_modules
-#            ~/.cache/Cypress
-#          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '!**/node_modules/**') }}
+      - name: restore cache
+        id: restore-cache
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        env:
+          cache-name: node-modules
+        with:
+          path: |
+            ./node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '!**/node_modules/**') }}
 
-#      - name: install dependencies
-#        if: steps.restore-cache.outputs.cache-hit != 'true'
-#        shell: bash
-#        run: "${{ inputs.install_command }}"
+      - name: install dependencies
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: "${{ inputs.install_command }}"
 
-#      - name: build npm
-#        shell: bash
-#        run: |
-#          npm run build
+      - name: build npm
+        shell: bash
+        run: |
+          npm run build
 
+# TODO: fix this job
 #      - name: Linter check # Run linter after build because the integration test code depend on compiled typescript...
 #        shell: bash
 #        run: |
