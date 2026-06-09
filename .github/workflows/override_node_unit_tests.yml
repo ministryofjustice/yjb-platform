@@ -13,6 +13,11 @@ on:
         required: false
         type: string
         default: 'npm_unit_test_artifacts'
+      test_results_artefact_path:
+        description: "The paths to the test results artifacts"
+        required: false
+        type: string
+        default: "test_results"
       node_version_file:
         description: "Passed to setup-node action to specify where to source the version of node from"
         required: false
@@ -64,20 +69,20 @@ jobs:
         with:
           name: npm_build_artifacts
 
-#      - name: unit tests
-#        id: unit-tests
-#        shell: bash
-#        run: |
-#          npm run ${{ inputs.npm_script }}
-#        # continue-on-error: true
-#        # Replacing the above with if: always()
+      - name: unit tests
+        id: unit-tests
+        shell: bash
+        run: |
+          npm run ${{ inputs.npm_script }}
+        # continue-on-error: true
+        # Replacing the above with if: always()
 
-#      - name: upload the artifacts
-#        if: ${{ !cancelled() }}
-#        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-#        with:
-#          name: ${{ inputs.test_results_artifact_name }}
-#          path: test_results
+      - name: upload the artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: ${{ inputs.test_results_artifact_name }}
+          path: ${{ inputs.test_results_artefact_path }}
 
 #      - name: publish test report
 #        if: ${{ !cancelled() && github.event.repository.visibility == 'public' }}
@@ -92,9 +97,9 @@ jobs:
 #          list-suites: 'failed'
 #          list-tests: 'failed'
 
-#      - name: fail the action if the tests failed
-#        if: ${{ steps.unit-tests.outcome == 'failure' }}
-#        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
-#        with:
-#          script: |
-#            core.setFailed('Unit tests failed')
+      - name: fail the action if the tests failed
+        if: ${{ steps.unit-tests.outcome == 'failure' }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            core.setFailed('Unit tests failed')
