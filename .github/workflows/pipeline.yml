@@ -50,7 +50,8 @@ jobs:
 #    uses: ministryofjustice/hmpps-github-actions/.github/workflows/override_node_build.yml@v2 # WORKFLOW_VERSION
     uses: ./.github/workflows/override_node_build.yml
     secrets: inherit
-#    with:
+    with:
+      artefact_path: 'src/'
 #      install_command: 'npm run setup'
 
   # TODO: fix this job
