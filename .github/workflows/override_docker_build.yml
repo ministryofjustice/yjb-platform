@@ -204,7 +204,8 @@ jobs:
     name: Push multi-platform image
     if: ${{ inputs.docker_multiplatform && inputs.push }}
     needs: [create_version, docker_build_platform]
-    uses: ./.github/workflows/docker_push.yml
+#    uses: ./.github/workflows/docker_push.yml
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_push.yml@41ae033
     secrets:
       HMPPS_QUAYIO_USER: ${{ secrets.HMPPS_QUAYIO_USER }}
       HMPPS_QUAYIO_TOKEN: ${{ secrets.HMPPS_QUAYIO_TOKEN }}
