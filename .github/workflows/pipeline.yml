@@ -103,20 +103,21 @@ jobs:
       attach_sbom_to_registry: ${{ needs.check_publish.outputs.enabled == 'true' }}
       sign_image: ${{ needs.check_publish.outputs.enabled == 'true' }}
 
-  # TODO: fix this job
-  #  deploy_dev:
-  #    name: Deploy to the development environment
-  #    if: needs.check_publish.outputs.enabled == 'true'
-  #    needs:
-  #      - build
-  #      - helm_lint
-  #      - check_publish
-  #    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
-  #    secrets: inherit
-  #    with:
-  #      environment: 'dev'
-  #      app_version: '${{ needs.build.outputs.app_version }}'
-  #      slack_notification: 'false' # if 'true', it needs a valid NONPROD_RELEASES_SLACK_CHANNEL variable to be set
+# TODO: fix this job
+  deploy_dev:
+    name: Deploy to the development environment
+    if: needs.check_publish.outputs.enabled == 'true'
+    needs:
+      - build
+      - helm_lint
+      - check_publish
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
+    secrets: inherit
+    with:
+      environment: 'dev'
+      # app_version: '${{ needs.build.outputs.app_version }}'
+      app_version: 'local-test-1.0.0' #local act override 
+      slack_notification: 'false' # if 'true', it needs a valid NONPROD_RELEASES_SLACK_CHANNEL variable to be set
 
   # deploy_preprod:
   #   name: Deploy to pre-production environment
