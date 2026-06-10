@@ -53,11 +53,11 @@ jobs:
       artefact_path: 'src/'
 #      install_command: 'npm run setup'
 
-  # TODO: fix this job
+  # TODO: fix the unit tests
   # generic node unit tests - feel free to override with local tests if required
   node_unit_tests:
     name: node unit tests
-#    uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_unit_tests.yml@v2 # WORKFLOW_VERSION
+    # uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_unit_tests.yml@v2 # WORKFLOW_VERSION
     uses: ./.github/workflows/override_node_unit_tests.yml
     needs: [node_build]
     secrets: inherit
@@ -84,22 +84,26 @@ jobs:
   #      environment: ${{ matrix.environments }}
 
   # TODO: fix this job, only once npm is building
-  #  build:
-  #    name: Build docker image from hmpps-github-actions
-  #    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
-  #    needs:
-  # #      - node_integration_tests
-  #      - node_unit_tests
-  #      - check_publish
-  #    with:
-  #      docker_registry: 'ghcr.io'
-  #      registry_org: 'ministryofjustice'
-  #      additional_docker_tag: ${{ inputs.additional_docker_tag }}
-  #      push: ${{ needs.check_publish.outputs.enabled == 'true' }}
-  #      docker_multiplatform: false
-  #      generate_sbom: ${{ needs.check_publish.outputs.enabled == 'true' }}
-  #      attach_sbom_to_registry: ${{ needs.check_publish.outputs.enabled == 'true' }}
-  #      sign_image: ${{ needs.check_publish.outputs.enabled == 'true' }}
+  # TODO: This step might need duplication to handle multiple builds for monorepo
+  build:
+    name: Build docker image from hmpps-github-actions
+#    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
+    uses: ./.github/workflows/override_docker_build.yml
+    needs:
+ #      - node_integration_tests
+      - node_unit_tests
+      - node_build
+      - check_publish
+    with:
+      # TODO: Decide if we're using ghcr or quay.io?
+      docker_registry: 'ghcr.io'
+      registry_org: 'ministryofjustice'
+      additional_docker_tag: ${{ inputs.additional_docker_tag }}
+      push: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      docker_multiplatform: false
+      generate_sbom: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      attach_sbom_to_registry: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      sign_image: ${{ needs.check_publish.outputs.enabled == 'true' }}
 
   # TODO: fix this job
   #  deploy_dev:
