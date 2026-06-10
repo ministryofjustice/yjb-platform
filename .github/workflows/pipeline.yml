@@ -115,8 +115,8 @@ jobs:
     secrets: inherit
     with:
       environment: 'dev'
-      # app_version: '${{ needs.build.outputs.app_version }}'
-      app_version: 'local-test-1.0.0' #local act override 
+      app_version: '${{ needs.build.outputs.app_version }}'
+      #app_version: 'local-test-1.0.0' #local act override 
       slack_notification: 'false' # if 'true', it needs a valid NONPROD_RELEASES_SLACK_CHANNEL variable to be set
 
   # deploy_preprod:
