@@ -168,7 +168,6 @@ jobs:
 
       - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4
 
-     # TODO: working on this step
       - name: Prepare platform pair
         id: prepare
         shell: bash
@@ -177,21 +176,22 @@ jobs:
         env:
           platform: ${{ matrix.platform }}
 
-#      - name: Build docker archive tarball
-#        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7
-#        with:
-#          context: .
-#          platforms: ${{ matrix.platform }}
-#          file: ${{ inputs.file }}
-#          build-args: |
-#            "BUILD_NUMBER=${{ needs.create_version.outputs.version }}"
-#            "GIT_REF=${{ github.sha }}"
-#            "GIT_BRANCH=${{ github.ref_name }}"
-#            "${{ inputs.additional_docker_build_args }}"
-#          outputs: type=docker,name=${{ inputs.docker_registry }}/${{ inputs.registry_org }}/${{ inputs.image_name || github.event.repository.name }}:${{ needs.create_version.outputs.version }},dest=${{ runner.temp }}/image.tar
-#          cache-from: type=gha,scope=build-${{ steps.prepare.outputs.platform_pair }}
-#          cache-to: type=gha,scope=build-${{ steps.prepare.outputs.platform_pair }},mode=max
-#          provenance: false
+     # TODO: working on this step
+      - name: Build docker archive tarball
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7
+        with:
+          context: .
+          platforms: ${{ matrix.platform }}
+          file: ${{ inputs.file }}
+          build-args: |
+            "BUILD_NUMBER=${{ needs.create_version.outputs.version }}"
+            "GIT_REF=${{ github.sha }}"
+            "GIT_BRANCH=${{ github.ref_name }}"
+            "${{ inputs.additional_docker_build_args }}"
+          outputs: type=docker,name=${{ inputs.docker_registry }}/${{ inputs.registry_org }}/${{ inputs.image_name || github.event.repository.name }}:${{ needs.create_version.outputs.version }},dest=${{ runner.temp }}/image.tar
+          cache-from: type=gha,scope=build-${{ steps.prepare.outputs.platform_pair }}
+          cache-to: type=gha,scope=build-${{ steps.prepare.outputs.platform_pair }},mode=max
+          provenance: false
 
 #      - name: Upload image tarball
 #        if: ${{ inputs.push || inputs.upload_image_artifact }}
