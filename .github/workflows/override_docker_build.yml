@@ -176,7 +176,6 @@ jobs:
         env:
           platform: ${{ matrix.platform }}
 
-     # TODO: working on this step
       - name: Build docker archive tarball
         uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7
         with:
@@ -193,14 +192,15 @@ jobs:
           cache-to: type=gha,scope=build-${{ steps.prepare.outputs.platform_pair }},mode=max
           provenance: false
 
-#      - name: Upload image tarball
-#        if: ${{ inputs.push || inputs.upload_image_artifact }}
-#        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-#        with:
-#          name: image-${{ steps.prepare.outputs.platform_pair }}
-#          path: ${{ runner.temp }}/image.tar
-#          if-no-files-found: error
-#          retention-days: ${{ inputs.upload_image_artifact && inputs.image_artifact_retention_days || 1 }}
+     # TODO: working on this step
+      - name: Upload image tarball
+        if: ${{ inputs.push || inputs.upload_image_artifact }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: image-${{ steps.prepare.outputs.platform_pair }}
+          path: ${{ runner.temp }}/image.tar
+          if-no-files-found: error
+          retention-days: ${{ inputs.upload_image_artifact && inputs.image_artifact_retention_days || 1 }}
 
 #  docker_build_merge:
 #    name: Push multi-platform image
