@@ -142,7 +142,6 @@ jobs:
           additional_docker_build_args: ${{ inputs.additional_docker_build_args }}
           download_build_artifacts: ${{ inputs.download_build_artifacts }}
 
-  # TODO: working on this job
   docker_build_platform:
     name: Build ${{ matrix.platform }} (parallel)
     if: ${{ inputs.docker_multiplatform }}
@@ -192,7 +191,6 @@ jobs:
           cache-to: type=gha,scope=build-${{ steps.prepare.outputs.platform_pair }},mode=max
           provenance: false
 
-     # TODO: working on this step
       - name: Upload image tarball
         if: ${{ inputs.push || inputs.upload_image_artifact }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -202,67 +200,67 @@ jobs:
           if-no-files-found: error
           retention-days: ${{ inputs.upload_image_artifact && inputs.image_artifact_retention_days || 1 }}
 
-#  docker_build_merge:
-#    name: Push multi-platform image
-#    if: ${{ inputs.docker_multiplatform && inputs.push }}
-#    needs: [create_version, docker_build_platform]
-#    uses: ./.github/workflows/docker_push.yml
-#    secrets:
-#      HMPPS_QUAYIO_USER: ${{ secrets.HMPPS_QUAYIO_USER }}
-#      HMPPS_QUAYIO_TOKEN: ${{ secrets.HMPPS_QUAYIO_TOKEN }}
-#    with:
-#      docker_registry: ${{ inputs.docker_registry }}
-#      registry_org: ${{ inputs.registry_org }}
-#      image_name: ${{ inputs.image_name }}
-#      app_version: ${{ needs.create_version.outputs.version }}
-#      tag_latest: ${{ inputs.tag_latest }}
-#      additional_docker_tag: ${{ inputs.additional_docker_tag }}
-#      docker_multiplatform: true
+  docker_build_merge:
+    name: Push multi-platform image
+    if: ${{ inputs.docker_multiplatform && inputs.push }}
+    needs: [create_version, docker_build_platform]
+    uses: ./.github/workflows/docker_push.yml
+    secrets:
+      HMPPS_QUAYIO_USER: ${{ secrets.HMPPS_QUAYIO_USER }}
+      HMPPS_QUAYIO_TOKEN: ${{ secrets.HMPPS_QUAYIO_TOKEN }}
+    with:
+      docker_registry: ${{ inputs.docker_registry }}
+      registry_org: ${{ inputs.registry_org }}
+      image_name: ${{ inputs.image_name }}
+      app_version: ${{ needs.create_version.outputs.version }}
+      tag_latest: ${{ inputs.tag_latest }}
+      additional_docker_tag: ${{ inputs.additional_docker_tag }}
+      docker_multiplatform: true
 
-#  sign_image_single_platform:
-#    name: Sign image (single-platform)
-#    if: ${{ inputs.sign_image && !inputs.docker_multiplatform && inputs.push && inputs.docker_registry == 'ghcr.io' }}
-#    needs: [create_version, docker_build]
-#    uses: ./.github/workflows/docker_sign.yml
-#    with:
-#      docker_registry: ${{ inputs.docker_registry }}
-#      registry_org: ${{ inputs.registry_org }}
-#      image_name: ${{ inputs.image_name }}
-#      image_digest: ${{ needs.docker_build.outputs.image_digest }}
+  sign_image_single_platform:
+    name: Sign image (single-platform)
+    if: ${{ inputs.sign_image && !inputs.docker_multiplatform && inputs.push && inputs.docker_registry == 'ghcr.io' }}
+    needs: [create_version, docker_build]
+    uses: ./.github/workflows/docker_sign.yml
+    with:
+      docker_registry: ${{ inputs.docker_registry }}
+      registry_org: ${{ inputs.registry_org }}
+      image_name: ${{ inputs.image_name }}
+      image_digest: ${{ needs.docker_build.outputs.image_digest }}
 
-#  sign_image_multi_platform:
-#    name: Sign image (multi-platform)
-#    if: ${{ inputs.sign_image && inputs.docker_multiplatform && inputs.push && inputs.docker_registry == 'ghcr.io' }}
-#    needs: [create_version, docker_build_merge]
-#    uses: ./.github/workflows/docker_sign.yml
-#    with:
-#      docker_registry: ${{ inputs.docker_registry }}
-#      registry_org: ${{ inputs.registry_org }}
-#      image_name: ${{ inputs.image_name }}
-#      image_digest: ${{ needs.docker_build_merge.outputs.image_digest }}
+  sign_image_multi_platform:
+    name: Sign image (multi-platform)
+    if: ${{ inputs.sign_image && inputs.docker_multiplatform && inputs.push && inputs.docker_registry == 'ghcr.io' }}
+    needs: [create_version, docker_build_merge]
+    uses: ./.github/workflows/docker_sign.yml
+    with:
+      docker_registry: ${{ inputs.docker_registry }}
+      registry_org: ${{ inputs.registry_org }}
+      image_name: ${{ inputs.image_name }}
+      image_digest: ${{ needs.docker_build_merge.outputs.image_digest }}
 
-#  generate_sbom_single_platform:
-#    name: Generate SBOM (single-platform image)
-#    if: ${{ inputs.generate_sbom && !inputs.docker_multiplatform && inputs.push && inputs.docker_registry == 'ghcr.io' }}
-#    needs: [create_version, docker_build]
-#    uses: ./.github/workflows/docker_sbom.yml
-#    with:
-#      docker_registry: ${{ inputs.docker_registry }}
-#      registry_org: ${{ inputs.registry_org }}
-#      image_name: ${{ inputs.image_name }}
-#      app_version: ${{ needs.create_version.outputs.version }}
-#      image_digest: ${{ needs.docker_build.outputs.image_digest }}
-#      attach_sbom_to_registry: ${{ inputs.attach_sbom_to_registry }}
+  generate_sbom_single_platform:
+    name: Generate SBOM (single-platform image)
+    if: ${{ inputs.generate_sbom && !inputs.docker_multiplatform && inputs.push && inputs.docker_registry == 'ghcr.io' }}
+    needs: [create_version, docker_build]
+    uses: ./.github/workflows/docker_sbom.yml
+    with:
+      docker_registry: ${{ inputs.docker_registry }}
+      registry_org: ${{ inputs.registry_org }}
+      image_name: ${{ inputs.image_name }}
+      app_version: ${{ needs.create_version.outputs.version }}
+      image_digest: ${{ needs.docker_build.outputs.image_digest }}
+      attach_sbom_to_registry: ${{ inputs.attach_sbom_to_registry }}
 
-#  generate_sbom_multi_platform:
-#    name: Generate SBOM (multi-platform image)
-#    if: ${{ inputs.generate_sbom && inputs.docker_multiplatform && inputs.push && inputs.docker_registry == 'ghcr.io' }}
-#    needs: [create_version, docker_build_merge]
-#    uses: ./.github/workflows/docker_sbom.yml
-#    with:
-#      docker_registry: ${{ inputs.docker_registry }}
-#      registry_org: ${{ inputs.registry_org }}
-#      image_name: ${{ inputs.image_name }}
-#      app_version: ${{ needs.create_version.outputs.version }}
-#      image_digest: ${{ needs.docker_build_merge.outputs.image_digest }}
-#      attach_sbom_to_registry: ${{ inputs.attach_sbom_to_registry }}
+  generate_sbom_multi_platform:
+    name: Generate SBOM (multi-platform image)
+    if: ${{ inputs.generate_sbom && inputs.docker_multiplatform && inputs.push && inputs.docker_registry == 'ghcr.io' }}
+    needs: [create_version, docker_build_merge]
+    uses: ./.github/workflows/docker_sbom.yml
+    with:
+      docker_registry: ${{ inputs.docker_registry }}
+      registry_org: ${{ inputs.registry_org }}
+      image_name: ${{ inputs.image_name }}
+      app_version: ${{ needs.create_version.outputs.version }}
+      image_digest: ${{ needs.docker_build_merge.outputs.image_digest }}
+      attach_sbom_to_registry: ${{ inputs.attach_sbom_to_registry }}
