@@ -124,56 +124,59 @@ jobs:
           file: ${{ inputs.file }}
           download_build_artifacts: ${{ inputs.download_build_artifacts }}
 
-#      - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/build-test-and-deploy/build_docker@e0e6abc2f67f2bbb81a74610d6c307ab468a1a77 # v1
-#        if: ${{ inputs.docker_registry == 'quay.io' }}
-#        with:
-#          image_name: ${{ inputs.image_name || github.event.repository.name }}
-#          docker_registry: ${{ inputs.docker_registry }}
-#          registry_org: ${{ inputs.registry_org }}
-#          additional_docker_tag: ${{ inputs.additional_docker_tag }}
-#          tag_latest: ${{ inputs.tag_latest }}
-#          upload_image_artifact: ${{ inputs.upload_image_artifact }}
-#          image_artifact_retention_days: ${{ inputs.image_artifact_retention_days }}
-#          push: ${{ inputs.push }}
-#          load: ${{ inputs.load }}
-#          app_version: ${{ needs.create_version.outputs.version }}
-#          HMPPS_QUAYIO_USER: ${{ secrets.HMPPS_QUAYIO_USER }}
-#          HMPPS_QUAYIO_TOKEN: ${{ secrets.HMPPS_QUAYIO_TOKEN}}
-#          additional_docker_build_args: ${{ inputs.additional_docker_build_args }}
-#          download_build_artifacts: ${{ inputs.download_build_artifacts }}
+      - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/build-test-and-deploy/build_docker@e0e6abc2f67f2bbb81a74610d6c307ab468a1a77 # v1
+        if: ${{ inputs.docker_registry == 'quay.io' }}
+        with:
+          image_name: ${{ inputs.image_name || github.event.repository.name }}
+          docker_registry: ${{ inputs.docker_registry }}
+          registry_org: ${{ inputs.registry_org }}
+          additional_docker_tag: ${{ inputs.additional_docker_tag }}
+          tag_latest: ${{ inputs.tag_latest }}
+          upload_image_artifact: ${{ inputs.upload_image_artifact }}
+          image_artifact_retention_days: ${{ inputs.image_artifact_retention_days }}
+          push: ${{ inputs.push }}
+          load: ${{ inputs.load }}
+          app_version: ${{ needs.create_version.outputs.version }}
+          HMPPS_QUAYIO_USER: ${{ secrets.HMPPS_QUAYIO_USER }}
+          HMPPS_QUAYIO_TOKEN: ${{ secrets.HMPPS_QUAYIO_TOKEN}}
+          additional_docker_build_args: ${{ inputs.additional_docker_build_args }}
+          download_build_artifacts: ${{ inputs.download_build_artifacts }}
 
-#  docker_build_platform:
-#    name: Build ${{ matrix.platform }} (parallel)
-#    if: ${{ inputs.docker_multiplatform }}
-#    needs: [create_version]
-#    strategy:
-#      fail-fast: true
-#      matrix:
-#        include:
-#          - platform: linux/amd64
-#            runner: ubuntu-latest
-#          - platform: linux/arm64
-#            runner: ubuntu-24.04-arm
-#    runs-on: ${{ matrix.runner }}
-#    steps:
-#      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-#
-#      - name: Download build artifacts needed for docker build
-#        if: ${{ inputs.download_build_artifacts }}
+  # TODO: working on this job
+  docker_build_platform:
+    name: Build ${{ matrix.platform }} (parallel)
+    if: ${{ inputs.docker_multiplatform }}
+    needs: [create_version]
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Download build artifacts needed for docker build
+        if: ${{ inputs.download_build_artifacts }}
 #        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-#        with:
-#          name: build-results
-#
-#      - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4
-#
-#      - name: Prepare platform pair
-#        id: prepare
-#        shell: bash
-#        run: |
-#          echo "platform_pair=${platform//\//-}" >> "$GITHUB_OUTPUT"
-#        env:
-#          platform: ${{ matrix.platform }}
-#
+        uses: actions/download-artifact@v4
+        with:
+          name: build-results
+
+      - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4
+
+     # TODO: working on this step
+      - name: Prepare platform pair
+        id: prepare
+        shell: bash
+        run: |
+          echo "platform_pair=${platform//\//-}" >> "$GITHUB_OUTPUT"
+        env:
+          platform: ${{ matrix.platform }}
+
 #      - name: Build docker archive tarball
 #        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7
 #        with:
@@ -189,7 +192,7 @@ jobs:
 #          cache-from: type=gha,scope=build-${{ steps.prepare.outputs.platform_pair }}
 #          cache-to: type=gha,scope=build-${{ steps.prepare.outputs.platform_pair }},mode=max
 #          provenance: false
-#
+
 #      - name: Upload image tarball
 #        if: ${{ inputs.push || inputs.upload_image_artifact }}
 #        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
