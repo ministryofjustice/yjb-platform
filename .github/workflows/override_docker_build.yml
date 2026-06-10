@@ -221,7 +221,8 @@ jobs:
     name: Sign image (single-platform)
     if: ${{ inputs.sign_image && !inputs.docker_multiplatform && inputs.push && inputs.docker_registry == 'ghcr.io' }}
     needs: [create_version, docker_build]
-    uses: ./.github/workflows/docker_sign.yml
+#    uses: ./.github/workflows/docker_sign.yml
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_sign.yml@41ae033
     with:
       docker_registry: ${{ inputs.docker_registry }}
       registry_org: ${{ inputs.registry_org }}
@@ -232,7 +233,8 @@ jobs:
     name: Sign image (multi-platform)
     if: ${{ inputs.sign_image && inputs.docker_multiplatform && inputs.push && inputs.docker_registry == 'ghcr.io' }}
     needs: [create_version, docker_build_merge]
-    uses: ./.github/workflows/docker_sign.yml
+#    uses: ./.github/workflows/docker_sign.yml
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_sign.yml@41ae033
     with:
       docker_registry: ${{ inputs.docker_registry }}
       registry_org: ${{ inputs.registry_org }}
@@ -243,7 +245,8 @@ jobs:
     name: Generate SBOM (single-platform image)
     if: ${{ inputs.generate_sbom && !inputs.docker_multiplatform && inputs.push && inputs.docker_registry == 'ghcr.io' }}
     needs: [create_version, docker_build]
-    uses: ./.github/workflows/docker_sbom.yml
+#    uses: ./.github/workflows/docker_sbom.yml
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_sbom.yml@41ae033
     with:
       docker_registry: ${{ inputs.docker_registry }}
       registry_org: ${{ inputs.registry_org }}
@@ -256,7 +259,8 @@ jobs:
     name: Generate SBOM (multi-platform image)
     if: ${{ inputs.generate_sbom && inputs.docker_multiplatform && inputs.push && inputs.docker_registry == 'ghcr.io' }}
     needs: [create_version, docker_build_merge]
-    uses: ./.github/workflows/docker_sbom.yml
+    #    uses: ./.github/workflows/docker_sbom.yml
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_sbom.yml@41ae033
     with:
       docker_registry: ${{ inputs.docker_registry }}
       registry_org: ${{ inputs.registry_org }}
