@@ -123,7 +123,7 @@ jobs:
       app_version: '${{ needs.build.outputs.app_version }}'
       #app_version: 'local-test-1.0.0' #local act override 
       slack_notification: 'false' # if 'true', it needs a valid NONPROD_RELEASES_SLACK_CHANNEL variable to be set
-      k8s_deployment_name: 'yjb-platform-dev'
+      k8s_deployment_name: 'yjb-platform-deployment'
 
   # deploy_preprod:
   #   name: Deploy to pre-production environment
