@@ -16,6 +16,11 @@ on:
         required: true
         default: false
         type: boolean
+      push_feature_branch:
+        description: Push docker image to registry flag even if we are on a feature branch
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -38,10 +43,10 @@ jobs:
     name: Check publish flag
     runs-on: ubuntu-latest
     outputs:
-      enabled: ${{ github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null) }}
+      enabled: ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch }}
     steps:
       - name: Set publish flag
-        run: echo "Publishing enabled ${{ github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null) }}"
+        run: echo "Publishing enabled ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch }}"
 
   # main node build workflow
   node_build:
