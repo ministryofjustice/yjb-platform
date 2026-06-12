@@ -5,8 +5,7 @@ generic-service:
   replicaCount: 2
 
   ingress:
-    # host: yjb-platform-dev.apps.live.cloud-platform.service.justice.gov.uk
-    host: yjb-platform-dev-helloapp.apps.live.cloud-platform.service.justice.gov.uk
+    host: yjb-platform-dev.apps.live.cloud-platform.service.justice.gov.uk
 
   env:
     INGRESS_URL: "https://yjb-platform-dev.apps.live.cloud-platform.service.justice.gov.uk"
