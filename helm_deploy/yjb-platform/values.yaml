@@ -11,7 +11,7 @@ generic-service:
     repository: ghcr.io/ministryofjustice/yjb-platform
     tag: app_version # override at deployment time
     # port: 3000
-    port: 80
+    port: 8080
 
   ingress:
     enabled: true
