@@ -9,9 +9,9 @@ spec:
   ingressClassName: default
   tls:
     - hosts:
-        - ${NAMESPACE}-helloworld.apps.live.cloud-platform.service.justice.gov.uk
+        - helloworld.${NAMESPACE}.apps.live.cloud-platform.service.justice.gov.uk
   rules:
-    - host: ${NAMESPACE}-helloworld.apps.live.cloud-platform.service.justice.gov.uk
+    - host: helloworld.${NAMESPACE}.apps.live.cloud-platform.service.justice.gov.uk
       http:
         paths:
           - path: /
