@@ -110,21 +110,21 @@ jobs:
           k8s_deployment_name: ${{ inputs.k8s_deployment_name }}
           changelog_git_paths: ${{ inputs.changelog_git_paths }}
 
-    #   - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/build-test-and-deploy/cloud-platform-deploy@7add4f73c29ec693f7d2444737259dc154ef189f
-    #     id: deploy
-    #     with:
-    #       environment: ${{ inputs.environment }}
-    #       version: ${{ inputs.app_version }}
-    #       k8s_deployment_name: ${{ inputs.k8s_deployment_name }}
-    #       changelog_git_paths: ${{ inputs.changelog_git_paths }}
-    #       show_changelog: ${{ inputs.show_changelog }}
-    #       helm_additional_args: ${{ inputs.helm_additional_args }}
-    #       helm_timeout: ${{ inputs.helm_timeout }}
-    #       helm_dir: ${{ inputs.helm_dir }}
-    #       helm_chart_name: ${{ inputs.helm_chart_name }}
-    #       helm_allowlist_groups: ${{ vars.HMPPS_IP_ALLOWLIST_GROUPS_YAML }}
-    #       helm_allowlist_version: ${{ vars.HMPPS_IP_ALLOWLIST_GROUPS_VERSION }}
-    #       autogenerate_scheduled_downtime_cron: ${{inputs.autogenerate_scheduled_downtime_cron }}
+      - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/build-test-and-deploy/cloud-platform-deploy@7add4f73c29ec693f7d2444737259dc154ef189f
+        id: deploy
+        with:
+          environment: ${{ inputs.environment }}
+          version: ${{ inputs.app_version }}
+          k8s_deployment_name: ${{ inputs.k8s_deployment_name }}
+          changelog_git_paths: ${{ inputs.changelog_git_paths }}
+          show_changelog: ${{ inputs.show_changelog }}
+          helm_additional_args: ${{ inputs.helm_additional_args }}
+          helm_timeout: ${{ inputs.helm_timeout }}
+          helm_dir: ${{ inputs.helm_dir }}
+          helm_chart_name: ${{ inputs.helm_chart_name }}
+          helm_allowlist_groups: ${{ vars.HMPPS_IP_ALLOWLIST_GROUPS_YAML }}
+          helm_allowlist_version: ${{ vars.HMPPS_IP_ALLOWLIST_GROUPS_VERSION }}
+          autogenerate_scheduled_downtime_cron: ${{inputs.autogenerate_scheduled_downtime_cron }}
 
     #   # Notification bit - always send prod releases to dps-releases - CVA3MKDTR
     #   - if: ${{ always() && ( inputs.environment == 'prod' || inputs.environment == 'production' ) }}
