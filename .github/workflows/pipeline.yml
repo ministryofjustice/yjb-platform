@@ -43,10 +43,12 @@ jobs:
     name: Check publish flag
     runs-on: ubuntu-latest
     outputs:
-      enabled: ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch }}
+#      enabled: ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch }}
+      enabled: ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch || github.ref == 'refs/heads/MT-229_Set-up-github-workflows-and-helm' }}
     steps:
       - name: Set publish flag
-        run: echo "Publishing enabled ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch }}"
+#        run: echo "Publishing enabled ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch }}"
+        run: echo "Publishing enabled ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch || github.ref == 'refs/heads/MT-229_Set-up-github-workflows-and-helm' }}"
 
   # main node build workflow
   node_build:
@@ -99,6 +101,10 @@ jobs:
       - check_publish
     with:
       # TODO: Decide if we're using ghcr or quay.io?
+      # Analysis:
+      # - Set to NOT push to registry, not sign image, not generate sbom, not run docker_multiplatform
+      #   ==> makes sense that no actions before the 'final' one have run
+      #   ==> BUUUUT, looks like deploy depends on some prev. step around signing/sbom?
       docker_registry: 'ghcr.io'
       registry_org: 'ministryofjustice'
       additional_docker_tag: ${{ inputs.additional_docker_tag }}
