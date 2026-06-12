@@ -12,12 +12,15 @@ const ctx = esbuild.context({
   external: ['express'],
 })
 
-ctx.then(async (context) => {
-  if (watch) {
-    await context.watch()
-    console.log('Watching for changes...')
-  } else {
-    await context.rebuild()
-    await context.dispose()
-  }
-}).catch(() => process.exit(1))
+ctx
+  .then(async context => {
+    if (watch) {
+      await context.watch()
+      // eslint-disable-next-line no-console
+      console.log('Watching for changes...')
+    } else {
+      await context.rebuild()
+      await context.dispose()
+    }
+  })
+  .catch(() => process.exit(1))

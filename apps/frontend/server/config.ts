@@ -14,7 +14,6 @@ function get<T>(name: string, fallback: T, options = { requireInProduction: fals
 
 const requiredInProduction = { requireInProduction: true }
 
-
 export default {
   buildNumber: get('BUILD_NUMBER', '1_0_0', requiredInProduction),
   productId: get('PRODUCT_ID', 'YJB_UNASSIGNED', requiredInProduction),
@@ -24,7 +23,7 @@ export default {
   staticResourceCacheDuration: '1h',
   environmentName: get('ENVIRONMENT_NAME', ''),
   apis: {
-     yjbApi: {
+    yjbApi: {
       url: get('API_URL', 'http://localhost:3001', requiredInProduction),
       healthPath: '/health/ping',
       timeout: {
@@ -33,5 +32,5 @@ export default {
       },
       agent: new AgentConfig(Number(get('EXAMPLE_API_TIMEOUT_RESPONSE', 5000))),
     },
-  }
+  },
 }

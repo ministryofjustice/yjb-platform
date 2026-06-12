@@ -147,3 +147,9 @@ vite.config.ts.timestamp-*
 
 # NVM config
 .nvm/
+
+# Temporary files
+tmp/
+
+#act 
+.act_config/secrets

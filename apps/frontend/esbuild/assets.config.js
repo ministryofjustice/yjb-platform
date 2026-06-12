@@ -1,4 +1,3 @@
-const path = require('node:path')
 const { copy } = require('esbuild-plugin-copy')
 const { sassPlugin } = require('esbuild-sass-plugin')
 const manifestPlugin = require('esbuild-plugin-manifest')
