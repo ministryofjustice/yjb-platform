@@ -43,10 +43,10 @@ jobs:
     name: Check publish flag
     runs-on: ubuntu-latest
     outputs:
-      enabled: ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch }}
+      enabled: ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.publish_feature_branch }}
     steps:
       - name: Set publish flag
-        run: echo "Publishing enabled ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch }}"
+        run: echo "Publishing enabled ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.publish_feature_branch }}"
 
   # main node build workflow
   node_build:
