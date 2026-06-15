@@ -65,10 +65,19 @@
           <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">This site is under construction...</h1>
             <p class="govuk-body">Please check back later when there is content to view.</p>
+            <p class="govuk-body" data-qa="timestamp">The time is currently <span id="current-time"></span></p>
           </div>
         </div>
       </main>
     </div>
+
+    <script>
+        const updateClock = () => {
+            document.getElementById('current-time').textContent = new Date().toLocaleString();
+        };
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
 
     <footer class="govuk-template__footer">
       <div class="govuk-footer">
