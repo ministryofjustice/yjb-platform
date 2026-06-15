@@ -1,0 +1,14 @@
+services:
+  nginx-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - nginx
+    ports:
+      - "5000:8080"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo > /dev/tcp/localhost/3000"]
+
+networks:
+  nginx:
