@@ -95,9 +95,6 @@ jobs:
             echo "slack_channel_id=${{ vars.NONPROD_RELEASES_SLACK_CHANNEL }}" | tee -a $GITHUB_OUTPUT
           fi
 
-      # TODO: fix this one
-      #   We know that in ktl our deployment name is: yjb-platform-deployment
-      #   this does not match  ${{ github.event.repository.name }}
       # Version history
       - name: get version history
         uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/version_history@97eeedc606b4ce163133d203259a71698c9ad34b # v1.0.16
