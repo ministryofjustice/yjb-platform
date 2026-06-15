@@ -51,7 +51,10 @@ jobs:
     secrets: inherit
     with:
 #      artefact_path: 'src/'
-      artefact_path: "apps/frontend/dist/"
+      artefact_path: |
+        apps/frontend/build/
+        apps/frontend/dist/
+        apps/frontend/assets/stylesheets/
 #      install_command: 'npm run setup'
 
   # TODO: fix the unit tests
