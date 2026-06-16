@@ -16,8 +16,8 @@ on:
         required: true
         default: false
         type: boolean
-      push_feature_branch:
-        description: Push docker image to registry flag even if we are on a feature branch
+      publish_feature_branch:
+        description: Push docker image to registry and deploy app even if we are on a feature branch
         required: false
         default: false
         type: boolean
@@ -43,12 +43,10 @@ jobs:
     name: Check publish flag
     runs-on: ubuntu-latest
     outputs:
-#      enabled: ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch }}
-      enabled: ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch || github.ref == 'refs/heads/MT-229_Set-up-github-workflows-and-helm' }}
+      enabled: ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.publish_feature_branch }}
     steps:
       - name: Set publish flag
-#        run: echo "Publishing enabled ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch }}"
-        run: echo "Publishing enabled ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.push_feature_branch || github.ref == 'refs/heads/MT-229_Set-up-github-workflows-and-helm' }}"
+        run: echo "Publishing enabled ${{ (github.ref == 'refs/heads/main' && (inputs.push || inputs.push == null)) || inputs.publish_feature_branch }}"
 
   # main node build workflow
   node_build:
@@ -57,7 +55,11 @@ jobs:
     uses: ./.github/workflows/override_node_build.yml
     secrets: inherit
     with:
-      artefact_path: 'src/'
+#      artefact_path: 'src/'
+      artefact_path: |
+        apps/frontend/build/
+        apps/frontend/dist/
+        apps/frontend/assets/stylesheets/
 #      install_command: 'npm run setup'
 
   # TODO: fix the unit tests
@@ -100,11 +102,6 @@ jobs:
       - node_build
       - check_publish
     with:
-      # TODO: Decide if we're using ghcr or quay.io?
-      # Analysis:
-      # - Set to NOT push to registry, not sign image, not generate sbom, not run docker_multiplatform
-      #   ==> makes sense that no actions before the 'final' one have run
-      #   ==> BUUUUT, looks like deploy depends on some prev. step around signing/sbom?
       docker_registry: 'ghcr.io'
       registry_org: 'ministryofjustice'
       additional_docker_tag: ${{ inputs.additional_docker_tag }}
@@ -113,8 +110,8 @@ jobs:
       generate_sbom: ${{ needs.check_publish.outputs.enabled == 'true' }}
       attach_sbom_to_registry: ${{ needs.check_publish.outputs.enabled == 'true' }}
       sign_image: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      file: 'apps/frontend/Dockerfile'
 
-# TODO: fix this job
   deploy_dev:
     name: Deploy to the development environment
     if: needs.check_publish.outputs.enabled == 'true'
@@ -130,7 +127,6 @@ jobs:
       app_version: '${{ needs.build.outputs.app_version }}'
       #app_version: 'local-test-1.0.0' #local act override 
       slack_notification: 'false' # if 'true', it needs a valid NONPROD_RELEASES_SLACK_CHANNEL variable to be set
-#      k8s_deployment_name: 'yjb-platform-deployment'
 
   # deploy_preprod:
   #   name: Deploy to pre-production environment

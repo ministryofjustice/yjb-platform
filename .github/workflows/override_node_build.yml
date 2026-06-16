@@ -17,7 +17,10 @@ on:
         description: "The paths to the build artefacts"
         required: false
         type: string
-        default: "build/ dist/ assets/stylesheets/"
+        default: |
+          build/
+          dist/
+          assets/stylesheets/
 
 permissions:
   contents: read
