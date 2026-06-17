@@ -74,12 +74,12 @@ jobs:
       fail-fast: false
     environment: ${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
-      - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/tool-installers/setup-helm@97eeedc606b4ce163133d203259a71698c9ad34b # v1.0.16
-      - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/tool-installers/setup-kubectl@97eeedc606b4ce163133d203259a71698c9ad34b # v1.0.16
-      - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/build-test-and-deploy/cloud-platform-auth@97eeedc606b4ce163133d203259a71698c9ad34b # v1.0.16
+      - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/tool-installers/setup-helm@e0e6abc2f67f2bbb81a74610d6c307ab468a1a77 # v1
+      - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/tool-installers/setup-kubectl@e0e6abc2f67f2bbb81a74610d6c307ab468a1a77 # v1
+      - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/build-test-and-deploy/cloud-platform-auth@e0e6abc2f67f2bbb81a74610d6c307ab468a1a77 # v1
         with:
           api: https://${{ secrets.KUBE_CLUSTER }}
           cert: ${{ secrets.KUBE_CERT }}
@@ -97,7 +97,7 @@ jobs:
 
       # Version history
       - name: get version history
-        uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/version_history@97eeedc606b4ce163133d203259a71698c9ad34b # v1.0.16
+        uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/version_history@e0e6abc2f67f2bbb81a74610d6c307ab468a1a77 # v1
         if: ${{ inputs.show_changelog }}
         id: version_history
         with:
