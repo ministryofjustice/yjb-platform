@@ -11,11 +11,14 @@ services:
       - yjb
     ports:
       - "3000:3000"
+      - "9229:9229"   # Node.js debug port
     healthcheck:
       test: ["CMD", "sh", "-c", "echo > /dev/tcp/localhost/3000"]
     environment:
       - PRODUCT_ID=UNASSIGNED
-      - API_URL=http://api:3001
+      - API_URL=http://api:3000
+    # Tell Node to listen for debugging on all interfaces (0.0.0.0)
+    command: node --inspect=0.0.0.0:9229 dist/index.js
   api:
     build:
       context: .
@@ -28,10 +31,13 @@ services:
       - yjb
     ports:
       - "3001:3001"
+      - "9229:9229"   # Node.js debug port
     healthcheck:
       test: ["CMD", "sh", "-c", "echo > /dev/tcp/localhost/3001"]
     environment:
       - PRODUCT_ID=UNASSIGNED
+    # Tell Node to listen for debugging on all interfaces (0.0.0.0)
+    command: node --inspect=0.0.0.0:9229 dist/index.js
 
 networks:
   yjb:
