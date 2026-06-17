@@ -14,7 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "@ministryofjustice/hmpps-monitoring": "^2.1.0",
-    "esbuild": "^0.28.0",
+    "esbuild": "^0.28.1",
     "express": "^5.2.1"
   },
   "devDependencies": {
