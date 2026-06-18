@@ -62,7 +62,6 @@ jobs:
         apps/frontend/assets/stylesheets/
 #      install_command: 'npm run setup'
 
-  # TODO: fix the unit tests
   # generic node unit tests - feel free to override with local tests if required
   node_unit_tests:
     name: node unit tests
