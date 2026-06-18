@@ -27,6 +27,10 @@ on:
         description: 'Optionally, start a redis service with this tag'
         required: false
         type: string
+      download_path:
+        description: 'Destination path for download-artefact action. If not provided, input is not used'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -64,11 +68,19 @@ jobs:
             ~/.cache/Cypress
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '!**/node_modules/**') }}
 
-      - name: download the artifacts
+      - name: download the artifacts to a custom path if provided
+        if: ${{ inputs.download_path != '' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: npm_build_artifacts
-          path: apps/frontend/
+#          path: apps/frontend/
+          path: ${{ inputs.download_path }}
+
+      - name: download the artifacts to default path if custom path not provided
+        if: ${{ inputs.download_path == '' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: npm_build_artifacts
 
       - name: unit tests
         id: unit-tests
