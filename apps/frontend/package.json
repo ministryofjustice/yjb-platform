@@ -36,7 +36,6 @@
     "@types/bunyan-format": "^0.2.9",
     "@types/compression": "^1.8.1",
     "@types/express": "^5.0.6",
-    "@types/helmet": "^4.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.9.3",
     "@types/nunjucks": "^3.2.6",
