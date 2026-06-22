@@ -1,0 +1,33 @@
+generic-service:
+  nameOverride: yjb-platform-api
+  productId: 'UNASSIGNED'
+
+  replicaCount: 2
+
+  image:
+    repository: ghcr.io/ministryofjustice/yjb-platform-api
+    tag: app_version # override at deployment time
+    port: 3001
+
+  ingress:
+    enabled: true
+    host: app-hostname.local # override per environment
+    tlsSecretName: yjb-platform-api-cert
+
+  livenessProbe:
+    httpGet:
+      path: /ping
+
+  readinessProbe:
+    httpGet:
+      path: /ping
+
+  env:
+    NODE_ENV: 'production'
+
+  allowlist:
+    groups:
+      - internal
+
+generic-prometheus-alerts:
+  targetApplication: yjb-platform-api

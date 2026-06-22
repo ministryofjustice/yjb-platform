@@ -1,0 +1,12 @@
+---
+# Per environment values which override defaults in yjb-platform-api/values.yaml
+
+generic-service:
+  ingress:
+    host: yjb-platform-api.apps.live.cloud-platform.service.justice.gov.uk
+
+  env:
+    INGRESS_URL: "https://yjb-platform-api.apps.live.cloud-platform.service.justice.gov.uk"
+
+generic-prometheus-alerts:
+  alertSeverity: PROD_ALERTS_SEVERITY_LABEL
