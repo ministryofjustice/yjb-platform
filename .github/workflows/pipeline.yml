@@ -106,14 +106,13 @@ jobs:
       environment: ${{ matrix.environments }}
 
   # TODO: This step might need duplication to handle multiple builds for monorepo
-  build:
-    name: Build docker image from hmpps-github-actions
+  build_frontend:
+    name: Build docker image from hmpps-github-actions - frontend
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
     needs:
  #      - node_integration_tests
       - node_unit_tests_frontend
-      - node_unit_tests_api
-      - node_build
+#      - node_build
       - check_publish
     with:
       docker_registry: 'ghcr.io'
@@ -127,11 +126,32 @@ jobs:
       image_name: 'yjb-platform'
       file: 'apps/frontend/Dockerfile'
 
+  build_api:
+    name: Build docker image from hmpps-github-actions - api
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
+    needs:
+      #      - node_integration_tests
+      - node_unit_tests_api
+#      - node_build
+      - check_publish
+    with:
+      docker_registry: 'ghcr.io'
+      registry_org: 'ministryofjustice'
+      additional_docker_tag: ${{ inputs.additional_docker_tag }}
+      push: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      docker_multiplatform: false
+      generate_sbom: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      attach_sbom_to_registry: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      sign_image: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      image_name: 'yjb-platform'
+      file: 'apps/api/Dockerfile'
+
   deploy_dev:
     name: Deploy to the development environment
     if: needs.check_publish.outputs.enabled == 'true'
     needs:
-      - build
+      - build_frontend
+      - build_api
       - helm_lint
       - check_publish
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
