@@ -62,15 +62,28 @@ jobs:
 #      install_command: 'npm run setup'
 
   # generic node unit tests - feel free to override with local tests if required
-  node_unit_tests:
-    name: node unit tests
+  node_unit_tests_frontend:
+    name: node unit tests - frontend
     # uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_unit_tests.yml@v2 # WORKFLOW_VERSION
     uses: ./.github/workflows/override_node_unit_tests.yml
     needs: [node_build]
     secrets: inherit
     with:
-      npm_script: 'test'
+      npm_script: 'test:fe:no-logs'
       download_path: 'apps/'
+      test_results_artifact_name: 'npm_unit_test_frontend_artifacts'
+
+  # generic node unit tests - feel free to override with local tests if required
+  node_unit_tests_api:
+    name: node unit tests -api
+    # uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_unit_tests.yml@v2 # WORKFLOW_VERSION
+    uses: ./.github/workflows/override_node_unit_tests.yml
+    needs: [ node_build ]
+    secrets: inherit
+    with:
+      npm_script: 'test:api'
+      download_path: 'apps/'
+      test_results_artifact_name: 'npm_unit_test_api_artifacts'
 
   # TODO: remove this job until we have integration tests
   #  # generic node integration tests using wiremock - feel free to override with local tests if required
@@ -96,7 +109,8 @@ jobs:
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
     needs:
  #      - node_integration_tests
-      - node_unit_tests
+      - node_unit_tests_frontend
+      - node_unit_tests_api
       - node_build
       - check_publish
     with:
