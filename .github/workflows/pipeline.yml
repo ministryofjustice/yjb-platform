@@ -56,10 +56,8 @@ jobs:
     secrets: inherit
     with:
       artefact_path: |
-        apps/frontend/build/
         apps/frontend/dist/
         apps/frontend/assets/stylesheets/
-        apps/api/build/
         apps/api/dist/
 #      install_command: 'npm run setup'
 
@@ -72,7 +70,6 @@ jobs:
     secrets: inherit
     with:
       npm_script: 'test'
-      download_path: 'apps/frontend/'
 
   # TODO: remove this job until we have integration tests
   #  # generic node integration tests using wiremock - feel free to override with local tests if required
