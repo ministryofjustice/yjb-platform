@@ -55,11 +55,12 @@ jobs:
     uses: ./.github/workflows/override_node_build.yml
     secrets: inherit
     with:
-#      artefact_path: 'src/'
       artefact_path: |
         apps/frontend/build/
         apps/frontend/dist/
         apps/frontend/assets/stylesheets/
+        apps/api/build/
+        apps/api/dist/
 #      install_command: 'npm run setup'
 
   # generic node unit tests - feel free to override with local tests if required
