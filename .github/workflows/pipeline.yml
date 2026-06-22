@@ -118,8 +118,7 @@ jobs:
       - build
       - helm_lint
       - check_publish
-    # uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
-    uses: ./.github/workflows/override_deploy_env.yml
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
     with:
       environment: 'dev'
