@@ -70,7 +70,8 @@ jobs:
     needs: [node_build]
     secrets: inherit
     with:
-      npm_script: 'test:fe'
+      npm_script: 'test'
+#      npm_script: 'test:fe:no-logs'
       download_path: 'apps/frontend/'
       test_results_artifact_name: 'npm_unit_test_frontend_artifacts'
 #      test_results_artefact_path: 'test_results/frontend'
