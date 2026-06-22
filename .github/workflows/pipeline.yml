@@ -71,6 +71,7 @@ jobs:
     secrets: inherit
     with:
       npm_script: 'test:fe'
+      download_path: 'apps/frontend/'
       test_results_artifact_name: 'npm_unit_test_frontend_artifacts'
 #      test_results_artefact_path: 'test_results/frontend'
 #      download_path: 'apps/frontend/'
@@ -83,6 +84,7 @@ jobs:
     secrets: inherit
     with:
       npm_script: 'test:api'
+#      download_path: 'apps/api/'
       test_results_artifact_name: 'npm_unit_test_api_artifacts'
 #      test_results_artefact_path: 'test_results/api'
 #      download_path: 'apps/api/'
