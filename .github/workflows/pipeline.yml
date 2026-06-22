@@ -72,6 +72,7 @@ jobs:
       npm_script: 'test:fe:no-logs'
       download_path: 'apps/'
       test_results_artifact_name: 'npm_unit_test_frontend_artifacts'
+      test_results_artefact_path: 'apps/frontend/coverage'
 
   # generic node unit tests - feel free to override with local tests if required
   node_unit_tests_api:
@@ -84,6 +85,7 @@ jobs:
       npm_script: 'test:api'
       download_path: 'apps/'
       test_results_artifact_name: 'npm_unit_test_api_artifacts'
+      test_results_artefact_path: 'apps/api/coverage'
 
   # TODO: remove this job until we have integration tests
   #  # generic node integration tests using wiremock - feel free to override with local tests if required
