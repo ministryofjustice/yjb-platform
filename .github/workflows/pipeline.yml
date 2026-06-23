@@ -55,23 +55,37 @@ jobs:
     uses: ./.github/workflows/override_node_build.yml
     secrets: inherit
     with:
-#      artefact_path: 'src/'
       artefact_path: |
-        apps/frontend/build/
         apps/frontend/dist/
         apps/frontend/assets/stylesheets/
+        apps/api/dist/
 #      install_command: 'npm run setup'
 
   # generic node unit tests - feel free to override with local tests if required
-  node_unit_tests:
-    name: node unit tests
+  node_unit_tests_frontend:
+    name: unit tests - ui
     # uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_unit_tests.yml@v2 # WORKFLOW_VERSION
     uses: ./.github/workflows/override_node_unit_tests.yml
     needs: [node_build]
     secrets: inherit
     with:
-      npm_script: 'test'
-      download_path: 'apps/frontend/'
+      npm_script: 'test:fe:no-logs'
+      download_path: 'apps/'
+      test_results_artifact_name: 'npm_unit_test_frontend_artifacts'
+      test_results_artefact_path: 'apps/frontend/coverage'
+
+  # generic node unit tests - feel free to override with local tests if required
+  node_unit_tests_api:
+    name: unit tests - api
+    # uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_unit_tests.yml@v2 # WORKFLOW_VERSION
+    uses: ./.github/workflows/override_node_unit_tests.yml
+    needs: [ node_build ]
+    secrets: inherit
+    with:
+      npm_script: 'test:api'
+      download_path: 'apps/'
+      test_results_artifact_name: 'npm_unit_test_api_artifacts'
+      test_results_artefact_path: 'apps/api/coverage'
 
   # TODO: remove this job until we have integration tests
   #  # generic node integration tests using wiremock - feel free to override with local tests if required
@@ -81,24 +95,36 @@ jobs:
   #    needs: [node_build]
   #    secrets: inherit
 
-  helm_lint:
+  helm_lint_frontend:
     strategy:
       matrix:
         environments: ['dev', 'preprod', 'prod']
-    name: helm lint
+    name: helm lint - ui
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
     with:
       environment: ${{ matrix.environments }}
 
+  helm_lint_api:
+    strategy:
+      matrix:
+        environments: ['dev', 'preprod', 'prod']
+    name: helm lint - api
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
+    secrets: inherit
+    with:
+      environment: ${{ matrix.environments }}
+      chart_name: 'yjb-platform-api'
+      helm_dir: 'helm_deploy_api'
+
   # TODO: This step might need duplication to handle multiple builds for monorepo
-  build:
-    name: Build docker image from hmpps-github-actions
+  build_frontend:
+    name: build image - ui
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
     needs:
  #      - node_integration_tests
-      - node_unit_tests
-      - node_build
+      - node_unit_tests_frontend
+#      - node_build
       - check_publish
     with:
       docker_registry: 'ghcr.io'
@@ -109,22 +135,60 @@ jobs:
       generate_sbom: ${{ needs.check_publish.outputs.enabled == 'true' }}
       attach_sbom_to_registry: ${{ needs.check_publish.outputs.enabled == 'true' }}
       sign_image: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      image_name: 'yjb-platform'
       file: 'apps/frontend/Dockerfile'
 
-  deploy_dev:
-    name: Deploy to the development environment
+  build_api:
+    name: build image - api
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
+    needs:
+      #      - node_integration_tests
+      - node_unit_tests_api
+#      - node_build
+      - check_publish
+    with:
+      docker_registry: 'ghcr.io'
+      registry_org: 'ministryofjustice'
+      additional_docker_tag: ${{ inputs.additional_docker_tag }}
+      push: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      docker_multiplatform: false
+      generate_sbom: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      attach_sbom_to_registry: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      sign_image: ${{ needs.check_publish.outputs.enabled == 'true' }}
+      image_name: 'yjb-platform-api'
+      file: 'apps/api/Dockerfile'
+
+  deploy_dev_frontend:
+    name: deploy to dev - ui
     if: needs.check_publish.outputs.enabled == 'true'
     needs:
-      - build
-      - helm_lint
+      - build_frontend
+      - helm_lint_frontend
       - check_publish
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
     with:
       environment: 'dev'
-      app_version: '${{ needs.build.outputs.app_version }}'
-      #app_version: 'local-test-1.0.0' #local act override 
+      app_version: '${{ needs.build_frontend.outputs.app_version }}'
+      #app_version: 'local-test-1.0.0' #local act override
       slack_notification: 'false' # if 'true', it needs a valid NONPROD_RELEASES_SLACK_CHANNEL variable to be set
+
+  deploy_dev_api:
+    name: deploy to dev - api
+    if: needs.check_publish.outputs.enabled == 'true'
+    needs:
+      - build_api
+      - helm_lint_api
+      - check_publish
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
+    secrets: inherit
+    with:
+      environment: 'dev'
+      app_version: '${{ needs.build_api.outputs.app_version }}'
+      helm_chart_name: 'yjb-platform-api'
+      helm_dir: 'helm_deploy_api'
+      k8s_deployment_name: 'yjb-platform-api'
+      slack_notification: 'false'
 
   # deploy_preprod:
   #   name: Deploy to pre-production environment
