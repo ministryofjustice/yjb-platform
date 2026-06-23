@@ -63,7 +63,7 @@ jobs:
 
   # generic node unit tests - feel free to override with local tests if required
   node_unit_tests_frontend:
-    name: node unit tests - frontend
+    name: unit tests - ui
     # uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_unit_tests.yml@v2 # WORKFLOW_VERSION
     uses: ./.github/workflows/override_node_unit_tests.yml
     needs: [node_build]
@@ -76,7 +76,7 @@ jobs:
 
   # generic node unit tests - feel free to override with local tests if required
   node_unit_tests_api:
-    name: node unit tests -api
+    name: unit tests - api
     # uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_unit_tests.yml@v2 # WORKFLOW_VERSION
     uses: ./.github/workflows/override_node_unit_tests.yml
     needs: [ node_build ]
@@ -99,7 +99,7 @@ jobs:
     strategy:
       matrix:
         environments: ['dev', 'preprod', 'prod']
-    name: helm lint - frontend
+    name: helm lint - ui
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
     with:
@@ -119,7 +119,7 @@ jobs:
 
   # TODO: This step might need duplication to handle multiple builds for monorepo
   build_frontend:
-    name: Build docker image from hmpps-github-actions - frontend
+    name: build image - ui
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
     needs:
  #      - node_integration_tests
@@ -139,7 +139,7 @@ jobs:
       file: 'apps/frontend/Dockerfile'
 
   build_api:
-    name: Build docker image from hmpps-github-actions - api
+    name: build image - api
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2 # WORKFLOW_VERSION
     needs:
       #      - node_integration_tests
@@ -159,7 +159,7 @@ jobs:
       file: 'apps/api/Dockerfile'
 
   deploy_dev_frontend:
-    name: Deploy frontend to the development environment
+    name: deploy to dev - ui
     if: needs.check_publish.outputs.enabled == 'true'
     needs:
       - build_frontend
@@ -174,7 +174,7 @@ jobs:
       slack_notification: 'false' # if 'true', it needs a valid NONPROD_RELEASES_SLACK_CHANNEL variable to be set
 
   deploy_dev_api:
-    name: Deploy API to the development environment
+    name: deploy to dev - api
     if: needs.check_publish.outputs.enabled == 'true'
     needs:
       - build_api
