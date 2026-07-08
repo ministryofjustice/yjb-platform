@@ -13,14 +13,16 @@ export default function setUpStaticResources(): Router {
   //  Static Resources Configuration
   const staticResourcesConfig = { maxAge: config.staticResourceCacheDuration, redirect: false }
 
+  const nodeModules = path.resolve(process.cwd(), '../../node_modules')
+
   Array.of(
-    '/dist/assets',
-    '/node_modules/govuk-frontend/dist/govuk/assets',
-    '/node_modules/govuk-frontend/dist',
-    '/node_modules/@ministryofjustice/frontend/moj/assets',
-    '/node_modules/@ministryofjustice/frontend',
+    path.join(process.cwd(), 'dist/assets'),
+    path.join(nodeModules, 'govuk-frontend/dist/govuk/assets'),
+    path.join(nodeModules, 'govuk-frontend/dist'),
+    path.join(nodeModules, '@ministryofjustice/frontend/moj/assets'),
+    path.join(nodeModules, '@ministryofjustice/frontend'),
   ).forEach(dir => {
-    router.use('/assets', express.static(path.join(process.cwd(), dir), staticResourcesConfig))
+    router.use('/assets', express.static(dir, staticResourcesConfig))
   })
 
   // Don't cache dynamic resources
