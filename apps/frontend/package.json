@@ -16,14 +16,14 @@
   "dependencies": {
     "@ministryofjustice/frontend": "^9.0.0",
     "@ministryofjustice/hmpps-monitoring": "^2.1.0",
-    "@ministryofjustice/hmpps-rest-client": "^2.1.0",
+    "@ministryofjustice/hmpps-rest-client": "^2.2.0",
     "@types/http-errors": "^2.0.5",
     "bunyan": "^1.8.15",
     "bunyan-format": "^0.2.1",
     "compression": "^1.8.1",
     "express": "^5.2.1",
-    "govuk-frontend": "^6.2.0",
-    "helmet": "^8.2.0",
+    "govuk-frontend": "^6.4.0",
+    "helmet": "^8.3.0",
     "nocache": "^4.0.0",
     "nunjucks": "^3.2.4"
   },
@@ -37,9 +37,9 @@
     "@types/compression": "^1.8.1",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
-    "@types/node": "^25.9.4",
+    "@types/node": "^25.9.5",
     "@types/nunjucks": "^3.2.6",
-    "@types/supertest": "^7.2.0",
+    "@types/supertest": "^7.2.1",
     "concurrently": "^10.0.3",
     "del": "^8.0.1",
     "esbuild": "^0.28.1",
@@ -47,10 +47,10 @@
     "esbuild-plugin-manifest": "^1.0.5",
     "esbuild-sass-plugin": "^3.7.0",
     "jest": "^30.4.2",
-    "nock": "^14.0.15",
+    "nock": "^14.0.16",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2",
-    "ts-jest": "^29.4.11",
+    "ts-jest": "^29.4.12",
     "typescript": "^6.0.3"
   }
 }
