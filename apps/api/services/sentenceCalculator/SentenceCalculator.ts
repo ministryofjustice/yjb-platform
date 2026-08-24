@@ -9,8 +9,10 @@ export default class SentenceCalculator {
     throw new Error('no calculation for this input')
   }
 
-  getSledDate(sentence: Sentence, totalDaysInTerm: number): Date {
+  getSledDate(sentence: Sentence): Date {
     const { from } = sentence.term[0]
+
+    const totalDaysInTerm: number = this.getTotalDaysInTerm(sentence.term[0].duration)
 
     if (from.toISOString().startsWith('2026-06-28') && totalDaysInTerm === 334) {
       return new Date('2027-05-28')
@@ -19,7 +21,9 @@ export default class SentenceCalculator {
     throw new Error('no calculation for this input')
   }
 
-  getTotalDaysMTD(sentence: Sentence, totalDaysInTerm: number): number {
+  getTotalDaysMTD(sentence: Sentence): number {
+    const totalDaysInTerm: number = this.getTotalDaysInTerm(sentence.term[0].duration)
+
     if (totalDaysInTerm === 334) {
       return 167
     }
@@ -27,8 +31,10 @@ export default class SentenceCalculator {
     throw new Error('no calculation for this input')
   }
 
-  getMTDDate(sentence: Sentence, totalDaysMTD: number): Date {
+  getMTDDate(sentence: Sentence): Date {
     const { from } = sentence.term[0]
+
+    const totalDaysMTD: number = this.getTotalDaysMTD(sentence)
 
     if (from.toISOString().startsWith('2026-06-28') && totalDaysMTD === 167) {
       return new Date('2026-12-12')
@@ -39,9 +45,9 @@ export default class SentenceCalculator {
 
   getTotalCalculation(sentence: Sentence): Calculation {
     const totalDaysInTerm = this.getTotalDaysInTerm(sentence.term[0].duration)
-    const sledDate = this.getSledDate(sentence, totalDaysInTerm)
-    const totalDaysMTD = this.getTotalDaysMTD(sentence, totalDaysInTerm)
-    const mtdDate = this.getMTDDate(sentence, totalDaysMTD)
+    const sledDate = this.getSledDate(sentence)
+    const totalDaysMTD = this.getTotalDaysMTD(sentence)
+    const mtdDate = this.getMTDDate(sentence)
 
     return { totalDaysInTerm, sledDate, totalDaysMTD, mtdDate }
   }
