@@ -34,10 +34,12 @@ describe('SentenceCalculator', () => {
             offenderName: 'Test Offender',
           },
         ],
-}
+      }
 
       expect(calculator.getTotalDaysInTerm(sentence)).toBe(61)
     })
+
+    //todo  last day of the shorter month and leap year
   })
 
   describe('getSledDate', () => {
