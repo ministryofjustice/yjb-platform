@@ -26,21 +26,19 @@ describe('SentenceCalculator', () => {
 
   describe('getSledDate', () => {
     it('returns 2027-05-28 for a sentence starting 2026-06-28 and 334 days long', () => {
-      const daysInTerm = calculator.getTotalDaysInTerm(defaultSentence.term[0].duration)
-
-      expect(calculator.getSledDate(defaultSentence, daysInTerm)).toEqual(new Date('2027-05-28'))
+      expect(calculator.getSledDate(defaultSentence)).toEqual(new Date('2027-05-28'))
     })
   })
 
   describe('getTotalDaysMTD', () => {
     it('returns 167 days when the total days in term is 334', () => {
-      expect(calculator.getTotalDaysMTD(defaultSentence, 334)).toBe(167)
+      expect(calculator.getTotalDaysMTD(defaultSentence)).toBe(167)
     })
   })
 
   describe('getMTDDate', () => {
     it('returns 2026-12-12 for a sentence starting 2026-06-28 with an MTD of 167 days', () => {
-      expect(calculator.getMTDDate(defaultSentence, 167)).toEqual(new Date('2026-12-12'))
+      expect(calculator.getMTDDate(defaultSentence)).toEqual(new Date('2026-12-12'))
     })
   })
 
