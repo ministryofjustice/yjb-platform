@@ -1,18 +1,25 @@
+import { addMonths, differenceInCalendarDays } from 'date-fns'
 import { Sentence, Calculation } from './types'
 
 export default class SentenceCalculator {
   getTotalDaysInTerm(sentence: Sentence): number {
-    if (sentence.term[0].duration === '11 months') {
-      return 334
+    const { from, duration } = sentence.term[0]
+    const durationParsed = this.parseDuration(duration)
+    let numDays: number = 0
+
+    const to = addMonths(from, durationParsed)
+    numDays = differenceInCalendarDays(to, from)
+    return numDays
+  }
+
+  private parseDuration(duration: string): number {
+    const match = duration.trim().match(/^(\d+)\s+months?$/i)
+
+    if (!match) {
+      throw new Error(`cannot parse duration "${duration}"`)
     }
 
-    const from = sentence.term[0].from;
-    if (sentence.term[0].duration === '2 months' && from.toISOString().startsWith('2026-08-24')) {
-      return 61
-    }
-
-
-    throw new Error('no calculation for this input')
+    return Number(match[1])
   }
 
   getSledDate(sentence: Sentence): Date {
