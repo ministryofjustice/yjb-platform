@@ -39,7 +39,9 @@ describe('SentenceCalculator', () => {
       expect(calculator.getTotalDaysInTerm(sentence)).toBe(61)
     })
 
-    //todo  last day of the shorter month and leap year
+    // TODO test calculator with last day of the shorter month and leap year for edge cases
+    // TODO test parseDuration
+    // TODO create an array of input -> expected pairs from real calculations
   })
 
   describe('getSledDate', () => {
