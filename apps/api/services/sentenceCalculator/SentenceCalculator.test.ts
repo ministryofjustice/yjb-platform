@@ -19,8 +19,24 @@ describe('SentenceCalculator', () => {
   })
 
   describe('getTotalDaysInTerm', () => {
-    it('returns 334 days for an 11 month term', () => {
-      expect(calculator.getTotalDaysInTerm(defaultSentence.term[0].duration)).toBe(334)
+    it('returns 334 days for an 11 month term starting on 2026-06-28', () => {
+      expect(calculator.getTotalDaysInTerm(defaultSentence)).toBe(334)
+    })
+
+    it('returns 61 days for a 2 month term starting on 2026-08-24', () => {
+      // 24th of august + 2 months goes to 23/10/2026
+      // I think this is 61 days (CHECK!)
+      const sentence: Sentence = {
+        term: [
+          {
+            from: new Date('2026-08-24'),
+            duration: '2 months',
+            offenderName: 'Test Offender',
+          },
+        ],
+}
+
+      expect(calculator.getTotalDaysInTerm(sentence)).toBe(61)
     })
   })
 
