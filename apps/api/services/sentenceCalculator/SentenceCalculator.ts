@@ -12,12 +12,13 @@ export default class SentenceCalculator {
   }
 
   getSledDate(sentence: Sentence): Date {
-    const { from } = sentence.term[0]
+    const { from } = sentence.term[0];
     let sled = new Date();
-    const totalDaysInTerm: number = this.getTotalDaysInTerm(sentence)
+    const totalDaysInTerm: number = this.getTotalDaysInTerm(sentence);
    
     //add term starting from the sentence day 
     sled = addDays(from, totalDaysInTerm - 1);
+    
     return sled;
   }
 
