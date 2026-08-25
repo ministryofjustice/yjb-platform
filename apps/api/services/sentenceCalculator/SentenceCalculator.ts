@@ -10,18 +10,18 @@ export default class SentenceCalculator {
     return differenceInCalendarDays(to, from)
   }
 
-  getSledDate(sentence: Sentence, totalDaysInTerm:number): Date {
-    const { from } = sentence.term[0];
-    //add term starting from the sentence day 
-    return addDays(new UTCDate(from), totalDaysInTerm - 1);
+  getSledDate(sentence: Sentence, totalDaysInTerm: number): Date {
+    const { from } = sentence.term[0]
+    // add term starting from the sentence day 
+    return addDays(new UTCDate(from), totalDaysInTerm - 1)
   }
 
   getTotalDaysMTD(sentence: Sentence): number {
     const totalDaysInTerm: number = this.getTotalDaysInTerm(sentence)
-    return Math.round(totalDaysInTerm / 2);
+    return Math.round(totalDaysInTerm / 2)
   }
 
- getMTDDate(sentence: Sentence, totalDaysMTD: number): Date {
+  getMTDDate(sentence: Sentence, totalDaysMTD: number): Date {
     const { from } = sentence.term[0]
 
     // add mtd starting from the sentence day
