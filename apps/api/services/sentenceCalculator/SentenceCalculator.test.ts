@@ -83,7 +83,7 @@ describe('SentenceCalculator', () => {
     })
 
     it('returns 2028-05-28 for a 11 month sentence on leap year starting 2027-06-29', () => {
-      let sentence : Sentence = {
+      const sentence: Sentence = {
         term: [
           {
             from: new Date('2027-06-29'),
@@ -91,7 +91,7 @@ describe('SentenceCalculator', () => {
             offenderName: 'Test Offender',
           },
         ],
-      }     
+      }
       expect(calculator.getSledDate(sentence)).toEqual(new Date('2028-05-28'))
     })
   })
@@ -102,7 +102,7 @@ describe('SentenceCalculator', () => {
     })
 
     it('returns 16 days when total number of days is 31', () => {
-      let sentenceToRound: Sentence = {
+      const sentenceToRound: Sentence = {
         term: [
           {
             from: new Date('2026-08-01'),
@@ -111,13 +111,26 @@ describe('SentenceCalculator', () => {
           },
         ],
       }
-      expect(calculator.getTotalDaysMTD(sentenceToRound)).toBe(16);
+      expect(calculator.getTotalDaysMTD(sentenceToRound)).toBe(16)
     })
   })
 
   describe('getMTDDate', () => {
     it('returns 2026-12-12 for a sentence starting 2026-06-29 with an MTD of 167 days', () => {
       expect(calculator.getMTDDate(defaultSentence)).toEqual(new Date('2026-12-12'))
+    })
+
+    it('returns 2026-08-16 for a sentence starting 2026-08-01 with an MTD of 16 days', () => {
+      const sentenceToRound: Sentence = {
+        term: [
+          {
+            from: new Date('2026-08-01'),
+            durationMonths: 1,
+            offenderName: 'Test Offender',
+          },
+        ],
+      }
+      expect(calculator.getMTDDate(sentenceToRound)).toEqual(new Date('2026-08-16'))
     })
   })
 
