@@ -4,7 +4,7 @@ import { Sentence } from './types'
 const defaultSentence: Sentence = {
   term: [
     {
-      from: new Date('2026-06-28'),
+      from: new Date('2026-06-29'),
       durationMonths: 11,
       offenderName: 'Test Offender',
     },
@@ -79,16 +79,7 @@ describe('SentenceCalculator', () => {
 
   describe('getSledDate', () => {
     it('returns 2027-05-28 for a 11 month sentence starting 2026-06-29', () => {
-      let sentence : Sentence = {
-        term: [
-          {
-            from: new Date('2026-06-29'),
-            durationMonths: 11,
-            offenderName: 'Test Offender',
-          },
-        ],
-      }     
-      expect(calculator.getSledDate(sentence)).toEqual(new Date('2027-05-28'))
+      expect(calculator.getSledDate(defaultSentence)).toEqual(new Date('2027-05-28'))
     })
 
     it('returns 2028-05-28 for a 11 month sentence starting 2027-06-29', () => {
@@ -112,7 +103,7 @@ describe('SentenceCalculator', () => {
   })
 
   describe('getMTDDate', () => {
-    it('returns 2026-12-12 for a sentence starting 2026-06-28 with an MTD of 167 days', () => {
+    it('returns 2026-12-12 for a sentence starting 2026-06-29 with an MTD of 167 days', () => {
       expect(calculator.getMTDDate(defaultSentence)).toEqual(new Date('2026-12-12'))
     })
   })

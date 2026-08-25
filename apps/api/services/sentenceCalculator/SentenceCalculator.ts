@@ -16,7 +16,7 @@ export default class SentenceCalculator {
 
     const totalDaysInTerm: number = this.getTotalDaysInTerm(sentence)
 
-    if (from.toISOString().startsWith('2026-06-28') && totalDaysInTerm === 334) {
+    if (from.toISOString().startsWith('2026-06-29') && totalDaysInTerm === 334) {
       return new Date('2027-05-28')
     }
 
@@ -38,7 +38,7 @@ export default class SentenceCalculator {
 
     const totalDaysMTD: number = this.getTotalDaysMTD(sentence)
 
-    if (from.toISOString().startsWith('2026-06-28') && totalDaysMTD === 167) {
+    if (from.toISOString().startsWith('2026-06-29') && totalDaysMTD === 167) {
       return new Date('2026-12-12')
     }
 
