@@ -5,9 +5,10 @@ import { Sentence, Calculation } from './types'
 export default class SentenceCalculator {
   getTotalDaysInTerm(sentence: Sentence): number {
     const { from, durationMonths } = sentence.term[0]
-    const to = addMonths(new UTCDate(from), durationMonths)
+    const utcFrom = new UTCDate(from)
+    const to = addMonths(utcFrom, durationMonths)
 
-    return differenceInCalendarDays(to, from)
+    return differenceInCalendarDays(to, utcFrom)
   }
 
   getSledDate(sentence: Sentence, totalDaysInTerm: number): Date {
