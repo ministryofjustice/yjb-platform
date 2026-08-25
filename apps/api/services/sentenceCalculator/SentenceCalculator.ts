@@ -13,23 +13,20 @@ export default class SentenceCalculator {
 
   getSledDate(sentence: Sentence): Date {
     const { from } = sentence.term[0];
-    let sled = new Date();
+    let sled:Date = new Date();
     const totalDaysInTerm: number = this.getTotalDaysInTerm(sentence);
    
     //add term starting from the sentence day 
     sled = addDays(from, totalDaysInTerm - 1);
-    
+
     return sled;
   }
 
   getTotalDaysMTD(sentence: Sentence): number {
     const totalDaysInTerm: number = this.getTotalDaysInTerm(sentence)
-
-    if (totalDaysInTerm === 334) {
-      return 167
-    }
-
-    throw new Error('no calculation for this input')
+    let mdt:number = 0;
+    mdt = Math.round(totalDaysInTerm / 2);
+    return mdt;
   }
 
   getMTDDate(sentence: Sentence): Date {
