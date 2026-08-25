@@ -100,6 +100,19 @@ describe('SentenceCalculator', () => {
     it('returns 167 days when the total days in term is 334', () => {
       expect(calculator.getTotalDaysMTD(defaultSentence)).toBe(167)
     })
+
+    it('returns 16 days when total number of days is 31', () => {
+      let sentenceToRound: Sentence = {
+        term: [
+          {
+            from: new Date('2026-08-01'),
+            durationMonths: 1,
+            offenderName: 'Test Offender',
+          },
+        ],
+      }
+      expect(calculator.getTotalDaysMTD(sentenceToRound)).toBe(16);
+    })
   })
 
   describe('getMTDDate', () => {
