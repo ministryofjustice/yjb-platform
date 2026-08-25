@@ -1,4 +1,4 @@
-import { addMonths, differenceInCalendarDays } from 'date-fns'
+import { addMonths, addDays, differenceInCalendarDays } from 'date-fns'
 import { Sentence, Calculation } from './types'
 
 export default class SentenceCalculator {
@@ -13,14 +13,12 @@ export default class SentenceCalculator {
 
   getSledDate(sentence: Sentence): Date {
     const { from } = sentence.term[0]
-
+    let sled = new Date();
     const totalDaysInTerm: number = this.getTotalDaysInTerm(sentence)
-
-    if (from.toISOString().startsWith('2026-06-29') && totalDaysInTerm === 334) {
-      return new Date('2027-05-28')
-    }
-
-    throw new Error('no calculation for this input')
+   
+    //add term starting from the sentence day 
+    sled = addDays(from, totalDaysInTerm - 1);
+    return sled;
   }
 
   getTotalDaysMTD(sentence: Sentence): number {
