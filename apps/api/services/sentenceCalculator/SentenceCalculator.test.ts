@@ -119,7 +119,8 @@ describe('SentenceCalculator', () => {
 
   describe('getMTDDate', () => {
     it('returns 2026-12-12 for a sentence starting 2026-06-29 with an MTD of 167 days', () => {
-      expect(calculator.getMTDDate(defaultSentence)).toEqual(new Date('2026-12-12'))
+      const totalDaysMTD:number = calculator.getTotalDaysMTD(defaultSentence);
+      expect(calculator.getMTDDate(defaultSentence, totalDaysMTD)).toEqual(new Date('2026-12-12'))
     })
 
     it('returns 2026-08-16 for a sentence starting 2026-08-01 with an MTD of 16 days', () => {
@@ -132,7 +133,8 @@ describe('SentenceCalculator', () => {
           },
         ],
       }
-      expect(calculator.getMTDDate(sentenceToRound)).toEqual(new Date('2026-08-16'))
+      const totalDaysMTD:number = calculator.getTotalDaysMTD(sentenceToRound);
+      expect(calculator.getMTDDate(sentenceToRound, totalDaysMTD)).toEqual(new Date('2026-08-16'))
     })
   })
 
