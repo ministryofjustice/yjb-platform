@@ -6,7 +6,7 @@ export default class SentenceCalculator {
   getTotalDaysInTerm(sentence: Sentence): number {
     const { from, durationMonths } = sentence.term[0]
     const to = addMonths(new UTCDate(from), durationMonths)
-    
+
     return differenceInCalendarDays(to, from)
   }
 
@@ -20,9 +20,7 @@ export default class SentenceCalculator {
 
   getTotalDaysMTD(sentence: Sentence): number {
     const totalDaysInTerm: number = this.getTotalDaysInTerm(sentence)
-    let mdt:number = 0;
-    mdt = Math.round(totalDaysInTerm / 2);
-    return mdt;
+    return Math.round(totalDaysInTerm / 2);
   }
 
  getMTDDate(sentence: Sentence): Date {
