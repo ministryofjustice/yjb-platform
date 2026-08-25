@@ -13,7 +13,7 @@ export default class SentenceCalculator {
 
   getSledDate(sentence: Sentence, totalDaysInTerm: number): Date {
     const { from } = sentence.term[0]
-    // add term starting from the sentence day 
+    // add term starting from the sentence day
     return addDays(new UTCDate(from), totalDaysInTerm - 1)
   }
 
