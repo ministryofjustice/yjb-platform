@@ -3,23 +3,12 @@ import { Sentence, Calculation } from './types'
 
 export default class SentenceCalculator {
   getTotalDaysInTerm(sentence: Sentence): number {
-    const { from, duration } = sentence.term[0]
-    const durationParsed = this.parseDuration(duration)
+    const { from, durationMonths } = sentence.term[0]
     let numDays: number = 0
 
-    const to = addMonths(from, durationParsed)
+    const to = addMonths(from, durationMonths)
     numDays = differenceInCalendarDays(to, from)
     return numDays
-  }
-
-  private parseDuration(duration: string): number {
-    const match = duration.trim().match(/^(\d+)\s+months?$/i)
-
-    if (!match) {
-      throw new Error(`cannot parse duration "${duration}"`)
-    }
-
-    return Number(match[1])
   }
 
   getSledDate(sentence: Sentence): Date {
