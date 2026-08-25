@@ -19,7 +19,7 @@ describe('SentenceCalculator', () => {
   })
 
   describe('getTotalDaysInTerm', () => {
-    it('returns 334 days for an 11 month term starting on 2026-06-28', () => {
+    it('returns 334 days for an 11 month term starting on 2026-06-29', () => {
       expect(calculator.getTotalDaysInTerm(defaultSentence)).toBe(334)
     })
 
@@ -82,7 +82,7 @@ describe('SentenceCalculator', () => {
       expect(calculator.getSledDate(defaultSentence)).toEqual(new Date('2027-05-28'))
     })
 
-    it('returns 2028-05-28 for a 11 month sentence starting 2027-06-29', () => {
+    it('returns 2028-05-28 for a 11 month sentence on leap year starting 2027-06-29', () => {
       let sentence : Sentence = {
         term: [
           {
