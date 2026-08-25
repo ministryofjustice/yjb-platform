@@ -6,18 +6,16 @@ export default class SentenceCalculator {
   getTotalDaysInTerm(sentence: Sentence): number {
     const { from, durationMonths } = sentence.term[0]
     const to = addMonths(new UTCDate(from), durationMonths)
+    
     return differenceInCalendarDays(to, from)
   }
 
   getSledDate(sentence: Sentence): Date {
     const { from } = sentence.term[0];
-    let sled:Date = new Date();
     const totalDaysInTerm: number = this.getTotalDaysInTerm(sentence);
    
     //add term starting from the sentence day 
-    sled = addDays(from, totalDaysInTerm - 1);
-
-    return sled;
+    return addDays(new UTCDate(from), totalDaysInTerm - 1);
   }
 
   getTotalDaysMTD(sentence: Sentence): number {
