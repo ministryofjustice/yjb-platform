@@ -5,7 +5,7 @@ const defaultSentence: Sentence = {
   term: [
     {
       from: new Date('2026-06-28'),
-      duration: '11 months',
+      durationMonths: 11,
       offenderName: 'Test Offender',
     },
   ],
@@ -24,13 +24,11 @@ describe('SentenceCalculator', () => {
     })
 
     it('returns 61 days for a 2 month term starting on 2026-08-24', () => {
-      // 24th of august + 2 months goes to 23/10/2026
-      // I think this is 61 days (CHECK!)
       const sentence: Sentence = {
         term: [
           {
             from: new Date('2026-08-24'),
-            duration: '2 months',
+            durationMonths: 2,
             offenderName: 'Test Offender',
           },
         ],
@@ -39,9 +37,44 @@ describe('SentenceCalculator', () => {
       expect(calculator.getTotalDaysInTerm(sentence)).toBe(61)
     })
 
-    // TODO test calculator with last day of the shorter month and leap year for edge cases
-    // TODO test parseDuration
-    // TODO create an array of input -> expected pairs from real calculations
+    it('returns 62 days for a 2 month term starting on 2026-07-24', () => {
+      const sentence: Sentence = {
+        term: [
+          {
+            from: new Date('2026-07-24'),
+            durationMonths: 2,
+            offenderName: 'Test Offender',
+          },
+        ],
+      }
+
+      expect(calculator.getTotalDaysInTerm(sentence)).toBe(62)
+    })
+
+    it('counts days in leap years correctly', () => {
+      const sentenceNotInLeapYear: Sentence = {
+        term: [
+          {
+            from: new Date('2027-02-20'),
+            durationMonths: 1,
+            offenderName: 'Test Offender',
+          },
+        ],
+      }
+
+      const sentenceInLeapYear: Sentence = {
+        term: [
+          {
+            from: new Date('2028-02-20'),
+            durationMonths: 1,
+            offenderName: 'Test Offender',
+          },
+        ],
+      }
+
+      expect(calculator.getTotalDaysInTerm(sentenceNotInLeapYear)).toBe(28)
+      expect(calculator.getTotalDaysInTerm(sentenceInLeapYear)).toBe(29)
+    })
   })
 
   describe('getSledDate', () => {

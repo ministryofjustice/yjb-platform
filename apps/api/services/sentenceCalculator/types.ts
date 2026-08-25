@@ -1,6 +1,6 @@
 export type Term = {
   from: Date
-  duration: string
+  durationMonths: number
   offenderName: string
 }
 
