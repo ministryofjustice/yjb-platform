@@ -8,5 +8,9 @@ export default function calculateRoutes(): Router {
     return res.render('pages/new-calculation')
   })
 
+  router.post('/', async (req, res, _next) => {
+    return res.render('pages/calculation-breakdown')
+  })
+
   return router
 }
