@@ -8,6 +8,17 @@ export default class SentenceCalculator {
   
   constructor (sentence: Sentence){
       this.sentence = sentence
+      const totalDaysInTerm = this.getTotalDaysInTerm()
+      const totalDaysMTD = this.getTotalDaysMTD()
+
+     this.calculation = {
+      totalDaysInTerm: totalDaysInTerm,
+      sledDate: this.getSledDate(totalDaysInTerm),
+      totalDaysMTD: totalDaysMTD,
+      mtdDate: this.getMTDDate(totalDaysMTD),
+      adjustedMtdDate: new Date,
+      adjustedSledDate: new Date
+    }
   }
   getTotalDaysInTerm(): number {
     const { from, durationMonths } = this.sentence.term[0]
@@ -45,17 +56,6 @@ export default class SentenceCalculator {
   }
 
   getTotalCalculation(sentence: Sentence): Calculation {
-    const totalDaysInTerm = this.getTotalDaysInTerm()
-    const totalDaysMTD = this.getTotalDaysMTD()
-
-     this.calculation = {
-      totalDaysInTerm: totalDaysInTerm,
-      sledDate: this.getSledDate(totalDaysInTerm),
-      totalDaysMTD: totalDaysMTD,
-      mtdDate: this.getMTDDate(totalDaysMTD),
-      adjustedMtdDate: new Date,
-      adjustedSledDate: new Date
-    }
 
     const {remand} = sentence.term[0]
 
