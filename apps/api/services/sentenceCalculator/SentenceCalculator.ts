@@ -4,6 +4,8 @@ import { Sentence, Calculation } from './types'
 
 export default class SentenceCalculator {
   private sentence: Sentence
+  private calculation: Calculation
+  
   constructor (sentence: Sentence){
       this.sentence = sentence
   }
@@ -44,17 +46,25 @@ export default class SentenceCalculator {
 
   getTotalCalculation(sentence: Sentence): Calculation {
     const totalDaysInTerm = this.getTotalDaysInTerm()
-    let sledDate = this.getSledDate(totalDaysInTerm)
     const totalDaysMTD = this.getTotalDaysMTD()
-    let mtdDate = this.getMTDDate(totalDaysMTD)
+
+     this.calculation = {
+      totalDaysInTerm: totalDaysInTerm,
+      sledDate: this.getSledDate(totalDaysInTerm),
+      totalDaysMTD: totalDaysMTD,
+      mtdDate: this.getMTDDate(totalDaysMTD),
+      adjustedMtdDate: new Date,
+      adjustedSledDate: new Date
+    }
+
     const {remand} = sentence.term[0]
 
     if(remand > 0){
-        let adjustedDates = this.applyRemand(sledDate, mtdDate, remand);
-        sledDate = adjustedDates[0]
-        mtdDate = adjustedDates[1]
+        let adjustedDates = this.applyRemand( this.calculation.sledDate,  this.calculation.mtdDate, remand);
+        this.calculation.adjustedSledDate = adjustedDates[0]
+        this.calculation. adjustedMtdDate  = adjustedDates[1]
     }
 
-    return { totalDaysInTerm, sledDate, totalDaysMTD, mtdDate }
+    return this.calculation
   }
 }
