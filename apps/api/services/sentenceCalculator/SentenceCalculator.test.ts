@@ -150,5 +150,24 @@ describe('SentenceCalculator', () => {
         mtdDate: new Date('2026-12-12'),
       })
     })
+
+    it('returns the full calculation with 15 days remand', () => {
+      const sentenceRemand: Sentence = {
+        term: [
+          {
+            from: new Date('2026-06-29'),
+            durationMonths: 11,
+            offenderName: 'Test Offender',
+            remand: 15
+          },
+        ],
+      }
+      expect(calculator.getTotalCalculation(sentenceRemand)).toEqual({
+          totalDaysInTerm: 334,
+          sledDate: new Date('2027-05-13'),
+          totalDaysMTD: 167,
+          mtdDate: new Date('2026-11-27'),
+      })
+    })
   })
 })
