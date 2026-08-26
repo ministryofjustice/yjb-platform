@@ -87,7 +87,7 @@ describe('SentenceCalculator', () => {
   describe('getSledDate', () => {
     it('returns 2027-05-28 for a 11 month sentence starting 2026-06-29', () => {
       const totalDaysInTerm: number = defaultCalculator.getTotalDaysInTerm()
-      expect(defaultCalculator.getSledDate(defaultSentence, totalDaysInTerm)).toEqual(new Date('2027-05-28'))
+      expect(defaultCalculator.getSledDate(totalDaysInTerm)).toEqual(new Date('2027-05-28'))
     })
 
     it('returns 2028-05-28 for a 11 month sentence on leap year starting 2027-06-29', () => {
@@ -103,7 +103,7 @@ describe('SentenceCalculator', () => {
       }
       let calculator1= new SentenceCalculator(dummySentence1)
       const totalDaysInTerm: number = calculator1.getTotalDaysInTerm()
-      expect(defaultCalculator.getSledDate(dummySentence1, totalDaysInTerm)).toEqual(new Date('2028-05-28'))
+      expect(calculator1.getSledDate(totalDaysInTerm)).toEqual(new Date('2028-05-28'))
     })
   })
 
