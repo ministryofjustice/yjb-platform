@@ -2,6 +2,7 @@ export type Term = {
   from: Date
   durationMonths: number
   offenderName: string
+  remand: number
 }
 
 export type Sentence = {
