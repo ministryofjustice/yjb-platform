@@ -3,8 +3,12 @@ import { UTCDate } from '@date-fns/utc'
 import { Sentence, Calculation } from './types'
 
 export default class SentenceCalculator {
-  getTotalDaysInTerm(sentence: Sentence): number {
-    const { from, durationMonths } = sentence.term[0]
+  private sentence: Sentence
+  constructor (sentence: Sentence){
+      this.sentence = sentence
+  }
+  getTotalDaysInTerm(): number {
+    const { from, durationMonths } = this.sentence.term[0]
     const utcFrom = new UTCDate(from)
     const to = addMonths(utcFrom, durationMonths)
 
@@ -18,7 +22,7 @@ export default class SentenceCalculator {
   }
 
   getTotalDaysMTD(sentence: Sentence): number {
-    const totalDaysInTerm: number = this.getTotalDaysInTerm(sentence)
+    const totalDaysInTerm: number = this.getTotalDaysInTerm()
     return Math.round(totalDaysInTerm / 2)
   }
 
@@ -39,7 +43,7 @@ export default class SentenceCalculator {
   }
 
   getTotalCalculation(sentence: Sentence): Calculation {
-    const totalDaysInTerm = this.getTotalDaysInTerm(sentence)
+    const totalDaysInTerm = this.getTotalDaysInTerm()
     let sledDate = this.getSledDate(sentence, totalDaysInTerm)
     const totalDaysMTD = this.getTotalDaysMTD(sentence)
     let mtdDate = this.getMTDDate(sentence, totalDaysMTD)
