@@ -169,5 +169,25 @@ describe('SentenceCalculator', () => {
           mtdDate: new Date('2026-11-27'),
       })
     })
+
+     it('returns the full calculation with 15 days remand on leap', () => {
+      const sentenceRemand: Sentence = {
+        term: [
+          {
+            from: new Date('2027-02-01'),
+            durationMonths: 2,
+            offenderName: 'Test Offender',
+            remand: 30
+          },
+        ],
+      }
+      //now the date goes before the sentence day so what do we do?
+      expect(calculator.getTotalCalculation(sentenceRemand)).toEqual({
+          totalDaysInTerm: 59,
+          sledDate: new Date('2027-03-01'),
+          totalDaysMTD: 30,
+          mtdDate: new Date('2027-01-31'),
+      })
+    })
   })
 })
