@@ -109,7 +109,7 @@ describe('SentenceCalculator', () => {
 
   describe('getTotalDaysMTD', () => {
     it('returns 167 days when the total days in term is 334', () => {
-      expect(defaultCalculator.getTotalDaysMTD(defaultSentence)).toBe(167)
+      expect(defaultCalculator.getTotalDaysMTD()).toBe(167)
     })
 
     it('returns 16 days when total number of days is 31', () => {
@@ -124,7 +124,7 @@ describe('SentenceCalculator', () => {
         ],
       }
       let calculatorToRound = new SentenceCalculator(sentenceToRound)
-      expect(calculatorToRound.getTotalDaysMTD(sentenceToRound)).toBe(16)
+      expect(calculatorToRound.getTotalDaysMTD()).toBe(16)
     })
   })
 
