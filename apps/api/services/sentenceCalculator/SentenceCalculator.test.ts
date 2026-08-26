@@ -31,6 +31,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2026-08-24'),
             durationMonths: 2,
             offenderName: 'Test Offender',
+            remand: 0
           },
         ],
       }
@@ -45,6 +46,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2026-07-24'),
             durationMonths: 2,
             offenderName: 'Test Offender',
+            remand: 0
           },
         ],
       }
@@ -117,6 +119,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2026-08-01'),
             durationMonths: 1,
             offenderName: 'Test Offender',
+            remand: 0
           },
         ],
       }
