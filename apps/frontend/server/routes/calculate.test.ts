@@ -22,13 +22,27 @@ afterEach(() => {
 })
 
 describe('GET /calculate', () => {
-  it('should render the calculate a release date form page', () => {
+  it('should render the new calculation', () => {
     return request(app)
       .get('/calculate')
       .expect('Content-Type', /html/)
       .expect(200)
       .expect(res => {
-        expect(res.text).toContain('Calculate a release date')
+        expect(res.text).toContain('New calculation')
+        expect(res.text).toContain('Youth Justice Platform - New calculation')
+      })
+  })
+})
+
+describe('POST /calculate', () => {
+  it('should render a calculation breakdown page', () => {
+    return request(app)
+      .post('/calculate')
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        expect(res.text).toContain('Calculation breakdown')
+        expect(res.text).toContain('Youth Justice Platform - Calculation breakdown')
       })
   })
 })
