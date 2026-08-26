@@ -1,4 +1,4 @@
-import { addMonths, addDays, differenceInCalendarDays } from 'date-fns'
+import { addMonths, addDays, subDays, differenceInCalendarDays } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
 import { Sentence, Calculation } from './types'
 
@@ -29,14 +29,11 @@ export default class SentenceCalculator {
     return addDays(new UTCDate(from), totalDaysMTD - 1)
   }
 
-  applyRemand(sledDate: Date, mtdDate: Date): Date[] {
+  applyRemand(sledDate: Date, mtdDate: Date, remand: number): Date[] {
       let newSledDate = new Date
       let newMTDDate = new Date
-      if(sledDate.getTime() === new UTCDate('2027-05-28').getTime() 
-        && mtdDate.getTime() === new UTCDate('2026-12-12').getTime()){
-          newSledDate = new Date('2027-05-13');
-          newMTDDate = new Date('2026-11-27');
-      }
+      newSledDate = subDays(sledDate, remand )
+      newMTDDate = subDays(mtdDate, remand )
 
       return [newSledDate, newMTDDate]
   }
@@ -49,7 +46,7 @@ export default class SentenceCalculator {
     const {remand} = sentence.term[0]
 
     if(remand > 0){
-        let adjustedDates = this.applyRemand(sledDate, mtdDate);
+        let adjustedDates = this.applyRemand(sledDate, mtdDate, remand);
         sledDate = adjustedDates[0]
         mtdDate = adjustedDates[1]
     }
