@@ -1,4 +1,7 @@
 {% extends "../partials/layout.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
 
 {% set pageTitle = applicationName + " - New calculation" %}
 {% set mainClasses = "govuk-body" %}
@@ -6,6 +9,47 @@
 {% block content %}
 
   <h1>New calculation</h1>
-  <p>Please check back later when there is content to view.</p>
+  <p id="instruction-text">Enter the calculation details below</p>
+
+  <h2>Offence and sentence details</h2>
+
+  {{ govukSelect({
+    name: "sentence-type",
+    label: {
+      text: "Sentence type"
+    },
+    items: [
+      {
+        value: "",
+        text: "",
+        selected: true,
+        disabled: true
+      },
+      {
+        value: "some-sentence-code",
+        text: "Some sentence that is applicable to DTO"
+      }
+    ]
+  }) }}
+
+  {{ govukDateInput({
+    id: 'sentence-date',
+    namePrefix: "sentence-date",
+    fieldset: {
+      legend: {
+        text: "Sentence date",
+        classes: "govuk-fieldset__legend--s"
+      }
+    },
+    hint: {
+      text: "For example, 27 3 2007"
+    }
+  }) }}
+
+  {{ govukButton({
+    id: 'calculate-button',
+    text: "Calculate",
+    href: "/calculation-breakdown"
+  }) }}
 
 {% endblock %}

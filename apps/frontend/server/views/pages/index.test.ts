@@ -19,4 +19,11 @@ describe('Index page', () => {
     const cheerioPage = renderWithCheerio({ currentTime: '12:00' })
     expect(cheerioPage('[data-qa="timestamp"]').text()).toContain('12:00')
   })
+
+  it('renders a start button for a new calculation', () => {
+    const cheerioPage = renderWithCheerio()
+    const startButton = cheerioPage('#new-calculation')
+    expect(startButton.text()).toContain('New calculation')
+    expect(startButton.prop('href')).toBe('/calculate')
+  })
 })
