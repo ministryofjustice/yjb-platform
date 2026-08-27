@@ -2,11 +2,11 @@ import SentenceCalculator from './SentenceCalculator'
 import { Sentence, Reason } from './types'
 
 const defaultSentence: Sentence = {
+  offenderName: 'Test Offender',
   term: [
     {
       from: new Date('2026-06-29'),
       durationMonths: 11,
-      offenderName: 'Test Offender',
       remand: 0
     },
   ],
@@ -26,11 +26,11 @@ describe('SentenceCalculator', () => {
 
     it('returns 61 days for a 2 month term starting on 2026-08-24', () => {
       const dummySentence1: Sentence = {
+        offenderName: 'Test Offender',
         term: [
           {
             from: new Date('2026-08-24'),
             durationMonths: 2,
-            offenderName: 'Test Offender',
             remand: 0
           },
         ],
@@ -41,11 +41,11 @@ describe('SentenceCalculator', () => {
 
     it('returns 62 days for a 2 month term starting on 2026-07-24', () => {
       const dummySentence2: Sentence = {
+        offenderName: 'Test Offender',
         term: [
           {
             from: new Date('2026-07-24'),
             durationMonths: 2,
-            offenderName: 'Test Offender',
             remand: 0
           },
         ],
@@ -56,11 +56,11 @@ describe('SentenceCalculator', () => {
 
     it('counts days in leap years correctly', () => {
       const sentenceNotInLeapYear: Sentence = {
+        offenderName: 'Test Offender',
         term: [
           {
             from: new Date('2027-02-20'),
             durationMonths: 1,
-            offenderName: 'Test Offender',
             remand: 0
           },
         ],
@@ -69,11 +69,11 @@ describe('SentenceCalculator', () => {
       expect(calculatorNotInLeapYear.getTotalDaysInTerm()).toBe(28)
 
       const sentenceInLeapYear: Sentence = {
+        offenderName: 'Test Offender',
         term: [
           {
             from: new Date('2028-02-20'),
             durationMonths: 1,
-            offenderName: 'Test Offender',
             remand: 0
           },
         ],
@@ -84,11 +84,11 @@ describe('SentenceCalculator', () => {
     })
     it('clamps to the last day of a shorter month when a 1 month term starts on the 31st', () => {
       const sentenceMonthEnd: Sentence = {
+        offenderName: 'Test Offender',
         term: [
           {
             from: new Date('2027-01-31'),
             durationMonths: 1,
-            offenderName: 'Test Offender',
             remand: 0
           },
         ],
@@ -107,11 +107,11 @@ describe('SentenceCalculator', () => {
 
     it('returns 2028-05-28 for a 11 month sentence on leap year starting 2027-06-29', () => {
       const dummySentence1: Sentence = {
+        offenderName: 'Test Offender',
         term: [
           {
             from: new Date('2027-06-29'),
             durationMonths: 11,
-            offenderName: 'Test Offender',
             remand: 0
           },
         ],
@@ -129,11 +129,11 @@ describe('SentenceCalculator', () => {
 
     it('returns 16 days when total number of days is 31', () => {
       const sentenceToRound: Sentence = {
+        offenderName: 'Test Offender',
         term: [
           {
             from: new Date('2026-08-01'),
             durationMonths: 1,
-            offenderName: 'Test Offender',
             remand: 0
           },
         ],
@@ -151,11 +151,11 @@ describe('SentenceCalculator', () => {
 
     it('returns 2026-08-16 for a sentence starting 2026-08-01 with an MTD of 16 days', () => {
       const sentenceToRound: Sentence = {
+        offenderName: 'Test Offender',
         term: [
           {
             from: new Date('2026-08-01'),
             durationMonths: 1,
-            offenderName: 'Test Offender',
             remand: 0
           },
         ],
@@ -217,11 +217,11 @@ describe('SentenceCalculator', () => {
 
     it('returns the full calculation with 15 days remand', () => {
       const sentenceRemand: Sentence = {
+        offenderName: 'Test Offender',
         term: [
           {
             from: new Date('2026-06-29'),
             durationMonths: 11,
-            offenderName: 'Test Offender',
             remand: 15
           },
         ],
@@ -238,11 +238,11 @@ describe('SentenceCalculator', () => {
 
      it('returns the full calculation with 15 days remand on leap', () => {
       const sentenceRemand: Sentence = {
+        offenderName: 'Test Offender',
         term: [
           {
             from: new Date('2027-02-01'),
             durationMonths: 2,
-            offenderName: 'Test Offender',
             remand: 30
           },
         ],

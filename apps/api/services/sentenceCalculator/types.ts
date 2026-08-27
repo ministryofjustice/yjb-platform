@@ -2,22 +2,14 @@
 export type Term = {
   from: Date
   durationMonths: number
-  offenderName: string
   remand: number
 }
 
 //input type
 export type Sentence = {
+  offenderName: string,
   term: Term[]
 }
-
-export const Reason = {
-  remand: 'remand',
-  taggedBail: 'taggedBail',
-} as const
-
-// logic only exists for `remand` for now; `taggedBail` is a no-op
-export type Reason = (typeof Reason)[keyof typeof Reason]
 
 //output type
 export interface Calculation {
@@ -34,3 +26,13 @@ export type AdjustmentRecord = {
   sledDate: Date
   mtdDate: Date
 }
+
+
+//internal types
+export const Reason = {
+  remand: 'remand',
+  taggedBail: 'taggedBail',
+} as const
+
+// logic only exists for `remand` for now; `taggedBail` is a no-op
+export type Reason = (typeof Reason)[keyof typeof Reason]
