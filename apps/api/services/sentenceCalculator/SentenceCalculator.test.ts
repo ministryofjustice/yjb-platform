@@ -35,7 +35,7 @@ describe('SentenceCalculator', () => {
           },
         ],
       }
-      let calculator1 = new SentenceCalculator(dummySentence1)
+      const calculator1 = new SentenceCalculator(dummySentence1)
       expect(calculator1.getTotalDaysInTerm()).toBe(61)
     })
 
@@ -50,7 +50,7 @@ describe('SentenceCalculator', () => {
           },
         ],
       }
-      let calculator2 = new SentenceCalculator(dummySentence2)
+      const calculator2 = new SentenceCalculator(dummySentence2)
       expect(calculator2.getTotalDaysInTerm()).toBe(62)
     })
 
@@ -65,7 +65,7 @@ describe('SentenceCalculator', () => {
           },
         ],
       }
-      let calculatorNotInLeapYear = new SentenceCalculator(sentenceNotInLeapYear)
+      const calculatorNotInLeapYear = new SentenceCalculator(sentenceNotInLeapYear)
       expect(calculatorNotInLeapYear.getTotalDaysInTerm()).toBe(28)
 
       const sentenceInLeapYear: Sentence = {
@@ -79,7 +79,7 @@ describe('SentenceCalculator', () => {
         ],
       }
 
-      let calculatorInLeapYear = new SentenceCalculator(sentenceInLeapYear)
+      const calculatorInLeapYear = new SentenceCalculator(sentenceInLeapYear)
       expect(calculatorInLeapYear.getTotalDaysInTerm()).toBe(29)
     })
     it('clamps to the last day of a shorter month when a 1 month term starts on the 31st', () => {
@@ -93,7 +93,7 @@ describe('SentenceCalculator', () => {
           },
         ],
       }
-      let calculatorMonthEnd = new SentenceCalculator(sentenceMonthEnd)
+      const calculatorMonthEnd = new SentenceCalculator(sentenceMonthEnd)
       // Jan 31 + 1 month clamps to Feb 28 (2027 is not a leap year), not Mar 3
       expect(calculatorMonthEnd.getTotalDaysInTerm()).toBe(28)
     })
@@ -116,7 +116,7 @@ describe('SentenceCalculator', () => {
           },
         ],
       }
-      let calculator1= new SentenceCalculator(dummySentence1)
+      const calculator1 = new SentenceCalculator(dummySentence1)
       const totalDaysInTerm: number = calculator1.getTotalDaysInTerm()
       expect(calculator1.getSledDate(totalDaysInTerm)).toEqual(new Date('2028-05-28'))
     })
@@ -134,11 +134,11 @@ describe('SentenceCalculator', () => {
           {
             from: new Date('2026-08-01'),
             durationMonths: 1,
-            remand: 0
+            remand: 0,
           },
         ],
       }
-      let calculatorToRound = new SentenceCalculator(sentenceToRound)
+      const calculatorToRound = new SentenceCalculator(sentenceToRound)
       expect(calculatorToRound.getTotalDaysMTD()).toBe(16)
     })
   })
@@ -160,7 +160,7 @@ describe('SentenceCalculator', () => {
           },
         ],
       }
-      let calculatorToRound = new SentenceCalculator(sentenceToRound)
+      const calculatorToRound = new SentenceCalculator(sentenceToRound)
       const totalDaysMTD: number = calculatorToRound.getTotalDaysMTD()
       expect(calculatorToRound.getMTDDate(totalDaysMTD)).toEqual(new Date('2026-08-16'))
     })
@@ -228,15 +228,15 @@ describe('SentenceCalculator', () => {
       }
       const calculatorRemand = new SentenceCalculator(sentenceRemand)
       expect(calculatorRemand.adjustCalculation(Reason.remand)).toEqual({
-          totalDaysInTerm: 334,
-          sledDate: new Date('2027-05-13'),
-          totalDaysMTD: 167,
-          mtdDate: new Date('2026-11-27'),
-          adjustmentRecords: [{ type: 'remand', sledDate: new Date('2027-05-28'), mtdDate: new Date('2026-12-12') }],
+        totalDaysInTerm: 334,
+        sledDate: new Date('2027-05-13'),
+        totalDaysMTD: 167,
+        mtdDate: new Date('2026-11-27'),
+        adjustmentRecords: [{ type: 'remand', sledDate: new Date('2027-05-28'), mtdDate: new Date('2026-12-12') }],
       })
     })
 
-     it('returns the full calculation with 15 days remand on leap', () => {
+    it('returns the full calculation with 15 days remand on leap', () => {
       const sentenceRemand: Sentence = {
         offenderName: 'Test Offender',
         term: [
@@ -249,11 +249,11 @@ describe('SentenceCalculator', () => {
       }
       const calculatorRemand = new SentenceCalculator(sentenceRemand)
       expect(calculatorRemand.adjustCalculation(Reason.remand)).toEqual({
-          totalDaysInTerm: 59,
-          sledDate: new Date('2027-03-01'),
-          totalDaysMTD: 30,
-          mtdDate: new Date('2027-01-31'),
-          adjustmentRecords: [{ type: 'remand', sledDate: new Date('2027-03-31'), mtdDate: new Date('2027-03-02') }],
+        totalDaysInTerm: 59,
+        sledDate: new Date('2027-03-01'),
+        totalDaysMTD: 30,
+        mtdDate: new Date('2027-01-31'),
+        adjustmentRecords: [{ type: 'remand', sledDate: new Date('2027-03-31'), mtdDate: new Date('2027-03-02') }],
       })
     })
   })

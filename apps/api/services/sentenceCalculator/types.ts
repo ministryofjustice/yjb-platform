@@ -7,7 +7,7 @@ export type Term = {
 
 // input type
 export type Sentence = {
-  offenderName: string,
+  offenderName: string
   term: Term[]
 }
 
@@ -26,7 +26,6 @@ export type AdjustmentRecord = {
   sledDate: Date
   mtdDate: Date
 }
-
 
 // internal types
 export const Reason = {

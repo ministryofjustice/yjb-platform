@@ -4,21 +4,23 @@ import { Sentence, Calculation, AdjustmentRecord, Reason } from './types'
 
 export default class SentenceCalculator {
   private sentence: Sentence
-  private calculation: Calculation
-  
-  constructor (sentence: Sentence){
-      this.sentence = sentence
-      const totalDaysInTerm = this.getTotalDaysInTerm()
-      const totalDaysMTD = this.getTotalDaysMTD()
 
-     this.calculation = {
-      totalDaysInTerm: totalDaysInTerm,
+  private calculation: Calculation
+
+  constructor(sentence: Sentence) {
+    this.sentence = sentence
+    const totalDaysInTerm = this.getTotalDaysInTerm()
+    const totalDaysMTD = this.getTotalDaysMTD()
+
+    this.calculation = {
+      totalDaysInTerm,
       sledDate: this.getSledDate(totalDaysInTerm),
-      totalDaysMTD: totalDaysMTD,
+      totalDaysMTD,
       mtdDate: this.getMTDDate(totalDaysMTD),
       adjustmentRecords: [],
     }
   }
+
   getTotalDaysInTerm(): number {
     const { from, durationMonths } = this.sentence.term[0]
     const utcFrom = new UTCDate(from)
@@ -27,7 +29,7 @@ export default class SentenceCalculator {
     return differenceInCalendarDays(to, utcFrom)
   }
 
-  getSledDate( totalDaysInTerm: number): Date {
+  getSledDate(totalDaysInTerm: number): Date {
     const { from } = this.sentence.term[0]
     // add term starting from the sentence day
     return addDays(new UTCDate(from), totalDaysInTerm - 1)
@@ -74,9 +76,9 @@ export default class SentenceCalculator {
 
   adjustCalculation(reason: Reason): Calculation {
     if (reason === Reason.remand) {
-      const {remand} = this.sentence.term[0]
-      if(remand > 0){
-        this.applyRemand(remand, reason);
+      const { remand } = this.sentence.term[0]
+      if (remand > 0) {
+        this.applyRemand(remand, reason)
       }
     }
 
