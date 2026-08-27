@@ -153,7 +153,7 @@ describe('SentenceCalculator', () => {
 
   describe('getTotalCalculation', () => {
     it('returns the full calculation for a single-term sentence', () => {
-      expect(defaultCalculator.getTotalCalculation(defaultSentence)).toEqual({
+      expect(defaultCalculator.getTotalCalculation()).toEqual({
         totalDaysInTerm: 334,
         sledDate: new Date('2027-05-28'),
         totalDaysMTD: 167,
@@ -173,7 +173,8 @@ describe('SentenceCalculator', () => {
           },
         ],
       }
-      expect(defaultCalculator.getTotalCalculation(sentenceRemand)).toEqual({
+      const calculatorRemand = new SentenceCalculator(sentenceRemand)
+      expect(calculatorRemand.getTotalCalculation()).toEqual({
           totalDaysInTerm: 334,
           sledDate: new Date('2027-05-13'),
           totalDaysMTD: 167,
@@ -195,7 +196,7 @@ describe('SentenceCalculator', () => {
       }
       let calculatorRemand = new SentenceCalculator(sentenceRemand)
       //now the date goes before the sentence day so what do we do?
-      expect(calculatorRemand.getTotalCalculation(sentenceRemand)).toEqual({
+      expect(calculatorRemand.getTotalCalculation()).toEqual({
           totalDaysInTerm: 59,
           sledDate: new Date('2027-03-01'),
           totalDaysMTD: 30,

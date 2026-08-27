@@ -62,9 +62,8 @@ export default class SentenceCalculator {
   }
   
 
-  getTotalCalculation(sentence: Sentence): Calculation {
-
-    const {remand} = sentence.term[0]
+  getTotalCalculation(): Calculation {
+    const {remand} = this.sentence.term[0]
     if(remand > 0){
         this.applyRemand(remand);
     }
