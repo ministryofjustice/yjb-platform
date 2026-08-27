@@ -1,5 +1,7 @@
 {% extends "../partials/layout.njk" %}
 
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
 {% set pageTitle = applicationName + " - Home" %}
 {% set mainClasses = "govuk-body" %}
 
@@ -8,5 +10,12 @@
   <h1>This site is under construction...</h1>
   <p>Please check back later when there is content to view.</p>
   <p data-qa="timestamp">The time is currently {{ currentTime }}</p>
+
+  {{ govukButton({
+    id: "new-calculation",
+    text: "New calculation",
+    href: "/calculate",
+    isStartButton: true
+  }) }}
 
 {% endblock %}
