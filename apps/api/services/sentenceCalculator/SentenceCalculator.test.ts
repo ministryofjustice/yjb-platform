@@ -1,5 +1,5 @@
 import SentenceCalculator from './SentenceCalculator'
-import { Sentence } from './types'
+import { Sentence, Reason } from './types'
 
 const defaultSentence: Sentence = {
   term: [
@@ -206,7 +206,7 @@ describe('SentenceCalculator', () => {
 
   describe('adjustCalculation', () => {
     it('returns the full calculation for a single-term sentence', () => {
-      expect(defaultCalculator.adjustCalculation()).toEqual({
+      expect(defaultCalculator.adjustCalculation(Reason.remand)).toEqual({
         totalDaysInTerm: 334,
         sledDate: new Date('2027-05-28'),
         totalDaysMTD: 167,
@@ -227,7 +227,7 @@ describe('SentenceCalculator', () => {
         ],
       }
       const calculatorRemand = new SentenceCalculator(sentenceRemand)
-      expect(calculatorRemand.adjustCalculation()).toEqual({
+      expect(calculatorRemand.adjustCalculation(Reason.remand)).toEqual({
           totalDaysInTerm: 334,
           sledDate: new Date('2027-05-13'),
           totalDaysMTD: 167,
@@ -248,9 +248,7 @@ describe('SentenceCalculator', () => {
         ],
       }
       let calculatorRemand = new SentenceCalculator(sentenceRemand)
-      //now the date goes before the sentence day so what do we do?
-      const reason = 'remand'
-      expect(calculatorRemand.adjustCalculation(reason)).toEqual({
+      expect(calculatorRemand.adjustCalculation(Reason.remand)).toEqual({
           totalDaysInTerm: 59,
           sledDate: new Date('2027-03-01'),
           totalDaysMTD: 30,
