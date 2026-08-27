@@ -168,7 +168,7 @@ describe('SentenceCalculator', () => {
 
   describe('applyRemand', () => {
     it('returns an adjustment record with the sled and mtd dates prior to the adjustment', () => {
-      const record = defaultCalculator.applyRemand(15)
+      const record = defaultCalculator.applyRemand(15, Reason.remand)
       expect(record).toEqual({
         type: 'remand',
         sledDate: new Date('2027-05-28'),
@@ -177,14 +177,14 @@ describe('SentenceCalculator', () => {
     })
 
     it('subtracts the remand days from sled and mtd', () => {
-      defaultCalculator.applyRemand(15)
+      defaultCalculator.applyRemand(15, Reason.remand)
       expect(defaultCalculator.getCalculation().sledDate).toEqual(new Date('2027-05-13'))
       expect(defaultCalculator.getCalculation().mtdDate).toEqual(new Date('2026-11-27'))
     })
 
     it('adds a new adjustment record each time it is called', () => {
-      defaultCalculator.applyRemand(10)
-      defaultCalculator.applyRemand(5)
+      defaultCalculator.applyRemand(10, Reason.remand)
+      defaultCalculator.applyRemand(5, Reason.remand)
       const { adjustmentRecords, sledDate, mtdDate } = defaultCalculator.getCalculation()
       expect(adjustmentRecords).toHaveLength(2)
       expect(sledDate).toEqual(new Date('2027-05-13'))
@@ -192,13 +192,13 @@ describe('SentenceCalculator', () => {
     })
 
     it('clamps sled and mtd to the sentence start date when remand covers the whole sentence', () => {
-      defaultCalculator.applyRemand(334)
+      defaultCalculator.applyRemand(334, Reason.remand)
       expect(defaultCalculator.getCalculation().sledDate).toEqual(new Date('2026-06-29'))
       expect(defaultCalculator.getCalculation().mtdDate).toEqual(new Date('2026-06-29'))
     })
 
     it('clamps sled and mtd to the sentence start date when remand exceeds the sentence length', () => {
-      defaultCalculator.applyRemand(400)
+      defaultCalculator.applyRemand(400, Reason.remand)
       expect(defaultCalculator.getCalculation().sledDate).toEqual(new Date('2026-06-29'))
       expect(defaultCalculator.getCalculation().mtdDate).toEqual(new Date('2026-06-29'))
     })
