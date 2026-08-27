@@ -151,6 +151,44 @@ describe('SentenceCalculator', () => {
     })
   })
 
+  describe('applyRemand', () => {
+    it('returns an adjustment record with the sled and mtd dates prior to the adjustment', () => {
+      const record = defaultCalculator.applyRemand(15)
+      expect(record).toEqual({
+        type: 'remand',
+        sledDate: new Date('2027-05-28'),
+        mtdDate: new Date('2026-12-12'),
+      })
+    })
+
+    it('subtracts the remand days from sled and mtd', () => {
+      defaultCalculator.applyRemand(15)
+      expect(defaultCalculator.getCalculation().sledDate).toEqual(new Date('2027-05-13'))
+      expect(defaultCalculator.getCalculation().mtdDate).toEqual(new Date('2026-11-27'))
+    })
+
+    it('adds a new adjustment record each time it is called', () => {
+      defaultCalculator.applyRemand(10)
+      defaultCalculator.applyRemand(5)
+      const { adjustmentRecords, sledDate, mtdDate } = defaultCalculator.getCalculation()
+      expect(adjustmentRecords).toHaveLength(2)
+      expect(sledDate).toEqual(new Date('2027-05-13'))
+      expect(mtdDate).toEqual(new Date('2026-11-27'))
+    })
+
+    it('clamps sled and mtd to the sentence start date when remand covers the whole sentence', () => {
+      defaultCalculator.applyRemand(334)
+      expect(defaultCalculator.getCalculation().sledDate).toEqual(new Date('2026-06-29'))
+      expect(defaultCalculator.getCalculation().mtdDate).toEqual(new Date('2026-06-29'))
+    })
+
+    it('clamps sled and mtd to the sentence start date when remand exceeds the sentence length', () => {
+      defaultCalculator.applyRemand(400)
+      expect(defaultCalculator.getCalculation().sledDate).toEqual(new Date('2026-06-29'))
+      expect(defaultCalculator.getCalculation().mtdDate).toEqual(new Date('2026-06-29'))
+    })
+  })
+
   describe('getTotalCalculation', () => {
     it('returns the full calculation for a single-term sentence', () => {
       expect(defaultCalculator.getTotalCalculation()).toEqual({

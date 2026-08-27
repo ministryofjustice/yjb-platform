@@ -54,13 +54,23 @@ export default class SentenceCalculator {
     }
     this.calculation.adjustmentRecords.push(adjustment)
 
-    //calculate new sled and mtd
-    this.calculation.sledDate = subDays(this.calculation.sledDate, remand)
-    this.calculation.mtdDate = subDays(this.calculation.mtdDate, remand)
+    // if remand covers the whole sentence, there's no sentence left to serve:
+    // sled and mtd both collapse to the sentence start date
+    if (remand >= this.calculation.totalDaysInTerm) {
+      const sentenceStart = new UTCDate(this.sentence.term[0].from)
+      this.calculation.sledDate = sentenceStart
+      this.calculation.mtdDate = sentenceStart
+    } else {
+      this.calculation.sledDate = subDays(this.calculation.sledDate, remand)
+      this.calculation.mtdDate = subDays(this.calculation.mtdDate, remand)
+    }
 
     return adjustment
   }
-  
+
+  getCalculation(): Calculation {
+    return this.calculation
+  }
 
   getTotalCalculation(): Calculation {
     const {remand} = this.sentence.term[0]
