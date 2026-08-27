@@ -46,13 +46,17 @@ export default class SentenceCalculator {
   }
 
   applyRemand(remand: number): Adjustment {
+    //save existing sled and mtd prior adjustment
     const adjustment: Adjustment = {
       type: 'remand',
-      sledDate: subDays(this.calculation.sledDate, remand),
-      mtdDate: subDays(this.calculation.mtdDate, remand),
+      sledDate: this.calculation.sledDate,
+      mtdDate: this.calculation.mtdDate,
     }
-
     this.calculation.adjustments.push(adjustment)
+
+    //calculate new sled and mtd
+    this.calculation.sledDate = subDays(this.calculation.sledDate, remand)
+    this.calculation.mtdDate = subDays(this.calculation.mtdDate, remand)
 
     return adjustment
   }
