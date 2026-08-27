@@ -175,10 +175,10 @@ describe('SentenceCalculator', () => {
       }
       expect(defaultCalculator.getTotalCalculation(sentenceRemand)).toEqual({
           totalDaysInTerm: 334,
-          sledDate: new Date('2027-05-28'),
+          sledDate: new Date('2027-05-13'),
           totalDaysMTD: 167,
-          mtdDate: new Date('2026-12-12'),
-           adjustments: [{ type: 'remand', sledDate: new Date('2027-05-13'), mtdDate: new Date('2026-11-27') }],
+          mtdDate: new Date('2026-11-27'),
+          adjustments: [{ type: 'remand', sledDate: new Date('2027-05-28'), mtdDate: new Date('2026-12-12') }],
       })
     })
 
@@ -197,10 +197,10 @@ describe('SentenceCalculator', () => {
       //now the date goes before the sentence day so what do we do?
       expect(calculatorRemand.getTotalCalculation(sentenceRemand)).toEqual({
           totalDaysInTerm: 59,
-          sledDate: new Date('2027-03-31'),
+          sledDate: new Date('2027-03-01'),
           totalDaysMTD: 30,
-          mtdDate: new Date('2027-03-02'),
-           adjustments: [{ type: 'remand', sledDate: new Date('2027-03-01'), mtdDate: new Date('2027-01-31') }],
+          mtdDate: new Date('2027-01-31'),
+          adjustments: [{ type: 'remand', sledDate: new Date('2027-03-31'), mtdDate: new Date('2027-03-02') }],
       })
     })
   })

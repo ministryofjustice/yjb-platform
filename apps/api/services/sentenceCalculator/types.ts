@@ -1,3 +1,4 @@
+//input type
 export type Term = {
   from: Date
   durationMonths: number
@@ -5,10 +6,12 @@ export type Term = {
   remand: number
 }
 
+//input type
 export type Sentence = {
   term: Term[]
 }
 
+//output type
 export interface Calculation {
   totalDaysInTerm: number
   sledDate: Date
@@ -17,6 +20,7 @@ export interface Calculation {
   adjustments: Adjustment[]
 }
 
+//output type
 export type Adjustment = {
   type: string
   sledDate: Date
