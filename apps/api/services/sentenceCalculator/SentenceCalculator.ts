@@ -45,10 +45,10 @@ export default class SentenceCalculator {
     return addDays(new UTCDate(from), totalDaysMTD - 1)
   }
 
-  applyRemand(remand: number): AdjustmentRecord {
+  applyRemand(remand: number, reason: string): AdjustmentRecord {
     //save existing sled and mtd prior adjustment
     const adjustment: AdjustmentRecord = {
-      type: 'remand',
+      type: reason,
       sledDate: this.calculation.sledDate,
       mtdDate: this.calculation.mtdDate,
     }
@@ -72,10 +72,10 @@ export default class SentenceCalculator {
     return this.calculation
   }
 
-  getTotalCalculation(): Calculation {
+  adjustCalculation(reason: string): Calculation {
     const {remand} = this.sentence.term[0]
     if(remand > 0){
-        this.applyRemand(remand);
+        this.applyRemand(remand, reason);
     }
 
     return this.calculation
