@@ -17,11 +17,11 @@ export interface Calculation {
   sledDate: Date
   totalDaysMTD: number
   mtdDate: Date
-  adjustments: Adjustment[]
+  adjustmentRecords: AdjustmentRecord[]
 }
 
 //output type
-export type Adjustment = {
+export type AdjustmentRecord = {
   type: string
   sledDate: Date
   mtdDate: Date
