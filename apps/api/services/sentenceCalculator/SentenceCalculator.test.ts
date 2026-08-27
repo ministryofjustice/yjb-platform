@@ -82,6 +82,21 @@ describe('SentenceCalculator', () => {
       let calculatorInLeapYear = new SentenceCalculator(sentenceInLeapYear)
       expect(calculatorInLeapYear.getTotalDaysInTerm()).toBe(29)
     })
+    it('clamps to the last day of a shorter month when a 1 month term starts on the 31st', () => {
+      const sentenceMonthEnd: Sentence = {
+        term: [
+          {
+            from: new Date('2027-01-31'),
+            durationMonths: 1,
+            offenderName: 'Test Offender',
+            remand: 0
+          },
+        ],
+      }
+      let calculatorMonthEnd = new SentenceCalculator(sentenceMonthEnd)
+      // Jan 31 + 1 month clamps to Feb 28 (2027 is not a leap year), not Mar 3
+      expect(calculatorMonthEnd.getTotalDaysInTerm()).toBe(28)
+    })
   })
 
   describe('getSledDate', () => {
