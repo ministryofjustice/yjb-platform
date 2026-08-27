@@ -16,7 +16,7 @@ export default class SentenceCalculator {
       sledDate: this.getSledDate(totalDaysInTerm),
       totalDaysMTD: totalDaysMTD,
       mtdDate: this.getMTDDate(totalDaysMTD),
-      adjustmentRecords: []
+      adjustmentRecords: [],
     }
   }
   getTotalDaysInTerm(): number {
@@ -46,7 +46,7 @@ export default class SentenceCalculator {
   }
 
   applyRemand(remand: number, reason: Reason): AdjustmentRecord {
-    //save existing sled and mtd prior adjustment
+    // save existing sled and mtd prior adjustment
     const adjustment: AdjustmentRecord = {
       type: reason,
       sledDate: this.calculation.sledDate,
@@ -76,7 +76,7 @@ export default class SentenceCalculator {
     if (reason === Reason.remand) {
       const {remand} = this.sentence.term[0]
       if(remand > 0){
-          this.applyRemand(remand, reason);
+        this.applyRemand(remand, reason);
       }
     }
 
