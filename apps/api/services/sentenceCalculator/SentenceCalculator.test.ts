@@ -7,7 +7,7 @@ const defaultSentence: Sentence = {
     {
       from: new Date('2026-06-29'),
       durationMonths: 11,
-      remand: 0
+      remand: 0,
     },
   ],
 }
@@ -31,7 +31,7 @@ describe('SentenceCalculator', () => {
           {
             from: new Date('2026-08-24'),
             durationMonths: 2,
-            remand: 0
+            remand: 0,
           },
         ],
       }
@@ -46,7 +46,7 @@ describe('SentenceCalculator', () => {
           {
             from: new Date('2026-07-24'),
             durationMonths: 2,
-            remand: 0
+            remand: 0,
           },
         ],
       }
@@ -61,7 +61,7 @@ describe('SentenceCalculator', () => {
           {
             from: new Date('2027-02-20'),
             durationMonths: 1,
-            remand: 0
+            remand: 0,
           },
         ],
       }
@@ -74,7 +74,7 @@ describe('SentenceCalculator', () => {
           {
             from: new Date('2028-02-20'),
             durationMonths: 1,
-            remand: 0
+            remand: 0,
           },
         ],
       }
@@ -89,7 +89,7 @@ describe('SentenceCalculator', () => {
           {
             from: new Date('2027-01-31'),
             durationMonths: 1,
-            remand: 0
+            remand: 0,
           },
         ],
       }
@@ -112,7 +112,7 @@ describe('SentenceCalculator', () => {
           {
             from: new Date('2027-06-29'),
             durationMonths: 11,
-            remand: 0
+            remand: 0,
           },
         ],
       }
@@ -156,7 +156,7 @@ describe('SentenceCalculator', () => {
           {
             from: new Date('2026-08-01'),
             durationMonths: 1,
-            remand: 0
+            remand: 0,
           },
         ],
       }
@@ -211,7 +211,7 @@ describe('SentenceCalculator', () => {
         sledDate: new Date('2027-05-28'),
         totalDaysMTD: 167,
         mtdDate: new Date('2026-12-12'),
-        adjustmentRecords: []
+        adjustmentRecords: [],
       })
     })
 
@@ -222,7 +222,7 @@ describe('SentenceCalculator', () => {
           {
             from: new Date('2026-06-29'),
             durationMonths: 11,
-            remand: 15
+            remand: 15,
           },
         ],
       }
@@ -243,11 +243,11 @@ describe('SentenceCalculator', () => {
           {
             from: new Date('2027-02-01'),
             durationMonths: 2,
-            remand: 30
+            remand: 30,
           },
         ],
       }
-      let calculatorRemand = new SentenceCalculator(sentenceRemand)
+      const calculatorRemand = new SentenceCalculator(sentenceRemand)
       expect(calculatorRemand.adjustCalculation(Reason.remand)).toEqual({
           totalDaysInTerm: 59,
           sledDate: new Date('2027-03-01'),

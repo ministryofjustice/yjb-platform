@@ -1,17 +1,17 @@
-//input type
+// input type
 export type Term = {
   from: Date
   durationMonths: number
   remand: number
 }
 
-//input type
+// input type
 export type Sentence = {
   offenderName: string,
   term: Term[]
 }
 
-//output type
+// output type
 export interface Calculation {
   totalDaysInTerm: number
   sledDate: Date
@@ -20,7 +20,7 @@ export interface Calculation {
   adjustmentRecords: AdjustmentRecord[]
 }
 
-//output type
+// output type
 export type AdjustmentRecord = {
   type: Reason
   sledDate: Date
@@ -28,7 +28,7 @@ export type AdjustmentRecord = {
 }
 
 
-//internal types
+// internal types
 export const Reason = {
   remand: 'remand',
   taggedBail: 'taggedBail',
