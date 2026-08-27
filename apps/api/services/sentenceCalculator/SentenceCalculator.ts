@@ -1,6 +1,6 @@
 import { addMonths, addDays, subDays, differenceInCalendarDays } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
-import { Sentence, Calculation, Adjustment  } from './types'
+import { Sentence, Calculation, AdjustmentRecord  } from './types'
 
 export default class SentenceCalculator {
   private sentence: Sentence
@@ -16,7 +16,7 @@ export default class SentenceCalculator {
       sledDate: this.getSledDate(totalDaysInTerm),
       totalDaysMTD: totalDaysMTD,
       mtdDate: this.getMTDDate(totalDaysMTD),
-      adjustments: []
+      adjustmentRecords: []
     }
   }
   getTotalDaysInTerm(): number {
@@ -45,14 +45,14 @@ export default class SentenceCalculator {
     return addDays(new UTCDate(from), totalDaysMTD - 1)
   }
 
-  applyRemand(remand: number): Adjustment {
+  applyRemand(remand: number): AdjustmentRecord {
     //save existing sled and mtd prior adjustment
-    const adjustment: Adjustment = {
+    const adjustment: AdjustmentRecord = {
       type: 'remand',
       sledDate: this.calculation.sledDate,
       mtdDate: this.calculation.mtdDate,
     }
-    this.calculation.adjustments.push(adjustment)
+    this.calculation.adjustmentRecords.push(adjustment)
 
     //calculate new sled and mtd
     this.calculation.sledDate = subDays(this.calculation.sledDate, remand)
