@@ -178,14 +178,14 @@ describe('SentenceCalculator', () => {
 
     it('subtracts the remand days from sled and mtd', () => {
       defaultCalculator.applyRemand(15, Reason.remand)
-      expect(defaultCalculator.getCalculation().effectiveSledDate).toEqual(new Date('2027-05-13'))
-      expect(defaultCalculator.getCalculation().effectiveMTDDate).toEqual(new Date('2026-11-27'))
+      expect(defaultCalculator.getCalculation().effectiveSled).toEqual(new Date('2027-05-13'))
+      expect(defaultCalculator.getCalculation().effectiveMTD).toEqual(new Date('2026-11-27'))
     })
 
     it('adds a new adjustment record each time it is called', () => {
       defaultCalculator.applyRemand(10, Reason.remand)
       defaultCalculator.applyRemand(5, Reason.remand)
-      const { adjustmentRecords, effectiveSledDate: sledDate, effectiveMTDDate: mtdDate } = defaultCalculator.getCalculation()
+      const { adjustmentRecords, effectiveSled: sledDate, effectiveMTD: mtdDate } = defaultCalculator.getCalculation()
       expect(adjustmentRecords).toHaveLength(2)
       expect(sledDate).toEqual(new Date('2027-05-13'))
       expect(mtdDate).toEqual(new Date('2026-11-27'))
@@ -193,14 +193,14 @@ describe('SentenceCalculator', () => {
 
     it('clamps sled and mtd to the sentence start date when remand covers the whole sentence', () => {
       defaultCalculator.applyRemand(334, Reason.remand)
-      expect(defaultCalculator.getCalculation().effectiveSledDate).toEqual(new Date('2026-06-29'))
-      expect(defaultCalculator.getCalculation().effectiveMTDDate).toEqual(new Date('2026-06-29'))
+      expect(defaultCalculator.getCalculation().effectiveSled).toEqual(new Date('2026-06-29'))
+      expect(defaultCalculator.getCalculation().effectiveMTD).toEqual(new Date('2026-06-29'))
     })
 
     it('clamps sled and mtd to the sentence start date when remand exceeds the sentence length', () => {
       defaultCalculator.applyRemand(400, Reason.remand)
-      expect(defaultCalculator.getCalculation().effectiveSledDate).toEqual(new Date('2026-06-29'))
-      expect(defaultCalculator.getCalculation().effectiveMTDDate).toEqual(new Date('2026-06-29'))
+      expect(defaultCalculator.getCalculation().effectiveSled).toEqual(new Date('2026-06-29'))
+      expect(defaultCalculator.getCalculation().effectiveMTD).toEqual(new Date('2026-06-29'))
     })
   })
 
@@ -208,9 +208,9 @@ describe('SentenceCalculator', () => {
     it('returns the full calculation for a single-term sentence', () => {
       expect(defaultCalculator.adjustCalculation(Reason.remand)).toEqual({
         totalDaysInTerm: 334,
-        effectiveSledDate: new Date('2027-05-28'),
+        effectiveSled: new Date('2027-05-28'),
         totalDaysMTD: 167,
-        effectiveMTDDate: new Date('2026-12-12'),
+        effectiveMTD: new Date('2026-12-12'),
         // ETD/LTD placeholder
         effectiveLTD: expect.any(Date),
         effectiveETD: expect.any(Date),
@@ -232,9 +232,9 @@ describe('SentenceCalculator', () => {
       const calculatorRemand = new SentenceCalculator(sentenceRemand)
       expect(calculatorRemand.adjustCalculation(Reason.remand)).toEqual({
         totalDaysInTerm: 334,
-        effectiveSledDate: new Date('2027-05-13'),
+        effectiveSled: new Date('2027-05-13'),
         totalDaysMTD: 167,
-        effectiveMTDDate: new Date('2026-11-27'),
+        effectiveMTD: new Date('2026-11-27'),
           // ETD/LTD placeholder
         effectiveLTD: expect.any(Date),
         effectiveETD: expect.any(Date),
@@ -256,9 +256,9 @@ describe('SentenceCalculator', () => {
       const calculatorRemand = new SentenceCalculator(sentenceRemand)
       expect(calculatorRemand.adjustCalculation(Reason.remand)).toEqual({
         totalDaysInTerm: 59,
-        effectiveSledDate: new Date('2027-03-01'),
+        effectiveSled: new Date('2027-03-01'),
         totalDaysMTD: 30,
-        effectiveMTDDate: new Date('2027-01-31'),
+        effectiveMTD: new Date('2027-01-31'),
           // ETD/LTD placeholder
         effectiveLTD: expect.any(Date),
         effectiveETD: expect.any(Date),
