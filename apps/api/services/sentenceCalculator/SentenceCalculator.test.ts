@@ -1,5 +1,5 @@
 import SentenceCalculator from './SentenceCalculator'
-import { Sentence, Reason } from './types'
+import { Sentence, Reason, Calculation } from './types'
 
 const defaultSentence: Sentence = {
   offenderName: 'Test Offender',
@@ -166,6 +166,13 @@ describe('SentenceCalculator', () => {
     })
   })
 
+
+  describe('getETD', () => {
+    it('returns 2026-10-12 for a 11 months long sentence, no remand, mtd on 2026-12-12', () => {
+      expect(defaultCalculator.getETDDate(new Date('2026-12-12'), 334)).toEqual(new Date('2026-10-12'))
+    })
+  })
+
   describe('applyRemand', () => {
     it('returns an adjustment record with the sled and mtd dates prior to the adjustment', () => {
       const record = defaultCalculator.applyRemand(15, Reason.remand)
@@ -249,7 +256,7 @@ describe('SentenceCalculator', () => {
       })
     })
 
-    it('returns the full calculation with 15 days remand on leap', () => {
+    it('returns the full calculation with 30 days remand on leap', () => {
       const sentenceRemand: Sentence = {
         offenderName: 'Test Offender',
         term: [

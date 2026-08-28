@@ -1,4 +1,4 @@
-import { addMonths, addDays, subDays, differenceInCalendarDays, endOfToday } from 'date-fns'
+import { addMonths, addDays, subDays,subMonths, differenceInCalendarDays, endOfToday } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
 import { Sentence, Calculation, AdjustmentRecord, Reason } from './types'
 
@@ -11,15 +11,17 @@ export default class SentenceCalculator {
     this.sentence = sentence
     const totalDaysInTerm = this.getTotalDaysInTerm()
     const totalDaysMTD = this.getTotalDaysMTD()
+    const mtd = this.getMTDDate(totalDaysMTD)
+    const etd = this.getETDDate(mtd, totalDaysInTerm)
 
     this.calculation = {
       totalDaysInTerm,
       totalDaysMTD,
       effectiveDates: {
         sled: this.getSledDate(totalDaysInTerm),
-        mtd: this.getMTDDate(totalDaysMTD),
+        mtd: mtd,
         ltd: new Date(),
-        etd: new Date(),
+        etd: etd,
       },
       adjustmentRecords: [],
     }
@@ -49,6 +51,10 @@ export default class SentenceCalculator {
 
     // add mtd starting from the sentence day
     return addDays(new UTCDate(from), totalDaysMTD - 1)
+  }
+
+  getETDDate(mtd: Date, totalDaysInTerm: number): Date {
+    return subMonths(new UTCDate(mtd), 2);
   }
 
   applyRemand(remand: number, reason: Reason): AdjustmentRecord {
