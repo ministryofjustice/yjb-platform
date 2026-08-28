@@ -54,7 +54,7 @@ export default class SentenceCalculator {
   }
 
   getETDDate(mtd: Date, totalDaysInTerm: number): Date {
-    return subMonths(new UTCDate(mtd), 2);
+    return subMonths(new UTCDate(mtd), 1);
   }
 
   applyRemand(remand: number, reason: Reason): AdjustmentRecord {
@@ -75,6 +75,7 @@ export default class SentenceCalculator {
     } else {
       this.calculation.effectiveDates.sled = subDays(this.calculation.effectiveDates.sled, remand)
       this.calculation.effectiveDates.mtd = subDays(this.calculation.effectiveDates.mtd, remand)
+      this.calculation.effectiveDates.etd = this.getETDDate(this.calculation.effectiveDates.mtd, this.calculation.totalDaysInTerm)
     }
 
     return adjustment
