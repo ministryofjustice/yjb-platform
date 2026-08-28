@@ -20,12 +20,14 @@ describe('POST /calculations', () => {
     }
 
     const output = {
-      totalDaysInTerm: 334,
-      effectiveSled: '2027-05-28T00:00:00.000Z',
-      totalDaysMTD: 167,
-      effectiveMTD: '2026-12-12T00:00:00.000Z',
-      effectiveLTD: '2026-08-28T00:00:00.000Z',
-      effectiveETD: '2026-08-28T00:00:00.000Z',
+        totalDaysInTerm: 334,
+        totalDaysMTD: 167,
+        effectiveDates: {
+            sled: '2027-05-28T00:00:00.000Z',
+            mtd: '2026-12-12T00:00:00.000Z',
+            ltd: '2027-01-12T00:00:00.000Z',
+            etd: '2026-11-12T00:00:00.000Z',
+        },
       adjustmentRecords: [],
     }
 

@@ -18,8 +18,7 @@ describe('SentenceController', () => {
             effectiveDates: {
                 sled: new Date('2027-05-28'),
                 mtd: new Date('2026-12-12'),
-                // ETD/LTD placeholder
-                ltd: expect.any(Date),
+                ltd: new Date('2027-01-12'),
                 etd: new Date('2026-11-12'),
             },
             adjustmentRecords: [],
