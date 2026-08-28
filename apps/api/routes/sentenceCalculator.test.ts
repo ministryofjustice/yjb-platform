@@ -4,7 +4,7 @@ import sentenceCalculatorRoutes from './sentenceCalculator'
 
 const app = express()
 app.use(express.json())
-app.use(sentenceCalculatorRoutes())
+app.use('/calculations', sentenceCalculatorRoutes())
 
 describe('POST /calculations', () => {
   it('should return valid calculations for a valid input of sentence with no remand', () => {
