@@ -14,9 +14,9 @@ export type Sentence = {
 // output type
 export interface Calculation {
   totalDaysInTerm: number
-  sledDate: Date
+  effectiveSledDate: Date
   totalDaysMTD: number
-  mtdDate: Date
+  effectiveMTDDate: Date
   adjustmentRecords: AdjustmentRecord[]
 }
 

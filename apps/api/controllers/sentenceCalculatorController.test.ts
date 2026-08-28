@@ -14,9 +14,9 @@ describe('SentenceController', () => {
         }
         const outputCalculation:Calculation = {
             totalDaysInTerm: 334,
-            sledDate: new Date('2027-05-28'),
+            effectiveSledDate: new Date('2027-05-28'),
             totalDaysMTD: 167,
-            mtdDate: new Date('2026-12-12'),
+            effectiveMTDDate: new Date('2026-12-12'),
             adjustmentRecords: [],
         }
         const calculator = new SentenceCalculator(inputSentence)
