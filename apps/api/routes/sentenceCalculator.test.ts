@@ -21,9 +21,9 @@ describe('POST /calculations', () => {
 
     const output = {
       totalDaysInTerm: 334,
-      sledDate: '2027-05-28T00:00:00.000Z',
+      effectiveSledDate: '2027-05-28T00:00:00.000Z',
       totalDaysMTD: 167,
-      mtdDate: '2026-12-12T00:00:00.000Z',
+      effectiveMTDDate: '2026-12-12T00:00:00.000Z',
       adjustmentRecords: [],
     }
 
