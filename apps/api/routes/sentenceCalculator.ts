@@ -18,6 +18,6 @@ export function calculateSentence(req: Request, res: Response): void {
 
 export default function sentenceCalculatorRoutes(): Router {
   const router = Router()
-  router.post('/calculations', calculateSentence)
+  router.post('/', calculateSentence)
   return router
 }
