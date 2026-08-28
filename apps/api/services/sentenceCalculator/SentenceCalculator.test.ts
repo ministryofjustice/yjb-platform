@@ -168,8 +168,9 @@ describe('SentenceCalculator', () => {
 
 
   describe('getETD', () => {
-    it('returns 2026-10-12 for a 11 months long sentence, no remand, mtd on 2026-12-12', () => {
-      expect(defaultCalculator.getETDDate(new Date('2026-12-12'), 334)).toEqual(new Date('2026-10-12'))
+    //only testing no remand scenario here, remand scenarios with adjustment covered in adjustment testing
+    it('returns 2026-11-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
+      expect(defaultCalculator.getETDDate(new Date('2026-12-12'), 334)).toEqual(new Date('2026-11-12'))
     })
   })
 
@@ -215,22 +216,22 @@ describe('SentenceCalculator', () => {
   })
 
   describe('adjustCalculation', () => {
-    it('returns the full calculation for a single-term sentence', () => {
+    it('returns the full calculation for a single-term sentence, no remand', () => {
       expect(defaultCalculator.adjustCalculation(Reason.remand)).toEqual({
         totalDaysInTerm: 334,
         totalDaysMTD: 167,
         effectiveDates: {
           sled: new Date('2027-05-28'),
           mtd: new Date('2026-12-12'),
-          // ETD/LTD placeholder
+          // LTD placeholder
           ltd: expect.any(Date),
-          etd: expect.any(Date),
+          etd: new Date('2026-11-12'),
         },
         adjustmentRecords: [],
       })
     })
 
-    it('returns the full calculation with 15 days remand', () => {
+    it('returns the full calculation for a single-term sentence,  15 days remand', () => {
       const sentenceRemand: Sentence = {
         offenderName: 'Test Offender',
         term: [
@@ -248,15 +249,15 @@ describe('SentenceCalculator', () => {
         effectiveDates: {
           sled: new Date('2027-05-13'),
           mtd: new Date('2026-11-27'),
-          // ETD/LTD placeholder
+          // LTD placeholder
           ltd: expect.any(Date),
-          etd: expect.any(Date),
+          etd: new Date('2026-10-27'),
         },
         adjustmentRecords: [{ type: 'remand', sledDate: new Date('2027-05-28'), mtdDate: new Date('2026-12-12') }],
       })
     })
 
-    it('returns the full calculation with 30 days remand on leap', () => {
+    it('returns the full calculation for a single-term sentence,  30 days remand on leap', () => {
       const sentenceRemand: Sentence = {
         offenderName: 'Test Offender',
         term: [
