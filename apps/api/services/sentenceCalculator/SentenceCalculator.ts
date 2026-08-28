@@ -13,6 +13,7 @@ export default class SentenceCalculator {
     const totalDaysMTD = this.getTotalDaysMTD()
     const mtd = this.getMTDDate(totalDaysMTD)
     const etd = this.getETDDate(mtd, totalDaysInTerm)
+    const ltd = this.getLTDDate(mtd, totalDaysInTerm)
 
     this.calculation = {
       totalDaysInTerm,
@@ -20,7 +21,7 @@ export default class SentenceCalculator {
       effectiveDates: {
         sled: this.getSledDate(totalDaysInTerm),
         mtd: mtd,
-        ltd: new Date(),
+        ltd: ltd,
         etd: etd,
       },
       adjustmentRecords: [],
@@ -59,6 +60,12 @@ export default class SentenceCalculator {
     return subMonths(new UTCDate(mtd), 1);
   }
 
+  getLTDDate(mtd: Date, totalDaysInTerm: number): Date {
+
+    //TODO again between 8 to 18 months, otherwise happens what?
+    return addMonths(new UTCDate(mtd), 1);
+  }
+
   applyRemand(remand: number, reason: Reason): AdjustmentRecord {
     // save existing sled and mtd prior adjustment
     const adjustment: AdjustmentRecord = {
@@ -78,6 +85,7 @@ export default class SentenceCalculator {
       this.calculation.effectiveDates.sled = subDays(this.calculation.effectiveDates.sled, remand)
       this.calculation.effectiveDates.mtd = subDays(this.calculation.effectiveDates.mtd, remand)
       this.calculation.effectiveDates.etd = this.getETDDate(this.calculation.effectiveDates.mtd, this.calculation.totalDaysInTerm)
+      this.calculation.effectiveDates.ltd = this.getLTDDate(this.calculation.effectiveDates.mtd, this.calculation.totalDaysInTerm)
     }
 
     return adjustment

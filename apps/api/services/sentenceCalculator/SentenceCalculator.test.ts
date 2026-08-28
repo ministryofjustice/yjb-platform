@@ -174,6 +174,13 @@ describe('SentenceCalculator', () => {
     })
   })
 
+  describe('getLTD', () => {
+    //only testing no remand scenario here, remand scenarios with adjustment covered in adjustment testing
+    it('returns 2027-01-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
+      expect(defaultCalculator.getLTDDate(new Date('2026-12-12'), 334)).toEqual(new Date('2027-01-12'))
+    })
+  })
+
   describe('applyRemand', () => {
     it('returns an adjustment record with the sled and mtd dates prior to the adjustment', () => {
       const record = defaultCalculator.applyRemand(15, Reason.remand)
@@ -223,8 +230,7 @@ describe('SentenceCalculator', () => {
         effectiveDates: {
           sled: new Date('2027-05-28'),
           mtd: new Date('2026-12-12'),
-          // LTD placeholder
-          ltd: expect.any(Date),
+          ltd: new Date('2027-01-12'),
           etd: new Date('2026-11-12'),
         },
         adjustmentRecords: [],
@@ -249,8 +255,7 @@ describe('SentenceCalculator', () => {
         effectiveDates: {
           sled: new Date('2027-05-13'),
           mtd: new Date('2026-11-27'),
-          // LTD placeholder
-          ltd: expect.any(Date),
+          ltd: new Date('2026-12-27'),
           etd: new Date('2026-10-27'),
         },
         adjustmentRecords: [{ type: 'remand', sledDate: new Date('2027-05-28'), mtdDate: new Date('2026-12-12') }],
@@ -275,8 +280,7 @@ describe('SentenceCalculator', () => {
         effectiveDates: {
           sled: new Date('2027-03-01'),
           mtd: new Date('2027-01-31'),
-          // LTD placeholder
-          ltd: expect.any(Date),
+          ltd: new Date('2027-02-28'),
           etd: new Date('2026-12-31'),
         },
         adjustmentRecords: [{ type: 'remand', sledDate: new Date('2027-03-31'), mtdDate: new Date('2027-03-02') }],
