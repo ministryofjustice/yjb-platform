@@ -14,9 +14,9 @@ describe('SentenceController', () => {
         }
         const outputCalculation:Calculation = {
             totalDaysInTerm: 334,
-            effectiveSledDate: new Date('2027-05-28'),
+            effectiveSled: new Date('2027-05-28'),
             totalDaysMTD: 167,
-            effectiveMTDDate: new Date('2026-12-12'),
+            effectiveMTD: new Date('2026-12-12'),
             // ETD/LTD placeholder
             effectiveLTD: expect.any(Date),
             effectiveETD: expect.any(Date),
