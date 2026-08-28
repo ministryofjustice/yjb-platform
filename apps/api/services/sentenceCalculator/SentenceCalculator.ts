@@ -54,6 +54,8 @@ export default class SentenceCalculator {
   }
 
   getETDDate(mtd: Date, totalDaysInTerm: number): Date {
+
+    //TODO add logic the leth should be between 8 to 18 months, otherwise happens what?
     return subMonths(new UTCDate(mtd), 1);
   }
 

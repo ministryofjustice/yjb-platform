@@ -275,9 +275,9 @@ describe('SentenceCalculator', () => {
         effectiveDates: {
           sled: new Date('2027-03-01'),
           mtd: new Date('2027-01-31'),
-          // ETD/LTD placeholder
+          // LTD placeholder
           ltd: expect.any(Date),
-          etd: expect.any(Date),
+          etd: new Date('2026-12-31'),
         },
         adjustmentRecords: [{ type: 'remand', sledDate: new Date('2027-03-31'), mtdDate: new Date('2027-03-02') }],
       })
