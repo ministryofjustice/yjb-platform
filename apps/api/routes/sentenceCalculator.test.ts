@@ -24,6 +24,8 @@ describe('POST /calculations', () => {
       effectiveSledDate: '2027-05-28T00:00:00.000Z',
       totalDaysMTD: 167,
       effectiveMTDDate: '2026-12-12T00:00:00.000Z',
+      effectiveLTD: '2026-08-28T00:00:00.000Z',
+      effectiveETD: '2026-08-28T00:00:00.000Z',
       adjustmentRecords: [],
     }
 
