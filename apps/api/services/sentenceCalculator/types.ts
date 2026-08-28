@@ -16,7 +16,9 @@ export interface Calculation {
   totalDaysInTerm: number
   effectiveSledDate: Date
   totalDaysMTD: number
-  effectiveMTDDate: Date
+  effectiveMTDDate: Date,
+  effectiveLTD:  Date,
+  effectiveETD:  Date,
   adjustmentRecords: AdjustmentRecord[]
 }
 
