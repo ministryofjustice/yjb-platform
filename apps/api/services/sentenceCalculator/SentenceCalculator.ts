@@ -17,6 +17,8 @@ export default class SentenceCalculator {
       effectiveSledDate: this.getSledDate(totalDaysInTerm),
       totalDaysMTD,
       effectiveMTDDate: this.getMTDDate(totalDaysMTD),
+      effectiveLTD: new Date(),
+      effectiveETD: new Date(),
       adjustmentRecords: [],
     }
   }

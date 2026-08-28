@@ -211,6 +211,9 @@ describe('SentenceCalculator', () => {
         effectiveSledDate: new Date('2027-05-28'),
         totalDaysMTD: 167,
         effectiveMTDDate: new Date('2026-12-12'),
+        // ETD/LTD placeholder
+        effectiveLTD: expect.any(Date),
+        effectiveETD: expect.any(Date),
         adjustmentRecords: [],
       })
     })
