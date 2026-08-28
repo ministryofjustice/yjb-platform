@@ -235,6 +235,9 @@ describe('SentenceCalculator', () => {
         effectiveSledDate: new Date('2027-05-13'),
         totalDaysMTD: 167,
         effectiveMTDDate: new Date('2026-11-27'),
+          // ETD/LTD placeholder
+        effectiveLTD: expect.any(Date),
+        effectiveETD: expect.any(Date),
         adjustmentRecords: [{ type: 'remand', sledDate: new Date('2027-05-28'), mtdDate: new Date('2026-12-12') }],
       })
     })
@@ -256,6 +259,9 @@ describe('SentenceCalculator', () => {
         effectiveSledDate: new Date('2027-03-01'),
         totalDaysMTD: 30,
         effectiveMTDDate: new Date('2027-01-31'),
+          // ETD/LTD placeholder
+        effectiveLTD: expect.any(Date),
+        effectiveETD: expect.any(Date),
         adjustmentRecords: [{ type: 'remand', sledDate: new Date('2027-03-31'), mtdDate: new Date('2027-03-02') }],
       })
     })
