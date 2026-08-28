@@ -14,12 +14,14 @@ describe('SentenceController', () => {
         }
         const outputCalculation:Calculation = {
             totalDaysInTerm: 334,
-            effectiveSled: new Date('2027-05-28'),
             totalDaysMTD: 167,
-            effectiveMTD: new Date('2026-12-12'),
-            // ETD/LTD placeholder
-            effectiveLTD: expect.any(Date),
-            effectiveETD: expect.any(Date),
+            effectiveDates: {
+                sled: new Date('2027-05-28'),
+                mtd: new Date('2026-12-12'),
+                // ETD/LTD placeholder
+                ltd: expect.any(Date),
+                etd: expect.any(Date),
+            },
             adjustmentRecords: [],
         }
         const calculator = new SentenceCalculator(inputSentence)
