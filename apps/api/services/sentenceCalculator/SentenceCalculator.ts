@@ -1,6 +1,6 @@
 import { addMonths, addDays, subDays,subMonths, differenceInCalendarDays, endOfToday } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
-import { Sentence, Calculation, Adjustments, Reason } from './types'
+import { Sentence, Calculation, pastAdjustment, Reason } from './types'
 
 export default class SentenceCalculator {
   private sentence: Sentence
@@ -66,9 +66,9 @@ export default class SentenceCalculator {
     return addMonths(new UTCDate(mtd), 1);
   }
 
-  applyRemand(remand: number, reason: Reason): Adjustments {
+  applyRemand(remand: number, reason: Reason): pastAdjustment {
     // save existing sled and mtd prior adjustment
-    const adjustment: Adjustments = {
+    const adjustment: pastAdjustment = {
       type: reason,
       oldSled: this.calculation.effectiveDates.sled,
       oldMtd: this.calculation.effectiveDates.mtd,

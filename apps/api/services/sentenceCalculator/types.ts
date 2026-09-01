@@ -12,16 +12,17 @@ export type Sentence = {
   term: Term[]
 }
 
+
 // output type
 export interface Calculation {
   totalDaysInTerm: number
   totalDaysMTD: number
   effectiveDates: { sled: Date; mtd: Date; ltd: Date; etd: Date },
-  pastAdjustements: Adjustments[]
+  pastAdjustements: pastAdjustment[]
 }
 
 // output type
-export type Adjustments = {
+export type pastAdjustment = {
   type: Reason
   oldSled: Date
   oldMtd: Date
