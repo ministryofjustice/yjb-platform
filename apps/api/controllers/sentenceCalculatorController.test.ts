@@ -20,7 +20,7 @@ describe('SentenceController', () => {
                 ltd: new Date('2027-01-12'),
                 etd: new Date('2026-11-12'),
             },
-            adjustmentRecords: [],
+            pastAdjustements: [],
         }
         const calculatedCalulationObj = new SentenceCalculatorController(inputSentence);
         expect(calculatedCalulationObj).toEqual(expectedOutputCalculation)
@@ -47,7 +47,7 @@ describe('SentenceController', () => {
                 ltd: new Date('2026-12-27'),
                 etd: new Date('2026-10-27'),
             },
-        adjustmentRecords: [{ type: 'remand', sledDate: new Date('2027-05-28'), mtdDate: new Date('2026-12-12') }],
+        pastAdjustements: [{ type: 'remand', oldSled: new Date('2027-05-28'), oldMtd: new Date('2026-12-12') }],
         }
         const calculatedCalulationObj = new SentenceCalculatorController(inputSentence);
         expect(calculatedCalulationObj).toEqual(expectedOutputCalculation)

@@ -16,14 +16,14 @@ export interface Calculation {
   totalDaysInTerm: number
   totalDaysMTD: number
   effectiveDates: { sled: Date; mtd: Date; ltd: Date; etd: Date },
-  adjustmentRecords: AdjustmentRecord[]
+  pastAdjustements: Adjustments[]
 }
 
 // output type
-export type AdjustmentRecord = {
+export type Adjustments = {
   type: Reason
-  sledDate: Date
-  mtdDate: Date
+  oldSled: Date
+  oldMtd: Date
 }
 
 // internal types
