@@ -97,7 +97,7 @@ export default class SentenceCalculator {
 
   adjustCalculation(reason: AdjustmentTypes): OutputCalculation {
     if (reason === AdjustmentTypes.remand) {
-      const { remand } = this.sentence.inputIndividualSentences[0]
+      const { remand } = this.sentence
       if (remand > 0) {
         this.applyRemand(remand, reason)
       }

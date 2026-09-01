@@ -2,14 +2,14 @@
 export type InputIndividualSentence = {
   from: Date
   durationMonths: number
-  remand: number
-  remandStartDate: Date, 
-  taggedBailDays: Number
 }
 
 // input type
 export type InputSentences = {
   offenderName: string
+  remand: number
+  remandStartDate: Date, 
+  taggedBailDays: Number,
   inputIndividualSentences: InputIndividualSentence[]
 }
 
