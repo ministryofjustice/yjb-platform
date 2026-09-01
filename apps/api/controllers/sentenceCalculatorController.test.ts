@@ -10,6 +10,7 @@ describe('SentenceController', () => {
                 durationMonths: 11,
                 remand: 0,
                 remandStartDate: new Date(),
+                taggedBailDays: 0,
             }]
         }
         const expectedOutputCalculation:Calculation = {
@@ -36,6 +37,7 @@ describe('SentenceController', () => {
                     durationMonths: 11,
                     remand: 15,
                     remandStartDate: new Date('2026-06-14'),
+                    taggedBailDays: 0,
                 },
             ],
         }
@@ -55,5 +57,35 @@ describe('SentenceController', () => {
         expect(calculatedCalulationObj).toEqual(expectedOutputCalculation)
 
     })
+
+    // it('returns seld .. and mtd ... for 11 month sentence starting on 2026-06-29 with 15 days remand and 5 days tagged bail', () => {
+    //     const inputSentence: Sentence = {
+    //         offenderName: 'Test Offender',
+    //         term: [
+    //             {
+    //                 from: new Date('2026-06-29'),
+    //                 durationMonths: 11,
+    //                 remand: 15,
+    //                 remandStartDate: new Date('2026-06-14'),
+    //                 taggedBailDays: 0,
+    //             },
+    //         ],
+    //     }
+
+    //    const expectedOutputCalculation = {
+    //         totalDaysInTerm: 334,
+    //         totalDaysMTD: 167,
+    //          effectiveDates: {
+    //             sled: new Date('2027-05-13'),
+    //             mtd: new Date('2026-11-27'),
+    //             ltd: new Date('2026-12-27'),
+    //             etd: new Date('2026-10-27'),
+    //         },
+    //     pastAdjustements: [{ type: 'remand', oldSled: new Date('2027-05-28'), oldMtd: new Date('2026-12-12') }],
+    //     }
+    //     const calculatedCalulationObj = new SentenceCalculatorController(inputSentence);
+    //     expect(calculatedCalulationObj).toEqual(expectedOutputCalculation)
+
+    // })
 })
 

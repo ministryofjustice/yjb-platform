@@ -9,6 +9,7 @@ const defaultSentence: Sentence = {
       durationMonths: 11,
       remand: 0,
       remandStartDate: new Date(),
+      taggedBailDays: 0,
     },
   ],
 }
@@ -34,6 +35,7 @@ describe('SentenceCalculator', () => {
             durationMonths: 2,
             remand: 0,
             remandStartDate: new Date(),
+            taggedBailDays: 0,
           },
         ],
       }
@@ -50,6 +52,7 @@ describe('SentenceCalculator', () => {
             durationMonths: 2,
             remand: 0,
             remandStartDate: new Date(),
+            taggedBailDays: 0,
           },
         ],
       }
@@ -66,6 +69,7 @@ describe('SentenceCalculator', () => {
             durationMonths: 1,
             remand: 0,
             remandStartDate: new Date(),
+            taggedBailDays: 0,
           },
         ],
       }
@@ -80,6 +84,7 @@ describe('SentenceCalculator', () => {
             durationMonths: 1,
             remand: 0,
             remandStartDate: new Date(),
+            taggedBailDays: 0,
           },
         ],
       }
@@ -96,6 +101,7 @@ describe('SentenceCalculator', () => {
             durationMonths: 1,
             remand: 0,
             remandStartDate: new Date(),
+            taggedBailDays: 0,
           },
         ],
       }
@@ -120,6 +126,7 @@ describe('SentenceCalculator', () => {
             durationMonths: 11,
             remand: 0,
             remandStartDate: new Date(),
+            taggedBailDays: 0,
           },
         ],
       }
@@ -143,6 +150,7 @@ describe('SentenceCalculator', () => {
             durationMonths: 1,
             remand: 0,
             remandStartDate: new Date(),
+            taggedBailDays: 0,
           },
         ],
       }
@@ -166,6 +174,7 @@ describe('SentenceCalculator', () => {
             durationMonths: 1,
             remand: 0,
             remandStartDate: new Date(),
+            taggedBailDays: 0,
           },
         ],
       }
@@ -255,6 +264,7 @@ describe('SentenceCalculator', () => {
             durationMonths: 11,
             remand: 15,
             remandStartDate: new Date('2026-06-14'),
+            taggedBailDays: 0,
           },
         ],
       }
@@ -281,6 +291,7 @@ describe('SentenceCalculator', () => {
             durationMonths: 2,
             remand: 30,
             remandStartDate: new Date('2027-01-02'),
+            taggedBailDays: 0,
           },
         ],
       }
