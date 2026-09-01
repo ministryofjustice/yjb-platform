@@ -261,8 +261,15 @@ describe('SentenceCalculator', () => {
   describe('adjustCalculation', () => {
     it('returns the full calculation for a single-term sentence, no remand', () => {
       expect(defaultCalculator.adjustCalculation(AdjustmentTypes.remand)).toEqual({
-        totalDaysInTerm: 334,
-        totalDaysMTD: 167,
+        caluclatedTerms: [
+          {
+            inputSentece: { from: new Date('2026-06-29'), durationMonths: 11 },
+            totalDaysInTerm: 334,
+            totalDaysMTD: 167,
+            sled: new Date('2027-05-28'),
+            mtd: new Date('2026-12-12'),
+          },
+        ],
         effectiveDates: {
           sled: new Date('2027-05-28'),
           mtd: new Date('2026-12-12'),
@@ -290,8 +297,15 @@ describe('SentenceCalculator', () => {
       }
       const calculatorRemand = new SentenceCalculator(sentenceRemand)
       expect(calculatorRemand.adjustCalculation(AdjustmentTypes.remand)).toEqual({
-        totalDaysInTerm: 334,
-        totalDaysMTD: 167,
+        caluclatedTerms: [
+          {
+            inputSentece: { from: new Date('2026-06-29'), durationMonths: 11 },
+            totalDaysInTerm: 334,
+            totalDaysMTD: 167,
+            sled: new Date('2027-05-28'),
+            mtd: new Date('2026-12-12'),
+          },
+        ],
         effectiveDates: {
           sled: new Date('2027-05-13'),
           mtd: new Date('2026-11-27'),
@@ -319,8 +333,15 @@ describe('SentenceCalculator', () => {
       }
       const calculatorRemand = new SentenceCalculator(sentenceRemand)
       expect(calculatorRemand.adjustCalculation(AdjustmentTypes.remand)).toEqual({
-        totalDaysInTerm: 59,
-        totalDaysMTD: 30,
+        caluclatedTerms: [
+          {
+            inputSentece: { from: new Date('2027-02-01'), durationMonths: 2 },
+            totalDaysInTerm: 59,
+            totalDaysMTD: 30,
+            sled: new Date('2027-03-31'),
+            mtd: new Date('2027-03-02'),
+          },
+        ],
         effectiveDates: {
           sled: new Date('2027-03-01'),
           mtd: new Date('2027-01-31'),

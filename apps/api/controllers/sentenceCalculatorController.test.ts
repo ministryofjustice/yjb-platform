@@ -16,8 +16,15 @@ describe('SentenceController', () => {
             }]
         }
         const expectedOutputCalculation:OutputCalculation = {
-            totalDaysInTerm: 334,
-            totalDaysMTD: 167,
+            caluclatedTerms: [
+                {
+                    inputSentece: { from: new Date('2026-06-29'), durationMonths: 11 },
+                    totalDaysInTerm: 334,
+                    totalDaysMTD: 167,
+                    sled: new Date('2027-05-28'),
+                    mtd: new Date('2026-12-12'),
+                },
+            ],
             effectiveDates: {
                 sled: new Date('2027-05-28'),
                 mtd: new Date('2026-12-12'),
@@ -47,8 +54,15 @@ describe('SentenceController', () => {
         }
 
        const expectedOutputCalculation = {
-            totalDaysInTerm: 334,
-            totalDaysMTD: 167,
+            caluclatedTerms: [
+                {
+                    inputSentece: { from: new Date('2026-06-29'), durationMonths: 11 },
+                    totalDaysInTerm: 334,
+                    totalDaysMTD: 167,
+                    sled: new Date('2027-05-28'),
+                    mtd: new Date('2026-12-12'),
+                },
+            ],
              effectiveDates: {
                 sled: new Date('2027-05-13'),
                 mtd: new Date('2026-11-27'),
@@ -62,36 +76,5 @@ describe('SentenceController', () => {
 
     })
 
-    // it('returns seld .. and mtd ... for 11 month sentence starting on 2026-06-29 with 15 days remand and 5 days tagged bail', () => {
-    //     const inputSentence: InputSentences = {
-    //         offenderName: 'Test Offender',
-    //         inputAdjustments: {
-    //             remand: 15,
-    //             remandStartDate: new Date('2026-06-14'),
-    //             taggedBailDays: 0,
-    //         },
-    //         inputIndividualSentences: [
-    //             {
-    //                 from: new Date('2026-06-29'),
-    //                 durationMonths: 11,
-    //             },
-    //         ],
-    //     }
-
-    //    const expectedOutputCalculation = {
-    //         totalDaysInTerm: 334,
-    //         totalDaysMTD: 167,
-    //          effectiveDates: {
-    //             sled: new Date('2027-05-13'),
-    //             mtd: new Date('2026-11-27'),
-    //             ltd: new Date('2026-12-27'),
-    //             etd: new Date('2026-10-27'),
-    //         },
-    //     pastCalculations: [{ adjustmentReason: 'remand', oldSled: new Date('2027-05-28'), oldMtd: new Date('2026-12-12') }],
-    //     }
-    //     const calculatedCalulationObj = new SentenceCalculatorController(inputSentence);
-    //     expect(calculatedCalulationObj).toEqual(expectedOutputCalculation)
-
-    // })
 })
 
