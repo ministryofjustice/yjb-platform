@@ -9,40 +9,37 @@ export default class SentenceCalculator {
 
   constructor(sentence: InputSentences) {
     this.sentence = sentence
-    const totalDaysInTerm = this.getTotalDaysInTerm()
-    const totalDaysMTD = this.getTotalDaysMTD()
-    const mtd = this.getMTDDate(totalDaysMTD)
-    const etd = this.getETDDate(mtd, totalDaysInTerm)
-    const ltd = this.getLTDDate(mtd, totalDaysInTerm)
 
     this.calculation = {
       caluclatedTerms: [],
-      effectiveDates: {
-        sled: this.getSledDate(totalDaysInTerm),
-        mtd: mtd,
-        ltd: ltd,
-        etd: etd,
-      },
+      effectiveDates: {} as OutputCalculation['effectiveDates'],
       pastCalculations: [],
     }
 
+    //get all term dates, for now it will always be one
     this.sentence.inputIndividualSentences.forEach(inputSentece => {
       this.calculation.caluclatedTerms.push(this.calculateTerm(inputSentece))
     })
+
+    //for now 1 sentecen only and without any adjustemnts the effecive dates match the terms (to apply consecuteve concurent sentences in future)
+    this.calculation.effectiveDates = {
+      sled: this.calculation.caluclatedTerms[0].sled,
+      mtd: this.calculation.caluclatedTerms[0].mtd,
+      ltd: this.getLTDDate(this.calculation.caluclatedTerms[0].mtd, this.calculation.caluclatedTerms[0].totalDaysInTerm),
+      etd: this.getETDDate(this.calculation.caluclatedTerms[0].mtd, this.calculation.caluclatedTerms[0].totalDaysInTerm),
+    }
   }
 
   calculateTerm(inputSentece: InputIndividualSentence): CalculatedTerm {
-    const utcFrom = new UTCDate(inputSentece.from)
-    const to = addMonths(utcFrom, inputSentece.durationMonths)
-    const totalDaysInTerm = differenceInCalendarDays(to, utcFrom)
-    const totalDaysMTD = Math.round(totalDaysInTerm / 2)
+    const totalDaysInTerm = this.getTotalDaysInTerm()
+    const totalDaysMTD = this.getTotalDaysMTD()
 
     return {
       inputSentece,
       totalDaysInTerm,
       totalDaysMTD,
-      sled: addDays(utcFrom, totalDaysInTerm - 1),
-      mtd: addDays(utcFrom, totalDaysMTD - 1),
+      sled: this.getSledDate(totalDaysInTerm),
+      mtd: this.getMTDDate(totalDaysMTD),
     }
   }
 
