@@ -58,7 +58,7 @@ describe('POST /calculations', () => {
                 ltd: '2026-12-27T00:00:00.000Z',
                 etd: '2026-10-27T00:00:00.000Z',
             },
-        pastCalculations: [{ type: 'remand', oldSled:  '2027-05-28T00:00:00.000Z', oldMtd: '2026-12-12T00:00:00.000Z' }],
+        pastCalculations: [{ adjustmentReason: 'remand', oldSled:  '2027-05-28T00:00:00.000Z', oldMtd: '2026-12-12T00:00:00.000Z' }],
         }
 
         return request(app).post('/calculations').send(input).expect(200, output)

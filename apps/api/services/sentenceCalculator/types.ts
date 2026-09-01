@@ -24,7 +24,7 @@ export interface OutputCalculation {
 
 // output type
 export type PastCalculations = {
-  type: AdjustmentTypes
+  adjustmentReason: AdjustmentTypes
   oldSled: Date
   oldMtd: Date
 }
