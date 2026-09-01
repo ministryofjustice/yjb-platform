@@ -1,20 +1,24 @@
-// input type
+// input types
 export type InputIndividualSentence = {
   from: Date
   durationMonths: number
 }
 
-// input type
+
 export type InputSentences = {
   offenderName: string
-  remand: number
-  remandStartDate: Date, 
-  taggedBailDays: Number,
+  inputAdjustments: InputAdjustments,
   inputIndividualSentences: InputIndividualSentence[]
 }
 
+export type InputAdjustments = {
+  remand: number
+  remandStartDate: Date, 
+  taggedBailDays: Number,
+}
 
-// output type
+
+// output types
 export interface OutputCalculation {
   totalDaysInTerm: number
   totalDaysMTD: number
@@ -22,7 +26,7 @@ export interface OutputCalculation {
   pastCalculations: PastCalculations[]
 }
 
-// output type
+
 export type PastCalculations = {
   adjustmentReason: AdjustmentTypes
   oldSled: Date

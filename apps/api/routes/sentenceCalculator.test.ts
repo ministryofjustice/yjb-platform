@@ -10,9 +10,11 @@ describe('POST /calculations', () => {
   it('should return valid calculations for a valid input of sentence with no remand', () => {
     const input = {
       offenderName: 'Test Offender',
-      remand: 0,
-      remandStartDate: new Date(),
-      taggedBailDays: 0,
+      inputAdjustments: {
+        remand: 0,
+        remandStartDate: new Date(),
+        taggedBailDays: 0,
+      },
       inputIndividualSentences: [
         {
           from: '2026-06-29',
@@ -39,9 +41,11 @@ describe('POST /calculations', () => {
   it('should return a valid calculation for a valid input with 15 days remand', () => {
         const input = {
             offenderName: 'Test Offender',
-            remand: 15,
-            remandStartDate: new Date('2026-06-14'),
-            taggedBailDays: 0,
+            inputAdjustments: {
+                remand: 15,
+                remandStartDate: new Date('2026-06-14'),
+                taggedBailDays: 0,
+            },
             inputIndividualSentences: [
             {
                 from: '2026-06-29',

@@ -4,7 +4,7 @@ import SentenceCalculator from "../services/sentenceCalculator/SentenceCalculato
 export class SentenceCalculatorController{
     constructor (sentence: InputSentences) {
         const sentenceCalc = new SentenceCalculator(sentence)
-        if(sentence.remand > 0){
+        if(sentence.inputAdjustments.remand > 0){
             sentenceCalc.adjustCalculation(AdjustmentTypes.remand);
         }
         const finalCalObj = sentenceCalc.getCalculation();

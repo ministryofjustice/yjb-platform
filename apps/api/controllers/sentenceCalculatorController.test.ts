@@ -5,9 +5,11 @@ describe('SentenceController', () => {
     it('returns 2027-05-28 sled and 2026-12-12 mtd for 11 month sentence starting on 026-06-29 with no remand', () => {
         const inputSentence: InputSentences = {
             'offenderName': 'test Offender',
-            remand: 0,
-            remandStartDate: new Date(),
-            taggedBailDays: 0,
+            inputAdjustments: {
+                remand: 0,
+                remandStartDate: new Date(),
+                taggedBailDays: 0,
+            },
             'inputIndividualSentences': [{
                 from: new Date('2026-06-29'),
                 durationMonths: 11,
@@ -31,9 +33,11 @@ describe('SentenceController', () => {
     it('returns seld 2027-05-13 and mtd 2026-11-2 for 11 month sentence starting on 2026-06-29 with 15 days remand', () => {
         const inputSentence: InputSentences = {
             offenderName: 'Test Offender',
-            remand: 15,
-            remandStartDate: new Date('2026-06-14'),
-            taggedBailDays: 0,
+            inputAdjustments: {
+                remand: 15,
+                remandStartDate: new Date('2026-06-14'),
+                taggedBailDays: 0,
+            },
             inputIndividualSentences: [
                 {
                     from: new Date('2026-06-29'),
@@ -61,9 +65,11 @@ describe('SentenceController', () => {
     // it('returns seld .. and mtd ... for 11 month sentence starting on 2026-06-29 with 15 days remand and 5 days tagged bail', () => {
     //     const inputSentence: InputSentences = {
     //         offenderName: 'Test Offender',
-    //         remand: 15,
-    //         remandStartDate: new Date('2026-06-14'),
-    //         taggedBailDays: 0,
+    //         inputAdjustments: {
+    //             remand: 15,
+    //             remandStartDate: new Date('2026-06-14'),
+    //             taggedBailDays: 0,
+    //         },
     //         inputIndividualSentences: [
     //             {
     //                 from: new Date('2026-06-29'),
