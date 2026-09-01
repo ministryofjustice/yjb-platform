@@ -23,9 +23,17 @@ export interface OutputCalculation {
   totalDaysInTerm: number
   totalDaysMTD: number
   effectiveDates: { sled: Date; mtd: Date; ltd: Date; etd: Date },
-  pastCalculations: PastCalculations[]
+  pastCalculations: AppendOnlyArray<PastCalculations>
 }
 
+// exposes only push/read access - no pop, splice, shift, sort, etc. -
+// so array order (oldest first) can't be disturbed once a record is pushed
+export type AppendOnlyArray<T> = {
+  readonly length: number
+  readonly [index: number]: T
+  push(...items: T[]): number
+  [Symbol.iterator](): IterableIterator<T>
+}
 
 export type PastCalculations = {
   adjustmentReason: AdjustmentTypes
