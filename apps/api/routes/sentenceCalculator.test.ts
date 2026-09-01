@@ -27,10 +27,10 @@ describe('POST /calculations', () => {
         totalDaysInTerm: 334,
         totalDaysMTD: 167,
         effectiveDates: {
-            sled: '2027-05-28T00:00:00.000Z',
-            mtd: '2026-12-12T00:00:00.000Z',
-            ltd: '2027-01-12T00:00:00.000Z',
-            etd: '2026-11-12T00:00:00.000Z',
+            sled: '2027-05-28',
+            mtd: '2026-12-12',
+            ltd: '2027-01-12',
+            etd: '2026-11-12',
         },
       pastCalculations: [],
     }
@@ -57,12 +57,12 @@ describe('POST /calculations', () => {
             totalDaysInTerm: 334,
             totalDaysMTD: 167,
             effectiveDates: {
-                sled: '2027-05-13T00:00:00.000Z',
-                mtd: '2026-11-27T00:00:00.000Z',
-                ltd: '2026-12-27T00:00:00.000Z',
-                etd: '2026-10-27T00:00:00.000Z',
+                sled: '2027-05-13',
+                mtd: '2026-11-27',
+                ltd: '2026-12-27',
+                etd: '2026-10-27',
             },
-        pastCalculations: [{ adjustmentReason: 'remand', oldSled:  '2027-05-28T00:00:00.000Z', oldMtd: '2026-12-12T00:00:00.000Z' }],
+        pastCalculations: [{ adjustmentReason: 'remand', oldSled:  '2027-05-28', oldMtd: '2026-12-12' }],
         }
 
         return request(app).post('/calculations').send(input).expect(200, output)
