@@ -26,12 +26,14 @@ describe('SentenceController', () => {
                 },
             ],
             effectiveDates: {
+                totalNumberOfRemandAndTaggedBailDays: 0,
                 sled: new Date('2027-05-28'),
                 mtd: new Date('2026-12-12'),
-                ltd: new Date('2027-01-12'),
-                etd: new Date('2026-11-12'),
+                TUSED: new Date(0),
             },
-            pastCalculations: [],
+            ltd: new Date('2027-01-12'),
+            etd: new Date('2026-11-12'),
+            pastEffectiveDateCalculations: [],
         }
         const calculatedCalulationObj = new SentenceCalculatorController(inputSentence);
         expect(calculatedCalulationObj).toEqual(expectedOutputCalculation)
@@ -64,12 +66,14 @@ describe('SentenceController', () => {
                 },
             ],
              effectiveDates: {
+                totalNumberOfRemandAndTaggedBailDays: 0,
                 sled: new Date('2027-05-13'),
                 mtd: new Date('2026-11-27'),
-                ltd: new Date('2026-12-27'),
-                etd: new Date('2026-10-27'),
+                TUSED: new Date(0),
             },
-        pastCalculations: [{ adjustmentReason: 'remand', oldSled: new Date('2027-05-28'), oldMtd: new Date('2026-12-12') }],
+            ltd: new Date('2026-12-27'),
+            etd: new Date('2026-10-27'),
+        pastEffectiveDateCalculations: [{ adjustmentReason: 'remand', oldSled: new Date('2027-05-28'), oldMtd: new Date('2026-12-12') }],
         }
         const calculatedCalulationObj = new SentenceCalculatorController(inputSentence);
         expect(calculatedCalulationObj).toEqual(expectedOutputCalculation)

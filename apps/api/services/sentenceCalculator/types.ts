@@ -19,8 +19,17 @@ export type InputAdjustments = {
 // output types
 export interface OutputCalculation {
   caluclatedTerms: AppendOnlyArray<CalculatedTerm>,
-  effectiveDates: { sled: Date; mtd: Date; ltd: Date; etd: Date }
-  pastCalculations: AppendOnlyArray<PastCalculations>
+  effectiveDates: EffectiveDates,
+  pastEffectiveDateCalculations: AppendOnlyArray<PastEffectiveDateCalculations>
+  ltd: Date; 
+  etd: Date 
+}
+
+export type EffectiveDates = { 
+  totalNumberOfRemandAndTaggedBailDays: number,
+  sled: Date,
+  mtd: Date,
+  TUSED: Date
 }
 
 //each term corresponds to one line on the sheet or one sentence
@@ -32,7 +41,7 @@ export type CalculatedTerm = {
   mtd: Date
 }
 
-export type PastCalculations = {
+export type PastEffectiveDateCalculations = {
   adjustmentReason: AdjustmentTypes,
   oldSled: Date
   oldMtd: Date

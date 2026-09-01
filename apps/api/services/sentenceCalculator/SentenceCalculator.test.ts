@@ -237,10 +237,10 @@ describe('SentenceCalculator', () => {
       defaultCalculator.applyRemand(10, AdjustmentTypes.remand)
       defaultCalculator.applyRemand(5, AdjustmentTypes.remand)
       const {
-        pastCalculations,
+        pastEffectiveDateCalculations,
         effectiveDates: { sled: sledDate, mtd: mtdDate },
       } = defaultCalculator.getCalculation()
-      expect(pastCalculations).toHaveLength(2)
+      expect(pastEffectiveDateCalculations).toHaveLength(2)
       expect(sledDate).toEqual(new Date('2027-05-13'))
       expect(mtdDate).toEqual(new Date('2026-11-27'))
     })
@@ -271,12 +271,14 @@ describe('SentenceCalculator', () => {
           },
         ],
         effectiveDates: {
+          totalNumberOfRemandAndTaggedBailDays: 0,
           sled: new Date('2027-05-28'),
           mtd: new Date('2026-12-12'),
-          ltd: new Date('2027-01-12'),
-          etd: new Date('2026-11-12'),
+          TUSED: new Date(0),
         },
-        pastCalculations: [],
+        ltd: new Date('2027-01-12'),
+        etd: new Date('2026-11-12'),
+        pastEffectiveDateCalculations: [],
       })
     })
 
@@ -307,12 +309,14 @@ describe('SentenceCalculator', () => {
           },
         ],
         effectiveDates: {
+          totalNumberOfRemandAndTaggedBailDays: 0,
           sled: new Date('2027-05-13'),
           mtd: new Date('2026-11-27'),
-          ltd: new Date('2026-12-27'),
-          etd: new Date('2026-10-27'),
+          TUSED: new Date(0),
         },
-        pastCalculations: [{ adjustmentReason: 'remand', oldSled: new Date('2027-05-28'), oldMtd: new Date('2026-12-12') }],
+        ltd: new Date('2026-12-27'),
+        etd: new Date('2026-10-27'),
+        pastEffectiveDateCalculations: [{ adjustmentReason: 'remand', oldSled: new Date('2027-05-28'), oldMtd: new Date('2026-12-12') }],
       })
     })
 
@@ -343,12 +347,14 @@ describe('SentenceCalculator', () => {
           },
         ],
         effectiveDates: {
+          totalNumberOfRemandAndTaggedBailDays: 0,
           sled: new Date('2027-03-01'),
           mtd: new Date('2027-01-31'),
-          ltd: new Date('2027-02-28'),
-          etd: new Date('2026-12-31'),
+          TUSED: new Date(0),
         },
-        pastCalculations: [{ adjustmentReason: 'remand', oldSled: new Date('2027-03-31'), oldMtd: new Date('2027-03-02') }],
+        ltd: new Date('2027-02-28'),
+        etd: new Date('2026-12-31'),
+        pastEffectiveDateCalculations: [{ adjustmentReason: 'remand', oldSled: new Date('2027-03-31'), oldMtd: new Date('2027-03-02') }],
       })
     })
   })
