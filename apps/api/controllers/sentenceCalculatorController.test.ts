@@ -9,6 +9,7 @@ describe('SentenceController', () => {
                 from: new Date('2026-06-29'),
                 durationMonths: 11,
                 remand: 0,
+                remandStartDate: new Date(),
             }]
         }
         const expectedOutputCalculation:Calculation = {
@@ -34,6 +35,7 @@ describe('SentenceController', () => {
                     from: new Date('2026-06-29'),
                     durationMonths: 11,
                     remand: 15,
+                    remandStartDate: new Date('2026-06-14'),
                 },
             ],
         }

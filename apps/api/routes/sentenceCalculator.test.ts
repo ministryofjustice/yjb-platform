@@ -15,6 +15,7 @@ describe('POST /calculations', () => {
           durationMonths: 11,
           offenderName: 'Test Offender',
           remand: 0,
+          remandStartDate: new Date(),
         },
       ],
     }
@@ -42,6 +43,7 @@ describe('POST /calculations', () => {
                 durationMonths: 11,
                 offenderName: 'Test Offender',
                 remand: 15,
+                remandStartDate: new Date('2026-06-14'),
                 },
             ],
         }

@@ -8,6 +8,7 @@ const defaultSentence: Sentence = {
       from: new Date('2026-06-29'),
       durationMonths: 11,
       remand: 0,
+      remandStartDate: new Date(),
     },
   ],
 }
@@ -32,6 +33,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2026-08-24'),
             durationMonths: 2,
             remand: 0,
+            remandStartDate: new Date(),
           },
         ],
       }
@@ -47,6 +49,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2026-07-24'),
             durationMonths: 2,
             remand: 0,
+            remandStartDate: new Date(),
           },
         ],
       }
@@ -62,6 +65,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2027-02-20'),
             durationMonths: 1,
             remand: 0,
+            remandStartDate: new Date(),
           },
         ],
       }
@@ -75,6 +79,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2028-02-20'),
             durationMonths: 1,
             remand: 0,
+            remandStartDate: new Date(),
           },
         ],
       }
@@ -90,6 +95,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2027-01-31'),
             durationMonths: 1,
             remand: 0,
+            remandStartDate: new Date(),
           },
         ],
       }
@@ -113,6 +119,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2027-06-29'),
             durationMonths: 11,
             remand: 0,
+            remandStartDate: new Date(),
           },
         ],
       }
@@ -135,6 +142,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2026-08-01'),
             durationMonths: 1,
             remand: 0,
+            remandStartDate: new Date(),
           },
         ],
       }
@@ -157,6 +165,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2026-08-01'),
             durationMonths: 1,
             remand: 0,
+            remandStartDate: new Date(),
           },
         ],
       }
@@ -245,6 +254,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2026-06-29'),
             durationMonths: 11,
             remand: 15,
+            remandStartDate: new Date('2026-06-14'),
           },
         ],
       }
@@ -270,6 +280,7 @@ describe('SentenceCalculator', () => {
             from: new Date('2027-02-01'),
             durationMonths: 2,
             remand: 30,
+            remandStartDate: new Date('2027-01-02'),
           },
         ],
       }
