@@ -34,12 +34,14 @@ describe('POST /calculations', () => {
             },
         ],
         effectiveDates: {
+            totalNumberOfRemandAndTaggedBailDays: 0,
             sled: '2027-05-28',
             mtd: '2026-12-12',
-            ltd: '2027-01-12',
-            etd: '2026-11-12',
+            TUSED: '1970-01-01',
         },
-      pastCalculations: [],
+      ltd: '2027-01-12',
+      etd: '2026-11-12',
+      pastEffectiveDateCalculations: [],
     }
 
     return request(app).post('/calculations').send(input).expect(200, output)
@@ -71,12 +73,14 @@ describe('POST /calculations', () => {
                 },
             ],
             effectiveDates: {
+                totalNumberOfRemandAndTaggedBailDays: 0,
                 sled: '2027-05-13',
                 mtd: '2026-11-27',
-                ltd: '2026-12-27',
-                etd: '2026-10-27',
+                TUSED: '1970-01-01',
             },
-        pastCalculations: [{ adjustmentReason: 'remand', oldSled:  '2027-05-28', oldMtd: '2026-12-12' }],
+            ltd: '2026-12-27',
+            etd: '2026-10-27',
+        pastEffectiveDateCalculations: [{ adjustmentReason: 'remand', oldSled:  '2027-05-28', oldMtd: '2026-12-12' }],
         }
 
         return request(app).post('/calculations').send(input).expect(200, output)

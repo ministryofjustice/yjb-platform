@@ -1,6 +1,6 @@
 import { addMonths, addDays, subDays,subMonths, differenceInCalendarDays, endOfToday } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
-import { InputSentences, InputIndividualSentence, OutputCalculation, CalculatedTerm, PastCalculations, AdjustmentTypes } from './types'
+import { InputSentences, InputIndividualSentence, OutputCalculation, CalculatedTerm, EffectiveDates, PastEffectiveDateCalculations, AdjustmentTypes } from './types'
 
 export default class SentenceCalculator {
   private sentence: InputSentences
@@ -12,8 +12,10 @@ export default class SentenceCalculator {
 
     this.calculation = {
       caluclatedTerms: [],
-      effectiveDates: {} as OutputCalculation['effectiveDates'],
-      pastCalculations: [],
+      effectiveDates: {} as EffectiveDates,
+      pastEffectiveDateCalculations: [],
+      ltd: new Date(0),
+      etd: new Date(0),
     }
 
     //get all term dates, for now it will always be one
@@ -23,11 +25,15 @@ export default class SentenceCalculator {
 
     //for now 1 sentecen only and without any adjustemnts the effecive dates match the terms (to apply consecuteve concurent sentences in future)
     this.calculation.effectiveDates = {
+      //TODO calculate the real total 
+      totalNumberOfRemandAndTaggedBailDays: 0,
       sled: this.calculation.caluclatedTerms[0].sled,
       mtd: this.calculation.caluclatedTerms[0].mtd,
-      ltd: this.getLTDDate(this.calculation.caluclatedTerms[0].mtd, this.calculation.caluclatedTerms[0].totalDaysInTerm),
-      etd: this.getETDDate(this.calculation.caluclatedTerms[0].mtd, this.calculation.caluclatedTerms[0].totalDaysInTerm),
+      //probably out of scope for now, leve just for consistancy with sheet
+      TUSED: new Date(0),
     }
+    this.calculation.ltd = this.getLTDDate(this.calculation.effectiveDates.mtd, this.calculation.caluclatedTerms[0].totalDaysInTerm)
+    this.calculation.etd = this.getETDDate(this.calculation.effectiveDates.mtd, this.calculation.caluclatedTerms[0].totalDaysInTerm)
   }
 
   calculateTerm(inputSentece: InputIndividualSentence): CalculatedTerm {
@@ -81,14 +87,14 @@ export default class SentenceCalculator {
     return addMonths(new UTCDate(mtd), 1);
   }
 
-  applyRemand(remand: number, reason: AdjustmentTypes): PastCalculations {
+  applyRemand(remand: number, reason: AdjustmentTypes): PastEffectiveDateCalculations {
     // save existing sled and mtd prior adjustment
-    const adjustment: PastCalculations = {
+    const adjustment: PastEffectiveDateCalculations = {
       adjustmentReason: reason,
       oldSled: this.calculation.effectiveDates.sled,
       oldMtd: this.calculation.effectiveDates.mtd,
     }
-    this.calculation.pastCalculations.push(adjustment)
+    this.calculation.pastEffectiveDateCalculations.push(adjustment)
 
     // if remand covers the whole sentence, there's no sentence left to serve:
     // sled and mtd both collapse to the sentence start date
@@ -99,8 +105,8 @@ export default class SentenceCalculator {
     } else {
       this.calculation.effectiveDates.sled = subDays(this.calculation.effectiveDates.sled, remand)
       this.calculation.effectiveDates.mtd = subDays(this.calculation.effectiveDates.mtd, remand)
-      this.calculation.effectiveDates.etd = this.getETDDate(this.calculation.effectiveDates.mtd, this.calculation.caluclatedTerms[0].totalDaysInTerm)
-      this.calculation.effectiveDates.ltd = this.getLTDDate(this.calculation.effectiveDates.mtd, this.calculation.caluclatedTerms[0].totalDaysInTerm)
+      this.calculation.etd = this.getETDDate(this.calculation.effectiveDates.mtd, this.calculation.caluclatedTerms[0].totalDaysInTerm)
+      this.calculation.ltd = this.getLTDDate(this.calculation.effectiveDates.mtd, this.calculation.caluclatedTerms[0].totalDaysInTerm)
     }
 
     return adjustment
