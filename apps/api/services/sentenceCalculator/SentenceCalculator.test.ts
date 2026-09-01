@@ -203,7 +203,7 @@ describe('SentenceCalculator', () => {
     it('returns an adjustment record with the sled and mtd dates prior to the adjustment', () => {
       const record = defaultCalculator.applyRemand(15, AdjustmentTypes.remand)
       expect(record).toEqual({
-        type: 'remand',
+        adjustmentReason: 'remand',
         oldSled: new Date('2027-05-28'),
         oldMtd: new Date('2026-12-12'),
       })
@@ -278,7 +278,7 @@ describe('SentenceCalculator', () => {
           ltd: new Date('2026-12-27'),
           etd: new Date('2026-10-27'),
         },
-        pastCalculations: [{ type: 'remand', oldSled: new Date('2027-05-28'), oldMtd: new Date('2026-12-12') }],
+        pastCalculations: [{ adjustmentReason: 'remand', oldSled: new Date('2027-05-28'), oldMtd: new Date('2026-12-12') }],
       })
     })
 
@@ -305,7 +305,7 @@ describe('SentenceCalculator', () => {
           ltd: new Date('2027-02-28'),
           etd: new Date('2026-12-31'),
         },
-        pastCalculations: [{ type: 'remand', oldSled: new Date('2027-03-31'), oldMtd: new Date('2027-03-02') }],
+        pastCalculations: [{ adjustmentReason: 'remand', oldSled: new Date('2027-03-31'), oldMtd: new Date('2027-03-02') }],
       })
     })
   })

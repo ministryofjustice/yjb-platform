@@ -69,7 +69,7 @@ export default class SentenceCalculator {
   applyRemand(remand: number, reason: AdjustmentTypes): PastCalculations {
     // save existing sled and mtd prior adjustment
     const adjustment: PastCalculations = {
-      type: reason,
+      adjustmentReason: reason,
       oldSled: this.calculation.effectiveDates.sled,
       oldMtd: this.calculation.effectiveDates.mtd,
     }
