@@ -1,6 +1,6 @@
 import { addMonths, addDays, subDays,subMonths, differenceInCalendarDays, endOfToday } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
-import { InputSentences, InputIndividualSentence, OutputCalculation, CalculatedTerm, EffectiveDates, PastEffectiveDateCalculations, AdjustmentTypes } from './types'
+import { InputSentences, InputIndividualSentence, OutputCalculation, CalculatedTerm, EffectiveDates, effectiveDatesAdjustments, AdjustmentTypes } from './types'
 
 export default class SentenceCalculator {
   private sentence: InputSentences
@@ -13,7 +13,7 @@ export default class SentenceCalculator {
     this.calculation = {
       caluclatedTerms: [],
       effectiveDates: {} as EffectiveDates,
-      pastEffectiveDateCalculations: [],
+      effectiveDatesAdjustments: [],
       ltd: new Date(0),
       etd: new Date(0),
     }
@@ -87,15 +87,15 @@ export default class SentenceCalculator {
     return addMonths(new UTCDate(mtd), 1);
   }
 
-  applyRemand(remand: number, reason: AdjustmentTypes): PastEffectiveDateCalculations {
+  applyRemand(remand: number, reason: AdjustmentTypes): effectiveDatesAdjustments {
     // save existing effective dates and adjustment parameters prior to the adjustment
     // (spread into a new object - effectiveDates is mutated in place below, so a live reference would show the new values too)
-    const adjustment: PastEffectiveDateCalculations = {
+    const adjustment: effectiveDatesAdjustments = {
       adjustmentReason: reason,
       adjustmentParameters: this.sentence.inputAdjustments,
       pastEffectiveDates: { ...this.calculation.effectiveDates },
     }
-    this.calculation.pastEffectiveDateCalculations.push(adjustment)
+    this.calculation.effectiveDatesAdjustments.push(adjustment)
 
     // if remand covers the whole sentence, there's no sentence left to serve:
     // sled and mtd both collapse to the sentence start date
