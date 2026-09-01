@@ -43,8 +43,8 @@ export type CalculatedTerm = {
 
 export type PastEffectiveDateCalculations = {
   adjustmentReason: AdjustmentTypes,
-  oldSled: Date
-  oldMtd: Date
+  adjustmentParameters: InputAdjustments,
+  pastEffectiveDates: EffectiveDates
 }
 
 // internal types

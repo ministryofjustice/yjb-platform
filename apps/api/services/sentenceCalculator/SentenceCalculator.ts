@@ -88,11 +88,12 @@ export default class SentenceCalculator {
   }
 
   applyRemand(remand: number, reason: AdjustmentTypes): PastEffectiveDateCalculations {
-    // save existing sled and mtd prior adjustment
+    // save existing effective dates and adjustment parameters prior to the adjustment
+    // (spread into a new object - effectiveDates is mutated in place below, so a live reference would show the new values too)
     const adjustment: PastEffectiveDateCalculations = {
       adjustmentReason: reason,
-      oldSled: this.calculation.effectiveDates.sled,
-      oldMtd: this.calculation.effectiveDates.mtd,
+      adjustmentParameters: this.sentence.inputAdjustments,
+      pastEffectiveDates: { ...this.calculation.effectiveDates },
     }
     this.calculation.pastEffectiveDateCalculations.push(adjustment)
 

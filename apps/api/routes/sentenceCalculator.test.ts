@@ -80,7 +80,20 @@ describe('POST /calculations', () => {
             },
             ltd: '2026-12-27',
             etd: '2026-10-27',
-        pastEffectiveDateCalculations: [{ adjustmentReason: 'remand', oldSled:  '2027-05-28', oldMtd: '2026-12-12' }],
+        pastEffectiveDateCalculations: [{
+            adjustmentReason: 'remand',
+            adjustmentParameters: {
+                remand: 15,
+                remandStartDate: '2026-06-14T00:00:00.000Z',
+                taggedBailDays: 0,
+            },
+            pastEffectiveDates: {
+                totalNumberOfRemandAndTaggedBailDays: 0,
+                sled: '2027-05-28',
+                mtd: '2026-12-12',
+                TUSED: '1970-01-01',
+            },
+        }],
         }
 
         return request(app).post('/calculations').send(input).expect(200, output)

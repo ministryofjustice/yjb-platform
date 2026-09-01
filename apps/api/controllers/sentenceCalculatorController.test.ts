@@ -73,7 +73,16 @@ describe('SentenceController', () => {
             },
             ltd: new Date('2026-12-27'),
             etd: new Date('2026-10-27'),
-        pastEffectiveDateCalculations: [{ adjustmentReason: 'remand', oldSled: new Date('2027-05-28'), oldMtd: new Date('2026-12-12') }],
+        pastEffectiveDateCalculations: [{
+            adjustmentReason: 'remand',
+            adjustmentParameters: inputSentence.inputAdjustments,
+            pastEffectiveDates: {
+                totalNumberOfRemandAndTaggedBailDays: 0,
+                sled: new Date('2027-05-28'),
+                mtd: new Date('2026-12-12'),
+                TUSED: new Date(0),
+            },
+        }],
         }
         const calculatedCalulationObj = new SentenceCalculatorController(inputSentence);
         expect(calculatedCalulationObj).toEqual(expectedOutputCalculation)
