@@ -4,7 +4,6 @@ export type InputIndividualSentence = {
   durationMonths: number
 }
 
-
 export type InputSentences = {
   offenderName: string
   inputAdjustments: InputAdjustments,
@@ -17,26 +16,24 @@ export type InputAdjustments = {
   taggedBailDays: Number,
 }
 
-
 // output types
 export interface OutputCalculation {
-  totalDaysInTerm: number
-  totalDaysMTD: number
-  effectiveDates: { sled: Date; mtd: Date; ltd: Date; etd: Date },
+  caluclatedTerms: AppendOnlyArray<CalculatedTerm>,
+  effectiveDates: { sled: Date; mtd: Date; ltd: Date; etd: Date }
   pastCalculations: AppendOnlyArray<PastCalculations>
 }
 
-// exposes only push/read access - no pop, splice, shift, sort, etc. -
-// so array order (oldest first) can't be disturbed once a record is pushed
-export type AppendOnlyArray<T> = {
-  readonly length: number
-  readonly [index: number]: T
-  push(...items: T[]): number
-  [Symbol.iterator](): IterableIterator<T>
+//each term corresponds to one line on the sheet or one sentence
+export type CalculatedTerm = {
+  inputSentece: InputIndividualSentence
+  totalDaysInTerm: number
+  totalDaysMTD: number
+  sled: Date,
+  mtd: Date
 }
 
 export type PastCalculations = {
-  adjustmentReason: AdjustmentTypes
+  adjustmentReason: AdjustmentTypes,
   oldSled: Date
   oldMtd: Date
 }
@@ -49,3 +46,13 @@ export const AdjustmentTypes = {
 
 // logic only exists for `remand` for now; `taggedBail` is a no-op
 export type AdjustmentTypes = (typeof AdjustmentTypes)[keyof typeof AdjustmentTypes]
+
+// exposes only push/read access - no pop, splice, shift, sort, etc. -
+// so array order (oldest first) can't be disturbed once a record is pushed
+export type AppendOnlyArray<T> = {
+  readonly length: number
+  readonly [index: number]: T
+  push(...items: T[]): number
+  [Symbol.iterator](): IterableIterator<T>
+}
+
