@@ -3,13 +3,13 @@ import { InputSentences, AdjustmentTypes, OutputCalculation } from './types'
 
 const defaultSentence: InputSentences = {
   offenderName: 'Test Offender',
+  remand: 0,
+  remandStartDate: new Date(),
+  taggedBailDays: 0,
   inputIndividualSentences: [
     {
       from: new Date('2026-06-29'),
       durationMonths: 11,
-      remand: 0,
-      remandStartDate: new Date(),
-      taggedBailDays: 0,
     },
   ],
 }
@@ -29,13 +29,13 @@ describe('SentenceCalculator', () => {
     it('returns 61 days for a 2 month term starting on 2026-08-24', () => {
       const dummySentence1: InputSentences = {
         offenderName: 'Test Offender',
+        remand: 0,
+        remandStartDate: new Date(),
+        taggedBailDays: 0,
         inputIndividualSentences: [
           {
             from: new Date('2026-08-24'),
             durationMonths: 2,
-            remand: 0,
-            remandStartDate: new Date(),
-            taggedBailDays: 0,
           },
         ],
       }
@@ -46,13 +46,13 @@ describe('SentenceCalculator', () => {
     it('returns 62 days for a 2 month term starting on 2026-07-24', () => {
       const dummySentence2: InputSentences = {
         offenderName: 'Test Offender',
+        remand: 0,
+        remandStartDate: new Date(),
+        taggedBailDays: 0,
         inputIndividualSentences: [
           {
             from: new Date('2026-07-24'),
             durationMonths: 2,
-            remand: 0,
-            remandStartDate: new Date(),
-            taggedBailDays: 0,
           },
         ],
       }
@@ -63,13 +63,13 @@ describe('SentenceCalculator', () => {
     it('counts days in leap years correctly', () => {
       const sentenceNotInLeapYear: InputSentences = {
         offenderName: 'Test Offender',
+        remand: 0,
+        remandStartDate: new Date(),
+        taggedBailDays: 0,
         inputIndividualSentences: [
           {
             from: new Date('2027-02-20'),
             durationMonths: 1,
-            remand: 0,
-            remandStartDate: new Date(),
-            taggedBailDays: 0,
           },
         ],
       }
@@ -78,13 +78,13 @@ describe('SentenceCalculator', () => {
 
       const sentenceInLeapYear: InputSentences = {
         offenderName: 'Test Offender',
+        remand: 0,
+        remandStartDate: new Date(),
+        taggedBailDays: 0,
         inputIndividualSentences: [
           {
             from: new Date('2028-02-20'),
             durationMonths: 1,
-            remand: 0,
-            remandStartDate: new Date(),
-            taggedBailDays: 0,
           },
         ],
       }
@@ -95,13 +95,13 @@ describe('SentenceCalculator', () => {
     it('clamps to the last day of a shorter month when a 1 month term starts on the 31st', () => {
       const sentenceMonthEnd: InputSentences = {
         offenderName: 'Test Offender',
+        remand: 0,
+        remandStartDate: new Date(),
+        taggedBailDays: 0,
         inputIndividualSentences: [
           {
             from: new Date('2027-01-31'),
             durationMonths: 1,
-            remand: 0,
-            remandStartDate: new Date(),
-            taggedBailDays: 0,
           },
         ],
       }
@@ -120,13 +120,13 @@ describe('SentenceCalculator', () => {
     it('returns 2028-05-28 for a 11 month sentence on leap year starting 2027-06-29', () => {
       const dummySentence1: InputSentences = {
         offenderName: 'Test Offender',
+        remand: 0,
+        remandStartDate: new Date(),
+        taggedBailDays: 0,
         inputIndividualSentences: [
           {
             from: new Date('2027-06-29'),
             durationMonths: 11,
-            remand: 0,
-            remandStartDate: new Date(),
-            taggedBailDays: 0,
           },
         ],
       }
@@ -144,13 +144,13 @@ describe('SentenceCalculator', () => {
     it('returns 16 days when total number of days is 31', () => {
       const sentenceToRound: InputSentences = {
         offenderName: 'Test Offender',
+        remand: 0,
+        remandStartDate: new Date(),
+        taggedBailDays: 0,
         inputIndividualSentences: [
           {
             from: new Date('2026-08-01'),
             durationMonths: 1,
-            remand: 0,
-            remandStartDate: new Date(),
-            taggedBailDays: 0,
           },
         ],
       }
@@ -168,13 +168,13 @@ describe('SentenceCalculator', () => {
     it('returns 2026-08-16 for a sentence starting 2026-08-01 with an MTD of 16 days', () => {
       const sentenceToRound: InputSentences = {
         offenderName: 'Test Offender',
+        remand: 0,
+        remandStartDate: new Date(),
+        taggedBailDays: 0,
         inputIndividualSentences: [
           {
             from: new Date('2026-08-01'),
             durationMonths: 1,
-            remand: 0,
-            remandStartDate: new Date(),
-            taggedBailDays: 0,
           },
         ],
       }
@@ -258,13 +258,13 @@ describe('SentenceCalculator', () => {
     it('returns the full calculation for a single-term sentence,  15 days remand', () => {
       const sentenceRemand: InputSentences = {
         offenderName: 'Test Offender',
+        remand: 15,
+        remandStartDate: new Date('2026-06-14'),
+        taggedBailDays: 0,
         inputIndividualSentences: [
           {
             from: new Date('2026-06-29'),
             durationMonths: 11,
-            remand: 15,
-            remandStartDate: new Date('2026-06-14'),
-            taggedBailDays: 0,
           },
         ],
       }
@@ -285,13 +285,13 @@ describe('SentenceCalculator', () => {
     it('returns the full calculation for a single-term sentence,  30 days remand on leap', () => {
       const sentenceRemand: InputSentences = {
         offenderName: 'Test Offender',
+        remand: 30,
+        remandStartDate: new Date('2027-01-02'),
+        taggedBailDays: 0,
         inputIndividualSentences: [
           {
             from: new Date('2027-02-01'),
             durationMonths: 2,
-            remand: 30,
-            remandStartDate: new Date('2027-01-02'),
-            taggedBailDays: 0,
           },
         ],
       }
