@@ -20,7 +20,7 @@ export type InputAdjustments = {
 export interface OutputCalculation {
   caluclatedTerms: AppendOnlyArray<CalculatedTerm>,
   effectiveDates: EffectiveDates,
-  pastEffectiveDateCalculations: AppendOnlyArray<PastEffectiveDateCalculations>
+  effectiveDatesAdjustments: AppendOnlyArray<effectiveDatesAdjustments>
   ltd: Date; 
   etd: Date 
 }
@@ -41,7 +41,7 @@ export type CalculatedTerm = {
   mtd: Date
 }
 
-export type PastEffectiveDateCalculations = {
+export type effectiveDatesAdjustments = {
   adjustmentReason: AdjustmentTypes,
   adjustmentParameters: InputAdjustments,
   pastEffectiveDates: EffectiveDates
