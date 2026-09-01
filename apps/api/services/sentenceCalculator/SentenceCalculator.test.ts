@@ -242,10 +242,10 @@ describe('SentenceCalculator', () => {
       defaultCalculator.applyRemand(10, AdjustmentTypes.remand)
       defaultCalculator.applyRemand(5, AdjustmentTypes.remand)
       const {
-        effectiveDatesAdjustments,
+        effectiveDatesPastAdjustments,
         effectiveDates: { sled: sledDate, mtd: mtdDate },
       } = defaultCalculator.getCalculation()
-      expect(effectiveDatesAdjustments).toHaveLength(2)
+      expect(effectiveDatesPastAdjustments).toHaveLength(2)
       expect(sledDate).toEqual(new Date('2027-05-13'))
       expect(mtdDate).toEqual(new Date('2026-11-27'))
     })
@@ -283,7 +283,7 @@ describe('SentenceCalculator', () => {
         },
         ltd: new Date('2027-01-12'),
         etd: new Date('2026-11-12'),
-        effectiveDatesAdjustments: [],
+        effectiveDatesPastAdjustments: [],
       })
     })
 
@@ -321,7 +321,7 @@ describe('SentenceCalculator', () => {
         },
         ltd: new Date('2026-12-27'),
         etd: new Date('2026-10-27'),
-        effectiveDatesAdjustments: [{
+        effectiveDatesPastAdjustments: [{
           adjustmentReason: 'remand',
           adjustmentParameters: sentenceRemand.inputAdjustments,
           pastEffectiveDates: {
@@ -368,7 +368,7 @@ describe('SentenceCalculator', () => {
         },
         ltd: new Date('2027-02-28'),
         etd: new Date('2026-12-31'),
-        effectiveDatesAdjustments: [{
+        effectiveDatesPastAdjustments: [{
           adjustmentReason: 'remand',
           adjustmentParameters: sentenceRemand.inputAdjustments,
           pastEffectiveDates: {
