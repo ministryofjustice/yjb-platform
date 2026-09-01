@@ -1,6 +1,6 @@
 import { addMonths, addDays, subDays,subMonths, differenceInCalendarDays, endOfToday } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
-import { Sentence, Calculation, AdjustmentRecord, Reason } from './types'
+import { Sentence, Calculation, Adjustments, Reason } from './types'
 
 export default class SentenceCalculator {
   private sentence: Sentence
@@ -24,7 +24,7 @@ export default class SentenceCalculator {
         ltd: ltd,
         etd: etd,
       },
-      adjustmentRecords: [],
+      pastAdjustements: [],
     }
   }
 
@@ -66,14 +66,14 @@ export default class SentenceCalculator {
     return addMonths(new UTCDate(mtd), 1);
   }
 
-  applyRemand(remand: number, reason: Reason): AdjustmentRecord {
+  applyRemand(remand: number, reason: Reason): Adjustments {
     // save existing sled and mtd prior adjustment
-    const adjustment: AdjustmentRecord = {
+    const adjustment: Adjustments = {
       type: reason,
-      sledDate: this.calculation.effectiveDates.sled,
-      mtdDate: this.calculation.effectiveDates.mtd,
+      oldSled: this.calculation.effectiveDates.sled,
+      oldMtd: this.calculation.effectiveDates.mtd,
     }
-    this.calculation.adjustmentRecords.push(adjustment)
+    this.calculation.pastAdjustements.push(adjustment)
 
     // if remand covers the whole sentence, there's no sentence left to serve:
     // sled and mtd both collapse to the sentence start date
