@@ -1,9 +1,9 @@
 import SentenceCalculator from './SentenceCalculator'
-import { Sentence, Reason, Calculation } from './types'
+import { InputSentences, AdjustmentTypes, OutputCalculation } from './types'
 
-const defaultSentence: Sentence = {
+const defaultSentence: InputSentences = {
   offenderName: 'Test Offender',
-  term: [
+  inputIndividualSentences: [
     {
       from: new Date('2026-06-29'),
       durationMonths: 11,
@@ -27,9 +27,9 @@ describe('SentenceCalculator', () => {
     })
 
     it('returns 61 days for a 2 month term starting on 2026-08-24', () => {
-      const dummySentence1: Sentence = {
+      const dummySentence1: InputSentences = {
         offenderName: 'Test Offender',
-        term: [
+        inputIndividualSentences: [
           {
             from: new Date('2026-08-24'),
             durationMonths: 2,
@@ -44,9 +44,9 @@ describe('SentenceCalculator', () => {
     })
 
     it('returns 62 days for a 2 month term starting on 2026-07-24', () => {
-      const dummySentence2: Sentence = {
+      const dummySentence2: InputSentences = {
         offenderName: 'Test Offender',
-        term: [
+        inputIndividualSentences: [
           {
             from: new Date('2026-07-24'),
             durationMonths: 2,
@@ -61,9 +61,9 @@ describe('SentenceCalculator', () => {
     })
 
     it('counts days in leap years correctly', () => {
-      const sentenceNotInLeapYear: Sentence = {
+      const sentenceNotInLeapYear: InputSentences = {
         offenderName: 'Test Offender',
-        term: [
+        inputIndividualSentences: [
           {
             from: new Date('2027-02-20'),
             durationMonths: 1,
@@ -76,9 +76,9 @@ describe('SentenceCalculator', () => {
       const calculatorNotInLeapYear = new SentenceCalculator(sentenceNotInLeapYear)
       expect(calculatorNotInLeapYear.getTotalDaysInTerm()).toBe(28)
 
-      const sentenceInLeapYear: Sentence = {
+      const sentenceInLeapYear: InputSentences = {
         offenderName: 'Test Offender',
-        term: [
+        inputIndividualSentences: [
           {
             from: new Date('2028-02-20'),
             durationMonths: 1,
@@ -93,9 +93,9 @@ describe('SentenceCalculator', () => {
       expect(calculatorInLeapYear.getTotalDaysInTerm()).toBe(29)
     })
     it('clamps to the last day of a shorter month when a 1 month term starts on the 31st', () => {
-      const sentenceMonthEnd: Sentence = {
+      const sentenceMonthEnd: InputSentences = {
         offenderName: 'Test Offender',
-        term: [
+        inputIndividualSentences: [
           {
             from: new Date('2027-01-31'),
             durationMonths: 1,
@@ -118,9 +118,9 @@ describe('SentenceCalculator', () => {
     })
 
     it('returns 2028-05-28 for a 11 month sentence on leap year starting 2027-06-29', () => {
-      const dummySentence1: Sentence = {
+      const dummySentence1: InputSentences = {
         offenderName: 'Test Offender',
-        term: [
+        inputIndividualSentences: [
           {
             from: new Date('2027-06-29'),
             durationMonths: 11,
@@ -142,9 +142,9 @@ describe('SentenceCalculator', () => {
     })
 
     it('returns 16 days when total number of days is 31', () => {
-      const sentenceToRound: Sentence = {
+      const sentenceToRound: InputSentences = {
         offenderName: 'Test Offender',
-        term: [
+        inputIndividualSentences: [
           {
             from: new Date('2026-08-01'),
             durationMonths: 1,
@@ -166,9 +166,9 @@ describe('SentenceCalculator', () => {
     })
 
     it('returns 2026-08-16 for a sentence starting 2026-08-01 with an MTD of 16 days', () => {
-      const sentenceToRound: Sentence = {
+      const sentenceToRound: InputSentences = {
         offenderName: 'Test Offender',
-        term: [
+        inputIndividualSentences: [
           {
             from: new Date('2026-08-01'),
             durationMonths: 1,
@@ -201,7 +201,7 @@ describe('SentenceCalculator', () => {
 
   describe('applyRemand', () => {
     it('returns an adjustment record with the sled and mtd dates prior to the adjustment', () => {
-      const record = defaultCalculator.applyRemand(15, Reason.remand)
+      const record = defaultCalculator.applyRemand(15, AdjustmentTypes.remand)
       expect(record).toEqual({
         type: 'remand',
         oldSled: new Date('2027-05-28'),
@@ -210,31 +210,31 @@ describe('SentenceCalculator', () => {
     })
 
     it('subtracts the remand days from sled and mtd', () => {
-      defaultCalculator.applyRemand(15, Reason.remand)
+      defaultCalculator.applyRemand(15, AdjustmentTypes.remand)
       expect(defaultCalculator.getCalculation().effectiveDates.sled).toEqual(new Date('2027-05-13'))
       expect(defaultCalculator.getCalculation().effectiveDates.mtd).toEqual(new Date('2026-11-27'))
     })
 
     it('adds a new adjustment record each time it is called', () => {
-      defaultCalculator.applyRemand(10, Reason.remand)
-      defaultCalculator.applyRemand(5, Reason.remand)
+      defaultCalculator.applyRemand(10, AdjustmentTypes.remand)
+      defaultCalculator.applyRemand(5, AdjustmentTypes.remand)
       const {
-        pastAdjustements,
+        pastCalculations,
         effectiveDates: { sled: sledDate, mtd: mtdDate },
       } = defaultCalculator.getCalculation()
-      expect(pastAdjustements).toHaveLength(2)
+      expect(pastCalculations).toHaveLength(2)
       expect(sledDate).toEqual(new Date('2027-05-13'))
       expect(mtdDate).toEqual(new Date('2026-11-27'))
     })
 
     it('clamps sled and mtd to the sentence start date when remand covers the whole sentence', () => {
-      defaultCalculator.applyRemand(334, Reason.remand)
+      defaultCalculator.applyRemand(334, AdjustmentTypes.remand)
       expect(defaultCalculator.getCalculation().effectiveDates.sled).toEqual(new Date('2026-06-29'))
       expect(defaultCalculator.getCalculation().effectiveDates.mtd).toEqual(new Date('2026-06-29'))
     })
 
     it('clamps sled and mtd to the sentence start date when remand exceeds the sentence length', () => {
-      defaultCalculator.applyRemand(400, Reason.remand)
+      defaultCalculator.applyRemand(400, AdjustmentTypes.remand)
       expect(defaultCalculator.getCalculation().effectiveDates.sled).toEqual(new Date('2026-06-29'))
       expect(defaultCalculator.getCalculation().effectiveDates.mtd).toEqual(new Date('2026-06-29'))
     })
@@ -242,7 +242,7 @@ describe('SentenceCalculator', () => {
 
   describe('adjustCalculation', () => {
     it('returns the full calculation for a single-term sentence, no remand', () => {
-      expect(defaultCalculator.adjustCalculation(Reason.remand)).toEqual({
+      expect(defaultCalculator.adjustCalculation(AdjustmentTypes.remand)).toEqual({
         totalDaysInTerm: 334,
         totalDaysMTD: 167,
         effectiveDates: {
@@ -251,14 +251,14 @@ describe('SentenceCalculator', () => {
           ltd: new Date('2027-01-12'),
           etd: new Date('2026-11-12'),
         },
-        pastAdjustements: [],
+        pastCalculations: [],
       })
     })
 
     it('returns the full calculation for a single-term sentence,  15 days remand', () => {
-      const sentenceRemand: Sentence = {
+      const sentenceRemand: InputSentences = {
         offenderName: 'Test Offender',
-        term: [
+        inputIndividualSentences: [
           {
             from: new Date('2026-06-29'),
             durationMonths: 11,
@@ -269,7 +269,7 @@ describe('SentenceCalculator', () => {
         ],
       }
       const calculatorRemand = new SentenceCalculator(sentenceRemand)
-      expect(calculatorRemand.adjustCalculation(Reason.remand)).toEqual({
+      expect(calculatorRemand.adjustCalculation(AdjustmentTypes.remand)).toEqual({
         totalDaysInTerm: 334,
         totalDaysMTD: 167,
         effectiveDates: {
@@ -278,14 +278,14 @@ describe('SentenceCalculator', () => {
           ltd: new Date('2026-12-27'),
           etd: new Date('2026-10-27'),
         },
-        pastAdjustements: [{ type: 'remand', oldSled: new Date('2027-05-28'), oldMtd: new Date('2026-12-12') }],
+        pastCalculations: [{ type: 'remand', oldSled: new Date('2027-05-28'), oldMtd: new Date('2026-12-12') }],
       })
     })
 
     it('returns the full calculation for a single-term sentence,  30 days remand on leap', () => {
-      const sentenceRemand: Sentence = {
+      const sentenceRemand: InputSentences = {
         offenderName: 'Test Offender',
-        term: [
+        inputIndividualSentences: [
           {
             from: new Date('2027-02-01'),
             durationMonths: 2,
@@ -296,7 +296,7 @@ describe('SentenceCalculator', () => {
         ],
       }
       const calculatorRemand = new SentenceCalculator(sentenceRemand)
-      expect(calculatorRemand.adjustCalculation(Reason.remand)).toEqual({
+      expect(calculatorRemand.adjustCalculation(AdjustmentTypes.remand)).toEqual({
         totalDaysInTerm: 59,
         totalDaysMTD: 30,
         effectiveDates: {
@@ -305,7 +305,7 @@ describe('SentenceCalculator', () => {
           ltd: new Date('2027-02-28'),
           etd: new Date('2026-12-31'),
         },
-        pastAdjustements: [{ type: 'remand', oldSled: new Date('2027-03-31'), oldMtd: new Date('2027-03-02') }],
+        pastCalculations: [{ type: 'remand', oldSled: new Date('2027-03-31'), oldMtd: new Date('2027-03-02') }],
       })
     })
   })

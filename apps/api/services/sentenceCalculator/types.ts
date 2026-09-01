@@ -1,5 +1,5 @@
 // input type
-export type Term = {
+export type InputIndividualSentence = {
   from: Date
   durationMonths: number
   remand: number
@@ -8,35 +8,35 @@ export type Term = {
 }
 
 // input type
-export type Sentence = {
+export type InputSentences = {
   offenderName: string
-  term: Term[]
+  inputIndividualSentences: InputIndividualSentence[]
 }
 
 
 // output type
-export interface Calculation {
+export interface OutputCalculation {
   totalDaysInTerm: number
   totalDaysMTD: number
   effectiveDates: { sled: Date; mtd: Date; ltd: Date; etd: Date },
-  pastAdjustements: pastAdjustment[]
+  pastCalculations: PastCalculations[]
 }
 
 // output type
-export type pastAdjustment = {
-  type: Reason
+export type PastCalculations = {
+  type: AdjustmentTypes
   oldSled: Date
   oldMtd: Date
 }
 
 // internal types
-export const Reason = {
+export const AdjustmentTypes = {
   remand: 'remand',
   taggedBail: 'taggedBail',
 } as const
 
 // logic only exists for `remand` for now; `taggedBail` is a no-op
-export type Reason = (typeof Reason)[keyof typeof Reason]
+export type AdjustmentTypes = (typeof AdjustmentTypes)[keyof typeof AdjustmentTypes]
 
 
 

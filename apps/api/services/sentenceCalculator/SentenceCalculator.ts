@@ -1,13 +1,13 @@
 import { addMonths, addDays, subDays,subMonths, differenceInCalendarDays, endOfToday } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
-import { Sentence, Calculation, pastAdjustment, Reason } from './types'
+import { InputSentences, OutputCalculation, PastCalculations, AdjustmentTypes } from './types'
 
 export default class SentenceCalculator {
-  private sentence: Sentence
+  private sentence: InputSentences
 
-  private calculation: Calculation
+  private calculation: OutputCalculation
 
-  constructor(sentence: Sentence) {
+  constructor(sentence: InputSentences) {
     this.sentence = sentence
     const totalDaysInTerm = this.getTotalDaysInTerm()
     const totalDaysMTD = this.getTotalDaysMTD()
@@ -24,12 +24,12 @@ export default class SentenceCalculator {
         ltd: ltd,
         etd: etd,
       },
-      pastAdjustements: [],
+      pastCalculations: [],
     }
   }
 
   getTotalDaysInTerm(): number {
-    const { from, durationMonths } = this.sentence.term[0]
+    const { from, durationMonths } = this.sentence.inputIndividualSentences[0]
     const utcFrom = new UTCDate(from)
     const to = addMonths(utcFrom, durationMonths)
 
@@ -37,7 +37,7 @@ export default class SentenceCalculator {
   }
 
   getSledDate(totalDaysInTerm: number): Date {
-    const { from } = this.sentence.term[0]
+    const { from } = this.sentence.inputIndividualSentences[0]
     // add term starting from the sentence day
     return addDays(new UTCDate(from), totalDaysInTerm - 1)
   }
@@ -48,7 +48,7 @@ export default class SentenceCalculator {
   }
 
   getMTDDate(totalDaysMTD: number): Date {
-    const { from } = this.sentence.term[0]
+    const { from } = this.sentence.inputIndividualSentences[0]
 
     // add mtd starting from the sentence day
     return addDays(new UTCDate(from), totalDaysMTD - 1)
@@ -66,19 +66,19 @@ export default class SentenceCalculator {
     return addMonths(new UTCDate(mtd), 1);
   }
 
-  applyRemand(remand: number, reason: Reason): pastAdjustment {
+  applyRemand(remand: number, reason: AdjustmentTypes): PastCalculations {
     // save existing sled and mtd prior adjustment
-    const adjustment: pastAdjustment = {
+    const adjustment: PastCalculations = {
       type: reason,
       oldSled: this.calculation.effectiveDates.sled,
       oldMtd: this.calculation.effectiveDates.mtd,
     }
-    this.calculation.pastAdjustements.push(adjustment)
+    this.calculation.pastCalculations.push(adjustment)
 
     // if remand covers the whole sentence, there's no sentence left to serve:
     // sled and mtd both collapse to the sentence start date
     if (remand >= this.calculation.totalDaysInTerm) {
-      const sentenceStart = new UTCDate(this.sentence.term[0].from)
+      const sentenceStart = new UTCDate(this.sentence.inputIndividualSentences[0].from)
       this.calculation.effectiveDates.sled = sentenceStart
       this.calculation.effectiveDates.mtd = sentenceStart
     } else {
@@ -91,13 +91,13 @@ export default class SentenceCalculator {
     return adjustment
   }
 
-  getCalculation(): Calculation {
+  getCalculation(): OutputCalculation {
     return this.calculation
   }
 
-  adjustCalculation(reason: Reason): Calculation {
-    if (reason === Reason.remand) {
-      const { remand } = this.sentence.term[0]
+  adjustCalculation(reason: AdjustmentTypes): OutputCalculation {
+    if (reason === AdjustmentTypes.remand) {
+      const { remand } = this.sentence.inputIndividualSentences[0]
       if (remand > 0) {
         this.applyRemand(remand, reason)
       }
