@@ -2,6 +2,7 @@ import type { Express } from 'express'
 import request from 'supertest'
 import { appWithAllRoutes } from '../testutils/appSetup'
 import YjbApiClient from '../data/yjbApi'
+import { SentencePayload } from '../types/sentencePayload.tx'
 
 jest.mock('../data/yjbApi')
 
@@ -43,6 +44,19 @@ describe('POST /calculate', () => {
       .expect(res => {
         expect(res.text).toContain('Calculation breakdown')
         expect(res.text).toContain('Youth Justice Platform - Calculation breakdown')
+      })
+  })
+
+  it('should call the yjbApiClient with the payload, and return a result', () => {
+    const payload: SentencePayload = { personName: 'data' }
+
+    return request(app)
+      .post('/calculate')
+      .send(payload)
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        expect(yjbApiClient.calculateDtoSentence).toHaveBeenCalledWith(payload)
       })
   })
 })

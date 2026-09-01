@@ -27,8 +27,6 @@ afterEach(() => {
 
 describe('GET /', () => {
   it('should render index page', () => {
-    exampleService.getCurrentTime()
-
     return request(app)
       .get('/')
       .expect('Content-Type', /html/)
