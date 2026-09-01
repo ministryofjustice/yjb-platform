@@ -3,7 +3,8 @@ export type Term = {
   from: Date
   durationMonths: number
   remand: number
-  remandStartDate: Date
+  remandStartDate: Date, 
+  taggedBailDays: Number
 }
 
 // input type
