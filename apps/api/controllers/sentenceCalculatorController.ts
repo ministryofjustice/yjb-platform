@@ -1,11 +1,11 @@
-import { Sentence, Reason } from "../services/sentenceCalculator/types";
+import { InputSentences, AdjustmentTypes } from "../services/sentenceCalculator/types";
 import SentenceCalculator from "../services/sentenceCalculator/SentenceCalculator"
 
 export class SentenceCalculatorController{
-    constructor (sentence: Sentence) {
+    constructor (sentence: InputSentences) {
         const sentenceCalc = new SentenceCalculator(sentence)
-        if(sentence.term[0].remand > 0){
-            sentenceCalc.adjustCalculation(Reason.remand);
+        if(sentence.inputIndividualSentences[0].remand > 0){
+            sentenceCalc.adjustCalculation(AdjustmentTypes.remand);
         }
         const finalCalObj = sentenceCalc.getCalculation();
         return finalCalObj;

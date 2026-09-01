@@ -9,7 +9,7 @@ app.use('/calculations', sentenceCalculatorRoutes())
 describe('POST /calculations', () => {
   it('should return valid calculations for a valid input of sentence with no remand', () => {
     const input = {
-      term: [
+      inputIndividualSentences: [
         {
           from: '2026-06-29',
           durationMonths: 11,
@@ -30,7 +30,7 @@ describe('POST /calculations', () => {
             ltd: '2027-01-12T00:00:00.000Z',
             etd: '2026-11-12T00:00:00.000Z',
         },
-      pastAdjustements: [],
+      pastCalculations: [],
     }
 
     return request(app).post('/calculations').send(input).expect(200, output)
@@ -38,7 +38,7 @@ describe('POST /calculations', () => {
 
   it('should return a valid calculation for a valid input with 15 days remand', () => {
         const input = {
-            term: [
+            inputIndividualSentences: [
             {
                 from: '2026-06-29',
                 durationMonths: 11,
@@ -58,7 +58,7 @@ describe('POST /calculations', () => {
                 ltd: '2026-12-27T00:00:00.000Z',
                 etd: '2026-10-27T00:00:00.000Z',
             },
-        pastAdjustements: [{ type: 'remand', oldSled:  '2027-05-28T00:00:00.000Z', oldMtd: '2026-12-12T00:00:00.000Z' }],
+        pastCalculations: [{ type: 'remand', oldSled:  '2027-05-28T00:00:00.000Z', oldMtd: '2026-12-12T00:00:00.000Z' }],
         }
 
         return request(app).post('/calculations').send(input).expect(200, output)

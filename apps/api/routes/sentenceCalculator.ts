@@ -1,13 +1,13 @@
 import { Router, Request, Response } from 'express'
-import { Sentence } from '../services/sentenceCalculator/types'
+import { InputSentences } from '../services/sentenceCalculator/types'
 import { SentenceCalculatorController } from '../controllers/sentenceCalculatorController'
 
 export function calculateSentence(req: Request, res: Response): void {
-    const sentence = req.body as Sentence
+    const sentence = req.body as InputSentences
 
     // construct a sentence object from deserialized input onbect
     // TODO: extract this in parser class which also does simple validation
-    sentence.term = sentence.term.map(term => ({ ...term, from: new Date(term.from) }))
+    sentence.inputIndividualSentences = sentence.inputIndividualSentences.map(term => ({ ...term, from: new Date(term.from) }))
     const calculatedCalulationObj = new SentenceCalculatorController(sentence);
 
 
