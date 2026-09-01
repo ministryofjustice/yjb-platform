@@ -11,7 +11,11 @@ export function calculateSentence(req: Request, res: Response): void {
     const calculatedCalulationObj = new SentenceCalculatorController(sentence);
 
 
-    res.status(200).json(calculatedCalulationObj)
+    res.status(200).type('application/json').send(JSON.stringify(calculatedCalulationObj, dateOnlyReplacer))
+}
+
+function dateOnlyReplacer(this: any, key: string, value: unknown): unknown {
+    return this[key] instanceof Date ? this[key].toISOString().slice(0, 10) : value
 }
 
 export default function sentenceCalculatorRoutes(): Router {
