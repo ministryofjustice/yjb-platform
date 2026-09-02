@@ -19,9 +19,9 @@ describe('POST /calculations', () => {
     }
 
     const output = {
-        caluclatedTerms: [
+        calculatedTerms: [
             {
-                inputSentece: { from: '2026-06-29', durationMonths: 11 },
+                inputSentence: { from: '2026-06-29', durationMonths: 11 },
                 totalDaysInTerm: 334,
                 totalDaysMTD: 167,
                 sled: '2027-05-28',
@@ -58,9 +58,9 @@ describe('POST /calculations', () => {
             ],
         }
         const output = {
-            caluclatedTerms: [
+            calculatedTerms: [
                 {
-                    inputSentece: { from: '2026-06-29', durationMonths: 11 },
+                    inputSentence: { from: '2026-06-29', durationMonths: 11 },
                     totalDaysInTerm: 334,
                     totalDaysMTD: 167,
                     sled: '2027-05-28',

@@ -9,9 +9,9 @@ export function calculateSentence(req: Request, res: Response): void { //move th
     if (sentence.remandAdjustment) {
         sentence.remandAdjustment = { ...sentence.remandAdjustment, startDate: new Date(sentence.remandAdjustment.startDate) }
     }
-    const calculatedCalulationObj = new SentenceCalculatorController(sentence);
+    const calculatedCalculationObj = new SentenceCalculatorController(sentence);
 
-    res.status(200).type('application/json').send(JSON.stringify(calculatedCalulationObj, dateOnlyReplacer))
+    res.status(200).type('application/json').send(JSON.stringify(calculatedCalculationObj, dateOnlyReplacer))
 }
 
 function dateOnlyReplacer(this: any, key: string, value: unknown): unknown {

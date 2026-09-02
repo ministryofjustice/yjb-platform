@@ -226,9 +226,9 @@ describe('SentenceCalculator', () => {
   describe('adjustCalculation', () => {
     it('returns the full calculation for a single-term sentence, no remand', () => {
       expect(defaultCalculator.adjustCalculation(AdjustmentTypes.remand)).toEqual({
-        caluclatedTerms: [
+        calculatedTerms: [
           {
-            inputSentece: { from: new Date('2026-06-29'), durationMonths: 11 },
+            inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
             totalDaysInTerm: 334,
             totalDaysMTD: 167,
             sled: new Date('2027-05-28'),
@@ -264,9 +264,9 @@ describe('SentenceCalculator', () => {
       }
       const calculatorRemand = new SentenceCalculator(sentenceRemand)
       expect(calculatorRemand.adjustCalculation(AdjustmentTypes.remand)).toEqual({
-        caluclatedTerms: [
+        calculatedTerms: [
           {
-            inputSentece: { from: new Date('2026-06-29'), durationMonths: 11 },
+            inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
             totalDaysInTerm: 334,
             totalDaysMTD: 167,
             sled: new Date('2027-05-28'),
@@ -311,9 +311,9 @@ describe('SentenceCalculator', () => {
       }
       const calculatorRemand = new SentenceCalculator(sentenceRemand)
       expect(calculatorRemand.adjustCalculation(AdjustmentTypes.remand)).toEqual({
-        caluclatedTerms: [
+        calculatedTerms: [
           {
-            inputSentece: { from: new Date('2027-02-01'), durationMonths: 2 },
+            inputSentence: { from: new Date('2027-02-01'), durationMonths: 2 },
             totalDaysInTerm: 59,
             totalDaysMTD: 30,
             sled: new Date('2027-03-31'),
