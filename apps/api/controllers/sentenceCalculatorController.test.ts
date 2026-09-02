@@ -11,9 +11,9 @@ describe('SentenceController', () => {
             }]
         }
         const expectedOutputCalculation:OutputCalculation = {
-            caluclatedTerms: [
+            calculatedTerms: [
                 {
-                    inputSentece: { from: new Date('2026-06-29'), durationMonths: 11 },
+                    inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
                     totalDaysInTerm: 334,
                     totalDaysMTD: 167,
                     sled: new Date('2027-05-28'),
@@ -30,8 +30,8 @@ describe('SentenceController', () => {
             etd: new Date('2026-11-12'),
             effectiveDatesPastAdjustments: [],
         }
-        const calculatedCalulationObj = new SentenceCalculatorController(inputSentence);
-        expect(calculatedCalulationObj).toEqual(expectedOutputCalculation)
+        const calculatedCalculationObj = new SentenceCalculatorController(inputSentence);
+        expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
     })
 
     it('returns seld 2027-05-13 and mtd 2026-11-2 for 11 month sentence starting on 2026-06-29 with 15 days remand', () => {
@@ -51,9 +51,9 @@ describe('SentenceController', () => {
         }
 
        const expectedOutputCalculation = {
-            caluclatedTerms: [
+            calculatedTerms: [
                 {
-                    inputSentece: { from: new Date('2026-06-29'), durationMonths: 11 },
+                    inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
                     totalDaysInTerm: 334,
                     totalDaysMTD: 167,
                     sled: new Date('2027-05-28'),
@@ -79,8 +79,8 @@ describe('SentenceController', () => {
             },
         }],
         }
-        const calculatedCalulationObj = new SentenceCalculatorController(inputSentence);
-        expect(calculatedCalulationObj).toEqual(expectedOutputCalculation)
+        const calculatedCalculationObj = new SentenceCalculatorController(inputSentence);
+        expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
 
     })
 
