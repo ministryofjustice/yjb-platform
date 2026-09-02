@@ -1,5 +1,5 @@
 import SentenceCalculator from './SentenceCalculator'
-import { InputSentences, AdjustmentTypes, OutputCalculation } from './types'
+import { InputSentences, AdjustmentTypes } from './types'
 
 const defaultSentence: InputSentences = {
   offenderName: 'Test Offender',
@@ -162,16 +162,15 @@ describe('SentenceCalculator', () => {
     })
   })
 
-
   describe('getETD', () => {
-    //only testing no remand scenario here, remand scenarios with adjustment covered in adjustment testing
+    // only testing no remand scenario here, remand scenarios with adjustment covered in adjustment testing
     it('returns 2026-11-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
       expect(defaultCalculator.getETDDate(new Date('2026-12-12'), 334)).toEqual(new Date('2026-11-12'))
     })
   })
 
   describe('getLTD', () => {
-    //only testing no remand scenario here, remand scenarios with adjustment covered in adjustment testing
+    // only testing no remand scenario here, remand scenarios with adjustment covered in adjustment testing
     it('returns 2027-01-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
       expect(defaultCalculator.getLTDDate(new Date('2026-12-12'), 334)).toEqual(new Date('2027-01-12'))
     })
@@ -281,16 +280,18 @@ describe('SentenceCalculator', () => {
         },
         ltd: new Date('2026-12-27'),
         etd: new Date('2026-10-27'),
-        effectiveDatesPastAdjustments: [{
-          adjustmentReason: 'remand',
-          adjustmentParameters: sentenceRemand.remandAdjustment,
-          pastEffectiveDates: {
-            totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2027-05-28'),
-            mtd: new Date('2026-12-12'),
-            TUSED: new Date(0),
+        effectiveDatesPastAdjustments: [
+          {
+            adjustmentReason: 'remand',
+            adjustmentParameters: sentenceRemand.remandAdjustment,
+            pastEffectiveDates: {
+              totalNumberOfRemandAndTaggedBailDays: 0,
+              sled: new Date('2027-05-28'),
+              mtd: new Date('2026-12-12'),
+              TUSED: new Date(0),
+            },
           },
-        }],
+        ],
       })
     })
 
@@ -328,16 +329,18 @@ describe('SentenceCalculator', () => {
         },
         ltd: new Date('2027-02-28'),
         etd: new Date('2026-12-31'),
-        effectiveDatesPastAdjustments: [{
-          adjustmentReason: 'remand',
-          adjustmentParameters: sentenceRemand.remandAdjustment,
-          pastEffectiveDates: {
-            totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2027-03-31'),
-            mtd: new Date('2027-03-02'),
-            TUSED: new Date(0),
+        effectiveDatesPastAdjustments: [
+          {
+            adjustmentReason: 'remand',
+            adjustmentParameters: sentenceRemand.remandAdjustment,
+            pastEffectiveDates: {
+              totalNumberOfRemandAndTaggedBailDays: 0,
+              sled: new Date('2027-03-31'),
+              mtd: new Date('2027-03-02'),
+              TUSED: new Date(0),
+            },
           },
-        }],
+        ],
       })
     })
   })
