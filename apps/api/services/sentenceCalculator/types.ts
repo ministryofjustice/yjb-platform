@@ -5,20 +5,33 @@ export type InputIndividualSentence = {
 }
 
 export type InputSentences = {
-  offenderName: string
-  inputAdjustments: InputAdjustments,
+  offenderName: string,
+  remandAdjustment?: RemandAdjustment,
+  taggedBailAdjustment?: TaggedBailAdjustment,
   inputIndividualSentences: InputIndividualSentence[]
 }
 
-export type InputAdjustments = {
-  remand: number
-  remandStartDate: Date, 
-  taggedBailDays: Number,
+// common shape every adjustment shares
+interface BaseAdjustment {
+  name: AdjustmentTypes
+  days: number
 }
+
+interface RemandAdjustment extends BaseAdjustment {
+  name: typeof AdjustmentTypes.remand
+  startDate: Date
+}
+
+interface TaggedBailAdjustment extends BaseAdjustment {
+  name: typeof AdjustmentTypes.taggedBail
+  // no startDate — and TS will error if you try to read one
+}
+
+export type InputAdjustment = RemandAdjustment | TaggedBailAdjustment
 
 // output types
 export interface OutputCalculation {
-  caluclatedTerms: AppendOnlyArray<CalculatedTerm>,
+  caluclatedTerms: AppendOnlyArray<CalculatedTerm>, //typo
   effectiveDates: EffectiveDates,
   effectiveDatesPastAdjustments: AppendOnlyArray<effectiveDatesPastAdjustments>
   ltd: Date; 
@@ -43,7 +56,7 @@ export type CalculatedTerm = {
 
 export type effectiveDatesPastAdjustments = {
   adjustmentReason: AdjustmentTypes,
-  adjustmentParameters: InputAdjustments,
+  adjustmentParameters: InputAdjustment,
   pastEffectiveDates: EffectiveDates
 }
 
