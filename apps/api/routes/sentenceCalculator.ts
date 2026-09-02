@@ -1,21 +1,18 @@
 import { Router, Request, Response } from 'express'
 import { InputSentences } from '../services/sentenceCalculator/types'
-import { SentenceCalculatorController } from '../controllers/sentenceCalculatorController'
+import sentenceCalculatorController from '../controllers/sentenceCalculatorController'
 
-export function calculateSentence(req: Request, res: Response): void { //move this to controller
-    const sentence = req.body as InputSentences
+export function calculateSentence(req: Request, res: Response): void {
 
-    sentence.inputIndividualSentences = sentence.inputIndividualSentences.map(term => ({ ...term, from: new Date(term.from) }))
-    if (sentence.remandAdjustment) {
-        sentence.remandAdjustment = { ...sentence.remandAdjustment, startDate: new Date(sentence.remandAdjustment.startDate) }
-    }
-    const calculatedCalculationObj = new SentenceCalculatorController(sentence);
+  const sentence = req.body as InputSentences
+  const calculatedCalculationObj = sentenceCalculatorController(sentence)
 
-    res.status(200).type('application/json').send(JSON.stringify(calculatedCalculationObj, dateOnlyReplacer))
+  res.status(200).type('application/json').send(JSON.stringify(calculatedCalculationObj, dateOnlyReplacer))
 }
 
-function dateOnlyReplacer(this: any, key: string, value: unknown): unknown {
-    return this[key] instanceof Date ? this[key].toISOString().slice(0, 10) : value
+function dateOnlyReplacer(this: Record<string, unknown>, key: string, value: unknown): unknown {
+  const raw = this[key]
+  return raw instanceof Date ? raw.toISOString().slice(0, 10) : value
 }
 
 export default function sentenceCalculatorRoutes(): Router {
