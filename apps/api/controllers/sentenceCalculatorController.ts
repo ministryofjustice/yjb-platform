@@ -6,7 +6,7 @@ export class SentenceCalculatorController{
         
         // TODO: extract this in parser class which also does simple validation
         const sentenceCalc = new SentenceCalculator(sentence)
-        if(sentence.inputAdjustments.remand > 0){
+        if ((sentence.remandAdjustment?.days ?? 0) > 0) {
             sentenceCalc.adjustCalculation(AdjustmentTypes.remand);
         }
         const finalCalObj = sentenceCalc.getCalculation();

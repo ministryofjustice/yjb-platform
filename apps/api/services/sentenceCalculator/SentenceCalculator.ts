@@ -92,7 +92,7 @@ export default class SentenceCalculator {
     // (spread into a new object - effectiveDates is mutated in place below, so a live reference would show the new values too)
     const adjustment: effectiveDatesPastAdjustments = {
       adjustmentReason: reason,
-      adjustmentParameters: this.sentence.inputAdjustments,
+      adjustmentParameters: this.sentence.remandAdjustment!,
       pastEffectiveDates: { ...this.calculation.effectiveDates },
     }
     this.calculation.effectiveDatesPastAdjustments.push(adjustment)
@@ -119,7 +119,7 @@ export default class SentenceCalculator {
 
   adjustCalculation(reason: AdjustmentTypes): OutputCalculation {
     if (reason === AdjustmentTypes.remand) {
-      const { remand } = this.sentence.inputAdjustments
+      const remand = this.sentence.remandAdjustment?.days ?? 0
       if (remand > 0) {
         this.applyRemand(remand, reason)
       }
