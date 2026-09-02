@@ -1,6 +1,14 @@
-import { addMonths, addDays, subDays,subMonths, differenceInCalendarDays, endOfToday } from 'date-fns'
+import { addMonths, addDays, subDays, subMonths, differenceInCalendarDays } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
-import { InputSentences, InputIndividualSentence, OutputCalculation, CalculatedTerm, EffectiveDates, effectiveDatesPastAdjustments, AdjustmentTypes } from './types'
+import {
+  InputSentences,
+  InputIndividualSentence,
+  OutputCalculation,
+  CalculatedTerm,
+  EffectiveDates,
+  effectiveDatesPastAdjustments,
+  AdjustmentTypes,
+} from './types'
 
 export default class SentenceCalculator {
   private sentence: InputSentences
@@ -18,22 +26,28 @@ export default class SentenceCalculator {
       etd: new Date(0),
     }
 
-    //get all term dates, for now it will always be one
+    // get all term dates, for now it will always be one
     this.sentence.inputIndividualSentences.forEach(inputSentence => {
       this.calculation.calculatedTerms.push(this.calculateTerm(inputSentence))
     })
 
-    //for now 1 sentecen only and without any adjustemnts the effecive dates match the terms (to apply consecuteve concurent sentences in future)
+    // for now 1 sentecen only and without any adjustemnts the effecive dates match the terms (to apply consecuteve concurent sentences in future)
     this.calculation.effectiveDates = {
-      //TODO calculate the real total 
+      // TODO calculate the real total
       totalNumberOfRemandAndTaggedBailDays: 0,
       sled: this.calculation.calculatedTerms[0].sled,
       mtd: this.calculation.calculatedTerms[0].mtd,
-      //probably out of scope for now, leve just for consistancy with sheet
+      // probably out of scope for now, leve just for consistancy with sheet
       TUSED: new Date(0),
     }
-    this.calculation.ltd = this.getLTDDate(this.calculation.effectiveDates.mtd, this.calculation.calculatedTerms[0].totalDaysInTerm)
-    this.calculation.etd = this.getETDDate(this.calculation.effectiveDates.mtd, this.calculation.calculatedTerms[0].totalDaysInTerm)
+    this.calculation.ltd = this.getLTDDate(
+      this.calculation.effectiveDates.mtd,
+      this.calculation.calculatedTerms[0].totalDaysInTerm,
+    )
+    this.calculation.etd = this.getETDDate(
+      this.calculation.effectiveDates.mtd,
+      this.calculation.calculatedTerms[0].totalDaysInTerm,
+    )
   }
 
   calculateTerm(inputSentence: InputIndividualSentence): CalculatedTerm {
@@ -75,16 +89,14 @@ export default class SentenceCalculator {
     return addDays(new UTCDate(from), totalDaysMTD - 1)
   }
 
-  getETDDate(mtd: Date, totalDaysInTerm: number): Date {
-
-    //TODO add logic the leth should be between 8 to 18 months, otherwise happens what?
-    return subMonths(new UTCDate(mtd), 1);
+  getETDDate(mtd: Date, _totalDaysInTerm: number): Date {
+    // TODO add logic the leth should be between 8 to 18 months, otherwise happens what?
+    return subMonths(new UTCDate(mtd), 1)
   }
 
-  getLTDDate(mtd: Date, totalDaysInTerm: number): Date {
-
-    //TODO again between 8 to 18 months, otherwise happens what?
-    return addMonths(new UTCDate(mtd), 1);
+  getLTDDate(mtd: Date, _totalDaysInTerm: number): Date {
+    // TODO again between 8 to 18 months, otherwise happens what?
+    return addMonths(new UTCDate(mtd), 1)
   }
 
   applyRemand(remand: number, reason: AdjustmentTypes): effectiveDatesPastAdjustments {
@@ -106,8 +118,14 @@ export default class SentenceCalculator {
     } else {
       this.calculation.effectiveDates.sled = subDays(this.calculation.effectiveDates.sled, remand)
       this.calculation.effectiveDates.mtd = subDays(this.calculation.effectiveDates.mtd, remand)
-      this.calculation.etd = this.getETDDate(this.calculation.effectiveDates.mtd, this.calculation.calculatedTerms[0].totalDaysInTerm)
-      this.calculation.ltd = this.getLTDDate(this.calculation.effectiveDates.mtd, this.calculation.calculatedTerms[0].totalDaysInTerm)
+      this.calculation.etd = this.getETDDate(
+        this.calculation.effectiveDates.mtd,
+        this.calculation.calculatedTerms[0].totalDaysInTerm,
+      )
+      this.calculation.ltd = this.getLTDDate(
+        this.calculation.effectiveDates.mtd,
+        this.calculation.calculatedTerms[0].totalDaysInTerm,
+      )
     }
 
     return adjustment

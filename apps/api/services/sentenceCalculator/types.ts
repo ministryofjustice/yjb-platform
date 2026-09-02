@@ -5,9 +5,9 @@ export type InputIndividualSentence = {
 }
 
 export type InputSentences = {
-  offenderName: string,
-  remandAdjustment?: RemandAdjustment,
-  taggedBailAdjustment?: TaggedBailAdjustment,
+  offenderName: string
+  remandAdjustment?: RemandAdjustment
+  taggedBailAdjustment?: TaggedBailAdjustment
   inputIndividualSentences: InputIndividualSentence[]
 }
 
@@ -31,32 +31,32 @@ export type InputAdjustment = RemandAdjustment | TaggedBailAdjustment
 
 // output types
 export interface OutputCalculation {
-  calculatedTerms: AppendOnlyArray<CalculatedTerm>,
-  effectiveDates: EffectiveDates,
+  calculatedTerms: AppendOnlyArray<CalculatedTerm>
+  effectiveDates: EffectiveDates
   effectiveDatesPastAdjustments: AppendOnlyArray<effectiveDatesPastAdjustments>
-  ltd: Date; 
-  etd: Date 
+  ltd: Date
+  etd: Date
 }
 
-export type EffectiveDates = { 
-  totalNumberOfRemandAndTaggedBailDays: number,
-  sled: Date,
-  mtd: Date,
+export type EffectiveDates = {
+  totalNumberOfRemandAndTaggedBailDays: number
+  sled: Date
+  mtd: Date
   TUSED: Date
 }
 
-//each term corresponds to one line on the sheet or one sentence
+// each term corresponds to one line on the sheet or one sentence
 export type CalculatedTerm = {
   inputSentence: InputIndividualSentence
   totalDaysInTerm: number
   totalDaysMTD: number
-  sled: Date,
+  sled: Date
   mtd: Date
 }
 
 export type effectiveDatesPastAdjustments = {
-  adjustmentReason: AdjustmentTypes,
-  adjustmentParameters: InputAdjustment,
+  adjustmentReason: AdjustmentTypes
+  adjustmentParameters: InputAdjustment
   pastEffectiveDates: EffectiveDates
 }
 
@@ -77,4 +77,3 @@ export type AppendOnlyArray<T> = {
   push(...items: T[]): number
   [Symbol.iterator](): IterableIterator<T>
 }
-
