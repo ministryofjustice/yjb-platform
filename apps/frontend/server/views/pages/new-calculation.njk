@@ -13,43 +13,44 @@
 
   <h2>Offence and sentence details</h2>
 
-  {{ govukSelect({
-    name: "sentence-type",
-    label: {
-      text: "Sentence type"
-    },
-    items: [
-      {
-        value: "",
-        text: "",
-        selected: true,
-        disabled: true
+  <form id="calculation-form" action="/calculate" method="post">
+    {{ govukSelect({
+      name: "sentence-type",
+      label: {
+        text: "Sentence type"
       },
-      {
-        value: "some-sentence-code",
-        text: "Some sentence that is applicable to DTO"
-      }
-    ]
-  }) }}
+      items: [
+        {
+          value: "",
+          text: "",
+          selected: true,
+          disabled: true
+        },
+        {
+          value: "some-sentence-code",
+          text: "Some sentence that is applicable to DTO"
+        }
+      ]
+    }) }}
 
-  {{ govukDateInput({
-    id: 'sentence-date',
-    namePrefix: "sentence-date",
-    fieldset: {
-      legend: {
-        text: "Sentence date",
-        classes: "govuk-fieldset__legend--s"
+    {{ govukDateInput({
+      id: 'sentence-date',
+      namePrefix: "sentence-date",
+      fieldset: {
+        legend: {
+          text: "Sentence date",
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      hint: {
+        text: "For example, 27 3 2007"
       }
-    },
-    hint: {
-      text: "For example, 27 3 2007"
-    }
-  }) }}
+    }) }}
 
-  {{ govukButton({
-    id: 'calculate-button',
-    text: "Calculate",
-    href: "/calculation-breakdown"
-  }) }}
+    {{ govukButton({
+      id: 'calculate-button',
+      text: "Calculate"
+    }) }}
+  </form>
 
 {% endblock %}
