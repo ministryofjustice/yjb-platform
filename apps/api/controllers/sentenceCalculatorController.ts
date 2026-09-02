@@ -3,8 +3,8 @@ import SentenceCalculator from "../services/sentenceCalculator/SentenceCalculato
 
 export class SentenceCalculatorController{
     constructor (sentence: InputSentences) {
-        
-        // TODO: extract this in parser class which also does simple validation
+
+        // TODO: extract this in parser class which also does simple validation use zod 
         const sentenceCalc = new SentenceCalculator(sentence)
         if ((sentence.remandAdjustment?.days ?? 0) > 0) {
             sentenceCalc.adjustCalculation(AdjustmentTypes.remand);
