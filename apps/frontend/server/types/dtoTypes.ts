@@ -17,7 +17,7 @@ interface BaseAdjustment {
   days: number
 }
 
-interface RemandAdjustment extends BaseAdjustment {
+export interface RemandAdjustment extends BaseAdjustment {
   name: typeof AdjustmentTypes.remand
   startDate: Date
 }
