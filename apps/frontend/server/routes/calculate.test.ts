@@ -2,7 +2,7 @@ import type { Express } from 'express'
 import request from 'supertest'
 import { appWithAllRoutes } from '../testutils/appSetup'
 import YjbApiClient from '../data/yjbApi'
-import { SentencePayload } from '../types/sentencePayload.tx'
+import { SentencePayload } from '../types/sentencePayload'
 
 jest.mock('../data/yjbApi')
 

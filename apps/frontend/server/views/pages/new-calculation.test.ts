@@ -5,7 +5,6 @@ const env = createNunjucksTestSetup()
 const renderWithCheerio = () => cheerio.load(env.render('pages/new-calculation.njk'))
 
 describe('New calculation page', () => {
-
   describe('content', () => {
     it('renders the tab title', () => {
       const cheerioPage = renderWithCheerio()
@@ -71,5 +70,4 @@ describe('New calculation page', () => {
       expect(dateHeading.text()).toContain('Sentence date')
     })
   })
-
 })
