@@ -1,9 +1,8 @@
 import { Router } from 'express'
 import type { Services } from '../services'
-import { SentencePayload } from '../types/sentencePayload'
-import { OutputCalculation } from '../types/dtoTypes'
+import { InputSentences, OutputCalculation } from '../types/dtoTypes'
 
-export default function calculateRoutes({ yjbApiClient }: Partial<Services>): Router {
+export default function calculateRoutes({ dtoService }: Partial<Services>): Router {
   const router = Router()
 
   router.get('/', async (req, res, _next) => {
@@ -11,9 +10,12 @@ export default function calculateRoutes({ yjbApiClient }: Partial<Services>): Ro
   })
 
   router.post('/', async (req, res, _next) => {
-    const payload: SentencePayload = req.body
+    // TODO: translate input data formats into what's needed for an InputSentences DTO object
+    const payload: InputSentences = req.body
 
-    const calculationResult: OutputCalculation = await yjbApiClient.calculateDtoSentence(payload)
+    const validationResult = dtoService.validatePayload(payload)
+
+    const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult)
 
     return res.render('pages/calculation-breakdown', { calculationResult })
   })

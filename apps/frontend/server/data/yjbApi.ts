@@ -1,7 +1,6 @@
 import { RestClient } from '@ministryofjustice/hmpps-rest-client'
 import logger from '../../logger'
 import config from '../config'
-import { SentencePayload } from '../types/sentencePayload'
 import { InputSentences, OutputCalculation } from '../types/dtoTypes'
 
 export default class YjbApiClient extends RestClient {
@@ -13,7 +12,7 @@ export default class YjbApiClient extends RestClient {
     return this.get({ path: '/test-api' })
   }
 
-  async calculateDtoSentence(_payload: SentencePayload): Promise<OutputCalculation> {
+  async calculateDtoSentence(_payload: InputSentences): Promise<OutputCalculation> {
     const fakeData = this.realEndpointWithDummyData()
     return fakeData
   }

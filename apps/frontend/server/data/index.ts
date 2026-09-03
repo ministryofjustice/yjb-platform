@@ -4,12 +4,14 @@
  */
 
 import applicationInfoSupplier from '../applicationInfo'
+import YjbApiClient from './yjbApi'
 
 const applicationInfo = applicationInfoSupplier()
 
 export const dataAccess = () => {
   return {
     applicationInfo,
+    yjbApiClient: new YjbApiClient(),
   }
 }
 
