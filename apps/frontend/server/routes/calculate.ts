@@ -13,9 +13,9 @@ export default function calculateRoutes({ yjbApiClient }: Partial<Services>): Ro
   router.post('/', async (req, res, _next) => {
     const payload: SentencePayload = req.body
 
-    const calculationResult: OutputCalculation = await yjbApiClient.realEndpointWithDummyData()
+    const calculationResult: OutputCalculation = await yjbApiClient.calculateDtoSentence(payload)
 
-    return res.render('pages/calculation-breakdown', { calculationResult, payload })
+    return res.render('pages/calculation-breakdown', { calculationResult })
   })
 
   return router
