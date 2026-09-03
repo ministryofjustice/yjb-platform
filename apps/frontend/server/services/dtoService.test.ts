@@ -15,9 +15,29 @@ describe('DtoService', () => {
 
   describe('validatePayload', () => {
     it('should return expected InputSentences object', () => {
-      const inputData: object = {}
+      const inputData: Record<string, unknown> = {}
       const expected: InputSentences = {
         offenderName: 'William Gates',
+        inputIndividualSentences: [],
+      }
+      const result = dtoService.validatePayload(inputData)
+
+      expect(result).toEqual(expected)
+    })
+
+    it('should validate the remand-days input and pass it to the InputSentences output', () => {
+      const dayCount: number = 5
+
+      const inputData: Record<string, unknown> = {
+        'remand-days': dayCount,
+      }
+      const expected: InputSentences = {
+        offenderName: 'William Gates',
+        remandAdjustment: {
+          name: 'remand',
+          startDate: new Date(),
+          days: dayCount,
+        },
         inputIndividualSentences: [],
       }
       const result = dtoService.validatePayload(inputData)

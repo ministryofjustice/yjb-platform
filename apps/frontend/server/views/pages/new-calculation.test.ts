@@ -69,5 +69,12 @@ describe('New calculation page', () => {
       const dateHeading = cheerioPage('legend')
       expect(dateHeading.text()).toContain('Sentence date')
     })
+
+    it('includes the remand days input', () => {
+      const cheerioPage = renderWithCheerio()
+
+      const remandDays = cheerioPage('#remand-days')
+      expect(remandDays.attr('name')).toEqual('remand-days')
+    })
   })
 })

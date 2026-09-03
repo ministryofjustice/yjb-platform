@@ -12,9 +12,25 @@ export default class YjbApiClient extends RestClient {
     return this.get({ path: '/test-api' })
   }
 
-  async calculateDtoSentence(_payload: InputSentences): Promise<OutputCalculation> {
-    const fakeData = this.realEndpointWithDummyData()
-    return fakeData
+  async calculateDtoSentence(payload: InputSentences): Promise<OutputCalculation> {
+    const dummyPayload: InputSentences = {
+      offenderName: 'Test Offender',
+      remandAdjustment: {
+        name: 'remand',
+        startDate: new Date('2026-06-14'),
+        days: payload.remandAdjustment.days,
+      },
+      inputIndividualSentences: [
+        {
+          from: new Date('2026-06-29'),
+          durationMonths: 11,
+        },
+      ],
+    }
+
+    const result: Promise<OutputCalculation> = this.post({ path: '/calculations', data: dummyPayload })
+
+    return result
   }
 
   async realEndpointWithDummyData(): Promise<OutputCalculation> {
