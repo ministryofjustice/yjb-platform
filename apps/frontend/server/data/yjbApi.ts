@@ -2,7 +2,6 @@ import { RestClient } from '@ministryofjustice/hmpps-rest-client'
 import logger from '../../logger'
 import config from '../config'
 import { SentencePayload } from '../types/sentencePayload'
-import { CalculationResult } from '../types/calculationResult'
 import { InputSentences, OutputCalculation } from '../types/dtoTypes'
 
 export default class YjbApiClient extends RestClient {
@@ -14,18 +13,19 @@ export default class YjbApiClient extends RestClient {
     return this.get({ path: '/test-api' })
   }
 
-  async calculateDtoSentence(payload: SentencePayload): Promise<CalculationResult> {
-    return this.post({ path: '/calculate-dto', data: { payload } })
+  async calculateDtoSentence(_payload: SentencePayload): Promise<OutputCalculation> {
+    const fakeData = this.realEndpointWithDummyData()
+    return fakeData
   }
 
   async realEndpointWithDummyData(): Promise<OutputCalculation> {
     const dummyData: InputSentences = {
       offenderName: 'Test Offender',
-      inputAdjustments: {
-        remand: 15,
-        remandStartDate: new Date('2026-06-14'),
-        taggedBailDays: 0,
-      },
+      // inputAdjustments: {
+      //   remand: 15,
+      //   remandStartDate: new Date('2026-06-14'),
+      //   taggedBailDays: 0,
+      // },
       inputIndividualSentences: [
         {
           from: new Date('2026-06-29'),
@@ -36,7 +36,7 @@ export default class YjbApiClient extends RestClient {
 
     // curl -X POST localhost:3001/calculations \
     // -H "Content-Type: application/json" \
-    // -d '{"offenderName":"Test Offender","inputAdjustments":{"remand":15,"remandStartDate":"2026-06-14","taggedBailDays":0},"inputIndividualSentences":[{"from":"2026-06-29","durationMonths":11}]}'
+    // -d '{"offenderName":"Test Offender","inputIndividualSentences":[{"from":"2026-06-29","durationMonths":11}]}'
 
     const result: Promise<OutputCalculation> = this.post({ path: '/calculations', data: dummyData })
 

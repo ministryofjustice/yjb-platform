@@ -1,58 +1,85 @@
 import * as cheerio from 'cheerio'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
-import { CalculationResult } from '../../types/calculationResult'
-import {OutputCalculation} from "../../types/dtoTypes";
+import { OutputCalculation } from '../../types/dtoTypes'
 
 const env = createNunjucksTestSetup()
 const renderWithCheerio = (context = {}) => cheerio.load(env.render('pages/calculation-breakdown.njk', context))
 
 describe('Calculation breakdown page', () => {
-  it('renders the title', () => {
-    const cheerioPage = renderWithCheerio()
-    expect(cheerioPage('title').text()).toBe('Youth Justice Platform - Calculation breakdown')
+  describe('content', () => {
+    it('renders the title', () => {
+      const cheerioPage = renderWithCheerio()
+      expect(cheerioPage('title').text()).toBe('Youth Justice Platform - Calculation breakdown')
+    })
+
+    it('renders the page headings', () => {
+      const cheerioPage = renderWithCheerio()
+      expect(cheerioPage('h1').text()).toBe('Calculation breakdown')
+    })
   })
 
-  it('renders the page heading', () => {
-    const cheerioPage = renderWithCheerio()
-    expect(cheerioPage('h1').text()).toBe('Calculation breakdown')
+  describe('data', () => {
+    it('it renders the ETD passed from the model', () => {
+      const calculationResult: OutputCalculation = sampleCalculationResult
+      const cheerioPage = renderWithCheerio({ calculationResult })
+      expect(cheerioPage('#release-dates').text()).toContain('ETD: Tue Oct 27 2026')
+    })
+
+    it('it renders the MTD passed from the model', () => {
+      const calculationResult: OutputCalculation = sampleCalculationResult
+      const cheerioPage = renderWithCheerio({ calculationResult })
+      expect(cheerioPage('#release-dates').text()).toContain('MTD: Fri Nov 27 2026')
+    })
+
+    it('it renders the LTD passed from the model', () => {
+      const calculationResult: OutputCalculation = sampleCalculationResult
+      const cheerioPage = renderWithCheerio({ calculationResult })
+      expect(cheerioPage('#release-dates').text()).toContain('LTD: Sun Dec 27 2026')
+    })
+
+    it('it renders the SLED passed from the model', () => {
+      const calculationResult: OutputCalculation = sampleCalculationResult
+      const cheerioPage = renderWithCheerio({ calculationResult })
+      expect(cheerioPage('#release-dates').text()).toContain('SLED: Thu May 13 2027')
+    })
   })
 })
 
-// const sampleCalculationResult: OutputCalculation = {
-//   caluclatedTerms: [
-//     {
-//       inputSentece: {
-//         from: new Date("2026-06-29"),
-//         durationMonths: 11
-//       },
-//     totalDaysInTerm: 334,
-//     totalDaysMTD: 167,
-//     sled: new Date("2027-05-28"),
-//     mtd: new Date("2026-12-12")
-//     }
-//   ],
-//   effectiveDates: {
-//     totalNumberOfRemandAndTaggedBailDays: 0,
-//     sled: new Date("2027-05-13"),
-//     mtd: new Date("2026-11-27"),
-//     TUSED: new Date("1970-01-01")
-//   },
-//   effectiveDatesAdjustments: [
-//     {
-//       adjustmentReason: "remand",
-//       adjustmentParameters: {
-//         remand: 15,
-//         remandStartDate: new Date("2026-06-14"),
-//         taggedBailDays: 0
-//       },
-//       pastEffectiveDates: {
-//         totalNumberOfRemandAndTaggedBailDays: 0,
-//         sled: new Date("2027-05-28"),
-//         mtd: new Date("2026-12-12"),
-//         TUSED: new Date("1970-01-01")
-//       }
-//     }
-//   ],
-//   ltd: new Date("2026-12-27"),
-//   etd: new Date("2026-10-27")
-// }
+const sampleCalculationResult: OutputCalculation = {
+  calculatedTerms: [
+    {
+      inputSentence: {
+        from: new Date('2026-06-29'),
+        durationMonths: 11,
+      },
+      totalDaysInTerm: 334,
+      totalDaysMTD: 167,
+      sled: new Date('2027-05-28'),
+      mtd: new Date('2026-12-12'),
+    },
+  ],
+  effectiveDates: {
+    totalNumberOfRemandAndTaggedBailDays: 0,
+    sled: new Date('2027-05-13'),
+    mtd: new Date('2026-11-27'),
+    TUSED: new Date('1970-01-01'),
+  },
+  effectiveDatesPastAdjustments: [
+    {
+      adjustmentReason: 'remand',
+      adjustmentParameters: {
+        name: 'remand',
+        startDate: new Date('2026-06-14'),
+        days: 0,
+      },
+      pastEffectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 0,
+        sled: new Date('2027-05-28'),
+        mtd: new Date('2026-12-12'),
+        TUSED: new Date('1970-01-01'),
+      },
+    },
+  ],
+  ltd: new Date('2026-12-27'),
+  etd: new Date('2026-10-27'),
+}

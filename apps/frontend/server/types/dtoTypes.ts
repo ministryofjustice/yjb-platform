@@ -6,21 +6,34 @@ export type InputIndividualSentence = {
 
 export type InputSentences = {
   offenderName: string
-  inputAdjustments: InputAdjustments
+  remandAdjustment?: RemandAdjustment
+  taggedBailAdjustment?: TaggedBailAdjustment
   inputIndividualSentences: InputIndividualSentence[]
 }
 
-export type InputAdjustments = {
-  remand: number
-  remandStartDate: Date
-  taggedBailDays: number
+// common shape every adjustment shares
+interface BaseAdjustment {
+  name: AdjustmentTypes
+  days: number
 }
+
+interface RemandAdjustment extends BaseAdjustment {
+  name: typeof AdjustmentTypes.remand
+  startDate: Date
+}
+
+interface TaggedBailAdjustment extends BaseAdjustment {
+  name: typeof AdjustmentTypes.taggedBail
+  // no startDate — and TS will error if you try to read one
+}
+
+export type InputAdjustment = RemandAdjustment | TaggedBailAdjustment
 
 // output types
 export interface OutputCalculation {
-  caluclatedTerms: AppendOnlyArray<CalculatedTerm>
+  calculatedTerms: AppendOnlyArray<CalculatedTerm>
   effectiveDates: EffectiveDates
-  effectiveDatesAdjustments: AppendOnlyArray<effectiveDatesAdjustments>
+  effectiveDatesPastAdjustments: AppendOnlyArray<effectiveDatesPastAdjustments>
   ltd: Date
   etd: Date
 }
@@ -34,16 +47,16 @@ export type EffectiveDates = {
 
 // each term corresponds to one line on the sheet or one sentence
 export type CalculatedTerm = {
-  inputSentece: InputIndividualSentence
+  inputSentence: InputIndividualSentence
   totalDaysInTerm: number
   totalDaysMTD: number
   sled: Date
   mtd: Date
 }
 
-export type effectiveDatesAdjustments = {
+export type effectiveDatesPastAdjustments = {
   adjustmentReason: AdjustmentTypes
-  adjustmentParameters: InputAdjustments
+  adjustmentParameters: InputAdjustment
   pastEffectiveDates: EffectiveDates
 }
 
