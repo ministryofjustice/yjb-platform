@@ -1,18 +1,23 @@
 import type { Express } from 'express'
 import request from 'supertest'
+import { isDeepStrictEqual } from 'util'
 import { appWithAllRoutes } from '../testutils/appSetup'
 import YjbApiClient from '../data/yjbApi'
-import { SentencePayload } from '../types/sentencePayload'
+import { InputSentences } from '../types/dtoTypes'
+import DtoService from '../services/dtoService'
 
 jest.mock('../data/yjbApi')
+jest.mock('../services/dtoService')
 
 const yjbApiClient = new YjbApiClient() as jest.Mocked<YjbApiClient>
+const dtoService = new DtoService(yjbApiClient) as jest.Mocked<DtoService>
 
 let app: Express
 
 beforeEach(() => {
   app = appWithAllRoutes({
     services: {
+      dtoService,
       yjbApiClient,
     },
   })
@@ -47,8 +52,10 @@ describe('POST /calculate', () => {
       })
   })
 
-  it('should call the yjbApiClient with the payload, and return a result', () => {
-    const payload: SentencePayload = { personName: 'data' }
+  it('should call the dtoService.validatePayload with the payload, and return a result', () => {
+    const payload: object = {
+      formField: 'Testomatic Man!',
+    }
 
     return request(app)
       .post('/calculate')
@@ -56,7 +63,31 @@ describe('POST /calculate', () => {
       .expect('Content-Type', /html/)
       .expect(200)
       .expect(res => {
-        expect(yjbApiClient.calculateDtoSentence).toHaveBeenCalledWith(payload)
+        expect(dtoService.validatePayload).toHaveBeenCalledWith(payload)
+      })
+  })
+
+  it('should call the dtoService.calculateDtoSentence with a validated payload, and return a result', () => {
+    const payload: object = {
+      formField: 'Testomatic Man!',
+    }
+
+    const validatedPayload: InputSentences = {
+      offenderName: 'Place Holder',
+      inputIndividualSentences: [],
+    }
+
+    dtoService.validatePayload.mockImplementation(input =>
+      isDeepStrictEqual(input, payload) ? validatedPayload : undefined,
+    )
+
+    return request(app)
+      .post('/calculate')
+      .send(payload)
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        expect(dtoService.calculateDtoSentence).toHaveBeenCalledWith(validatedPayload)
       })
   })
 })

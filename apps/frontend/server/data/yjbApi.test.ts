@@ -1,8 +1,8 @@
 import nock from 'nock'
 import YjbApiClient from './yjbApi'
 import config from '../config'
-import { SentencePayload } from '../types/sentencePayload'
-import { OutputCalculation } from '../types/dtoTypes'
+import { InputSentences } from '../types/dtoTypes'
+import sampleCalculationResult from '../testutils/sampleObjects'
 
 describe('ExampleApiClient', () => {
   let yjbApiClient: YjbApiClient
@@ -29,8 +29,9 @@ describe('ExampleApiClient', () => {
     it('should call the /calculations endpoint', async () => {
       nock(config.apis.yjbApi.url).post('/calculations').reply(200, sampleCalculationResult)
 
-      const input: SentencePayload = {
-        personName: 'Steve',
+      const input: InputSentences = {
+        offenderName: 'Place Holder',
+        inputIndividualSentences: [],
       }
 
       const response = await yjbApiClient.calculateDtoSentence(input)
@@ -38,42 +39,3 @@ describe('ExampleApiClient', () => {
     })
   })
 })
-
-const sampleCalculationResult: OutputCalculation = {
-  calculatedTerms: [
-    {
-      inputSentence: {
-        from: new Date('2026-06-29'),
-        durationMonths: 11,
-      },
-      totalDaysInTerm: 334,
-      totalDaysMTD: 167,
-      sled: new Date('2027-05-28'),
-      mtd: new Date('2026-12-12'),
-    },
-  ],
-  effectiveDates: {
-    totalNumberOfRemandAndTaggedBailDays: 0,
-    sled: new Date('2027-05-13'),
-    mtd: new Date('2026-11-27'),
-    TUSED: new Date('1970-01-01'),
-  },
-  effectiveDatesPastAdjustments: [
-    {
-      adjustmentReason: 'remand',
-      adjustmentParameters: {
-        name: 'remand',
-        startDate: new Date('2026-06-14'),
-        days: 0,
-      },
-      pastEffectiveDates: {
-        totalNumberOfRemandAndTaggedBailDays: 0,
-        sled: new Date('2027-05-28'),
-        mtd: new Date('2026-12-12'),
-        TUSED: new Date('1970-01-01'),
-      },
-    },
-  ],
-  ltd: new Date('2026-12-27'),
-  etd: new Date('2026-10-27'),
-}
