@@ -1,7 +1,7 @@
 import nock from 'nock'
 import YjbApiClient from './yjbApi'
 import config from '../config'
-import { SentencePayload } from '../types/sentencePayload.tx'
+import { SentencePayload } from '../types/sentencePayload'
 
 describe('ExampleApiClient', () => {
   let yjbApiClient: YjbApiClient

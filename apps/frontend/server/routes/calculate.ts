@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import type { Services } from '../services'
-import { SentencePayload } from '../types/sentencePayload.tx'
-import { CalculationResult } from '../types/calculationResult'
+import { SentencePayload } from '../types/sentencePayload'
+import { OutputCalculation } from '../types/dtoTypes'
 
 export default function calculateRoutes({ yjbApiClient }: Partial<Services>): Router {
   const router = Router()
@@ -13,9 +13,9 @@ export default function calculateRoutes({ yjbApiClient }: Partial<Services>): Ro
   router.post('/', async (req, res, _next) => {
     const payload: SentencePayload = req.body
 
-    const calculationResult: CalculationResult = await yjbApiClient.calculateDtoSentence(payload)
+    const calculationResult: OutputCalculation = await yjbApiClient.realEndpointWithDummyData()
 
-    return res.render('pages/calculation-breakdown', { calculationResult })
+    return res.render('pages/calculation-breakdown', { calculationResult, payload })
   })
 
   return router
