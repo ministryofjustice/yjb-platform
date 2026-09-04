@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import type { Services } from '../services'
-import { InputSentences, OutputCalculation } from '../types/dtoTypes'
+import { OutputCalculation } from '../types/dtoTypes'
 
 export default function calculateRoutes({ dtoService }: Partial<Services>): Router {
   const router = Router()
@@ -10,17 +10,19 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
   })
 
   router.post('/', async (req, res, _next) => {
-    // TODO: translate input data formats into what's needed for an InputSentences DTO object
-    const payload: InputSentences = req.body
+    const payload: Record<string, unknown> = req.body
+    const payloadString = JSON.stringify(payload)
 
     const validationResult = dtoService.validatePayload(payload)
 
-    const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult)
+    if (validationResult.isValid) {
+      const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult.payload)
+      const calculationResultString = JSON.stringify(calculationResult)
 
-    const payloadString = JSON.stringify(payload)
-    const calculationResultString = JSON.stringify(calculationResult)
-
-    return res.render('pages/calculation-breakdown', { calculationResult, payloadString, calculationResultString })
+      return res.render('pages/calculation-breakdown', { calculationResult, payloadString, calculationResultString })
+    }
+    // TODO: construct an error object and use it here
+    return res.render('pages/new-calculation', { validationError: true } )
   })
 
   return router

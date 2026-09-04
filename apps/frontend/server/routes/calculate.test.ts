@@ -4,7 +4,7 @@ import { isDeepStrictEqual } from 'util'
 import { appWithAllRoutes } from '../testutils/appSetup'
 import YjbApiClient from '../data/yjbApi'
 import { InputSentences } from '../types/dtoTypes'
-import DtoService from '../services/dtoService'
+import DtoService, { ValidationResult } from '../services/dtoService'
 
 jest.mock('../data/yjbApi')
 jest.mock('../services/dtoService')
@@ -41,7 +41,14 @@ describe('GET /calculate', () => {
 })
 
 describe('POST /calculate', () => {
-  it('should render a calculation breakdown page', () => {
+  it('should render a calculation breakdown page when the payload is valid', () => {
+    const validResult: ValidationResult = {
+      isValid: true,
+      input: {},
+      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+    }
+    dtoService.validatePayload.mockReturnValue(validResult)
+
     return request(app)
       .post('/calculate')
       .expect('Content-Type', /html/)
@@ -52,10 +59,28 @@ describe('POST /calculate', () => {
       })
   })
 
+  it('should render the new calculation page when the payload is invalid', () => {
+    const invalidResult: ValidationResult = {
+      isValid: false,
+      input: {},
+    }
+    dtoService.validatePayload.mockReturnValue(invalidResult)
+
+    return request(app)
+      .post('/calculate')
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        expect(res.text).toContain('New calculation')
+      })
+  })
+
   it('should call the dtoService.validatePayload with the payload, and return a result', () => {
     const payload: object = {
       formField: 'Testomatic Man!',
     }
+
+    dtoService.validatePayload.mockReturnValue({ isValid: false, input: payload as Record<string, unknown> })
 
     return request(app)
       .post('/calculate')
@@ -78,7 +103,9 @@ describe('POST /calculate', () => {
     }
 
     dtoService.validatePayload.mockImplementation(input =>
-      isDeepStrictEqual(input, payload) ? validatedPayload : undefined,
+      isDeepStrictEqual(input, payload)
+        ? { isValid: true, input, payload: validatedPayload }
+        : { isValid: false, input },
     )
 
     return request(app)

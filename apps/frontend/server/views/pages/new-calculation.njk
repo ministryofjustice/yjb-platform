@@ -10,6 +10,13 @@
 
 {% block content %}
 
+  {% if validationError %}
+    <div class="govuk-grid-row">
+      <h1>ERROR PLACEHOLDER</h1>
+      <p>The submitted data was not valid</p>
+    </div>
+  {% endif %}
+
   <h1>New calculation</h1>
   <p id="instruction-text">Enter the calculation details below</p>
 
