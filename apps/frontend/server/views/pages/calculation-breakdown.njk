@@ -7,7 +7,7 @@
 
 {% block content %}
 
-  <h1>Calculation breakdown</h1>
+  <h1 class="govuk-heading-l">Calculation breakdown</h1>
   <div>
     {{ govukButton({ text: "Flag and Error"}) }}
     {{ govukButton({ text: "Breakdown View"}) }}
@@ -18,10 +18,13 @@
     <div class="govuk-grid-column-one-third">
       <div id="release-dates">
         <h2>Release dates</h2>
-        <p><span class="govuk-heading-m">ETD:</span> <span class="govuk-body-s">Earliest Transfer Date</span> <span class="govuk-body-l govuk-!-font-weight-bold">{{ calculationResult.etd }}</span></p>
-        <p><span class="govuk-heading-m">MTD:</span> <span class="govuk-body-s">Mid term date</span> <span class="govuk-body-l govuk-!-font-weight-bold">{{ calculationResult.effectiveDates.mtd }}</span></p>
-        <p><span class="govuk-heading-m">LTD:</span> <span class="govuk-body-s">Latest Transfer Date</span> <span class="govuk-body-l govuk-!-font-weight-bold">{{ calculationResult.ltd }}</span></p>
-        <p><span class="govuk-heading-m">SLED:</span> <span class="govuk-body-s">Sentence and licence expiry date</span> <span class="govuk-body-l govuk-!-font-weight-bold">{{ calculationResult.effectiveDates.sled }}</span></p>
+        <p><span class="govuk-heading-m">ETD:</span> <span class="govuk-body-s">Earliest Transfer Date</span> <span class="govuk-body-m govuk-!-font-weight-bold">{{ calculationResult.etd }}</span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-heading-m">MTD:</span> <span class="govuk-body-s">Mid term date</span> <span class="govuk-body-m govuk-!-font-weight-bold">{{ calculationResult.effectiveDates.mtd }}</span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-heading-m">LTD:</span> <span class="govuk-body-s">Latest Transfer Date</span> <span class="govuk-body-lm govuk-!-font-weight-bold">{{ calculationResult.ltd }}</span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-heading-m">SLED:</span> <span class="govuk-body-s">Sentence and licence expiry date</span> <span class="govuk-body-m govuk-!-font-weight-bold">{{ calculationResult.effectiveDates.sled }}</span></p>
       </div>
 
       <div id="custodial-timeline">
@@ -33,13 +36,21 @@
       <div id="detailed-breakdown">
         <h2>Detailed breakdown</h2>
         <p><span class="govuk-body govuk-!-font-weight-bold">Term type:</span> <span class="govuk-body">Detention and Training Order (DTO)</span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p><span class="govuk-body govuk-!-font-weight-bold">Term length:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p><span class="govuk-body govuk-!-font-weight-bold">Custodial Period:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
-        <p><span class="govuk-body govuk-!-font-weight-bold">MTD:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+       <p><span class="govuk-body govuk-!-font-weight-bold">MTD:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p><span class="govuk-body govuk-!-font-weight-bold">Remand Period:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p><span class="govuk-body govuk-!-font-weight-bold">Final Sled:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p><span class="govuk-body govuk-!-font-weight-bold">Final MTD:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p><span class="govuk-body govuk-!-font-weight-bold">ETD:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p><span class="govuk-body govuk-!-font-weight-bold">LTD:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
       </div>
     </div>
