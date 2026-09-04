@@ -76,5 +76,12 @@ describe('New calculation page', () => {
       const remandDays = cheerioPage('#remand-days')
       expect(remandDays.attr('name')).toEqual('remand-days')
     })
+
+    it('includes the tagged bail days input', () => {
+      const cheerioPage = renderWithCheerio()
+
+      const taggedBailDays = cheerioPage('#tagged-bail-days')
+      expect(taggedBailDays.attr('name')).toEqual('tagged-bail-days')
+    })
   })
 })

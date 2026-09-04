@@ -25,6 +25,25 @@ describe('DtoService', () => {
       expect(result).toEqual(expected)
     })
 
+    it('should validate the tagged-bail-days input and pass it to the InputSentences output', () => {
+      const dayCount: number = 3
+
+      const inputData: Record<string, unknown> = {
+        'tagged-bail-days': dayCount,
+      }
+
+      const result = dtoService.validatePayload(inputData)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          taggedBailAdjustment: {
+            name: 'taggedBail',
+            days: dayCount,
+          },
+        }),
+      )
+    })
+
     it('should validate the remand-days input and pass it to the InputSentences output', () => {
       const dayCount: number = 5
 

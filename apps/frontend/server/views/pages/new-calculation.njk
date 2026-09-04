@@ -56,6 +56,14 @@
       name: "remand-days"
     }) }}
 
+    {{ govukInput({
+      label: {
+        text: "Tagged bail days"
+      },
+      id: "tagged-bail-days",
+      name: "tagged-bail-days"
+    }) }}
+
     {{ govukButton({
       id: 'calculate-button',
       text: "Calculate"
