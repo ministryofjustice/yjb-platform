@@ -1,0 +1,157 @@
+import { addMonths, addDays, subDays, subMonths, differenceInCalendarDays } from 'date-fns'
+import { UTCDate } from '@date-fns/utc'
+import {
+  InputSentences,
+  InputIndividualSentence,
+  OutputCalculation,
+  CalculatedTerm,
+  EffectiveDates,
+  effectiveDatesPastAdjustments,
+  AdjustmentTypes,
+} from './types'
+
+export default class SentenceCalculator {
+  private sentence: InputSentences
+
+  private calculation: OutputCalculation
+
+  constructor(sentence: InputSentences) {
+    this.sentence = sentence
+
+    this.calculation = {
+      calculatedTerms: [],
+      effectiveDates: {} as EffectiveDates,
+      effectiveDatesPastAdjustments: [],
+      ltd: new Date(0),
+      etd: new Date(0),
+    }
+
+    // get all term dates, for now it will always be one
+    this.sentence.inputIndividualSentences.forEach(inputSentence => {
+      this.calculation.calculatedTerms.push(this.calculateTerm(inputSentence))
+    })
+
+    // for now 1 sentecen only and without any adjustemnts the effecive dates match the terms (to apply consecuteve concurent sentences in future)
+    this.calculation.effectiveDates = {
+      // TODO calculate the real total
+      totalNumberOfRemandAndTaggedBailDays: 0,
+      sled: this.calculation.calculatedTerms[0].sled,
+      mtd: this.calculation.calculatedTerms[0].mtd,
+      // probably out of scope for now, leve just for consistancy with sheet
+      TUSED: new Date(0),
+    }
+      this.calculation.ltd = this.getLTDDate(
+      this.calculation.effectiveDates.mtd,
+      this.calculation.calculatedTerms[0].totalDaysInTerm,
+    )
+    this.calculation.etd = this.getETDDate(
+      this.calculation.effectiveDates.mtd,
+      this.calculation.calculatedTerms[0].totalDaysInTerm,
+    )
+  }
+
+  calculateTerm(inputSentence: InputIndividualSentence): CalculatedTerm {
+    const totalDaysInTerm = this.getTotalDaysInTerm()
+    const totalDaysMTD = this.getTotalDaysMTD()
+
+    return {
+      inputSentence,
+      totalDaysInTerm,
+      totalDaysMTD,
+      sled: this.getSledDate(totalDaysInTerm),
+      mtd: this.getMTDDate(totalDaysMTD),
+    }
+  }
+
+  getTotalDaysInTerm(): number {
+    const { from, durationMonths } = this.sentence.inputIndividualSentences[0]
+    const utcFrom = new UTCDate(from)
+    const to = addMonths(utcFrom, durationMonths)
+
+    return differenceInCalendarDays(to, utcFrom)
+  }
+
+  getSledDate(totalDaysInTerm: number): Date {
+    const { from } = this.sentence.inputIndividualSentences[0]
+    // add term starting from the sentence day
+    return addDays(new UTCDate(from), totalDaysInTerm - 1)
+  }
+
+  getTotalDaysMTD(): number {
+    const totalDaysInTerm: number = this.getTotalDaysInTerm()
+    return Math.round(totalDaysInTerm / 2)
+  }
+
+  getMTDDate(totalDaysMTD: number): Date {
+    const { from } = this.sentence.inputIndividualSentences[0]
+
+    // add mtd starting from the sentence day
+    return addDays(new UTCDate(from), totalDaysMTD - 1)
+  }
+
+  increaseTotalNumRTBDays(currentTotal: number, incrementor: number): number {
+      return currentTotal + incrementor;
+  }
+
+  getETDDate(mtd: Date, _totalDaysInTerm: number): Date {
+    // TODO add logic the leth should be between 8 to 18 months, otherwise happens what?
+    return subMonths(new UTCDate(mtd), 1)
+  }
+
+  getLTDDate(mtd: Date, _totalDaysInTerm: number): Date {
+    // TODO again between 8 to 18 months, otherwise happens what?
+    return addMonths(new UTCDate(mtd), 1)
+  }
+
+  applyRemand(remand: number, reason: AdjustmentTypes): effectiveDatesPastAdjustments {
+    // save existing effective dates and adjustment parameters prior to the adjustment
+    // (spread into a new object - effectiveDates is mutated in place below, so a live reference would show the new values too)
+    const adjustment: effectiveDatesPastAdjustments = {
+      adjustmentReason: reason,
+      adjustmentParameters: this.sentence.remandAdjustment!,
+      pastEffectiveDates: { ...this.calculation.effectiveDates },
+    }
+    this.calculation.effectiveDatesPastAdjustments.push(adjustment)
+
+    let totalRTBD = this.calculation.effectiveDates.totalNumberOfRemandAndTaggedBailDays 
+    this.calculation.effectiveDates.totalNumberOfRemandAndTaggedBailDays  =  
+      this.increaseTotalNumRTBDays(totalRTBD, remand)
+    
+
+    // if remand covers the whole sentence, there's no sentence left to serve:
+    // sled and mtd both collapse to the sentence start date
+    if (remand >= this.calculation.calculatedTerms[0].totalDaysInTerm) {
+      const sentenceStart = new UTCDate(this.sentence.inputIndividualSentences[0].from)
+      this.calculation.effectiveDates.sled = sentenceStart
+      this.calculation.effectiveDates.mtd = sentenceStart
+    } else {
+      this.calculation.effectiveDates.sled = subDays(this.calculation.effectiveDates.sled, remand)
+      this.calculation.effectiveDates.mtd = subDays(this.calculation.effectiveDates.mtd, remand)
+      this.calculation.etd = this.getETDDate(
+        this.calculation.effectiveDates.mtd,
+        this.calculation.calculatedTerms[0].totalDaysInTerm,
+      )
+      this.calculation.ltd = this.getLTDDate(
+        this.calculation.effectiveDates.mtd,
+        this.calculation.calculatedTerms[0].totalDaysInTerm,
+      )
+    }
+
+    return adjustment
+  }
+
+  getCalculation(): OutputCalculation {
+    return this.calculation
+  }
+
+  adjustCalculation(reason: AdjustmentTypes): OutputCalculation {
+    if (reason === AdjustmentTypes.remand) {
+      const remand = this.sentence.remandAdjustment?.days ?? 0
+      if (remand > 0) {
+        this.applyRemand(remand, reason)
+      }
+    }
+
+    return this.calculation
+  }
+}

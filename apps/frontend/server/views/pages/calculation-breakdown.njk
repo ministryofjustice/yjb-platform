@@ -1,0 +1,93 @@
+{% extends "../partials/layout.njk" %}
+
+{% set pageTitle = applicationName + " - Calculation breakdown" %}
+{% set mainClasses = "govuk-body" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+
+
+{% block content %}
+
+  <h1 class="govuk-heading-l">Calculation breakdown</h1>
+  <div>
+    {{ govukButton({ text: "Flag and Error"}) }}
+    {{ govukButton({ text: "Breakdown View"}) }}
+    {{ govukButton({ text: "Sheet View"}) }}
+  </div>
+
+  <div class="govuk-grid-row">
+      {% call govukDetails({
+        summaryText: "Debug info"
+      }) %}
+        <h2>Payload</h2>
+        <p>{{ payloadString }}</p>
+        <h2>Result json</h2>
+        <p>{{ calculationResultString }}</p>
+      {% endcall %}
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-third">
+      <div id="release-dates" class='release-date-gray'>
+        <h2>Release dates</h2>
+        <p><span class="govuk-heading-m">ETD:</span> <span class="govuk-body-s">Earliest Transfer Date</span> <span class="govuk-body-m govuk-!-font-weight-bold">{{ calculationResult.etd }}</span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-heading-m">MTD:</span> <span class="govuk-body-s">Mid term date</span> <span class="govuk-body-m govuk-!-font-weight-bold">{{ calculationResult.effectiveDates.mtd }}</span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-heading-m">LTD:</span> <span class="govuk-body-s">Latest Transfer Date</span> <span class="govuk-body-lm govuk-!-font-weight-bold">{{ calculationResult.ltd }}</span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-heading-m">SLED:</span> <span class="govuk-body-s">Sentence and licence expiry date</span> <span class="govuk-body-m govuk-!-font-weight-bold">{{ calculationResult.effectiveDates.sled }}</span></p>
+      </div>
+
+      <div id="custodial-timeline">
+        <h2>Custodial timeline</h2>
+        <div class="timetable-row">
+          <div class="timetable-item">
+            <div class="timetable-section">Sentenced</div>
+            <div class="timetable-value">{{ calculationResult.calculatedTerms[0].inputSentence.from }}</div>
+          </div>
+          <div class="timetable-item">
+            <div class="timetable-section">ETD</div>
+            <div class="timetable-value">{{ calculationResult.etd }}</div>
+          </div>
+          <div class="timetable-item">
+             <div class="timetable-section">MTD</div>
+            <div class="timetable-value">{{ calculationResult.effectiveDates.mtd }}</div>
+          </div>
+          <div class="timetable-item">
+            <div class="timetable-section">LTD</div>
+            <div class="timetable-value">{{ calculationResult.ltd }}</div> 
+          </div>
+          <div class="timetable-item">
+             <div class="timetable-section">SLED</div>
+            <div class="timetable-value">{{ calculationResult.effectiveDates.sled }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="govuk-grid-column-two-thirds">
+      <div id="detailed-breakdown">
+        <h2>Detailed breakdown</h2>
+        <p><span class="govuk-body govuk-!-font-weight-bold">Term type:</span> <span class="govuk-body">Detention and Training Order (DTO)</span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-body govuk-!-font-weight-bold">Term length: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].totalDaysInTerm }} days</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-body govuk-!-font-weight-bold">Custodial Period: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].totalDaysMTD }}</span><span class="govuk-body-s"></span></p>
+       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+       <p><span class="govuk-body govuk-!-font-weight-bold">MTD: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].mtd }}</span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-body govuk-!-font-weight-bold">Remand Period: </span><span class="govuk-body">{{ calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days}}</span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-body govuk-!-font-weight-bold">Final Sled: </span><span class="govuk-body">{{ calculationResult.effectiveDates.sled }}</span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-body govuk-!-font-weight-bold">Final MTD: </span><span class="govuk-body">{{ calculationResult.effectiveDates.mtd }}</span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-body govuk-!-font-weight-bold">ETD: </span><span class="govuk-body">{{  calculationResult.etd }}</span><span class="govuk-body-s"></span></p>
+        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+        <p><span class="govuk-body govuk-!-font-weight-bold">LTD: </span><span class="govuk-body">{{  calculationResult.ltd }}</span><span class="govuk-body-s"></span></p>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
