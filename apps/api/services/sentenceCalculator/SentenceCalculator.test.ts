@@ -162,6 +162,20 @@ describe('SentenceCalculator', () => {
     })
   })
 
+  describe('getTotalNumberOfRemandAndTaggedBailDays', () => {
+    it('returns 15 if we introduce a 15 days remand only', () => {
+        const currentTotal = defaultCalculator.getCalculation().effectiveDates.totalNumberOfRemandAndTaggedBailDays
+        expect(defaultCalculator.increaseTotalNumRTBDays(currentTotal, 15)).toEqual(15)
+    })
+
+    it('returns 25 if we introduce a 15 days remand and 10 days tagged bail', () => {
+        const currentTotal = defaultCalculator.getCalculation().effectiveDates.totalNumberOfRemandAndTaggedBailDays
+        const remandTotal = defaultCalculator.increaseTotalNumRTBDays(currentTotal, 15)
+        const taggedTotal = defaultCalculator.increaseTotalNumRTBDays(remandTotal, 10)
+        expect(taggedTotal).toEqual(25)
+    })
+  })
+
   describe('getETD', () => {
     // only testing no remand scenario here, remand scenarios with adjustment covered in adjustment testing
     it('returns 2026-11-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
@@ -273,7 +287,7 @@ describe('SentenceCalculator', () => {
           },
         ],
         effectiveDates: {
-          totalNumberOfRemandAndTaggedBailDays: 0,
+          totalNumberOfRemandAndTaggedBailDays: 15,
           sled: new Date('2027-05-13'),
           mtd: new Date('2026-11-27'),
           TUSED: new Date(0),
@@ -322,7 +336,7 @@ describe('SentenceCalculator', () => {
           },
         ],
         effectiveDates: {
-          totalNumberOfRemandAndTaggedBailDays: 0,
+          totalNumberOfRemandAndTaggedBailDays: 30,
           sled: new Date('2027-03-01'),
           mtd: new Date('2027-01-31'),
           TUSED: new Date(0),

@@ -68,7 +68,7 @@ describe('POST /calculations', () => {
         },
       ],
       effectiveDates: {
-        totalNumberOfRemandAndTaggedBailDays: 0,
+        totalNumberOfRemandAndTaggedBailDays: 15,
         sled: '2027-05-13',
         mtd: '2026-11-27',
         TUSED: '1970-01-01',
