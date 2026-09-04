@@ -30,8 +30,14 @@ export default class DtoService {
           }
         : undefined
 
+    const sentenceDate = new Date(
+      Number(formData['sentence-date-year']),
+      Number(formData['sentence-date-month']) - 1,
+      Number(formData['sentence-date-day']),
+    )
+
     const inputIndividualSentences: InputIndividualSentence[] =
-      sentenceLengthMonthsInput > 0 ? [{ from: new Date(), durationMonths: sentenceLengthMonthsInput }] : []
+      sentenceLengthMonthsInput > 0 ? [{ from: sentenceDate, durationMonths: sentenceLengthMonthsInput }] : []
 
     const result: InputSentences = {
       offenderName: 'William Gates',
