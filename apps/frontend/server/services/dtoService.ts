@@ -16,9 +16,21 @@ export default class DtoService {
           }
         : undefined
 
+    const taggedBailDaysInput: number =
+      formData['tagged-bail-days'] !== undefined ? (formData['tagged-bail-days'] as number) : 0
+
+    const taggedBailAdjustment =
+      taggedBailDaysInput > 0
+        ? {
+            name: 'taggedBail' as const,
+            days: taggedBailDaysInput,
+          }
+        : undefined
+
     const result: InputSentences = {
       offenderName: 'William Gates',
       remandAdjustment,
+      taggedBailAdjustment,
       inputIndividualSentences: [],
     }
     return result
