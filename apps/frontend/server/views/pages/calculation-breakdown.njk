@@ -3,6 +3,7 @@
 {% set pageTitle = applicationName + " - Calculation breakdown" %}
 {% set mainClasses = "govuk-body" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
 
 
 {% block content %}
@@ -12,6 +13,17 @@
     {{ govukButton({ text: "Flag and Error"}) }}
     {{ govukButton({ text: "Breakdown View"}) }}
     {{ govukButton({ text: "Sheet View"}) }}
+  </div>
+
+  <div class="govuk-grid-row">
+      {% call govukDetails({
+        summaryText: "Debug info"
+      }) %}
+        <h2>Payload</h2>
+        <p>{{ payloadString }}</p>
+        <h2>Result json</h2>
+        <p>{{ calculationResultString }}</p>
+      {% endcall %}
   </div>
 
   <div class="govuk-grid-row">

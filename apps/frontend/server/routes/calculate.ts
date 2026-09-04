@@ -17,7 +17,10 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
 
     const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult)
 
-    return res.render('pages/calculation-breakdown', { calculationResult })
+    const payloadString = JSON.stringify(payload)
+    const calculationResultString = JSON.stringify(calculationResult)
+
+    return res.render('pages/calculation-breakdown', { calculationResult, payloadString, calculationResultString })
   })
 
   return router
