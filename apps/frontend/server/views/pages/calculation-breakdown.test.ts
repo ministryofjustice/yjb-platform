@@ -23,25 +23,25 @@ describe('Calculation breakdown page', () => {
     it('it renders the ETD passed from the model', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
       const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#release-dates').text()).toContain('ETD: Tue Oct 27 2026')
+      expect(cheerioPage('#release-dates').text()).toContain('ETD: Earliest Transfer Date Tue Oct 27 2026')
     })
 
     it('it renders the MTD passed from the model', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
       const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#release-dates').text()).toContain('MTD: Fri Nov 27 2026')
+      expect(cheerioPage('#release-dates').text()).toContain('MTD: Mid term date Fri Nov 27 2026')
     })
 
     it('it renders the LTD passed from the model', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
       const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#release-dates').text()).toContain('LTD: Sun Dec 27 2026')
+      expect(cheerioPage('#release-dates').text()).toContain('LTD: Latest Transfer Date Sun Dec 27 2026')
     })
 
     it('it renders the SLED passed from the model', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
       const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#release-dates').text()).toContain('SLED: Thu May 13 2027')
+      expect(cheerioPage('#release-dates').text()).toContain('SLED: Sentence and licence expiry date Thu May 13 2027')
     })
   })
 })

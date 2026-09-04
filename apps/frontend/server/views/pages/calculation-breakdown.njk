@@ -2,27 +2,47 @@
 
 {% set pageTitle = applicationName + " - Calculation breakdown" %}
 {% set mainClasses = "govuk-body" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
 
 {% block content %}
 
   <h1>Calculation breakdown</h1>
-
-  <div id="release-dates">
-    <h2>Release dates</h2>
-    <p>ETD: {{ calculationResult.etd }}</p>
-    <p>MTD: {{ calculationResult.effectiveDates.mtd }}</p>
-    <p>LTD: {{ calculationResult.ltd }}</p>
-    <p>SLED: {{ calculationResult.effectiveDates.sled }}</p>
+  <div>
+    {{ govukButton({ text: "Flag and Error"}) }}
+    {{ govukButton({ text: "Breakdown View"}) }}
+    {{ govukButton({ text: "Sheet View"}) }}
   </div>
 
-  <div id="custodial-timeline">
-    <h2>Custodial timeline</h2>
-  </div>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-third">
+      <div id="release-dates">
+        <h2>Release dates</h2>
+        <p><span class="govuk-heading-m">ETD:</span> <span class="govuk-body-s">Earliest Transfer Date</span> <span class="govuk-body-l govuk-!-font-weight-bold">{{ calculationResult.etd }}</span></p>
+        <p><span class="govuk-heading-m">MTD:</span> <span class="govuk-body-s">Mid term date</span> <span class="govuk-body-l govuk-!-font-weight-bold">{{ calculationResult.effectiveDates.mtd }}</span></p>
+        <p><span class="govuk-heading-m">LTD:</span> <span class="govuk-body-s">Latest Transfer Date</span> <span class="govuk-body-l govuk-!-font-weight-bold">{{ calculationResult.ltd }}</span></p>
+        <p><span class="govuk-heading-m">SLED:</span> <span class="govuk-body-s">Sentence and licence expiry date</span> <span class="govuk-body-l govuk-!-font-weight-bold">{{ calculationResult.effectiveDates.sled }}</span></p>
+      </div>
 
-  <div id="detailed-breakdown">
-    <h2>Detailed breakdown</h2>
-    <p>Work in progress!</p>
-    <p>E.g. Total number of remand and tagged bail days: {{ calculationResult.effectiveDates.totalNumberOfRemandAndTaggedBailDays }}</p>
+      <div id="custodial-timeline">
+        <h2>Custodial timeline</h2>
+      </div>
+    </div>
+
+    <div class="govuk-grid-column-two-thirds">
+      <div id="detailed-breakdown">
+        <h2>Detailed breakdown</h2>
+        <p><span class="govuk-body govuk-!-font-weight-bold">Term type:</span> <span class="govuk-body">Detention and Training Order (DTO)</span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">Term length:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">Custodial Period:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">MTD:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">Remand Period:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">Final Sled:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">Final MTD:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">ETD:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">LTD:</span><span class="govuk-body"></span><span class="govuk-body-s"></span></p>
+      </div>
+    </div>
   </div>
 
 {% endblock %}
