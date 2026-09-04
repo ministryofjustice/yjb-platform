@@ -63,7 +63,7 @@ describe('SentenceController', () => {
         },
       ],
       effectiveDates: {
-        totalNumberOfRemandAndTaggedBailDays: 0,
+        totalNumberOfRemandAndTaggedBailDays: 15,
         sled: new Date('2027-05-13'),
         mtd: new Date('2026-11-27'),
         TUSED: new Date(0),
