@@ -5,7 +5,7 @@ import sampleCalculationResult from '../../testutils/sampleObjects'
 
 const env = createNunjucksTestSetup()
 const renderWithCheerio = (context = {}) => cheerio.load(env.render('pages/calculation-breakdown.njk', context))
-const renderWithoutCheerio = (context = {}) => env.render('pages/calculation-breakdown.njk', context)
+// const renderWithoutCheerio = (context = {}) => env.render('pages/calculation-breakdown.njk', context)
 
 describe('Calculation breakdown page', () => {
   describe('content', () => {
@@ -64,13 +64,13 @@ describe('Calculation breakdown page', () => {
       expect(cheerioPage('#detailed-breakdown').text()).toContain('MTD: Sat Dec 12 2026')
     })
 
-     it('it renders the Detailed Breakdown Final Sled passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
+    it('it renders the Detailed Breakdown Final Sled passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
       const cheerioPage = renderWithCheerio({ calculationResult })
       expect(cheerioPage('#detailed-breakdown').text()).toContain('Final Sled: Thu May 13 2027')
     })
 
-     it('it renders the Detailed Breakdown Final MTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
+    it('it renders the Detailed Breakdown Final MTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
       const cheerioPage = renderWithCheerio({ calculationResult })
       expect(cheerioPage('#detailed-breakdown').text()).toContain('Final MTD: Fri Nov 27 2026 ')
