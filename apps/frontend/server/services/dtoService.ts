@@ -1,11 +1,17 @@
 import YjbApiClient from '../data/yjbApi'
-import { InputSentences, OutputCalculation, RemandAdjustment } from '../types/dtoTypes'
+import { InputIndividualSentence, InputSentences, OutputCalculation, RemandAdjustment } from '../types/dtoTypes'
 
 export default class DtoService {
   constructor(private readonly yjbApiClient: YjbApiClient) {}
 
   validatePayload(formData: Record<string, unknown>): InputSentences {
     const remandDaysInput: number = formData['remand-days'] !== undefined ? (formData['remand-days'] as number) : 0
+
+    const taggedBailDaysInput: number =
+      formData['tagged-bail-days'] !== undefined ? (formData['tagged-bail-days'] as number) : 0
+
+    const sentenceLengthMonthsInput: number =
+      formData['sentence-length-months'] !== undefined ? (formData['sentence-length-months'] as number) : 0
 
     const remandAdjustment: RemandAdjustment =
       remandDaysInput > 0
@@ -16,9 +22,6 @@ export default class DtoService {
           }
         : undefined
 
-    const taggedBailDaysInput: number =
-      formData['tagged-bail-days'] !== undefined ? (formData['tagged-bail-days'] as number) : 0
-
     const taggedBailAdjustment =
       taggedBailDaysInput > 0
         ? {
@@ -27,11 +30,14 @@ export default class DtoService {
           }
         : undefined
 
+    const inputIndividualSentences: InputIndividualSentence[] =
+      sentenceLengthMonthsInput > 0 ? [{ from: new Date(), durationMonths: sentenceLengthMonthsInput }] : []
+
     const result: InputSentences = {
       offenderName: 'William Gates',
       remandAdjustment,
       taggedBailAdjustment,
-      inputIndividualSentences: [],
+      inputIndividualSentences,
     }
     return result
   }
