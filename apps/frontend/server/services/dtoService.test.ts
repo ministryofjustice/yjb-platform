@@ -14,78 +14,74 @@ describe('DtoService', () => {
   })
 
   describe('validatePayload', () => {
-    it('should return expected InputSentences object', () => {
-      const inputData: Record<string, unknown> = {}
-      const expected: InputSentences = {
-        offenderName: 'William Gates',
-        inputIndividualSentences: [],
-      }
-      const result = dtoService.validatePayload(inputData)
-
-      expect(result).toEqual(expected)
+    it('should return isValid false when sentence length is not provided', () => {
+      const result = dtoService.validatePayload({})
+      expect(result.isValid).toBe(false)
     })
 
-    it('should validate the sentence-length-months and sentence-date inputs and populate inputIndividualSentences', () => {
-      const monthCount: number = 11
+    it.each([0, -1, -12, 0.5, 11.5])('should return isValid false for sentence length %s', months => {
+      expect(dtoService.validatePayload({ 'sentence-length-months': months }).isValid).toBe(false)
+    })
 
+    it.each([1, 6, 11, 24])('should return isValid true for sentence length %s', months => {
+      expect(dtoService.validatePayload({ 'sentence-length-months': months }).isValid).toBe(true)
+    })
+
+    it('should return the raw form data as input', () => {
+      const inputData: Record<string, unknown> = { 'some-field': 'some-value' }
+      expect(dtoService.validatePayload(inputData).input).toBe(inputData)
+    })
+
+    it('should return a payload only when valid', () => {
+      expect(dtoService.validatePayload({}).payload).toBeUndefined()
+      expect(dtoService.validatePayload({ 'sentence-length-months': 11 }).payload).toBeDefined()
+    })
+
+    it('should populate inputIndividualSentences in the payload from sentence-length-months and sentence-date', () => {
       const inputData: Record<string, unknown> = {
-        'sentence-length-months': monthCount,
+        'sentence-length-months': 11,
         'sentence-date-day': '29',
         'sentence-date-month': '6',
         'sentence-date-year': '2026',
       }
 
-      const result = dtoService.validatePayload(inputData)
+      const { payload } = dtoService.validatePayload(inputData)
 
-      expect(result).toEqual(
+      expect(payload).toEqual(
         expect.objectContaining({
-          inputIndividualSentences: [
-            {
-              from: new Date(2026, 5, 29),
-              durationMonths: monthCount,
-            },
-          ],
+          inputIndividualSentences: [{ from: new Date(2026, 5, 29), durationMonths: 11 }],
         }),
       )
     })
 
-    it('should validate the tagged-bail-days input and pass it to the InputSentences output', () => {
-      const dayCount: number = 3
-
+    it('should include taggedBailAdjustment in the payload when tagged-bail-days is provided', () => {
       const inputData: Record<string, unknown> = {
-        'tagged-bail-days': dayCount,
+        'sentence-length-months': 11,
+        'tagged-bail-days': 3,
       }
 
-      const result = dtoService.validatePayload(inputData)
+      const { payload } = dtoService.validatePayload(inputData)
 
-      expect(result).toEqual(
+      expect(payload).toEqual(
         expect.objectContaining({
-          taggedBailAdjustment: {
-            name: 'taggedBail',
-            days: dayCount,
-          },
+          taggedBailAdjustment: { name: 'taggedBail', days: 3 },
         }),
       )
     })
 
-    it('should validate the remand-days input and pass it to the InputSentences output', () => {
-      const dayCount: number = 5
-
+    it('should include remandAdjustment in the payload when remand-days is provided', () => {
       const inputData: Record<string, unknown> = {
-        'remand-days': dayCount,
+        'sentence-length-months': 11,
+        'remand-days': 5,
       }
-      const expected: InputSentences = {
-        offenderName: 'William Gates',
-        remandAdjustment: {
-          name: 'remand',
-          startDate: new Date(),
-          days: dayCount,
-        },
-        inputIndividualSentences: [],
-      }
-      const result = dtoService.validatePayload(inputData)
 
-      expect(result).toEqual(expected)
+      const { payload } = dtoService.validatePayload(inputData)
+
+      expect(payload).toEqual(
+        expect.objectContaining({
+          remandAdjustment: expect.objectContaining({ name: 'remand', days: 5 }),
+        }),
+      )
     })
   })
 
