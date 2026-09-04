@@ -14,7 +14,7 @@ describe('New calculation page', () => {
     it('renders the page heading and subheading', () => {
       const cheerioPage = renderWithCheerio()
       expect(cheerioPage('h1').text()).toBe('New calculation')
-      expect(cheerioPage('h2').text()).toBe('Offence and sentence details')
+      expect(cheerioPage('h2').first().text()).toBe('Offence and sentence details')
     })
 
     it('renders the expected text', () => {
@@ -63,25 +63,29 @@ describe('New calculation page', () => {
     it('includes the sentence date input', () => {
       const cheerioPage = renderWithCheerio()
 
-      const dateInput = cheerioPage('#sentence-date')
-      expect(dateInput.length).toBe(1)
-
-      const dateHeading = cheerioPage('legend')
-      expect(dateHeading.text()).toContain('Sentence date')
+      expect(cheerioPage('#sentence-date').length).toBe(1)
+      expect(cheerioPage('#sentence-date').closest('fieldset').find('legend').text()).toContain('Sentence date')
     })
 
-    it('includes the remand days input', () => {
+    it('includes a remand periods fieldset containing remand and tagged bail inputs', () => {
       const cheerioPage = renderWithCheerio()
 
-      const remandDays = cheerioPage('#remand-days')
-      expect(remandDays.attr('name')).toEqual('remand-days')
+      const remandFieldset = cheerioPage('fieldset').filter((_, el) =>
+        cheerioPage(el).find('legend').text().includes('Remand periods'),
+      )
+      expect(remandFieldset.length).toBe(1)
+      expect(remandFieldset.find('#remand-days').attr('name')).toEqual('remand-days')
+      expect(remandFieldset.find('#tagged-bail-days').attr('name')).toEqual('tagged-bail-days')
     })
 
-    it('includes the tagged bail days input', () => {
+    it('includes a length of sentence fieldset with a months input', () => {
       const cheerioPage = renderWithCheerio()
 
-      const taggedBailDays = cheerioPage('#tagged-bail-days')
-      expect(taggedBailDays.attr('name')).toEqual('tagged-bail-days')
+      const sentenceFieldset = cheerioPage('fieldset').filter((_, el) =>
+        cheerioPage(el).find('legend').text().includes('Length of sentence'),
+      )
+      expect(sentenceFieldset.length).toBe(1)
+      expect(sentenceFieldset.find('#sentence-length-months').attr('name')).toEqual('sentence-length-months')
     })
   })
 })

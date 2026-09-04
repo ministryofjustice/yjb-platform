@@ -3,6 +3,7 @@
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
 {% from "govuk/components/select/macro.njk" import govukSelect %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
 
 {% set pageTitle = applicationName + " - New calculation" %}
 {% set mainClasses = "govuk-body" %}
@@ -15,54 +16,92 @@
   <h2>Offence and sentence details</h2>
 
   <form id="calculation-form" action="/calculate" method="post">
-    {{ govukSelect({
-      name: "sentence-type",
-      label: {
-        text: "Sentence type"
-      },
-      items: [
-        {
-          value: "",
-          text: "",
-          selected: true,
-          disabled: true
-        },
-        {
-          value: "some-sentence-code",
-          text: "Some sentence that is applicable to DTO"
-        }
-      ]
-    }) }}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-third">
+        {{ govukSelect({
+          name: "sentence-type",
+          label: {
+            text: "Sentence type",
+            classes: "govuk-fieldset__legend--s"
+          },
+          items: [
+            {
+              value: "",
+              text: "",
+              selected: true,
+              disabled: true
+            },
+            {
+              value: "some-sentence-code",
+              text: "Some sentence that is applicable to DTO"
+            }
+          ]
+        }) }}
 
-    {{ govukDateInput({
-      id: 'sentence-date',
-      namePrefix: "sentence-date",
-      fieldset: {
-        legend: {
-          text: "Sentence date",
-          classes: "govuk-fieldset__legend--s"
-        }
-      },
-      hint: {
-        text: "For example, 27 3 2007"
-      }
-    }) }}
+        {% call govukFieldset({
+          legend: {
+            text: "Length of sentence",
+            classes: "govuk-fieldset__legend--s"
+          }
+        }) %}
+                {{ govukInput({
+            label: {
+              text: "Months"
+            },
+            classes: "govuk-!-width-one-quarter",
+            id: "sentence-length-months",
+            name: "sentence-length-months"
+            }) }}
+        {% endcall %}
+      </div>
 
-    {{ govukInput({
-      label: {
-        text: "Remand days"
-      },
-      id: "remand-days",
-      name: "remand-days"
-    }) }}
+      <div class="govuk-grid-column-one-third">
+        {{ govukDateInput({
+          id: 'sentence-date',
+          namePrefix: "sentence-date",
+          fieldset: {
+            legend: {
+              text: "Sentence date",
+              classes: "govuk-fieldset__legend--s"
+            }
+          },
+          hint: {
+            text: "For example, 27 3 2007"
+          }
+        }) }}
 
-    {{ govukInput({
-      label: {
-        text: "Tagged bail days"
-      },
-      id: "tagged-bail-days",
-      name: "tagged-bail-days"
-    }) }}
+        {% call govukFieldset({
+          legend: {
+            text: "Remand periods (days)",
+            classes: "govuk-fieldset__legend--s"
+          }
+        }) %}
+
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+              {{ govukInput({
+                label: {
+                  text: "Remand"
+                },
+                id: "remand-days",
+                name: "remand-days"
+              }) }}
+            </div>
+
+            <div class="govuk-grid-column-one-half">
+              {{ govukInput({
+                label: {
+                  text: "Tagged bail"
+                },
+                id: "tagged-bail-days",
+                name: "tagged-bail-days"
+              }) }}
+            </div>
+          </div>
+
+        {% endcall %}
+      </div>
+    </div>
 
     {{ govukButton({
       id: 'calculate-button',
