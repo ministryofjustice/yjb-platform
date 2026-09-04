@@ -25,11 +25,14 @@ describe('DtoService', () => {
       expect(result).toEqual(expected)
     })
 
-    it('should validate the sentence-length-months input and populate inputIndividualSentences', () => {
+    it('should validate the sentence-length-months and sentence-date inputs and populate inputIndividualSentences', () => {
       const monthCount: number = 11
 
       const inputData: Record<string, unknown> = {
         'sentence-length-months': monthCount,
+        'sentence-date-day': '29',
+        'sentence-date-month': '6',
+        'sentence-date-year': '2026',
       }
 
       const result = dtoService.validatePayload(inputData)
@@ -37,10 +40,10 @@ describe('DtoService', () => {
       expect(result).toEqual(
         expect.objectContaining({
           inputIndividualSentences: [
-            expect.objectContaining({
-              from: expect.any(Date),
+            {
+              from: new Date(2026, 5, 29),
               durationMonths: monthCount,
-            }),
+            },
           ],
         }),
       )
