@@ -51,11 +51,10 @@ jobs:
   # main node build workflow
   node_build:
     name: node build
-#    uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_build.yml@v2 # WORKFLOW_VERSION
-    uses: ./.github/workflows/override_node_build.yml
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/node_build.yml@v2.21.2 # WORKFLOW_VERSION
     secrets: inherit
     with:
-      artefact_path: |
+      artifact_path: |
         apps/frontend/dist/
         apps/frontend/assets/stylesheets/
         apps/api/dist/
