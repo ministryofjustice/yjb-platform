@@ -21,9 +21,11 @@ function parseDtoForm(formData: Record<string, unknown>): ParsedDtoForm {
     sentenceLengthMonths:
       formData['sentence-length-months'] !== undefined ? Number(formData['sentence-length-months']) : 0,
     sentenceDate: new Date(
-      Number(formData['sentence-date-year']),
-      Number(formData['sentence-date-month']) - 1,
-      Number(formData['sentence-date-day']),
+      Date.UTC(
+        Number(formData['sentence-date-year']),
+        Number(formData['sentence-date-month']) - 1,
+        Number(formData['sentence-date-day']),
+      ),
     ),
   }
 }
