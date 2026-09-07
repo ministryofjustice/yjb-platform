@@ -14,17 +14,29 @@ describe('DtoService', () => {
   })
 
   describe('validatePayload', () => {
+    const exampleValidPayload: Record<string, unknown> = {
+      'sentence-length-months': 1,
+    }
+
     it('should return isValid false when sentence length is not provided', () => {
       const result = dtoService.validatePayload({})
       expect(result.isValid).toBe(false)
     })
 
     it.each([0, -1, -12, 0.5, 11.5])('should return isValid false for sentence length %s', months => {
-      expect(dtoService.validatePayload({ 'sentence-length-months': months }).isValid).toBe(false)
+      const payload: Record<string, unknown> = {
+        ...exampleValidPayload,
+        'sentence-length-months': months,
+      }
+      expect(dtoService.validatePayload(payload).isValid).toBe(false)
     })
 
     it.each([1, 6, 11, 24])('should return isValid true for sentence length %s', months => {
-      expect(dtoService.validatePayload({ 'sentence-length-months': months }).isValid).toBe(true)
+      const payload: Record<string, unknown> = {
+        ...exampleValidPayload,
+        'sentence-length-months': months,
+      }
+      expect(dtoService.validatePayload(payload).isValid).toBe(true)
     })
 
     it('should return the raw form data as input', () => {
@@ -34,29 +46,30 @@ describe('DtoService', () => {
 
     it('should return a payload only when valid', () => {
       expect(dtoService.validatePayload({}).payload).toBeUndefined()
-      expect(dtoService.validatePayload({ 'sentence-length-months': 11 }).payload).toBeDefined()
+      expect(dtoService.validatePayload(exampleValidPayload).payload).toBeDefined()
     })
 
     it('should populate inputIndividualSentences in the payload from sentence-length-months and sentence-date', () => {
       const inputData: Record<string, unknown> = {
-        'sentence-length-months': 11,
-        'sentence-date-day': '29',
-        'sentence-date-month': '6',
-        'sentence-date-year': '2026',
+        ...exampleValidPayload,
+        'sentence-length-months': 3,
+        'sentence-date-day': '11',
+        'sentence-date-month': '2',
+        'sentence-date-year': '2054',
       }
 
       const { payload } = dtoService.validatePayload(inputData)
 
       expect(payload).toEqual(
         expect.objectContaining({
-          inputIndividualSentences: [{ from: new Date(Date.UTC(2026, 5, 29)), durationMonths: 11 }],
+          inputIndividualSentences: [{ from: new Date(2054, 1, 11), durationMonths: 3 }],
         }),
       )
     })
 
     it('should include taggedBailAdjustment in the payload when tagged-bail-days is provided', () => {
       const inputData: Record<string, unknown> = {
-        'sentence-length-months': 11,
+        ...exampleValidPayload,
         'tagged-bail-days': 3,
       }
 
@@ -71,7 +84,7 @@ describe('DtoService', () => {
 
     it('should include remandAdjustment in the payload when remand-days is provided', () => {
       const inputData: Record<string, unknown> = {
-        'sentence-length-months': 11,
+        ...exampleValidPayload,
         'remand-days': 5,
       }
 
