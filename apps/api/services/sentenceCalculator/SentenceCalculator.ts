@@ -40,7 +40,7 @@ export default class SentenceCalculator {
       // probably out of scope for now, leve just for consistancy with sheet
       TUSED: new Date(0),
     }
-      this.calculation.ltd = this.getLTDDate(
+    this.calculation.ltd = this.getLTDDate(
       this.calculation.effectiveDates.mtd,
       this.calculation.calculatedTerms[0].totalDaysInTerm,
     )
@@ -90,7 +90,7 @@ export default class SentenceCalculator {
   }
 
   increaseTotalNumRTBDays(currentTotal: number, incrementor: number): number {
-      return currentTotal + incrementor;
+    return currentTotal + incrementor
   }
 
   getETDDate(mtd: Date, _totalDaysInTerm: number): Date {
@@ -113,10 +113,11 @@ export default class SentenceCalculator {
     }
     this.calculation.effectiveDatesPastAdjustments.push(adjustment)
 
-    let totalRTBD = this.calculation.effectiveDates.totalNumberOfRemandAndTaggedBailDays 
-    this.calculation.effectiveDates.totalNumberOfRemandAndTaggedBailDays  =  
-      this.increaseTotalNumRTBDays(totalRTBD, remand)
-    
+    const totalRTBD = this.calculation.effectiveDates.totalNumberOfRemandAndTaggedBailDays
+    this.calculation.effectiveDates.totalNumberOfRemandAndTaggedBailDays = this.increaseTotalNumRTBDays(
+      totalRTBD,
+      remand,
+    )
 
     // if remand covers the whole sentence, there's no sentence left to serve:
     // sled and mtd both collapse to the sentence start date

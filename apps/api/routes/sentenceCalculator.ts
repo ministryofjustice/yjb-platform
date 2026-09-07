@@ -3,7 +3,6 @@ import { InputSentences } from '../services/sentenceCalculator/types'
 import sentenceCalculatorController from '../controllers/sentenceCalculatorController'
 
 export function calculateSentence(req: Request, res: Response): void {
-
   const sentence = req.body as InputSentences
   const calculatedCalculationObj = sentenceCalculatorController(sentence)
 

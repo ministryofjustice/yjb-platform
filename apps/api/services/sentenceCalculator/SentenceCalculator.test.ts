@@ -164,15 +164,15 @@ describe('SentenceCalculator', () => {
 
   describe('getTotalNumberOfRemandAndTaggedBailDays', () => {
     it('returns 15 if we introduce a 15 days remand only', () => {
-        const currentTotal = defaultCalculator.getCalculation().effectiveDates.totalNumberOfRemandAndTaggedBailDays
-        expect(defaultCalculator.increaseTotalNumRTBDays(currentTotal, 15)).toEqual(15)
+      const currentTotal = defaultCalculator.getCalculation().effectiveDates.totalNumberOfRemandAndTaggedBailDays
+      expect(defaultCalculator.increaseTotalNumRTBDays(currentTotal, 15)).toEqual(15)
     })
 
     it('returns 25 if we introduce a 15 days remand and 10 days tagged bail', () => {
-        const currentTotal = defaultCalculator.getCalculation().effectiveDates.totalNumberOfRemandAndTaggedBailDays
-        const remandTotal = defaultCalculator.increaseTotalNumRTBDays(currentTotal, 15)
-        const taggedTotal = defaultCalculator.increaseTotalNumRTBDays(remandTotal, 10)
-        expect(taggedTotal).toEqual(25)
+      const currentTotal = defaultCalculator.getCalculation().effectiveDates.totalNumberOfRemandAndTaggedBailDays
+      const remandTotal = defaultCalculator.increaseTotalNumRTBDays(currentTotal, 15)
+      const taggedTotal = defaultCalculator.increaseTotalNumRTBDays(remandTotal, 10)
+      expect(taggedTotal).toEqual(25)
     })
   })
 
