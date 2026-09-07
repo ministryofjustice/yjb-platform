@@ -22,7 +22,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       return res.render('pages/calculation-breakdown', { calculationResult, payloadString, calculationResultString })
     }
     // TODO: construct an error object and use it here
-    return res.render('pages/new-calculation', { validationError: true } )
+    return res.render('pages/new-calculation', { validationError: true })
   })
 
   return router
