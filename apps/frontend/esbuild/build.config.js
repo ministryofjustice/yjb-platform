@@ -20,7 +20,7 @@ const getBuildConfig = () => {
       ),
       copy: [
         {
-          from: path.join(cwd, 'server/views/**/*'),
+          from: path.join(cwd, 'server/views/**/*.njk'),
           to: path.join(cwd, 'dist/server/views'),
           watch: isWatchMode,
         },

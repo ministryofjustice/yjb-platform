@@ -1,3 +1,34 @@
 .govuk-main-wrapper {
   min-height: 600px;
 }
+
+.release-date-gray {
+  background-color: govuk-colour("light-grey");
+  padding: govuk-spacing(4);
+}
+
+.timetable-row {
+  display: flex;
+}
+
+.timetable-item {
+  flex: 1;
+  border-top: 4px solid govuk-colour("black", $variant: "tint-80");
+  padding-top: govuk-spacing(2);
+  text-align: center;
+}
+
+.timetable-section-darker {
+    border-top: 4px solid govuk-colour("black", $variant: "tint-25");
+}
+
+.timetable-value {
+  @include govuk-font($size: 16);
+  font-size: 14px;
+  color: govuk-colour("dark-grey");
+}
+
+.timetable-section {
+  font-weight: bold;
+  color: govuk-colour("dark-grey");
+}

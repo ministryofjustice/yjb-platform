@@ -1,13 +1,16 @@
 import { Router } from 'express'
 import type { Services } from '../services'
+import calculateRoutes from './calculate'
 
-export default function routes({ exampleService, yjbApiClient }: Services): Router {
+function routes({ exampleService, yjbApiClient, dtoService }: Services): Router {
   const router = Router()
 
   router.get('/', async (req, res, _next) => {
     const currentTime = exampleService.getCurrentTime()
     return res.render('pages/index', { currentTime })
   })
+
+  router.use('/calculate', calculateRoutes({ dtoService }))
 
   router.get('/err', async (req, res, _next) => {
     _next(new Error('An intential error occured for test purposes'))
@@ -20,3 +23,5 @@ export default function routes({ exampleService, yjbApiClient }: Services): Rout
 
   return router
 }
+
+export default routes

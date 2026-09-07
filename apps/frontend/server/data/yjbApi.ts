@@ -1,6 +1,7 @@
 import { RestClient } from '@ministryofjustice/hmpps-rest-client'
 import logger from '../../logger'
 import config from '../config'
+import { InputSentences, OutputCalculation } from '../types/dtoTypes'
 
 export default class YjbApiClient extends RestClient {
   constructor() {
@@ -9,5 +10,11 @@ export default class YjbApiClient extends RestClient {
 
   async getTestApiData() {
     return this.get({ path: '/test-api' })
+  }
+
+  async calculateDtoSentence(payload: InputSentences): Promise<OutputCalculation> {
+    const result: Promise<OutputCalculation> = this.post({ path: '/calculations', data: payload })
+
+    return result
   }
 }
