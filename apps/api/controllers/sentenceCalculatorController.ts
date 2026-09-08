@@ -21,5 +21,8 @@ export default function sentenceCalculatorController(sentence: InputSentences): 
   if ((deserialized.remandAdjustment?.days ?? 0) > 0) {
     sentenceCalc.adjustCalculation(AdjustmentTypes.remand)
   }
+  if ((deserialized.taggedBailAdjustment?.days ?? 0) > 0) {
+    sentenceCalc.adjustCalculation(AdjustmentTypes.taggedBail)
+  }
   return sentenceCalc.getCalculation()
 }

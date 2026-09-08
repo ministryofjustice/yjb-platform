@@ -36,7 +36,7 @@ describe('SentenceController', () => {
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
   })
 
-  it('returns seld 2027-05-13 and mtd 2026-11-2 for 11 month sentence starting on 2026-06-29 with 15 days remand', () => {
+  it('returns sled 2027-05-13 and mtd 2026-11-2 for 11 month sentence starting on 2026-06-29 with 15 days remand', () => {
     const inputSentence: InputSentences = {
       offenderName: 'Test Offender',
       remandAdjustment: {
@@ -78,6 +78,121 @@ describe('SentenceController', () => {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2027-05-28'),
             mtd: new Date('2026-12-12'),
+            TUSED: new Date(0),
+          },
+        },
+      ],
+    }
+    const calculatedCalculationObj = sentenceCalculatorController(inputSentence)
+    expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
+  })
+
+  it('returns sled 2027-05-13 and mtd 2026-11-2 for 11 month sentence starting on 2026-06-29 with 15 days tagged bail', () => {
+    const inputSentence: InputSentences = {
+      offenderName: 'Test Offender',
+      taggedBailAdjustment: {
+        name: AdjustmentTypes.taggedBail,
+        days: 15,
+      },
+      inputIndividualSentences: [
+        {
+          from: new Date('2026-06-29'),
+          durationMonths: 11,
+        },
+      ],
+    }
+
+    const expectedOutputCalculation = {
+      calculatedTerms: [
+        {
+          inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
+          totalDaysInTerm: 334,
+          totalDaysMTD: 167,
+          sled: new Date('2027-05-28'),
+          mtd: new Date('2026-12-12'),
+        },
+      ],
+      effectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 15,
+        sled: new Date('2027-05-13'),
+        mtd: new Date('2026-11-27'),
+        TUSED: new Date(0),
+      },
+      ltd: new Date('2026-12-27'),
+      etd: new Date('2026-10-27'),
+      effectiveDatesPastAdjustments: [
+        {
+          adjustmentReason: 'taggedBail',
+          adjustmentParameters: inputSentence.taggedBailAdjustment,
+          pastEffectiveDates: {
+            totalNumberOfRemandAndTaggedBailDays: 0,
+            sled: new Date('2027-05-28'),
+            mtd: new Date('2026-12-12'),
+            TUSED: new Date(0),
+          },
+        },
+      ],
+    }
+    const calculatedCalculationObj = sentenceCalculatorController(inputSentence)
+    expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
+  })
+
+  it('returns sled 2027-05-13 and mtd 2026-11-2 for 11 month sentence starting on 2026-06-29 with 10 days of remand and 5 days tagged bail', () => {
+    const inputSentence: InputSentences = {
+      offenderName: 'Test Offender',
+      remandAdjustment: {
+        name: AdjustmentTypes.remand,
+        days: 10,
+        startDate: new Date('2026-06-14'),
+      },
+      taggedBailAdjustment: {
+        name: AdjustmentTypes.taggedBail,
+        days: 5,
+      },
+      inputIndividualSentences: [
+        {
+          from: new Date('2026-06-29'),
+          durationMonths: 11,
+        },
+      ],
+    }
+
+    const expectedOutputCalculation = {
+      calculatedTerms: [
+        {
+          inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
+          totalDaysInTerm: 334,
+          totalDaysMTD: 167,
+          sled: new Date('2027-05-28'),
+          mtd: new Date('2026-12-12'),
+        },
+      ],
+      effectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 15,
+        sled: new Date('2027-05-13'),
+        mtd: new Date('2026-11-27'),
+        TUSED: new Date(0),
+      },
+      ltd: new Date('2026-12-27'),
+      etd: new Date('2026-10-27'),
+      effectiveDatesPastAdjustments: [
+        {
+          adjustmentReason: 'remand',
+          adjustmentParameters: inputSentence.remandAdjustment,
+          pastEffectiveDates: {
+            totalNumberOfRemandAndTaggedBailDays: 0,
+            sled: new Date('2027-05-28'),
+            mtd: new Date('2026-12-12'),
+            TUSED: new Date(0),
+          },
+        },
+        {
+          adjustmentReason: 'taggedBail',
+          adjustmentParameters: inputSentence.taggedBailAdjustment,
+          pastEffectiveDates: {
+            totalNumberOfRemandAndTaggedBailDays: 10,
+            sled: new Date('2027-05-18'),
+            mtd: new Date('2026-12-02'),
             TUSED: new Date(0),
           },
         },
