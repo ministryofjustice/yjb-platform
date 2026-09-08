@@ -180,9 +180,7 @@ export default class SentenceCalculator {
   }
 
   getCalculation(): OutputCalculation {
-    return {
-      ...this.calculation, // TODO: To discuss. This explicitly passes a copy not a reference, so the result is static
-    }
+    return this.calculation
   }
 
   adjustCalculation(reason: AdjustmentTypes): OutputCalculation {
@@ -198,8 +196,6 @@ export default class SentenceCalculator {
       }
     }
 
-    return {
-      ...this.calculation, // TODO: To discuss. This explicitly passes a copy not a reference, so the result is static
-    }
+    return this.calculation
   }
 }
