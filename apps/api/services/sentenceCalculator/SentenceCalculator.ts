@@ -141,6 +141,38 @@ export default class SentenceCalculator {
     return adjustment
   }
 
+  applyTaggedBail(taggedBailDays: number, reason: AdjustmentTypes): effectiveDatesPastAdjustments {
+    // save the adjustment
+    const adjustment: effectiveDatesPastAdjustments = {
+      adjustmentReason: reason,
+      adjustmentParameters: this.sentence.taggedBailAdjustment!,
+      pastEffectiveDates: { ...this.calculation.effectiveDates },
+    }
+    this.calculation.effectiveDatesPastAdjustments.push(adjustment)
+
+    // increase the remand and total tagged bail days 
+    const totalRTBD = this.calculation.effectiveDates.totalNumberOfRemandAndTaggedBailDays
+    this.calculation.effectiveDates.totalNumberOfRemandAndTaggedBailDays = this.increaseTotalNumRTBDays(
+      totalRTBD,
+      taggedBailDays,
+    )
+
+    // recalculate
+    // TODO check if we have any corner case scenarios like if tagged bail days are bigger thent the sentence etc
+    this.calculation.effectiveDates.sled = subDays(this.calculation.effectiveDates.sled, taggedBailDays)
+    this.calculation.effectiveDates.mtd = subDays(this.calculation.effectiveDates.mtd, taggedBailDays)
+    this.calculation.etd = this.getETDDate(
+      this.calculation.effectiveDates.mtd,
+      this.calculation.calculatedTerms[0].totalDaysInTerm,
+    )
+    this.calculation.ltd = this.getLTDDate(
+      this.calculation.effectiveDates.mtd,
+      this.calculation.calculatedTerms[0].totalDaysInTerm,
+    )
+
+    return adjustment
+  }
+
   getCalculation(): OutputCalculation {
     return this.calculation
   }
@@ -150,6 +182,13 @@ export default class SentenceCalculator {
       const remand = this.sentence.remandAdjustment?.days ?? 0
       if (remand > 0) {
         this.applyRemand(remand, reason)
+      }
+    }
+
+    if (reason === AdjustmentTypes.taggedBail) {
+      const taggedBail = this.sentence.taggedBailAdjustment?.days ?? 0
+      if (taggedBail > 0) {
+        this.applyTaggedBail(taggedBail, reason)
       }
     }
 
