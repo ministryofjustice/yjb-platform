@@ -181,7 +181,7 @@ export default class SentenceCalculator {
 
   getCalculation(): OutputCalculation {
     return {
-      ...this.calculation // TODO: To discuss. This explicitly passes a copy not a reference, so the result is static
+      ...this.calculation, // TODO: To discuss. This explicitly passes a copy not a reference, so the result is static
     }
   }
 
@@ -199,7 +199,7 @@ export default class SentenceCalculator {
     }
 
     return {
-      ...this.calculation // TODO: To discuss. This explicitly passes a copy not a reference, so the result is static
+      ...this.calculation, // TODO: To discuss. This explicitly passes a copy not a reference, so the result is static
     }
   }
 }

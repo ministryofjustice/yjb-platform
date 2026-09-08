@@ -1,6 +1,6 @@
+import { addDays } from 'date-fns'
 import SentenceCalculator from './SentenceCalculator'
-import {InputSentences, AdjustmentTypes, OutputCalculation} from './types'
-import {addDays} from "date-fns";
+import { InputSentences, AdjustmentTypes, OutputCalculation } from './types'
 
 const defaultSentence: InputSentences = {
   offenderName: 'Test Offender',
@@ -8,6 +8,40 @@ const defaultSentence: InputSentences = {
     name: AdjustmentTypes.remand,
     days: 0,
     startDate: new Date(),
+  },
+  inputIndividualSentences: [
+    {
+      from: new Date('2026-06-29'),
+      durationMonths: 11,
+    },
+  ],
+}
+
+const exampleRemandSentence: InputSentences = {
+  offenderName: 'Test Offender',
+  remandAdjustment: {
+    name: AdjustmentTypes.remand,
+    days: 15,
+    startDate: new Date('2026-06-14'),
+  },
+  inputIndividualSentences: [
+    {
+      from: new Date('2026-06-29'),
+      durationMonths: 11,
+    },
+  ],
+}
+
+const exampleRemandAndTaggedBailSentence: InputSentences = {
+  offenderName: 'Test Offender',
+  remandAdjustment: {
+    name: AdjustmentTypes.remand,
+    days: 15,
+    startDate: new Date('2026-06-14'),
+  },
+  taggedBailAdjustment: {
+    name: AdjustmentTypes.taggedBail,
+    days: 4,
   },
   inputIndividualSentences: [
     {
@@ -281,21 +315,6 @@ describe('SentenceCalculator', () => {
   })
 
   describe('adjustCalculation', () => {
-    const exampleRemandSentence: InputSentences = {
-      offenderName: 'Test Offender',
-      remandAdjustment: {
-        name: AdjustmentTypes.remand,
-        days: 15,
-        startDate: new Date('2026-06-14'),
-      },
-      inputIndividualSentences: [
-        {
-          from: new Date('2026-06-29'),
-          durationMonths: 11,
-        },
-      ],
-    }
-
     it('does not change the calculatedTerms object', () => {
       const calculatorRemand = new SentenceCalculator(exampleRemandSentence)
 
@@ -317,8 +336,8 @@ describe('SentenceCalculator', () => {
 
       const adjustedResult = calculatorRemand.adjustCalculation(AdjustmentTypes.remand)
 
-      expect(addDays(adjustedResult.effectiveDates.sled,remandDays)).toEqual(adjustedResult.calculatedTerms[0].sled)
-      expect(addDays(adjustedResult.effectiveDates.mtd,remandDays)).toEqual(adjustedResult.calculatedTerms[0].mtd)
+      expect(addDays(adjustedResult.effectiveDates.sled, remandDays)).toEqual(adjustedResult.calculatedTerms[0].sled)
+      expect(addDays(adjustedResult.effectiveDates.mtd, remandDays)).toEqual(adjustedResult.calculatedTerms[0].mtd)
     })
 
     // TODO: test around returning references by value. Swapping the order of const unadjustedResult and const adjustedResult SHOULD break things (I think!)
@@ -442,25 +461,7 @@ describe('SentenceCalculator', () => {
     })
 
     it('returns the full calculation for a single-term sentence,  15 days remand and 4 days tagged bail', () => {
-      const sentenceWithRemandAndTaggedBail: InputSentences = {
-        offenderName: 'Test Offender',
-        remandAdjustment: {
-          name: AdjustmentTypes.remand,
-          days: 15,
-          startDate: new Date('2026-06-14'),
-        },
-        taggedBailAdjustment: {
-          name: AdjustmentTypes.taggedBail,
-          days: 4,
-        },
-        inputIndividualSentences: [
-          {
-            from: new Date('2026-06-29'),
-            durationMonths: 11,
-          },
-        ],
-      }
-      const calculatorRemand = new SentenceCalculator(sentenceWithRemandAndTaggedBail)
+      const calculatorRemand = new SentenceCalculator(exampleRemandAndTaggedBailSentence)
       calculatorRemand.adjustCalculation(AdjustmentTypes.remand)
       const result = calculatorRemand.adjustCalculation(AdjustmentTypes.taggedBail)
       expect(result).toEqual({
@@ -484,7 +485,7 @@ describe('SentenceCalculator', () => {
         effectiveDatesPastAdjustments: [
           {
             adjustmentReason: 'remand',
-            adjustmentParameters: sentenceWithRemandAndTaggedBail.remandAdjustment,
+            adjustmentParameters: exampleRemandAndTaggedBailSentence.remandAdjustment,
             pastEffectiveDates: {
               totalNumberOfRemandAndTaggedBailDays: 0,
               sled: new Date('2027-05-28'),
@@ -494,7 +495,7 @@ describe('SentenceCalculator', () => {
           },
           {
             adjustmentReason: 'taggedBail',
-            adjustmentParameters: sentenceWithRemandAndTaggedBail.taggedBailAdjustment,
+            adjustmentParameters: exampleRemandAndTaggedBailSentence.taggedBailAdjustment,
             pastEffectiveDates: {
               totalNumberOfRemandAndTaggedBailDays: 15,
               sled: new Date('2027-05-13'),
@@ -506,32 +507,12 @@ describe('SentenceCalculator', () => {
       })
     })
 
-
-
     it('returns the same dates regardless of the order in which remand and tagged bail are applied', () => {
-      const sentenceWithRemandAndTaggedBail: InputSentences = {
-        offenderName: 'Test Offender',
-        remandAdjustment: {
-          name: AdjustmentTypes.remand,
-          days: 15,
-          startDate: new Date('2026-06-14'),
-        },
-        taggedBailAdjustment: {
-          name: AdjustmentTypes.taggedBail,
-          days: 4,
-        },
-        inputIndividualSentences: [
-          {
-            from: new Date('2026-06-29'),
-            durationMonths: 11,
-          },
-        ],
-      }
-      const calculatorRemandFirst = new SentenceCalculator(sentenceWithRemandAndTaggedBail)
+      const calculatorRemandFirst = new SentenceCalculator(exampleRemandAndTaggedBailSentence)
       calculatorRemandFirst.adjustCalculation(AdjustmentTypes.remand)
       const resultRemandFirst = calculatorRemandFirst.adjustCalculation(AdjustmentTypes.taggedBail)
 
-      const calculatorTaggedBailFirstFirst = new SentenceCalculator(sentenceWithRemandAndTaggedBail)
+      const calculatorTaggedBailFirstFirst = new SentenceCalculator(exampleRemandAndTaggedBailSentence)
       calculatorTaggedBailFirstFirst.adjustCalculation(AdjustmentTypes.taggedBail)
       const resultTaggedBailFirst = calculatorTaggedBailFirstFirst.adjustCalculation(AdjustmentTypes.remand)
 
@@ -542,39 +523,29 @@ describe('SentenceCalculator', () => {
     })
 
     it('returns the expected past adjustments in the correct order', () => {
-      const sentenceWithRemandAndTaggedBail: InputSentences = {
-        offenderName: 'Test Offender',
-        remandAdjustment: {
-          name: AdjustmentTypes.remand,
-          days: 15,
-          startDate: new Date('2026-06-14'),
-        },
-        taggedBailAdjustment: {
-          name: AdjustmentTypes.taggedBail,
-          days: 4,
-        },
-        inputIndividualSentences: [
-          {
-            from: new Date('2026-06-29'),
-            durationMonths: 11,
-          },
-        ],
-      }
-      const calculatorRemandFirst = new SentenceCalculator(sentenceWithRemandAndTaggedBail)
+      const calculatorRemandFirst = new SentenceCalculator(exampleRemandAndTaggedBailSentence)
       calculatorRemandFirst.adjustCalculation(AdjustmentTypes.remand)
       const resultRemandFirst = calculatorRemandFirst.adjustCalculation(AdjustmentTypes.taggedBail)
 
-      const calculatorTaggedBailFirstFirst = new SentenceCalculator(sentenceWithRemandAndTaggedBail)
+      const calculatorTaggedBailFirstFirst = new SentenceCalculator(exampleRemandAndTaggedBailSentence)
       calculatorTaggedBailFirstFirst.adjustCalculation(AdjustmentTypes.taggedBail)
       const resultTaggedBailFirst = calculatorTaggedBailFirstFirst.adjustCalculation(AdjustmentTypes.remand)
 
       expect(resultRemandFirst.effectiveDatesPastAdjustments[0].adjustmentReason).toEqual('remand')
-      expect(resultRemandFirst.effectiveDatesPastAdjustments[0].pastEffectiveDates.totalNumberOfRemandAndTaggedBailDays).toEqual(0)
-      expect(resultRemandFirst.effectiveDatesPastAdjustments[1].pastEffectiveDates.totalNumberOfRemandAndTaggedBailDays).toEqual(15)
+      expect(
+        resultRemandFirst.effectiveDatesPastAdjustments[0].pastEffectiveDates.totalNumberOfRemandAndTaggedBailDays,
+      ).toEqual(0)
+      expect(
+        resultRemandFirst.effectiveDatesPastAdjustments[1].pastEffectiveDates.totalNumberOfRemandAndTaggedBailDays,
+      ).toEqual(15)
 
       expect(resultTaggedBailFirst.effectiveDatesPastAdjustments[0].adjustmentReason).toEqual('taggedBail')
-      expect(resultTaggedBailFirst.effectiveDatesPastAdjustments[0].pastEffectiveDates.totalNumberOfRemandAndTaggedBailDays).toEqual(0)
-      expect(resultTaggedBailFirst.effectiveDatesPastAdjustments[1].pastEffectiveDates.totalNumberOfRemandAndTaggedBailDays).toEqual(4)
+      expect(
+        resultTaggedBailFirst.effectiveDatesPastAdjustments[0].pastEffectiveDates.totalNumberOfRemandAndTaggedBailDays,
+      ).toEqual(0)
+      expect(
+        resultTaggedBailFirst.effectiveDatesPastAdjustments[1].pastEffectiveDates.totalNumberOfRemandAndTaggedBailDays,
+      ).toEqual(4)
     })
 
     it('returns the full calculation for a single-term sentence,  30 days remand on leap', () => {
