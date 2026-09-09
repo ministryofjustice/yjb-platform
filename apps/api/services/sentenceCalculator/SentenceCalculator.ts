@@ -1,5 +1,6 @@
 import { addMonths, addDays, subDays, subMonths, differenceInCalendarDays } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
+import { getTotalDaysInTerm } from './lib'
 import {
   InputSentences,
   InputIndividualSentence,
@@ -63,13 +64,7 @@ export default class SentenceCalculator {
     }
   }
 
-  getTotalDaysInTerm(): number {
-    const { from, durationMonths } = this.sentence.inputIndividualSentences[0]
-    const utcFrom = new UTCDate(from)
-    const to = addMonths(utcFrom, durationMonths)
-
-    return differenceInCalendarDays(to, utcFrom)
-  }
+  getTotalDaysInTerm(): number { return getTotalDaysInTerm(this.sentence.inputIndividualSentences[0]) }
 
   getSledDate(totalDaysInTerm: number): Date {
     const { from } = this.sentence.inputIndividualSentences[0]
