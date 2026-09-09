@@ -57,21 +57,7 @@ describe('SentenceCalculator', () => {
   beforeEach(() => {
     defaultCalculator = new SentenceCalculator(defaultSentence)
   })
-
-  describe('getETD', () => {
-    // only testing no remand scenario here, remand scenarios with adjustment covered in adjustment testing
-    it('returns 2026-11-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
-      expect(defaultCalculator.getETDDate(new Date('2026-12-12'), 334)).toEqual(new Date('2026-11-12'))
-    })
-  })
-
-  describe('getLTD', () => {
-    // only testing no remand scenario here, remand scenarios with adjustment covered in adjustment testing
-    it('returns 2027-01-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
-      expect(defaultCalculator.getLTDDate(new Date('2026-12-12'), 334)).toEqual(new Date('2027-01-12'))
-    })
-  })
-
+  
   describe('applyTaggedBail', () => {
     it('returns an adjustment record with the sled and mtd dates prior to the adjustment and appends it to the calculation ', () => {
       const record = defaultCalculator.applyTaggedBail(15, AdjustmentTypes.taggedBail)
@@ -427,8 +413,8 @@ describe('SentenceCalculator', () => {
           mtd: new Date('2027-01-31'),
           TUSED: new Date(0),
         },
-        ltd: new Date('2027-02-28'),
-        etd: new Date('2026-12-31'),
+        ltd: 0,
+        etd: 0,
         effectiveDatesPastAdjustments: [
           {
             adjustmentReason: 'remand',
