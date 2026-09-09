@@ -1,6 +1,6 @@
 import { addMonths, addDays, subDays, subMonths, differenceInCalendarDays } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
-import { getTotalDaysInTerm } from './lib'
+import { getTotalDaysInTerm, getTotalDaysMTD } from './lib'
 import {
   InputSentences,
   InputIndividualSentence,
@@ -71,8 +71,7 @@ export default class SentenceCalculator {
   }
 
   getTotalDaysMTD(): number {
-    const totalDaysInTerm: number = this.getTotalDaysInTerm()
-    return Math.round(totalDaysInTerm / 2)
+    return getTotalDaysMTD(this.getTotalDaysInTerm())
   }
 
   getMTDDate(totalDaysMTD: number): Date {
