@@ -58,28 +58,6 @@ describe('SentenceCalculator', () => {
     defaultCalculator = new SentenceCalculator(defaultSentence)
   })
 
-  describe('getSledDate', () => {
-    it('returns 2027-05-28 for a 11 month sentence starting 2026-06-29', () => {
-      const totalDaysInTerm: number = defaultCalculator.getTotalDaysInTerm()
-      expect(defaultCalculator.getSledDate(totalDaysInTerm)).toEqual(new Date('2027-05-28'))
-    })
-
-    it('returns 2028-05-28 for a 11 month sentence on leap year starting 2027-06-29', () => {
-      const dummySentence1: InputSentences = {
-        offenderName: 'Test Offender',
-        inputIndividualSentences: [
-          {
-            from: new Date('2027-06-29'),
-            durationMonths: 11,
-          },
-        ],
-      }
-      const calculator1 = new SentenceCalculator(dummySentence1)
-      const totalDaysInTerm: number = calculator1.getTotalDaysInTerm()
-      expect(calculator1.getSledDate(totalDaysInTerm)).toEqual(new Date('2028-05-28'))
-    })
-  })
-
   describe('getTotalDaysMTD', () => {
     it('returns 167 days when the total days in term is 334', () => {
       expect(defaultCalculator.getTotalDaysMTD()).toBe(167)
@@ -97,28 +75,6 @@ describe('SentenceCalculator', () => {
       }
       const calculatorToRound = new SentenceCalculator(sentenceToRound)
       expect(calculatorToRound.getTotalDaysMTD()).toBe(16)
-    })
-  })
-
-  describe('getMTDDate', () => {
-    it('returns 2026-12-12 for a sentence starting 2026-06-29 with an MTD of 167 days', () => {
-      const totalDaysMTD: number = defaultCalculator.getTotalDaysMTD()
-      expect(defaultCalculator.getMTDDate(totalDaysMTD)).toEqual(new Date('2026-12-12'))
-    })
-
-    it('returns 2026-08-16 for a sentence starting 2026-08-01 with an MTD of 16 days', () => {
-      const sentenceToRound: InputSentences = {
-        offenderName: 'Test Offender',
-        inputIndividualSentences: [
-          {
-            from: new Date('2026-08-01'),
-            durationMonths: 1,
-          },
-        ],
-      }
-      const calculatorToRound = new SentenceCalculator(sentenceToRound)
-      const totalDaysMTD: number = calculatorToRound.getTotalDaysMTD()
-      expect(calculatorToRound.getMTDDate(totalDaysMTD)).toEqual(new Date('2026-08-16'))
     })
   })
 

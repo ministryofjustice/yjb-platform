@@ -67,9 +67,7 @@ export default class SentenceCalculator {
   getTotalDaysInTerm(): number { return getTotalDaysInTerm(this.sentence.inputIndividualSentences[0]) }
 
   getSledDate(totalDaysInTerm: number): Date {
-    const { from } = this.sentence.inputIndividualSentences[0]
-    // add term starting from the sentence day
-    return addDays(new UTCDate(from), totalDaysInTerm - 1)
+    return this.increaseDateWithDays(totalDaysInTerm, this.sentence.inputIndividualSentences[0].from)
   }
 
   getTotalDaysMTD(): number {
@@ -78,11 +76,13 @@ export default class SentenceCalculator {
   }
 
   getMTDDate(totalDaysMTD: number): Date {
-    const { from } = this.sentence.inputIndividualSentences[0]
-
-    // add mtd starting from the sentence day
-    return addDays(new UTCDate(from), totalDaysMTD - 1)
+    return this.increaseDateWithDays(totalDaysMTD, this.sentence.inputIndividualSentences[0].from)
   }
+
+  increaseDateWithDays(totalDays: number, from: Date): Date {
+    return addDays(new UTCDate(from), totalDays - 1)
+  }
+
 
   increaseTotalNumRTBDays(currentTotal: number, incrementor: number): number {
     return currentTotal + incrementor

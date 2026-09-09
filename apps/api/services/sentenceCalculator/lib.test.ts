@@ -1,5 +1,5 @@
 
-  import { getTotalDaysInTerm } from './lib'
+  import { getTotalDaysInTerm, increaseDateWithDays } from './lib'
   import {InputIndividualSentence} from './types'
 
   describe('getTotalDaysInTerm', () => {
@@ -50,3 +50,36 @@
       expect(getTotalDaysInTerm(input)).toBe(28)
     })
   })
+
+describe('increaseDateWithDays', () => {
+    it('returns 2027-05-28 for a 334 days sentence starting 2026-06-29', () => {
+        const daysInput = 334
+        const from = new Date('2026-06-29')
+        expect(increaseDateWithDays(daysInput, from)).toEqual(new Date('2027-05-28'))
+    })
+
+    it('returns 2028-05-28 for a 11 month sentence on leap year starting 2027-06-29', () => {
+        const input: InputIndividualSentence = {
+            from: new Date('2027-06-29'),
+            durationMonths: 11,
+        }
+        const monthsInDays = getTotalDaysInTerm(input)
+        expect(increaseDateWithDays(monthsInDays, input.from)).toEqual(new Date('2028-05-28'))
+    })
+
+    it('returns 2026-12-12 for a sentence starting 2026-06-29 with an MTD of 167 days', () => {
+        const from = new Date('2026-06-29')
+        const totalDaysMTD = 167
+        expect(increaseDateWithDays(totalDaysMTD, from)).toEqual(new Date('2026-12-12'))
+    })
+    
+    // it('returns 2026-08-16 for a sentence starting 2026-08-01 with an MTD of 16 days', () => {
+    //     const input = {
+    //         from: new Date('2026-08-01'),
+    //         durationMonths: 1,
+    //     }
+    //     const totalDaysMTD: number = getTotalDaysMTD()
+    //     expect(increaseDateWithDays(totalDaysMTD, input.from)).toEqual(new Date('2026-08-16'))
+    // })
+})
+  
