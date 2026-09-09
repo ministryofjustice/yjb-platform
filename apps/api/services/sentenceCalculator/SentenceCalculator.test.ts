@@ -58,26 +58,6 @@ describe('SentenceCalculator', () => {
     defaultCalculator = new SentenceCalculator(defaultSentence)
   })
 
-  describe('getTotalDaysMTD', () => {
-    it('returns 167 days when the total days in term is 334', () => {
-      expect(defaultCalculator.getTotalDaysMTD()).toBe(167)
-    })
-
-    it('returns 16 days when total number of days is 31', () => {
-      const sentenceToRound: InputSentences = {
-        offenderName: 'Test Offender',
-        inputIndividualSentences: [
-          {
-            from: new Date('2026-08-01'),
-            durationMonths: 1,
-          },
-        ],
-      }
-      const calculatorToRound = new SentenceCalculator(sentenceToRound)
-      expect(calculatorToRound.getTotalDaysMTD()).toBe(16)
-    })
-  })
-
   describe('getTotalNumberOfRemandAndTaggedBailDays', () => {
     it('returns 15 if we introduce a 15 days remand only', () => {
       const currentTotal = defaultCalculator.getCalculation().effectiveDates.totalNumberOfRemandAndTaggedBailDays

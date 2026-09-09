@@ -1,5 +1,5 @@
 
-  import { getTotalDaysInTerm, increaseDateWithDays } from './lib'
+  import { getTotalDaysInTerm, increaseDateWithDays, getTotalDaysMTD } from './lib'
   import {InputIndividualSentence} from './types'
 
   describe('getTotalDaysInTerm', () => {
@@ -73,13 +73,28 @@ describe('increaseDateWithDays', () => {
         expect(increaseDateWithDays(totalDaysMTD, from)).toEqual(new Date('2026-12-12'))
     })
     
-    // it('returns 2026-08-16 for a sentence starting 2026-08-01 with an MTD of 16 days', () => {
-    //     const input = {
-    //         from: new Date('2026-08-01'),
-    //         durationMonths: 1,
-    //     }
-    //     const totalDaysMTD: number = getTotalDaysMTD()
-    //     expect(increaseDateWithDays(totalDaysMTD, input.from)).toEqual(new Date('2026-08-16'))
-    // })
+    it('returns 2026-08-16 for a sentence starting 2026-08-01 with an MTD of 16 days', () => {
+        const input = {
+            from: new Date('2026-08-01'),
+            durationMonths: 1,
+        }
+        const totalDaysMTD: number = getTotalDaysMTD(getTotalDaysInTerm(input))
+        expect(increaseDateWithDays(totalDaysMTD, input.from)).toEqual(new Date('2026-08-16'))
+    })
 })
+
+
+describe('getTotalDaysMTD', () => {
+    it('returns 167 days when the total days in term is 334', () => {
+      expect(getTotalDaysMTD(334)).toBe(167)
+    })
+
+    it('returns 16 days when total number of days is 31', () => {
+         const input: InputIndividualSentence = {
+            from: new Date('2026-08-01'),
+            durationMonths: 1,
+        }
+        expect(getTotalDaysMTD(getTotalDaysInTerm(input))).toBe(16)
+    })
+  })
   

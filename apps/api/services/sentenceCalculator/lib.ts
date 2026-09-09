@@ -9,6 +9,10 @@ export function getTotalDaysInTerm(sentenceInput: InputIndividualSentence): numb
     return differenceInCalendarDays(to, utcFrom)
 }
 
+export function getTotalDaysMTD(totalDaysInTerm: number): number {
+    return Math.round(totalDaysInTerm / 2)
+}
+
 export function increaseDateWithDays(daysToAdd: number, dateToIncrease: Date): Date {
     return addDays(new UTCDate(dateToIncrease), daysToAdd - 1)
 }
