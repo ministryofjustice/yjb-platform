@@ -16,3 +16,7 @@ export function getTotalDaysMTD(totalDaysInTerm: number): number {
 export function increaseDateWithDays(daysToAdd: number, dateToIncrease: Date): Date {
     return addDays(new UTCDate(dateToIncrease), daysToAdd - 1)
 }
+
+export function increaseTotalNumRTBDays(currentTotal: number, incrementor: number): number {
+    return currentTotal + incrementor
+}

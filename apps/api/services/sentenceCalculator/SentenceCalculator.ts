@@ -1,6 +1,6 @@
 import { addMonths, addDays, subDays, subMonths, differenceInCalendarDays } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
-import { getTotalDaysInTerm, getTotalDaysMTD } from './lib'
+import { getTotalDaysInTerm, getTotalDaysMTD, increaseDateWithDays, increaseTotalNumRTBDays } from './lib'
 import {
   InputSentences,
   InputIndividualSentence,
@@ -66,25 +66,15 @@ export default class SentenceCalculator {
 
   getTotalDaysInTerm(): number { return getTotalDaysInTerm(this.sentence.inputIndividualSentences[0]) }
 
-  getSledDate(totalDaysInTerm: number): Date {
-    return this.increaseDateWithDays(totalDaysInTerm, this.sentence.inputIndividualSentences[0].from)
-  }
+  getSledDate(totalDaysInTerm: number): Date { return increaseDateWithDays(totalDaysInTerm, this.sentence.inputIndividualSentences[0].from) }
 
-  getTotalDaysMTD(): number {
-    return getTotalDaysMTD(this.getTotalDaysInTerm())
-  }
+  getTotalDaysMTD(): number { return getTotalDaysMTD(this.getTotalDaysInTerm()) }
 
-  getMTDDate(totalDaysMTD: number): Date {
-    return this.increaseDateWithDays(totalDaysMTD, this.sentence.inputIndividualSentences[0].from)
-  }
-
-  increaseDateWithDays(totalDays: number, from: Date): Date {
-    return addDays(new UTCDate(from), totalDays - 1)
-  }
+  getMTDDate(totalDaysMTD: number): Date { return increaseDateWithDays(totalDaysMTD, this.sentence.inputIndividualSentences[0].from) }
 
 
   increaseTotalNumRTBDays(currentTotal: number, incrementor: number): number {
-    return currentTotal + incrementor
+    return increaseTotalNumRTBDays(currentTotal, incrementor)
   }
 
   getETDDate(mtd: Date, _totalDaysInTerm: number): Date {

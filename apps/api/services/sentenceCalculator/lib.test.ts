@@ -1,5 +1,5 @@
 
-  import { getTotalDaysInTerm, increaseDateWithDays, getTotalDaysMTD } from './lib'
+  import { getTotalDaysInTerm, increaseDateWithDays, getTotalDaysMTD, increaseTotalNumRTBDays } from './lib'
   import {InputIndividualSentence} from './types'
 
   describe('getTotalDaysInTerm', () => {
@@ -83,7 +83,6 @@ describe('increaseDateWithDays', () => {
     })
 })
 
-
 describe('getTotalDaysMTD', () => {
     it('returns 167 days when the total days in term is 334', () => {
       expect(getTotalDaysMTD(334)).toBe(167)
@@ -95,6 +94,20 @@ describe('getTotalDaysMTD', () => {
             durationMonths: 1,
         }
         expect(getTotalDaysMTD(getTotalDaysInTerm(input))).toBe(16)
+    })
+})
+
+  describe('getTotalNumberOfRemandAndTaggedBailDays', () => {
+    it('returns 15 if we introduce a 15 days remand only', () => {
+      const currentTotal = 0
+      expect(increaseTotalNumRTBDays(currentTotal, 15)).toEqual(15)
+    })
+
+    it('returns 25 if we introduce a 15 days remand and 10 days tagged bail', () => {
+      const currentTotal = 0
+      const remandTotal = increaseTotalNumRTBDays(currentTotal, 15)
+      const taggedTotal = increaseTotalNumRTBDays(remandTotal, 10)
+      expect(taggedTotal).toEqual(25)
     })
   })
   
