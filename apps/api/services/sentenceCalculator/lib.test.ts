@@ -1,5 +1,5 @@
 
-  import { getTotalDaysInTerm, increaseDateWithDays, getTotalDaysMTD, increaseTotalNumRTBDays } from './lib'
+  import { getTotalDaysInTerm, increaseDateWithDays, getTotalDaysMTD, increaseTotalNumRTBDays, getETDDate, getLTDDate } from './lib'
   import {InputIndividualSentence} from './types'
 
   describe('getTotalDaysInTerm', () => {
@@ -110,4 +110,32 @@ describe('getTotalDaysMTD', () => {
       expect(taggedTotal).toEqual(25)
     })
   })
+
+describe('getETD', () => {
+    it('returns 2026-11-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
+        expect(getETDDate(new Date('2026-12-12'), 11)).toEqual(new Date('2026-11-12'))
+    })
+
+    it('returns 2026-10-12 for a 19 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
+        expect(getETDDate(new Date('2026-12-12'), 19)).toEqual(new Date('2026-10-12'))
+    })
+
+    it('returns 0 for a 5 months long sentence, no remand, mtd on 2026-12-12', () => {
+        expect(getETDDate(new Date('2026-12-12'), 5)).toEqual(0)
+    })
+})
+
+describe('getLTD', () => {
+    it('returns 2027-01-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
+        expect(getLTDDate(new Date('2026-12-12'), 11)).toEqual(new Date('2027-01-12'))
+    })
+
+    it('returns 2027-02-12 for a 19 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
+        expect(getLTDDate(new Date('2026-12-12'), 19)).toEqual(new Date('2027-02-12'))
+    })
+
+    it('returns 0 for a 5 months long sentence, no remand, mtd on 2026-12-12', () => {
+        expect(getLTDDate(new Date('2026-12-12'), 5)).toEqual(0)
+    })
+})
   

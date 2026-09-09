@@ -34,8 +34,8 @@ export interface OutputCalculation {
   calculatedTerms: AppendOnlyArray<CalculatedTerm>
   effectiveDates: EffectiveDates
   effectiveDatesPastAdjustments: AppendOnlyArray<effectiveDatesPastAdjustments>
-  ltd: Date
-  etd: Date
+  ltd: Date | 0
+  etd: Date | 0
 }
 
 export type EffectiveDates = {
