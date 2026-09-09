@@ -57,7 +57,7 @@ describe('SentenceCalculator', () => {
   beforeEach(() => {
     defaultCalculator = new SentenceCalculator(defaultSentence)
   })
-  
+
   describe('applyTaggedBail', () => {
     it('returns an adjustment record with the sled and mtd dates prior to the adjustment and appends it to the calculation ', () => {
       const record = defaultCalculator.applyTaggedBail(15, AdjustmentTypes.taggedBail)
