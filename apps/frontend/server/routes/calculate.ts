@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import type { Services } from '../services'
 import { OutputCalculation } from '../types/dtoTypes'
+import {ValidationResult} from "../services/dtoService";
 
 export default function calculateRoutes({ dtoService }: Partial<Services>): Router {
   const router = Router()
@@ -13,7 +14,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
     const payload: Record<string, unknown> = req.body
     const payloadString = JSON.stringify(payload)
 
-    const validationResult = dtoService.validatePayload(payload)
+    const validationResult: ValidationResult = dtoService.validatePayload(payload)
 
     if (validationResult.isValid) {
       const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult.payload)

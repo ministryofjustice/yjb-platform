@@ -6,12 +6,17 @@
 {% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 
+{% set backHref = "/calculate?remandDays=" + inputData.remandDays
+  + "&taggedBailDays=" + inputData.taggedBailDays
+  + "&sentenceLengthMonths=" + inputData.sentenceLengthMonths
+  + "&sentenceDate=" + inputData.sentenceDateString
+%}
 
 {% block content %}
 
   {{ govukBackLink({
     text: "Back",
-    href: "/calculate"
+    href: backHref
   }) }}
 
   <h1 class="govuk-heading-l">Calculation breakdown</h1>

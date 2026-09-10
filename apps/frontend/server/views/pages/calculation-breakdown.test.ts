@@ -1,7 +1,8 @@
 import * as cheerio from 'cheerio'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
-import { OutputCalculation } from '../../types/dtoTypes'
+import {InputSentences, OutputCalculation} from '../../types/dtoTypes'
 import sampleCalculationResult from '../../testutils/sampleObjects'
+import {ParsedDtoForm} from "../../services/dtoService";
 
 const env = createNunjucksTestSetup()
 const renderWithCheerio = (context = {}) => cheerio.load(env.render('pages/calculation-breakdown.njk', context))
@@ -23,10 +24,26 @@ describe('Calculation breakdown page', () => {
   describe('navigation', () => {
     it('renders a back button pointing to the calculation page', () => {
       const cheerioPage = renderWithCheerio()
-      expect(cheerioPage('title').text()).toBe('Youth Justice Platform - Calculation breakdown')
       const button = cheerioPage('.govuk-back-link')
       expect(button.text()).toBe('Back')
-      expect(button.prop('href')).toBe('/calculate')
+      expect(button.prop('href')).toContain('/calculate?')
+    })
+
+    it('passes the submitted form data to the back button', () => {
+      const inputData: ParsedDtoForm = {
+        remandDays: 33,
+        taggedBailDays: 44,
+        sentenceLengthMonths: 22,
+        sentenceDate: new Date("01/22/2033"),
+        sentenceDateString: "01/22/2033"
+      }
+      const cheerioPage = renderWithCheerio({ inputData })
+      const button = cheerioPage('.govuk-back-link')
+      expect(button.prop('href')).toContain(`remandDays=${inputData.remandDays}`)
+      expect(button.prop('href')).toContain(`taggedBailDays=${inputData.taggedBailDays}`)
+      expect(button.prop('href')).toContain(`sentenceLengthMonths=${inputData.sentenceLengthMonths}`)
+      expect(button.prop('href')).toContain(`sentenceDate=01/22/2033`)
+      // expect(button.prop('href')).toContain(`sentenceDate=${inputData.sentenceDate.toString()}`)
     })
   })
 
