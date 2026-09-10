@@ -1,6 +1,13 @@
 import { UTCDate } from '@date-fns/utc'
 import { subDays, addMonths, addDays, subMonths, differenceInCalendarDays } from 'date-fns'
-import { InputIndividualSentence, OutputCalculation, InputAdjustment, RecordOfAdjustment, RemandAdjustment, TaggedBailAdjustment, EffectiveDates, AdjustmentResult } from './types'
+import {
+  InputIndividualSentence,
+  OutputCalculation,
+  InputAdjustment,
+  RecordOfAdjustment,
+  EffectiveDates,
+  AdjustmentResult,
+} from './types'
 
 export function getTotalDaysInTerm(sentenceInput: InputIndividualSentence): number {
   const utcFrom = new UTCDate(sentenceInput.from)
@@ -52,7 +59,6 @@ export function adjustCalculation(srcCal: OutputCalculation, inputAdjustment: In
     adjustmentParameters: inputAdjustment,
     pastEffectiveDates: { ...srcCal.effectiveDates },
   }
-  // outputCal.effectiveDatesPastAdjustments.push(adjustment)
 
   const outputTotalNumRTBD = increaseTotalNumRTBDays(
     srcCal.effectiveDates.totalNumberOfRemandAndTaggedBailDays,
@@ -61,7 +67,7 @@ export function adjustCalculation(srcCal: OutputCalculation, inputAdjustment: In
 
   // if remand covers the whole sentence, there's no sentence left to serve:
   // sled and mtd both collapse to the sentence start date
-  let outputEffectiveDatesSled: Date 
+  let outputEffectiveDatesSled: Date
   let outputEffectiveDatesMTD: Date
   if (inputAdjustment.days >= srcCal.calculatedTerms[0].totalDaysInTerm) {
     const sentenceStart = new UTCDate(srcCal.calculatedTerms[0].inputSentence.from)
@@ -70,8 +76,6 @@ export function adjustCalculation(srcCal: OutputCalculation, inputAdjustment: In
   } else {
     outputEffectiveDatesSled = subDays(srcCal.effectiveDates.sled, inputAdjustment.days)
     outputEffectiveDatesMTD = subDays(srcCal.effectiveDates.mtd, inputAdjustment.days)
-    // outputCal.etd = getETDDate(outputCal.effectiveDates.mtd, srcCal.calculatedTerms[0].inputSentence.durationMonths)
-    // outputCal.ltd = getLTDDate(outputCal.effectiveDates.mtd, srcCal.calculatedTerms[0].inputSentence.durationMonths)
   }
 
   const outputNewEffeciveDates: EffectiveDates = {
@@ -83,6 +87,6 @@ export function adjustCalculation(srcCal: OutputCalculation, inputAdjustment: In
 
   return {
     newEffectiveDates: outputNewEffeciveDates,
-    newRecordOfAdjustment: outputAdjustmentRecord
+    newRecordOfAdjustment: outputAdjustmentRecord,
   }
 }
