@@ -1,4 +1,3 @@
-import { subDays } from 'date-fns'
 import { UTCDate } from '@date-fns/utc'
 import {
   getTotalDaysInTerm,
@@ -7,6 +6,7 @@ import {
   increaseTotalNumRTBDays,
   getETDDate,
   getLTDDate,
+  adjustCalculation,
 } from './lib'
 import {
   InputSentences,
@@ -15,6 +15,8 @@ import {
   CalculatedTerm,
   EffectiveDates,
   RecordOfAdjustment,
+  RemandAdjustment,
+  TaggedBailAdjustment,
   AdjustmentTypes,
 } from './types'
 
@@ -99,80 +101,40 @@ export default class SentenceCalculator {
     return getLTDDate(new UTCDate(mtd), sentenceDuration)
   }
 
-  applyRemand(remand: number, reason: AdjustmentTypes): RecordOfAdjustment {
-    // save existing effective dates and adjustment parameters prior to the adjustment
-    // (spread into a new object - effectiveDates is mutated in place below, so a live reference would show the new values too)
-    const adjustment: RecordOfAdjustment = {
-      adjustmentReason: reason,
-      adjustmentParameters: this.sentence.remandAdjustment!,
-      pastEffectiveDates: { ...this.calculation.effectiveDates },
-    }
-    this.calculation.effectiveDatesPastAdjustments.push(adjustment)
+  applyRemand(remand: number, _reason: AdjustmentTypes): RecordOfAdjustment {
+    const remandInput: RemandAdjustment = { ...this.sentence.remandAdjustment!, days: remand }
+    const { newEffectiveDates, newRecordOfAdjustment } = adjustCalculation(this.calculation, remandInput)
 
-    const totalRTBD = this.calculation.effectiveDates.totalNumberOfRemandAndTaggedBailDays
-    this.calculation.effectiveDates.totalNumberOfRemandAndTaggedBailDays = this.increaseTotalNumRTBDays(
-      totalRTBD,
-      remand,
+    this.calculation.effectiveDatesPastAdjustments.push(newRecordOfAdjustment)
+    this.calculation.effectiveDates = newEffectiveDates
+    this.calculation.etd = this.getETDDate(
+      this.calculation.effectiveDates.mtd,
+      this.sentence.inputIndividualSentences[0].durationMonths,
+    )
+    this.calculation.ltd = this.getLTDDate(
+      this.calculation.effectiveDates.mtd,
+      this.sentence.inputIndividualSentences[0].durationMonths,
     )
 
-    // if remand covers the whole sentence, there's no sentence left to serve:
-    // sled and mtd both collapse to the sentence start date
-    if (remand >= this.calculation.calculatedTerms[0].totalDaysInTerm) {
-      const sentenceStart = new UTCDate(this.sentence.inputIndividualSentences[0].from)
-      this.calculation.effectiveDates.sled = sentenceStart
-      this.calculation.effectiveDates.mtd = sentenceStart
-    } else {
-      this.calculation.effectiveDates.sled = subDays(this.calculation.effectiveDates.sled, remand)
-      this.calculation.effectiveDates.mtd = subDays(this.calculation.effectiveDates.mtd, remand)
-      this.calculation.etd = this.getETDDate(
-        this.calculation.effectiveDates.mtd,
-        this.sentence.inputIndividualSentences[0].durationMonths,
-      )
-      this.calculation.ltd = this.getLTDDate(
-        this.calculation.effectiveDates.mtd,
-        this.sentence.inputIndividualSentences[0].durationMonths,
-      )
-    }
-
-    return adjustment
+    return newRecordOfAdjustment
   }
 
-  applyTaggedBail(taggedBail: number, reason: AdjustmentTypes): RecordOfAdjustment {
-    // save existing effective dates and adjustment parameters prior to the adjustment
-    // (spread into a new object - effectiveDates is mutated in place below, so a live reference would show the new values too)
-    const adjustment: RecordOfAdjustment = {
-      adjustmentReason: reason,
-      adjustmentParameters: this.sentence.taggedBailAdjustment!,
-      pastEffectiveDates: { ...this.calculation.effectiveDates },
-    }
-    this.calculation.effectiveDatesPastAdjustments.push(adjustment)
+  applyTaggedBail(taggedBail: number, _reason: AdjustmentTypes): RecordOfAdjustment {
+    const taggedBailInput: TaggedBailAdjustment = { ...this.sentence.taggedBailAdjustment!, days: taggedBail }
+    const { newEffectiveDates, newRecordOfAdjustment } = adjustCalculation(this.calculation, taggedBailInput)
 
-    const totalRTBD = this.calculation.effectiveDates.totalNumberOfRemandAndTaggedBailDays
-    this.calculation.effectiveDates.totalNumberOfRemandAndTaggedBailDays = this.increaseTotalNumRTBDays(
-      totalRTBD,
-      taggedBail,
+    this.calculation.effectiveDatesPastAdjustments.push(newRecordOfAdjustment)
+    this.calculation.effectiveDates = newEffectiveDates
+    this.calculation.etd = this.getETDDate(
+      this.calculation.effectiveDates.mtd,
+      this.sentence.inputIndividualSentences[0].durationMonths,
+    )
+    this.calculation.ltd = this.getLTDDate(
+      this.calculation.effectiveDates.mtd,
+      this.sentence.inputIndividualSentences[0].durationMonths,
     )
 
-    // if tagged bail covers the whole sentence, there's no sentence left to serve:
-    // sled and mtd both collapse to the sentence start date
-    if (taggedBail >= this.calculation.calculatedTerms[0].totalDaysInTerm) {
-      const sentenceStart = new UTCDate(this.sentence.inputIndividualSentences[0].from)
-      this.calculation.effectiveDates.sled = sentenceStart
-      this.calculation.effectiveDates.mtd = sentenceStart
-    } else {
-      this.calculation.effectiveDates.sled = subDays(this.calculation.effectiveDates.sled, taggedBail)
-      this.calculation.effectiveDates.mtd = subDays(this.calculation.effectiveDates.mtd, taggedBail)
-      this.calculation.etd = this.getETDDate(
-        this.calculation.effectiveDates.mtd,
-        this.sentence.inputIndividualSentences[0].durationMonths,
-      )
-      this.calculation.ltd = this.getLTDDate(
-        this.calculation.effectiveDates.mtd,
-        this.sentence.inputIndividualSentences[0].durationMonths,
-      )
-    }
-
-    return adjustment
+    return newRecordOfAdjustment
   }
 
   getCalculation(): OutputCalculation {

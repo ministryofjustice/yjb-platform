@@ -9,6 +9,10 @@ const defaultSentence: InputSentences = {
     days: 0,
     startDate: new Date(),
   },
+  taggedBailAdjustment: {
+    name: AdjustmentTypes.taggedBail,
+    days: 0,
+  },
   inputIndividualSentences: [
     {
       from: new Date('2026-06-29'),
@@ -63,7 +67,7 @@ describe('SentenceCalculator', () => {
       const record = defaultCalculator.applyTaggedBail(15, AdjustmentTypes.taggedBail)
       expect(record).toEqual({
         adjustmentReason: 'taggedBail',
-        adjustmentParameters: defaultSentence.taggedBailAdjustment,
+        adjustmentParameters: { ...defaultSentence.taggedBailAdjustment, days: 15 },
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 0,
           sled: new Date('2027-05-28'),
@@ -106,7 +110,7 @@ describe('SentenceCalculator', () => {
       const record = defaultCalculator.applyRemand(15, AdjustmentTypes.remand)
       expect(record).toEqual({
         adjustmentReason: 'remand',
-        adjustmentParameters: defaultSentence.remandAdjustment,
+        adjustmentParameters: { ...defaultSentence.remandAdjustment, days: 15 },
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 0,
           sled: new Date('2027-05-28'),
