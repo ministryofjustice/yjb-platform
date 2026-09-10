@@ -33,7 +33,7 @@ export type InputAdjustment = RemandAdjustment | TaggedBailAdjustment
 export interface OutputCalculation {
   calculatedTerms: AppendOnlyArray<CalculatedTerm>
   effectiveDates: EffectiveDates
-  effectiveDatesPastAdjustments: AppendOnlyArray<effectiveDatesPastAdjustments>
+  effectiveDatesPastAdjustments: AppendOnlyArray<RecordOfAdjustment>
   ltd: Date | 0
   etd: Date | 0
 }
@@ -54,7 +54,7 @@ export type CalculatedTerm = {
   mtd: Date
 }
 
-export type effectiveDatesPastAdjustments = {
+export type RecordOfAdjustment = {
   adjustmentReason: AdjustmentTypes
   adjustmentParameters: InputAdjustment
   pastEffectiveDates: EffectiveDates
@@ -62,7 +62,7 @@ export type effectiveDatesPastAdjustments = {
 
 export type AdjustmentResult = {
   newEffectiveDates: EffectiveDates,
-  newRecordOfAdjustment: effectiveDatesPastAdjustments
+  newRecordOfAdjustment: RecordOfAdjustment
 }
 
 // internal types
