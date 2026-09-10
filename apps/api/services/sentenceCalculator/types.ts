@@ -17,12 +17,12 @@ interface BaseAdjustment {
   days: number
 }
 
-interface RemandAdjustment extends BaseAdjustment {
+export interface RemandAdjustment extends BaseAdjustment {
   name: typeof AdjustmentTypes.remand
   startDate: Date
 }
 
-interface TaggedBailAdjustment extends BaseAdjustment {
+export interface TaggedBailAdjustment extends BaseAdjustment {
   name: typeof AdjustmentTypes.taggedBail
   // no startDate — and TS will error if you try to read one
 }
@@ -60,13 +60,17 @@ export type effectiveDatesPastAdjustments = {
   pastEffectiveDates: EffectiveDates
 }
 
+export type AdjustmentResult = {
+  newEffectiveDates: EffectiveDates,
+  newRecordOfAdjustment: effectiveDatesPastAdjustments
+}
+
 // internal types
 export const AdjustmentTypes = {
   remand: 'remand',
   taggedBail: 'taggedBail',
 } as const
 
-// logic only exists for `remand` for now; `taggedBail` is a no-op
 export type AdjustmentTypes = (typeof AdjustmentTypes)[keyof typeof AdjustmentTypes]
 
 // exposes only push/read access - no pop, splice, shift, sort, etc. -
