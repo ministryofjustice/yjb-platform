@@ -13,6 +13,7 @@ import {
   AdjustmentTypes,
   RemandAdjustment,
   TaggedBailAdjustment,
+  AdjustmentResult
 } from './types'
 
 describe('getTotalDaysInTerm', () => {
@@ -154,7 +155,7 @@ describe('getLTD', () => {
 
 describe('adjustCalculation', () => {
   it('returns an adjustment calculation for 15 days remand, no tagged bail starting on 2026-06-29 11 months', () => {
-    let initialOutputCalculation: OutputCalculation = {
+    const initialOutputCalculation: OutputCalculation = {
       calculatedTerms: [
         {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
@@ -177,48 +178,34 @@ describe('adjustCalculation', () => {
 
     const remandAdjustment: RemandAdjustment = {
       name: AdjustmentTypes.remand,
-      days: 15,
+      days: 10,
       startDate: new Date('2026-06-14'),
     }
 
-    const adjustedOutputCalculation: OutputCalculation = {
-      calculatedTerms: [
-        {
-          inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
-          totalDaysInTerm: 334,
-          totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
-        },
-      ],
-      effectiveDates: {
-        totalNumberOfRemandAndTaggedBailDays: 15,
-        sled: new Date('2027-05-13'),
-        mtd: new Date('2026-11-27'),
+    const expectedRemandAdjustmentResult: AdjustmentResult = {
+      newEffectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 10,
+        sled: new Date('2027-05-18'),
+        mtd: new Date('2026-12-02'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
-      effectiveDatesPastAdjustments: [
-        {
-          adjustmentReason: 'remand',
-          adjustmentParameters: remandAdjustment,
-          pastEffectiveDates: {
+      newRecordOfAdjustment: {
+        adjustmentReason: 'remand',
+        adjustmentParameters: remandAdjustment,
+        pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2027-05-28'),
             mtd: new Date('2026-12-12'),
             TUSED: new Date(0),
-          },
         },
-      ],
+      },
     }
 
-    initialOutputCalculation = adjustCalculation(initialOutputCalculation, remandAdjustment)
-    expect(initialOutputCalculation).toEqual(adjustedOutputCalculation)
+    expect(adjustCalculation(initialOutputCalculation, remandAdjustment)).toEqual(expectedRemandAdjustmentResult)
   })
 
-  it('returns an adjustment calculation for 15 tagged bail, no remand starting on 2026-06-29 11 months', () => {
-    let initialOutputCalculation: OutputCalculation = {
+    it('returns an adjustment calculation for 15 tagged bail, no remand starting on 2026-06-29 11 months', () => {
+    const initialOutputCalculation: OutputCalculation = {
       calculatedTerms: [
         {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
@@ -241,46 +228,32 @@ describe('adjustCalculation', () => {
 
     const taggedBailAdjustment: TaggedBailAdjustment = {
       name: AdjustmentTypes.taggedBail,
-      days: 15,
+      days: 10,
     }
 
-    const adjustedOutputCalculation: OutputCalculation = {
-      calculatedTerms: [
-        {
-          inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
-          totalDaysInTerm: 334,
-          totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
-        },
-      ],
-      effectiveDates: {
-        totalNumberOfRemandAndTaggedBailDays: 15,
-        sled: new Date('2027-05-13'),
-        mtd: new Date('2026-11-27'),
+    const expectedTaggedBailAdjustmentResult: AdjustmentResult = {
+      newEffectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 10,
+        sled: new Date('2027-05-18'),
+        mtd: new Date('2026-12-02'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
-      effectiveDatesPastAdjustments: [
-        {
-          adjustmentReason: 'taggedBail',
-          adjustmentParameters: taggedBailAdjustment,
-          pastEffectiveDates: {
+      newRecordOfAdjustment: {
+        adjustmentReason: 'taggedBail',
+        adjustmentParameters: taggedBailAdjustment,
+        pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2027-05-28'),
             mtd: new Date('2026-12-12'),
             TUSED: new Date(0),
-          },
         },
-      ],
+      },
     }
 
-    initialOutputCalculation = adjustCalculation(initialOutputCalculation, taggedBailAdjustment)
-    expect(initialOutputCalculation).toEqual(adjustedOutputCalculation)
+    expect(adjustCalculation(initialOutputCalculation, taggedBailAdjustment)).toEqual(expectedTaggedBailAdjustmentResult)
   })
 
-  it('returns sled 2027-05-13 and mtd 2026-11-27 for 11 month sentence starting on 2026-06-29 with 10 days of remand and 5 days tagged bail', () => {
+  it('it correctly applies a tagged bail adjustment to a calculation already adjusted by remand', () => {
     let initialOutputCalculation: OutputCalculation = {
       calculatedTerms: [
         {
@@ -313,85 +286,98 @@ describe('adjustCalculation', () => {
       days: 5,
     }
 
-    // remand is applied first: 10 days off sled/mtd, starting from the untouched baseline
-    const adjustedOutputCalculationPostRemand: OutputCalculation = {
-      calculatedTerms: [
-        {
-          inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
-          totalDaysInTerm: 334,
-          totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
-        },
-      ],
-      effectiveDates: {
-        totalNumberOfRemandAndTaggedBailDays: 10,
-        sled: new Date('2027-05-18'),
-        mtd: new Date('2026-12-02'),
-        TUSED: new Date(0),
-      },
-      ltd: new Date('2027-01-02'),
-      etd: new Date('2026-11-02'),
-      effectiveDatesPastAdjustments: [
-        {
-          adjustmentReason: 'remand',
-          adjustmentParameters: remandAdjustment,
-          pastEffectiveDates: {
-            totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2027-05-28'),
-            mtd: new Date('2026-12-12'),
-            TUSED: new Date(0),
-          },
-        },
-      ],
-    }
-
-    // tagged bail is then applied on top of the remand-adjusted dates, not the original baseline
-    const adjustedOutputCalculationPostTaggedBail: OutputCalculation = {
-      calculatedTerms: [
-        {
-          inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
-          totalDaysInTerm: 334,
-          totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
-        },
-      ],
-      effectiveDates: {
+    const finalAdjustmentResult: AdjustmentResult = {
+      newEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 15,
         sled: new Date('2027-05-13'),
         mtd: new Date('2026-11-27'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
-      effectiveDatesPastAdjustments: [
+      newRecordOfAdjustment: {
+        adjustmentReason: 'taggedBail',
+        adjustmentParameters: taggedBailAdjustment,
+        pastEffectiveDates: {
+          totalNumberOfRemandAndTaggedBailDays: 10,
+          sled: new Date('2027-05-18'),
+          mtd: new Date('2026-12-02'),
+          TUSED: new Date(0)
+        }
+      },
+    }
+    
+    //get the adjustmented Effective Date calcs for remand
+    const resultRemandAdjustment: AdjustmentResult = adjustCalculation(initialOutputCalculation, remandAdjustment);
+    
+    //apply new Effective Dates past adjustments record to a copy of initial calc obj (preserve obj for clear debugging)
+    let adjustedCalulationObject = initialOutputCalculation;
+    adjustedCalulationObject.effectiveDates = resultRemandAdjustment.newEffectiveDates
+    adjustedCalulationObject.effectiveDatesPastAdjustments.push(resultRemandAdjustment.newRecordOfAdjustment)
+
+    //get the adjustmented Effective Date calcs for tagged bail
+    expect(adjustCalculation(adjustedCalulationObject, taggedBailAdjustment)).toEqual(finalAdjustmentResult)
+  })
+
+  it('it correctly applies a remand adjustment to a calculation already adjusted by tagged bail', () => {
+    let initialOutputCalculation: OutputCalculation = {
+      calculatedTerms: [
         {
-          adjustmentReason: 'remand',
-          adjustmentParameters: remandAdjustment,
-          pastEffectiveDates: {
-            totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2027-05-28'),
-            mtd: new Date('2026-12-12'),
-            TUSED: new Date(0),
-          },
-        },
-        {
-          adjustmentReason: 'taggedBail',
-          adjustmentParameters: taggedBailAdjustment,
-          pastEffectiveDates: {
-            totalNumberOfRemandAndTaggedBailDays: 10,
-            sled: new Date('2027-05-18'),
-            mtd: new Date('2026-12-02'),
-            TUSED: new Date(0),
-          },
+          inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
+          totalDaysInTerm: 334,
+          totalDaysMTD: 167,
+          sled: new Date('2027-05-28'),
+          mtd: new Date('2026-12-12'),
         },
       ],
+      effectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 0,
+        sled: new Date('2027-05-28'),
+        mtd: new Date('2026-12-12'),
+        TUSED: new Date(0),
+      },
+      ltd: new Date('2027-01-12'),
+      etd: new Date('2026-11-12'),
+      effectiveDatesPastAdjustments: [],
     }
 
-    initialOutputCalculation = adjustCalculation(initialOutputCalculation, remandAdjustment)
-    expect(initialOutputCalculation).toEqual(adjustedOutputCalculationPostRemand)
-    initialOutputCalculation = adjustCalculation(initialOutputCalculation, taggedBailAdjustment)
-    expect(initialOutputCalculation).toEqual(adjustedOutputCalculationPostTaggedBail)
+    const remandAdjustment: RemandAdjustment = {
+      name: AdjustmentTypes.remand,
+      days: 10,
+      startDate: new Date('2026-06-14'),
+    }
+
+    const taggedBailAdjustment: TaggedBailAdjustment = {
+      name: AdjustmentTypes.taggedBail,
+      days: 5,
+    }
+
+    const finalAdjustmentResult: AdjustmentResult = {
+      newEffectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 15,
+        sled: new Date('2027-05-13'),
+        mtd: new Date('2026-11-27'),
+        TUSED: new Date(0),
+      },
+      newRecordOfAdjustment: {
+        adjustmentReason: 'remand',
+        adjustmentParameters: remandAdjustment,
+        pastEffectiveDates: {
+          totalNumberOfRemandAndTaggedBailDays: 5,
+          sled: new Date('2027-05-23'),
+          mtd: new Date('2026-12-07'),
+          TUSED: new Date(0)
+        }
+      },
+    }
+    
+    //get the adjustmented Effective Date calcs for remand
+    const resultTaggedBailAdjustment: AdjustmentResult = adjustCalculation(initialOutputCalculation, taggedBailAdjustment);
+    
+    //apply new Effective Dates past adjustments record to a copy of initial calc obj (preserve obj for clear debugging)
+    let adjustedCalulationObject = initialOutputCalculation;
+    adjustedCalulationObject.effectiveDates = resultTaggedBailAdjustment.newEffectiveDates
+    adjustedCalulationObject.effectiveDatesPastAdjustments.push(resultTaggedBailAdjustment.newRecordOfAdjustment)
+
+    //get the adjustmented Effective Date calcs for tagged bail
+    expect(adjustCalculation(adjustedCalulationObject, remandAdjustment)).toEqual(finalAdjustmentResult)
   })
 })
