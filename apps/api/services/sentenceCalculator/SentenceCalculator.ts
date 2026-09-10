@@ -3,7 +3,7 @@ import { UTCDate } from '@date-fns/utc'
 import {
   getTotalDaysInTerm,
   getTotalDaysMTD,
-  increaseDateWithDays,
+  addDaysToDate,
   increaseTotalNumRTBDays,
   getETDDate,
   getLTDDate,
@@ -76,7 +76,7 @@ export default class SentenceCalculator {
   }
 
   getSledDate(totalDaysInTerm: number): Date {
-    return increaseDateWithDays(totalDaysInTerm, this.sentence.inputIndividualSentences[0].from)
+    return addDaysToDate(totalDaysInTerm, this.sentence.inputIndividualSentences[0].from)
   }
 
   getTotalDaysMTD(): number {
@@ -84,7 +84,7 @@ export default class SentenceCalculator {
   }
 
   getMTDDate(totalDaysMTD: number): Date {
-    return increaseDateWithDays(totalDaysMTD, this.sentence.inputIndividualSentences[0].from)
+    return addDaysToDate(totalDaysMTD, this.sentence.inputIndividualSentences[0].from)
   }
 
   increaseTotalNumRTBDays(currentTotal: number, incrementor: number): number {
