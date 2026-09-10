@@ -61,7 +61,7 @@ export type RecordOfAdjustment = {
 }
 
 export type AdjustmentResult = {
-  newEffectiveDates: EffectiveDates,
+  newEffectiveDates: EffectiveDates
   newRecordOfAdjustment: RecordOfAdjustment
 }
 
