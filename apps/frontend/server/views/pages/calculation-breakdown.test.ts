@@ -20,20 +20,17 @@ describe('Calculation breakdown page', () => {
     })
   })
 
-  describe('data', () => {
-    // it('it renders the Release Dates ETD passed from the model', () => {
-    //   const calculationResult: OutputCalculation = sampleCalculationResult
-    //   // calculationResult.etd = new Date("2020-01-01")
-    //   const cheerioPage = renderWithCheerio({ calculationResult })
-    //   expect(cheerioPage('#release-dates').text()).toContain('ETD: Earliest Transfer Date Tue Oct 27 2026')
-    // })
-    //
-    // it('it renders the Release Dates ETD passed from the model', () => {
-    //   const calculationResult: OutputCalculation = sampleCalculationResult
-    //   const cheerioPage = renderWithoutCheerio({ calculationResult })
-    //   expect(cheerioPage).toContain('ETD: Earliest Transfer Date 2026-10-27')
-    // })
+  describe('navigation', () => {
+    it('renders a back button pointing to the calculation page', () => {
+      const cheerioPage = renderWithCheerio()
+      expect(cheerioPage('title').text()).toBe('Youth Justice Platform - Calculation breakdown')
+      const button = cheerioPage('.govuk-back-link')
+      expect(button.text()).toBe('Back')
+      expect(button.prop('href')).toBe('/calculate')
+    })
+  })
 
+  describe('data', () => {
     it('it renders the Release Dates ETD passed from the model', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
       const cheerioPage = renderWithCheerio({ calculationResult })

@@ -4,12 +4,18 @@
 {% set mainClasses = "govuk-body" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/details/macro.njk" import govukDetails %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 
 
 {% block content %}
 
+  {{ govukBackLink({
+    text: "Back",
+    href: "/calculate"
+  }) }}
+
   <h1 class="govuk-heading-l">Calculation breakdown</h1>
-  <div>
+  <div class="govuk-grid-row">
     {{ govukButton({ text: "Flag and Error"}) }}
     {{ govukButton({ text: "Breakdown View"}) }}
     {{ govukButton({ text: "Sheet View"}) }}
