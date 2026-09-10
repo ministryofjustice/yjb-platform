@@ -14,7 +14,7 @@ import {
   OutputCalculation,
   CalculatedTerm,
   EffectiveDates,
-  effectiveDatesPastAdjustments,
+  RecordOfAdjustment,
   AdjustmentTypes,
 } from './types'
 
@@ -99,10 +99,10 @@ export default class SentenceCalculator {
     return getLTDDate(new UTCDate(mtd), sentenceDuration)
   }
 
-  applyRemand(remand: number, reason: AdjustmentTypes): effectiveDatesPastAdjustments {
+  applyRemand(remand: number, reason: AdjustmentTypes): RecordOfAdjustment {
     // save existing effective dates and adjustment parameters prior to the adjustment
     // (spread into a new object - effectiveDates is mutated in place below, so a live reference would show the new values too)
-    const adjustment: effectiveDatesPastAdjustments = {
+    const adjustment: RecordOfAdjustment = {
       adjustmentReason: reason,
       adjustmentParameters: this.sentence.remandAdjustment!,
       pastEffectiveDates: { ...this.calculation.effectiveDates },
@@ -137,10 +137,10 @@ export default class SentenceCalculator {
     return adjustment
   }
 
-  applyTaggedBail(taggedBail: number, reason: AdjustmentTypes): effectiveDatesPastAdjustments {
+  applyTaggedBail(taggedBail: number, reason: AdjustmentTypes): RecordOfAdjustment {
     // save existing effective dates and adjustment parameters prior to the adjustment
     // (spread into a new object - effectiveDates is mutated in place below, so a live reference would show the new values too)
-    const adjustment: effectiveDatesPastAdjustments = {
+    const adjustment: RecordOfAdjustment = {
       adjustmentReason: reason,
       adjustmentParameters: this.sentence.taggedBailAdjustment!,
       pastEffectiveDates: { ...this.calculation.effectiveDates },
