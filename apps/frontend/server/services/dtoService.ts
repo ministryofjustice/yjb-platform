@@ -4,6 +4,7 @@ import { InputIndividualSentence, InputSentences, OutputCalculation, RemandAdjus
 export type ValidationResult = {
   isValid: boolean
   input: Record<string, unknown>
+  parsedInput?: ParsedDtoForm
   payload?: InputSentences
 }
 
@@ -60,6 +61,7 @@ export default class DtoService {
     return {
       isValid,
       input: formData,
+      parsedInput: isValid ? parsedDtoForm : undefined,
       payload: isValid ? constructInputSentences(parsedDtoForm) : undefined,
     }
   }

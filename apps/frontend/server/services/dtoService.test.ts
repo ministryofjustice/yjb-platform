@@ -1,4 +1,4 @@
-import DtoService from './dtoService'
+import DtoService, { ParsedDtoForm } from './dtoService'
 import YjbApiClient from '../data/yjbApi'
 import { InputSentences } from '../types/dtoTypes'
 
@@ -16,6 +16,9 @@ describe('DtoService', () => {
   describe('validatePayload', () => {
     const exampleValidPayload: Record<string, unknown> = {
       'sentence-length-months': 1,
+      'sentence-date-year': 1990,
+      'sentence-date-month': 5,
+      'sentence-date-day': 14,
     }
 
     it('should return isValid false when sentence length is not provided', () => {
@@ -47,6 +50,24 @@ describe('DtoService', () => {
     it('should return a payload only when valid', () => {
       expect(dtoService.validatePayload({}).payload).toBeUndefined()
       expect(dtoService.validatePayload(exampleValidPayload).payload).toBeDefined()
+    })
+
+    it('should return the parsed form data as parsedInput only when valid', () => {
+      const payload: Record<string, unknown> = {
+        'sentence-length-months': 1,
+        'sentence-date-year': 1990,
+        'sentence-date-month': 5,
+        'sentence-date-day': 14,
+      }
+      const expectedParsedInput: ParsedDtoForm = {
+        remandDays: 0,
+        taggedBailDays: 0,
+        sentenceLengthMonths: 1,
+        sentenceDate: new Date(Date.UTC(1990, 4, 14)),
+        sentenceDateString: '14/05/1990',
+      }
+      expect(dtoService.validatePayload(payload).parsedInput).toEqual(expectedParsedInput)
+      expect(dtoService.validatePayload({}).parsedInput).toBeUndefined()
     })
 
     it('should populate inputIndividualSentences in the payload from sentence-length-months and sentence-date', () => {

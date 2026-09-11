@@ -6,13 +6,15 @@
 {% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 
-{% set backHref = "/calculate?remandDays=" + inputData.remandDays
+{% set backHref = "/?remandDays=" + inputData.remandDays
   + "&taggedBailDays=" + inputData.taggedBailDays
   + "&sentenceLengthMonths=" + inputData.sentenceLengthMonths
   + "&sentenceDate=" + inputData.sentenceDateString
 %}
 
 {% block content %}
+
+  Name: {{ payload.offenderName }}
 
   {{ govukBackLink({
     text: "Back",

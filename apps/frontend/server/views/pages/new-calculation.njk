@@ -22,6 +22,8 @@
 
   <h2>Offence and sentence details</h2>
 
+{{ sentenceDateDay }}{{ sentenceDateMonth }}{{ sentenceDateYear }}
+
   <form id="calculation-form" action="/calculate" method="post">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-one-third">
@@ -51,17 +53,17 @@
             classes: "govuk-fieldset__legend--s"
           }
         }) %}
-                {{ govukInput({
+          {{ govukInput({
             label: {
               text: "Months"
             },
             classes: "govuk-!-width-one-quarter",
             id: "sentence-length-months",
-            name: "sentence-length-months"
-            }) }}
+            name: "sentence-length-months",
+            value: sentenceLengthMonths
+          }) }}
         {% endcall %}
       </div>
-
       <div class="govuk-grid-column-one-third">
         {{ govukDateInput({
           id: 'sentence-date',
@@ -74,6 +76,11 @@
           },
           hint: {
             text: "For example, 27 3 2007"
+          },
+          values: {
+            day: 11,
+            month: 03,
+            year: 2044
           }
         }) }}
 
@@ -91,7 +98,8 @@
                   text: "Remand"
                 },
                 id: "remand-days",
-                name: "remand-days"
+                name: "remand-days",
+                value: remandDays
               }) }}
             </div>
 
@@ -101,7 +109,8 @@
                   text: "Tagged bail"
                 },
                 id: "tagged-bail-days",
-                name: "tagged-bail-days"
+                name: "tagged-bail-days",
+                value: taggedBailDays
               }) }}
             </div>
           </div>

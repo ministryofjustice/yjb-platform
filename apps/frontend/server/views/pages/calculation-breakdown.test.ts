@@ -30,20 +30,19 @@ describe('Calculation breakdown page', () => {
     })
 
     it('passes the submitted form data to the back button', () => {
-      const inputData: ParsedDtoForm = {
+      const parsedInput: ParsedDtoForm = {
         remandDays: 33,
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
         sentenceDate: new Date('01/22/2033'),
         sentenceDateString: '01/22/2033',
       }
-      const cheerioPage = renderWithCheerio({ inputData })
+      const cheerioPage = renderWithCheerio({ inputData: parsedInput })
       const button = cheerioPage('.govuk-back-link')
-      expect(button.prop('href')).toContain(`remandDays=${inputData.remandDays}`)
-      expect(button.prop('href')).toContain(`taggedBailDays=${inputData.taggedBailDays}`)
-      expect(button.prop('href')).toContain(`sentenceLengthMonths=${inputData.sentenceLengthMonths}`)
+      expect(button.prop('href')).toContain(`remandDays=${parsedInput.remandDays}`)
+      expect(button.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
+      expect(button.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
       expect(button.prop('href')).toContain(`sentenceDate=01/22/2033`)
-      // expect(button.prop('href')).toContain(`sentenceDate=${inputData.sentenceDate.toString()}`)
     })
   })
 
