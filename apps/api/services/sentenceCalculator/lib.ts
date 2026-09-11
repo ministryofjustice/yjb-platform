@@ -7,6 +7,7 @@ import {
   RecordOfAdjustment,
   EffectiveDates,
   AdjustmentResult,
+  CalculatedTerm
 } from './types'
 
 export function getTotalDaysInTerm(sentenceInput: InputIndividualSentence): number {
@@ -26,6 +27,14 @@ export function addDaysToDate(daysToAdd: number, dateToIncrease: Date): Date {
 
 export function increaseTotalNumRTBDays(currentTotal: number, incrementor: number): number {
   return currentTotal + incrementor
+}
+
+export function getSledDate(totalDaysInTerm: number, from: Date): Date {
+    return addDaysToDate(totalDaysInTerm, from)
+}
+
+export function  getMTDDate(totalDaysMTD: number, from: Date): Date {
+  return addDaysToDate(totalDaysMTD, from)
 }
 
 export function getETDDate(mtd: Date, sentenceLenth: number): Date | 0 {
@@ -48,6 +57,19 @@ export function getLTDDate(mtd: Date, sentenceLenth: number): Date | 0 {
   }
   // not eligible: sentence is less than 8 months
   return 0
+}
+
+export function  calculateTerm(inputSentence: InputIndividualSentence): CalculatedTerm {
+  const totalDaysInTerm = getTotalDaysInTerm(inputSentence)
+  const totalDaysMTD = getTotalDaysMTD(totalDaysInTerm)
+
+  return {
+    inputSentence,
+    totalDaysInTerm,
+    totalDaysMTD,
+    sled: getSledDate(totalDaysInTerm, inputSentence.from),
+    mtd: getMTDDate(totalDaysMTD, inputSentence.from)
+  }
 }
 
 export function adjustCalculation(srcCal: OutputCalculation, inputAdjustment: InputAdjustment): AdjustmentResult {
