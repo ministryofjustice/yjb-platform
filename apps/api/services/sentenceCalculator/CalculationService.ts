@@ -1,7 +1,7 @@
 import { InputSentences, OutputCalculation, EffectiveDates } from './types'
 import { getLTDDate, getETDDate, adjustCalculation, calculateTerm } from './lib'
 
-export function calculateDTOSentence(inputSentence: InputSentences): OutputCalculation {
+export default function calculateDTOSentence(inputSentence: InputSentences): OutputCalculation {
   const outputCalculation: OutputCalculation = {
     calculatedTerms: [],
     effectiveDates: {} as EffectiveDates,
@@ -15,7 +15,7 @@ export function calculateDTOSentence(inputSentence: InputSentences): OutputCalcu
     outputCalculation.calculatedTerms.push(calculateTerm(individualSentence))
   })
 
-  // for now 1 sentence only and without any adjustments the effective dates match the terms
+  // for now 1 term only; prior adjustments the effective dates match the term
   outputCalculation.effectiveDates = {
     totalNumberOfRemandAndTaggedBailDays: 0,
     sled: outputCalculation.calculatedTerms[0].sled,
@@ -24,7 +24,10 @@ export function calculateDTOSentence(inputSentence: InputSentences): OutputCalcu
   }
 
   if (inputSentence.remandAdjustment && inputSentence.remandAdjustment.days > 0) {
-    const { newEffectiveDates, newRecordOfAdjustment } = adjustCalculation(outputCalculation, inputSentence.remandAdjustment)
+    const { newEffectiveDates, newRecordOfAdjustment } = adjustCalculation(
+      outputCalculation,
+      inputSentence.remandAdjustment,
+    )
     outputCalculation.effectiveDates = newEffectiveDates
     outputCalculation.effectiveDatesPastAdjustments.push(newRecordOfAdjustment)
   }
