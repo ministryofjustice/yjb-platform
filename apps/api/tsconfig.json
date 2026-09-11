@@ -12,6 +12,7 @@
     "types": ["node", "jest"],
     "rootDir": "."
   },
+  "references": [{ "path": "../../packages/shared-types" }],
   "exclude": ["node_modules", "dist"],
   "include": ["**/*.ts"]
 }
