@@ -1,8 +1,10 @@
 import { InputSentences, OutputCalculation, AdjustmentTypes } from '../services/sentenceCalculator/types'
 import SentenceCalculator from '../services/sentenceCalculator/SentenceCalculator'
+import calculateDTOSentence from '../services/sentenceCalculator/CalculationService'
 
-// TODO: extract this in parser class which also does simple validation use zod
+
 export default function sentenceCalculatorController(sentence: InputSentences): OutputCalculation {
+  // TODO: extract this in parser class which also does simple validation use zod
   const deserialized: InputSentences = {
     ...sentence,
     inputIndividualSentences: sentence.inputIndividualSentences.map(term => ({
@@ -17,12 +19,5 @@ export default function sentenceCalculatorController(sentence: InputSentences): 
       : sentence.remandAdjustment,
   }
 
-  const sentenceCalc = new SentenceCalculator(deserialized)
-  if ((deserialized.remandAdjustment?.days ?? 0) > 0) {
-    sentenceCalc.adjustCalculation(AdjustmentTypes.remand)
-  }
-  if ((deserialized.taggedBailAdjustment?.days ?? 0) > 0) {
-    sentenceCalc.adjustCalculation(AdjustmentTypes.taggedBail)
-  }
-  return sentenceCalc.getCalculation()
+  return calculateDTOSentence(deserialized)
 }
