@@ -28,7 +28,7 @@ function parseDtoForm(formData: Record<string, unknown>): ParsedDtoForm {
     taggedBailDays: formData['tagged-bail-days'] !== undefined ? Number(formData['tagged-bail-days']) : 0,
     sentenceLengthMonths:
       formData['sentence-length-months'] !== undefined ? Number(formData['sentence-length-months']) : 0,
-    sentenceDate: sentenceDate,
+    sentenceDate,
     sentenceDateString: sentenceDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
   }
 }

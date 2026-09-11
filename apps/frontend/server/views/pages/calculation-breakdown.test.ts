@@ -1,8 +1,8 @@
 import * as cheerio from 'cheerio'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
-import {InputSentences, OutputCalculation} from '../../types/dtoTypes'
+import { OutputCalculation } from '../../types/dtoTypes'
 import sampleCalculationResult from '../../testutils/sampleObjects'
-import {ParsedDtoForm} from "../../services/dtoService";
+import { ParsedDtoForm } from '../../services/dtoService'
 
 const env = createNunjucksTestSetup()
 const renderWithCheerio = (context = {}) => cheerio.load(env.render('pages/calculation-breakdown.njk', context))
@@ -34,8 +34,8 @@ describe('Calculation breakdown page', () => {
         remandDays: 33,
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
-        sentenceDate: new Date("01/22/2033"),
-        sentenceDateString: "01/22/2033"
+        sentenceDate: new Date('01/22/2033'),
+        sentenceDateString: '01/22/2033',
       }
       const cheerioPage = renderWithCheerio({ inputData })
       const button = cheerioPage('.govuk-back-link')

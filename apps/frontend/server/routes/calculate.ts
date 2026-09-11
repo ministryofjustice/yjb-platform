@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import type { Services } from '../services'
 import { OutputCalculation } from '../types/dtoTypes'
-import {ValidationResult} from "../services/dtoService";
+import { ValidationResult } from '../services/dtoService'
 
 export default function calculateRoutes({ dtoService }: Partial<Services>): Router {
   const router = Router()
