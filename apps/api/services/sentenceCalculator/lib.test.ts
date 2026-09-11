@@ -8,7 +8,7 @@ import {
   adjustCalculation,
   getSledDate,
   getMTDDate,
-  calculateTerm
+  calculateTerm,
 } from './lib'
 import {
   InputIndividualSentence,
@@ -133,14 +133,61 @@ describe('getSledDate', () => {
   it('returns 2027-05-28 for 334 days sentence starting on 2026-06-29', () => {
     expect(getSledDate(334, new Date('2026-06-29'))).toEqual(new Date('2027-05-28'))
   })
+
+  it('returns 2026-10-23 for a 61 days term starting on 2026-08-24 on shorter months', () => {
+    expect(getSledDate(61, new Date('2026-08-24'))).toEqual(new Date('2026-10-23'))
+  })
+
+  it('returns 2026-09-23 for a 62 days term starting on 2026-07-24 on longer months', () => {
+    expect(getSledDate(62, new Date('2026-07-24'))).toEqual(new Date('2026-09-23'))
+  })
+
+  it('returns 2027-03-19 for a 28 days term starting on 2027-02-20 in a non leap year', () => {
+    expect(getSledDate(28, new Date('2027-02-20'))).toEqual(new Date('2027-03-19'))
+  })
+
+  it('returns 2028-03-19 for a 29 days term starting on 2028-02-20 in a leap year', () => {
+    expect(getSledDate(29, new Date('2028-02-20'))).toEqual(new Date('2028-03-19'))
+  })
+
+  it('returns 2027-02-27 for a 28 days term starting on 2027-01-31 clamped to the shorter month', () => {
+    expect(getSledDate(28, new Date('2027-01-31'))).toEqual(new Date('2027-02-27'))
+  })
+
+  it('returns 2028-05-28 for a 335 days term starting on 2027-06-29 on leap year', () => {
+    expect(getSledDate(335, new Date('2027-06-29'))).toEqual(new Date('2028-05-28'))
+  })
 })
 
 describe('getMTDDate', () => {
   it('returns 2026-12-12 for 167 total mtd days sentence starting on 2026-06-29', () => {
-      expect(getMTDDate(167, new Date('2026-06-29'))).toEqual(new Date('2026-12-12'))
+    expect(getMTDDate(167, new Date('2026-06-29'))).toEqual(new Date('2026-12-12'))
+  })
+
+  it('returns 2026-09-23 for 31 total mtd days starting on 2026-08-24 on shorter months', () => {
+    expect(getMTDDate(31, new Date('2026-08-24'))).toEqual(new Date('2026-09-23'))
+  })
+
+  it('returns 2026-08-23 for 31 total mtd days starting on 2026-07-24 on longer months', () => {
+    expect(getMTDDate(31, new Date('2026-07-24'))).toEqual(new Date('2026-08-23'))
+  })
+
+  it('returns 2027-03-05 for 14 total mtd days starting on 2027-02-20 in a non leap year', () => {
+    expect(getMTDDate(14, new Date('2027-02-20'))).toEqual(new Date('2027-03-05'))
+  })
+
+  it('returns 2028-03-05 for 15 total mtd days starting on 2028-02-20 in a leap year', () => {
+    expect(getMTDDate(15, new Date('2028-02-20'))).toEqual(new Date('2028-03-05'))
+  })
+
+  it('returns 2027-02-13 for 14 total mtd days starting on 2027-01-31 clamped to the shorter month', () => {
+    expect(getMTDDate(14, new Date('2027-01-31'))).toEqual(new Date('2027-02-13'))
+  })
+
+  it('returns 2026-08-16 for 16 total mtd days starting on 2026-08-01', () => {
+    expect(getMTDDate(16, new Date('2026-08-01'))).toEqual(new Date('2026-08-16'))
   })
 })
-
 
 describe('getETD', () => {
   it('returns 2026-11-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
@@ -171,18 +218,69 @@ describe('getLTD', () => {
 })
 
 describe('calculateTerm', () => {
-  it('returns torm with sled 2026-12-12 and mtd 2026-12-12 for 11 months sentence starting on 2026-06-29', () => {
-   const inputSentence: InputIndividualSentence = {
-        from: new Date('2026-06-29'),
-        durationMonths: 11, 
-   }
+  it('returns term with sled 2027-05-28 and mtd 2026-12-12 for 11 months sentence starting on 2026-06-29', () => {
+    const inputSentence: InputIndividualSentence = {
+      from: new Date('2026-06-29'),
+      durationMonths: 11,
+    }
 
     const expectedTermOutput: CalculatedTerm = {
       inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
       totalDaysInTerm: 334,
       totalDaysMTD: 167,
       sled: new Date('2027-05-28'),
-      mtd: new Date('2026-12-12')
+      mtd: new Date('2026-12-12'),
+    }
+
+    expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
+  })
+
+  it('returns term with sled 2026-10-23 and mtd 2026-09-23 for a 2 month term starting on 2026-08-24 on shorter months', () => {
+    const inputSentence: InputIndividualSentence = {
+      from: new Date('2026-08-24'),
+      durationMonths: 2,
+    }
+
+    const expectedTermOutput: CalculatedTerm = {
+      inputSentence: { from: new Date('2026-08-24'), durationMonths: 2 },
+      totalDaysInTerm: 61,
+      totalDaysMTD: 31,
+      sled: new Date('2026-10-23'),
+      mtd: new Date('2026-09-23'),
+    }
+
+    expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
+  })
+
+  it('returns term with sled 2028-03-19 and mtd 2028-03-05 for a 1 month term starting on 2028-02-20 in a leap year', () => {
+    const inputSentence: InputIndividualSentence = {
+      from: new Date('2028-02-20'),
+      durationMonths: 1,
+    }
+
+    const expectedTermOutput: CalculatedTerm = {
+      inputSentence: { from: new Date('2028-02-20'), durationMonths: 1 },
+      totalDaysInTerm: 29,
+      totalDaysMTD: 15,
+      sled: new Date('2028-03-19'),
+      mtd: new Date('2028-03-05'),
+    }
+
+    expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
+  })
+
+  it('returns term with sled 2027-02-27 and mtd 2027-02-13 for a 1 month term starting on 2027-01-31 clamped to the shorter month', () => {
+    const inputSentence: InputIndividualSentence = {
+      from: new Date('2027-01-31'),
+      durationMonths: 1,
+    }
+
+    const expectedTermOutput: CalculatedTerm = {
+      inputSentence: { from: new Date('2027-01-31'), durationMonths: 1 },
+      totalDaysInTerm: 28,
+      totalDaysMTD: 14,
+      sled: new Date('2027-02-27'),
+      mtd: new Date('2027-02-13'),
     }
 
     expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
