@@ -5,10 +5,11 @@
   "main": "server.js",
   "workspaces": [
     "apps/*",
+    "packages/*",
     "e2e-tests"
   ],
   "scripts": {
-    "build": "concurrently \"npm run build -w apps/frontend\" \"npm run build -w apps/api\"",
+    "build": "npm run build -w packages/shared-types && concurrently \"npm run build -w apps/frontend\" \"npm run build -w apps/api\"",
     "build:fe": "npm run build -w apps/frontend",
     "build:api": "npm run build -w apps/api",
     "lint": "npm run lint -w apps/frontend -w apps/api",

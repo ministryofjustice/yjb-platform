@@ -16,6 +16,7 @@
     "types": ["node", "jest"],
     "rootDir": "."
   },
+  "references": [{ "path": "../../packages/shared-types" }],
   "exclude": ["node_modules", "assets", "integration_tests", "dist", "esbuild", "eslint.config.mjs"],
   "include": ["**/*.js", "**/*.ts"]
 }
