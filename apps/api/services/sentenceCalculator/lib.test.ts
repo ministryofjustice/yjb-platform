@@ -6,6 +6,9 @@ import {
   getETDDate,
   getLTDDate,
   adjustCalculation,
+  getSledDate,
+  getMTDDate,
+  calculateTerm
 } from './lib'
 import {
   InputIndividualSentence,
@@ -14,6 +17,7 @@ import {
   RemandAdjustment,
   TaggedBailAdjustment,
   AdjustmentResult,
+  CalculatedTerm,
 } from './types'
 
 describe('getTotalDaysInTerm', () => {
@@ -125,6 +129,19 @@ describe('getTotalNumberOfRemandAndTaggedBailDays', () => {
   })
 })
 
+describe('getSledDate', () => {
+  it('returns 2027-05-28 for 334 days sentence starting on 2026-06-29', () => {
+    expect(getSledDate(334, new Date('2026-06-29'))).toEqual(new Date('2027-05-28'))
+  })
+})
+
+describe('getMTDDate', () => {
+  it('returns 2026-12-12 for 167 total mtd days sentence starting on 2026-06-29', () => {
+      expect(getMTDDate(167, new Date('2026-06-29'))).toEqual(new Date('2026-12-12'))
+  })
+})
+
+
 describe('getETD', () => {
   it('returns 2026-11-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
     expect(getETDDate(new Date('2026-12-12'), 11)).toEqual(new Date('2026-11-12'))
@@ -150,6 +167,25 @@ describe('getLTD', () => {
 
   it('returns 0 for a 5 months long sentence, no remand, mtd on 2026-12-12', () => {
     expect(getLTDDate(new Date('2026-12-12'), 5)).toEqual(0)
+  })
+})
+
+describe('calculateTerm', () => {
+  it('returns torm with sled 2026-12-12 and mtd 2026-12-12 for 11 months sentence starting on 2026-06-29', () => {
+   const inputSentence: InputIndividualSentence = {
+        from: new Date('2026-06-29'),
+        durationMonths: 11, 
+   }
+
+    const expectedTermOutput: CalculatedTerm = {
+      inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
+      totalDaysInTerm: 334,
+      totalDaysMTD: 167,
+      sled: new Date('2027-05-28'),
+      mtd: new Date('2026-12-12')
+    }
+
+    expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
   })
 })
 
