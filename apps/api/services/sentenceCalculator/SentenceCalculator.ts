@@ -1,13 +1,5 @@
 import { UTCDate } from '@date-fns/utc'
-import {
-  getTotalDaysInTerm,
-  getTotalDaysMTD,
-  addDaysToDate,
-  increaseTotalNumRTBDays,
-  getETDDate,
-  getLTDDate,
-  adjustCalculation,
-} from './lib'
+import { getTotalDaysInTerm, getTotalDaysMTD, addDaysToDate, getETDDate, getLTDDate, adjustCalculation } from './lib'
 import {
   InputSentences,
   InputIndividualSentence,
@@ -50,19 +42,19 @@ export default class SentenceCalculator {
       // probably out of scope for now, leve just for consistancy with sheet
       TUSED: new Date(0),
     }
-    this.calculation.ltd = this.getLTDDate(
-      this.calculation.effectiveDates.mtd,
+    this.calculation.ltd = getLTDDate(
+      new UTCDate(this.calculation.effectiveDates.mtd),
       this.sentence.inputIndividualSentences[0].durationMonths,
     )
-    this.calculation.etd = this.getETDDate(
-      this.calculation.effectiveDates.mtd,
+    this.calculation.etd = getETDDate(
+      new UTCDate(this.calculation.effectiveDates.mtd),
       this.sentence.inputIndividualSentences[0].durationMonths,
     )
   }
 
   calculateTerm(inputSentence: InputIndividualSentence): CalculatedTerm {
-    const totalDaysInTerm = this.getTotalDaysInTerm()
-    const totalDaysMTD = this.getTotalDaysMTD()
+    const totalDaysInTerm = getTotalDaysInTerm(this.sentence.inputIndividualSentences[0])
+    const totalDaysMTD = getTotalDaysMTD(getTotalDaysInTerm(this.sentence.inputIndividualSentences[0]))
 
     return {
       inputSentence,
@@ -73,32 +65,12 @@ export default class SentenceCalculator {
     }
   }
 
-  getTotalDaysInTerm(): number {
-    return getTotalDaysInTerm(this.sentence.inputIndividualSentences[0])
-  }
-
   getSledDate(totalDaysInTerm: number): Date {
     return addDaysToDate(totalDaysInTerm, this.sentence.inputIndividualSentences[0].from)
   }
 
-  getTotalDaysMTD(): number {
-    return getTotalDaysMTD(this.getTotalDaysInTerm())
-  }
-
   getMTDDate(totalDaysMTD: number): Date {
     return addDaysToDate(totalDaysMTD, this.sentence.inputIndividualSentences[0].from)
-  }
-
-  increaseTotalNumRTBDays(currentTotal: number, incrementor: number): number {
-    return increaseTotalNumRTBDays(currentTotal, incrementor)
-  }
-
-  getETDDate(mtd: Date, sentenceDuration: number): Date | 0 {
-    return getETDDate(new UTCDate(mtd), sentenceDuration)
-  }
-
-  getLTDDate(mtd: Date, sentenceDuration: number): Date | 0 {
-    return getLTDDate(new UTCDate(mtd), sentenceDuration)
   }
 
   applyRemand(remand: number, _reason: AdjustmentTypes): RecordOfAdjustment {
@@ -107,12 +79,12 @@ export default class SentenceCalculator {
 
     this.calculation.effectiveDatesPastAdjustments.push(newRecordOfAdjustment)
     this.calculation.effectiveDates = newEffectiveDates
-    this.calculation.etd = this.getETDDate(
-      this.calculation.effectiveDates.mtd,
+    this.calculation.etd = getETDDate(
+      new UTCDate(this.calculation.effectiveDates.mtd),
       this.sentence.inputIndividualSentences[0].durationMonths,
     )
-    this.calculation.ltd = this.getLTDDate(
-      this.calculation.effectiveDates.mtd,
+    this.calculation.ltd = getLTDDate(
+      new UTCDate(this.calculation.effectiveDates.mtd),
       this.sentence.inputIndividualSentences[0].durationMonths,
     )
 
@@ -125,12 +97,12 @@ export default class SentenceCalculator {
 
     this.calculation.effectiveDatesPastAdjustments.push(newRecordOfAdjustment)
     this.calculation.effectiveDates = newEffectiveDates
-    this.calculation.etd = this.getETDDate(
-      this.calculation.effectiveDates.mtd,
+    this.calculation.etd = getETDDate(
+      new UTCDate(this.calculation.effectiveDates.mtd),
       this.sentence.inputIndividualSentences[0].durationMonths,
     )
-    this.calculation.ltd = this.getLTDDate(
-      this.calculation.effectiveDates.mtd,
+    this.calculation.ltd = getLTDDate(
+      new UTCDate(this.calculation.effectiveDates.mtd),
       this.sentence.inputIndividualSentences[0].durationMonths,
     )
 
