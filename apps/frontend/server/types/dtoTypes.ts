@@ -22,7 +22,7 @@ export interface RemandAdjustment extends BaseAdjustment {
   startDate: Date
 }
 
-interface TaggedBailAdjustment extends BaseAdjustment {
+export interface TaggedBailAdjustment extends BaseAdjustment {
   name: typeof AdjustmentTypes.taggedBail
   // no startDate — and TS will error if you try to read one
 }
@@ -33,9 +33,9 @@ export type InputAdjustment = RemandAdjustment | TaggedBailAdjustment
 export interface OutputCalculation {
   calculatedTerms: AppendOnlyArray<CalculatedTerm>
   effectiveDates: EffectiveDates
-  effectiveDatesPastAdjustments: AppendOnlyArray<effectiveDatesPastAdjustments>
-  ltd: Date
-  etd: Date
+  effectiveDatesPastAdjustments: AppendOnlyArray<RecordOfAdjustment>
+  ltd: Date | 0
+  etd: Date | 0
 }
 
 export type EffectiveDates = {
@@ -54,10 +54,15 @@ export type CalculatedTerm = {
   mtd: Date
 }
 
-export type effectiveDatesPastAdjustments = {
+export type RecordOfAdjustment = {
   adjustmentReason: AdjustmentTypes
   adjustmentParameters: InputAdjustment
   pastEffectiveDates: EffectiveDates
+}
+
+export type AdjustmentResult = {
+  newEffectiveDates: EffectiveDates
+  newRecordOfAdjustment: RecordOfAdjustment
 }
 
 // internal types
@@ -66,7 +71,6 @@ export const AdjustmentTypes = {
   taggedBail: 'taggedBail',
 } as const
 
-// logic only exists for `remand` for now; `taggedBail` is a no-op
 export type AdjustmentTypes = (typeof AdjustmentTypes)[keyof typeof AdjustmentTypes]
 
 // exposes only push/read access - no pop, splice, shift, sort, etc. -
