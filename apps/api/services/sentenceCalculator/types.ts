@@ -58,7 +58,7 @@ export type RecordOfAdjustment = {
   adjustmentReason: AdjustmentTypes
   adjustmentParameters: InputAdjustment
   pastEffectiveDates: EffectiveDates
-  remainingAdjustmentDays: number | undefined
+  unusedAdjustmentDays: number | undefined
 }
 
 export type AdjustmentResult = {

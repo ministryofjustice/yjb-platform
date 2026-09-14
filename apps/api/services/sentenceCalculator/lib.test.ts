@@ -326,6 +326,7 @@ describe('adjustCalculation', () => {
       newRecordOfAdjustment: {
         adjustmentReason: 'remand',
         adjustmentParameters: remandAdjustment,
+        unusedAdjustmentDays: undefined,
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 0,
           sled: new Date('2027-05-28'),
@@ -375,6 +376,7 @@ describe('adjustCalculation', () => {
       newRecordOfAdjustment: {
         adjustmentReason: 'taggedBail',
         adjustmentParameters: taggedBailAdjustment,
+        unusedAdjustmentDays: undefined,
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 0,
           sled: new Date('2027-05-28'),
@@ -432,6 +434,7 @@ describe('adjustCalculation', () => {
       newRecordOfAdjustment: {
         adjustmentReason: 'taggedBail',
         adjustmentParameters: taggedBailAdjustment,
+        unusedAdjustmentDays: undefined,
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 10,
           sled: new Date('2027-05-18'),
@@ -496,6 +499,7 @@ describe('adjustCalculation', () => {
       newRecordOfAdjustment: {
         adjustmentReason: 'remand',
         adjustmentParameters: remandAdjustment,
+        unusedAdjustmentDays: undefined,
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 5,
           sled: new Date('2027-05-23'),

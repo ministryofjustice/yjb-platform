@@ -82,7 +82,7 @@ export function adjustCalculation(srcCal: OutputCalculation, inputAdjustment: In
     adjustmentReason: inputAdjustment.name,
     adjustmentParameters: inputAdjustment,
     pastEffectiveDates: { ...srcCal.effectiveDates },
-    remainingAdjustmentDays: undefined
+    unusedAdjustmentDays: undefined
   }
 
   // if remand covers the whole sentence, there's no sentence left to serve
@@ -92,16 +92,16 @@ export function adjustCalculation(srcCal: OutputCalculation, inputAdjustment: In
     const sentenceStartDate = new UTCDate(srcCal.calculatedTerms[0].inputSentence.from)
     outputEffectiveDatesMTD = sentenceStartDate
 
-    const remainingAdjustmentDays = inputAdjustment.days - srcCal.calculatedTerms[0].totalDaysMTD
+    const unusedAdjustmentDays = inputAdjustment.days - srcCal.calculatedTerms[0].totalDaysMTD
     //if adjustment is bigger even then the total days in term, collapse it too
     if(inputAdjustment.days >= srcCal.calculatedTerms[0].totalDaysInTerm){
       outputEffectiveDatesSled = sentenceStartDate
     }else{
       //if adjustment not bigger then total days in term, then extract remaining Adjustment and 
       //recalculate the SLED with it
-      outputEffectiveDatesSled = subDays(srcCal.effectiveDates.sled, remainingAdjustmentDays)
+      outputEffectiveDatesSled = subDays(srcCal.effectiveDates.sled, unusedAdjustmentDays)
     }
-    outputAdjustmentRecord.remainingAdjustmentDays = remainingAdjustmentDays
+    outputAdjustmentRecord.unusedAdjustmentDays = unusedAdjustmentDays
   } else {
     outputEffectiveDatesSled = subDays(srcCal.effectiveDates.sled, inputAdjustment.days)
     outputEffectiveDatesMTD = subDays(srcCal.effectiveDates.mtd, inputAdjustment.days)
