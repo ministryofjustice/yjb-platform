@@ -6,7 +6,7 @@
 {% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 
-{% set backHref = "/?remandDays=" + inputData.remandDays
+{% set backHref = "/calculate?remandDays=" + inputData.remandDays
   + "&taggedBailDays=" + inputData.taggedBailDays
   + "&sentenceLengthMonths=" + inputData.sentenceLengthMonths
   + "&sentenceDate=" + inputData.sentenceDateString

@@ -22,8 +22,6 @@
 
   <h2>Offence and sentence details</h2>
 
-{{ sentenceDateDay }}{{ sentenceDateMonth }}{{ sentenceDateYear }}
-
   <form id="calculation-form" action="/calculate" method="post">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-one-third">
@@ -78,9 +76,9 @@
             text: "For example, 27 3 2007"
           },
           values: {
-            day: 11,
-            month: 03,
-            year: 2044
+            day: sentenceDateDay,
+            month: sentenceDateMonth,
+            year: sentenceDateYear
           }
         }) }}
 

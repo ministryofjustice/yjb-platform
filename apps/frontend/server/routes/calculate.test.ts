@@ -42,23 +42,23 @@ describe('GET /calculate', () => {
   })
 
   describe('should render', () => {
-    it('a sentence date of 11/03/2044 when queryString sentenceDate=11/03/2044 is passed', ()=> {
+    it('a sentence date of 11/03/2044 when queryString sentenceDate=11/03/2044 is passed', () => {
       return request(app)
-        .get('/calculate?sentenceDate=11/03/2044')
+        .get('/calculate?sentenceDate=12/04/2045')
         .expect(res => {
           const $ = cheerio.load(res.text)
-          expect($('#sentence-date-day').attr('value')).toContain('11')
-          expect($('#sentence-date-month').attr('value')).toContain('03')
-          expect($('#sentence-date-year').attr('value')).toContain('2044')
+          expect($('#sentence-date-day').attr('value')).toContain('12')
+          expect($('#sentence-date-month').attr('value')).toContain('4')
+          expect($('#sentence-date-year').attr('value')).toContain('2045')
         })
     })
 
     const fieldTestCases = [
-      ["11", "#sentence-length-months", "sentenceLengthMonths",],
-      ["73", "#remand-days", "remandDays",],
-      ["654", "#tagged-bail-days", "taggedBailDays",]
+      ['11', '#sentence-length-months', 'sentenceLengthMonths'],
+      ['73', '#remand-days', 'remandDays'],
+      ['654', '#tagged-bail-days', 'taggedBailDays'],
     ]
-    it.each(fieldTestCases)('%s in field %s when queryString %s is passed', (value, elementId, queryString)=> {
+    it.each(fieldTestCases)('%s in field %s when queryString %s is passed', (value, elementId, queryString) => {
       return request(app)
         .get(`/calculate?${queryString}=${value}`)
         .expect(res => {

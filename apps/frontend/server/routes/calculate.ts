@@ -7,7 +7,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
   const router = Router()
 
   router.get('/', async (req, res, _next) => {
-    const {sentenceLengthMonths, remandDays, taggedBailDays, sentenceDate} = req.query
+    const { sentenceLengthMonths, remandDays, taggedBailDays, sentenceDate } = req.query
     const [sentenceDateDay, sentenceDateMonth, sentenceDateYear] = sentenceDate
       ? (sentenceDate as string).split('/')
       : []
@@ -18,7 +18,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       taggedBailDays,
       sentenceDateDay,
       sentenceDateMonth,
-      sentenceDateYear
+      sentenceDateYear,
     })
   })
 
