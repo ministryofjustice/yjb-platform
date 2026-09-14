@@ -23,6 +23,7 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
     TUSED: new Date(0),
   }
 
+  //apply adjustments
   if (inputSentence.remandAdjustment && inputSentence.remandAdjustment.days > 0) {
     const { newEffectiveDates, newRecordOfAdjustment } = adjustCalculation(
       outputCalculation,
@@ -41,6 +42,7 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
     outputCalculation.effectiveDatesPastAdjustments.push(newRecordOfAdjustment)
   }
 
+  //finally calculate the LTD and ETD based on the effective dates post adjustments
   outputCalculation.ltd = getLTDDate(
     outputCalculation.effectiveDates.mtd,
     inputSentence.inputIndividualSentences[0].durationMonths,
