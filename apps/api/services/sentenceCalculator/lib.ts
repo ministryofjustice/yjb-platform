@@ -74,38 +74,49 @@ export function calculateTerm(inputSentence: InputIndividualSentence): Calculate
 
 export function adjustCalculation(srcCal: OutputCalculation, inputAdjustment: InputAdjustment): AdjustmentResult {
   // save existing effective dates and adjustment parameters prior to the adjustment
-  // (spread into a new object - effectiveDates is mutated in place below, so a live reference would show the new values too)
+  
+  let outputEffectiveDatesSled: Date
+  let outputEffectiveDatesMTD: Date
 
   const outputAdjustmentRecord: RecordOfAdjustment = {
     adjustmentReason: inputAdjustment.name,
     adjustmentParameters: inputAdjustment,
     pastEffectiveDates: { ...srcCal.effectiveDates },
+    remainingAdjustmentDays: undefined
   }
 
-  const outputTotalNumRTBD = increaseTotalNumRTBDays(
-    srcCal.effectiveDates.totalNumberOfRemandAndTaggedBailDays,
-    inputAdjustment.days,
-  )
+  // if remand covers the whole sentence, there's no sentence left to serve
+  if (inputAdjustment.days >= srcCal.calculatedTerms[0].totalDaysMTD) {
+    
+    //collapse mtd to the day the sentence began
+    const sentenceStartDate = new UTCDate(srcCal.calculatedTerms[0].inputSentence.from)
+    outputEffectiveDatesMTD = sentenceStartDate
 
-  // if remand covers the whole sentence, there's no sentence left to serve:
-  // sled and mtd both collapse to the sentence start date
-  let outputEffectiveDatesSled: Date
-  let outputEffectiveDatesMTD: Date
-  if (inputAdjustment.days >= srcCal.calculatedTerms[0].totalDaysInTerm) {
-    const sentenceStart = new UTCDate(srcCal.calculatedTerms[0].inputSentence.from)
-    outputEffectiveDatesSled = sentenceStart
-    outputEffectiveDatesMTD = sentenceStart
+    //if adjustment is bigger even then the total days in term, collapse it too
+    if(inputAdjustment.days >= srcCal.calculatedTerms[0].totalDaysInTerm){
+      outputEffectiveDatesSled = sentenceStartDate
+    }
+
+    //if adjustment not bigger then total days in term, then extract remaining Adjustment and 
+    //recalculate the SLED with it
+    const remainingAdjustmentDays = inputAdjustment.days - srcCal.calculatedTerms[0].totalDaysMTD
+    outputEffectiveDatesSled = subDays(srcCal.effectiveDates.sled, remainingAdjustmentDays)
+    outputAdjustmentRecord.remainingAdjustmentDays = remainingAdjustmentDays
   } else {
     outputEffectiveDatesSled = subDays(srcCal.effectiveDates.sled, inputAdjustment.days)
     outputEffectiveDatesMTD = subDays(srcCal.effectiveDates.mtd, inputAdjustment.days)
   }
 
   const outputNewEffeciveDates: EffectiveDates = {
-    totalNumberOfRemandAndTaggedBailDays: outputTotalNumRTBD,
+    totalNumberOfRemandAndTaggedBailDays: increaseTotalNumRTBDays(
+    srcCal.effectiveDates.totalNumberOfRemandAndTaggedBailDays,
+    inputAdjustment.days,
+  ),
     sled: outputEffectiveDatesSled,
     mtd: outputEffectiveDatesMTD,
     TUSED: new Date(0),
   }
+
 
   return {
     newEffectiveDates: outputNewEffeciveDates,

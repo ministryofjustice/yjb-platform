@@ -117,11 +117,12 @@ describe('calculateDTOSentence', () => {
         {
           adjustmentReason: 'remand',
           adjustmentParameters: remandInput.remandAdjustment!,
+          remainingAdjustmentDays: undefined,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2027-05-28'),
             mtd: new Date('2026-12-12'),
-            TUSED: new Date(0),
+            TUSED: new Date(0)
           },
         },
       ],
@@ -153,6 +154,7 @@ describe('calculateDTOSentence', () => {
         {
           adjustmentReason: 'taggedBail',
           adjustmentParameters: remandTaggedBailInput.taggedBailAdjustment!,
+          remainingAdjustmentDays: undefined,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2027-05-28'),
@@ -189,6 +191,7 @@ describe('calculateDTOSentence', () => {
         {
           adjustmentReason: 'remand',
           adjustmentParameters: remandAndTaggedBailInput.remandAdjustment!,
+          remainingAdjustmentDays: undefined,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2027-05-28'),
@@ -199,6 +202,7 @@ describe('calculateDTOSentence', () => {
         {
           adjustmentReason: 'taggedBail',
           adjustmentParameters: remandAndTaggedBailInput.taggedBailAdjustment!,
+          remainingAdjustmentDays: undefined,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 15,
             sled: new Date('2027-05-13'),
