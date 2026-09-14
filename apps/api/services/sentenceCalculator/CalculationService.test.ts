@@ -215,4 +215,164 @@ describe('calculateDTOSentence', () => {
 
     expect(calculateDTOSentence(remandAndTaggedBailInput)).toEqual(expectedRemandAndTaggedBailOutput)
   })
+
+  it('returns full calculation for 4 months sentence starting on 2026-06-01 with 50 days remand', () => {
+    const remandInput: InputSentences = {
+      offenderName: 'Test Offender',
+      remandAdjustment: {
+        name: AdjustmentTypes.remand,
+        days: 50, //smaller then mtd
+        startDate: new Date('2026-04-12'), //50 days prior sentence beginning
+      },
+      inputIndividualSentences: [
+        {
+          from: new Date('2026-06-01'), //term ending Oct 1, 2026, Thursday prior adjustments
+          durationMonths: 4, //sled 123 days and mtd 62 days
+        },
+      ],
+    }
+
+    const expectedRemandOutput: OutputCalculation = {
+      calculatedTerms: [
+        {
+          inputSentence: { from: new Date('2026-06-01'), durationMonths: 4 },
+          totalDaysInTerm: 122,
+          totalDaysMTD: 61,
+          sled: new Date('2026-09-30'),
+          mtd: new Date('2026-07-31'),
+        },
+      ],
+      effectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 50,
+        sled: new Date('2026-08-11'),
+        mtd: new Date('2026-06-11'),
+        TUSED: new Date(0),
+      },
+      ltd: 0,
+      etd: 0,
+      effectiveDatesPastAdjustments: [
+        {
+          adjustmentReason: 'remand',
+          adjustmentParameters: remandInput.remandAdjustment!,
+          remainingAdjustmentDays: undefined,
+          pastEffectiveDates: {
+            totalNumberOfRemandAndTaggedBailDays: 0,
+            sled: new Date('2026-09-30'),
+            mtd: new Date('2026-07-31'),
+            TUSED: new Date(0)
+          },
+        },
+      ],
+    }
+
+    expect(calculateDTOSentence(remandInput)).toEqual(expectedRemandOutput)
+  })
+
+  // for testing purpose these examples have very big remands, since dto sentences are min of 4 months
+  it('returns full calculation for 4 months sentence starting on 2026-06-01 with 70 days remand', () => {
+      const remandInput: InputSentences = {
+      offenderName: 'Test Offender',
+      remandAdjustment: {
+        name: AdjustmentTypes.remand,
+        days: 70, // bigger then mtd but less then seld
+        startDate: new Date('2026-03-23'),  //70 days prior sentence beginning
+      },
+      inputIndividualSentences: [
+        {
+          from: new Date('2026-06-01'), //term ending Oct 1, 2026, Thursday adjustments
+          durationMonths: 4, //sled 123 days and mtd 62 days
+        },
+      ],
+    }
+
+      const expectedRemandOutput: OutputCalculation = {
+      calculatedTerms: [
+        {
+          inputSentence: { from: new Date('2026-06-01'), durationMonths: 4 },
+          totalDaysInTerm: 122,
+          totalDaysMTD: 61,
+          sled: new Date('2026-09-30'),
+          mtd: new Date('2026-07-31'),
+        },
+      ],
+      effectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 70,
+        sled: new Date('2026-09-21'),
+        mtd: new Date('2026-06-01'),
+        TUSED: new Date(0),
+      },
+      ltd: 0,
+      etd: 0,
+      effectiveDatesPastAdjustments: [
+        {
+          adjustmentReason: 'remand',
+          adjustmentParameters: remandInput.remandAdjustment!,
+          remainingAdjustmentDays: 9,
+          pastEffectiveDates: {
+            totalNumberOfRemandAndTaggedBailDays: 0,
+            sled: new Date('2026-09-30'),
+            mtd: new Date('2026-07-31'),
+            TUSED: new Date(0)
+          },
+        },
+      ],
+    }
+
+    expect(calculateDTOSentence(remandInput)).toEqual(expectedRemandOutput)
+
+  })
+
+   //for testing purpose these examples have very big remands, since dto sentences are min of 4 months
+  it('returns full calculation for 4 months sentence starting on 2026-06-01 with 125 days remand', () => {
+      const remandInput: InputSentences = {
+      offenderName: 'Test Offender',
+      remandAdjustment: {
+        name: AdjustmentTypes.remand,
+        days: 125, // bigger then mtd and seld
+        startDate: new Date('2026-01-27'),  //125 days prior sentence beginning
+      },
+      inputIndividualSentences: [
+        {
+          from: new Date('2026-06-01'), //term ending Oct 1, 2026, Thursday adjustments
+          durationMonths: 4, //sled 123 days and mtd 62 days
+        },
+      ],
+    }
+
+    const expectedRemandOutput: OutputCalculation = {
+      calculatedTerms: [
+        {
+          inputSentence: { from: new Date('2026-06-01'), durationMonths: 4 },
+          totalDaysInTerm: 122,
+          totalDaysMTD: 61,
+          sled: new Date('2026-09-30'),
+          mtd: new Date('2026-07-31'),
+        },
+      ],
+      effectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 125,
+        sled: new Date('2026-06-01'),
+        mtd: new Date('2026-06-01'),
+        TUSED: new Date(0),
+      },
+      ltd: 0,
+      etd: 0,
+      effectiveDatesPastAdjustments: [
+        {
+          adjustmentReason: 'remand',
+          adjustmentParameters: remandInput.remandAdjustment!,
+          remainingAdjustmentDays: 64,
+          pastEffectiveDates: {
+            totalNumberOfRemandAndTaggedBailDays: 0,
+            sled: new Date('2026-09-30'),
+            mtd: new Date('2026-07-31'),
+            TUSED: new Date(0)
+          },
+        },
+      ],
+    }
+
+    expect(calculateDTOSentence(remandInput)).toEqual(expectedRemandOutput)
+
+  })
 })
