@@ -1,5 +1,11 @@
 import { InputSentences, OutputCalculation, AdjustmentTypes } from '../services/sentenceCalculator/types'
-import sentenceCalculatorController from './sentenceCalculatorController'
+import SentenceCalculatorController from './sentenceCalculatorController'
+
+let controller: SentenceCalculatorController
+
+beforeEach(() => {
+  controller = new SentenceCalculatorController()
+})
 
 describe('SentenceController', () => {
   it('returns 2027-05-28 sled and 2026-12-12 mtd for 11 month sentence starting on 026-06-29 with no remand', () => {
@@ -32,7 +38,7 @@ describe('SentenceController', () => {
       etd: new Date('2026-11-12'),
       effectiveDatesPastAdjustments: [],
     }
-    const calculatedCalculationObj = sentenceCalculatorController(inputSentence)
+    const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
   })
 
@@ -83,7 +89,7 @@ describe('SentenceController', () => {
         },
       ],
     }
-    const calculatedCalculationObj = sentenceCalculatorController(inputSentence)
+    const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
   })
 
@@ -133,7 +139,7 @@ describe('SentenceController', () => {
         },
       ],
     }
-    const calculatedCalculationObj = sentenceCalculatorController(inputSentence)
+    const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
   })
 
@@ -198,7 +204,7 @@ describe('SentenceController', () => {
         },
       ],
     }
-    const calculatedCalculationObj = sentenceCalculatorController(inputSentence)
+    const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
   })
 })
