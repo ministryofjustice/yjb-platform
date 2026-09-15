@@ -15,6 +15,7 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
     outputCalculation.calculatedTerms.push(calculateTerm(individualSentence))
   })
 
+  // for concurrent or conseutive sentnces itterate though terms and calculate the effective dates based on the term with the longest duration
   // for now 1 term only; prior adjustments the effective dates match the term
   outputCalculation.effectiveDates = {
     totalNumberOfRemandAndTaggedBailDays: 0,
@@ -23,7 +24,7 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
     TUSED: new Date(0),
   }
 
-  //apply adjustments
+  // apply adjustments
   if (inputSentence.remandAdjustment && inputSentence.remandAdjustment.days > 0) {
     const { newEffectiveDates, newRecordOfAdjustment } = adjustCalculation(
       outputCalculation,
@@ -42,7 +43,7 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
     outputCalculation.effectiveDatesPastAdjustments.push(newRecordOfAdjustment)
   }
 
-  //finally calculate the LTD and ETD based on the effective dates post adjustments
+  // finally calculate the LTD and ETD based on the effective dates post adjustments
   outputCalculation.ltd = getLTDDate(
     outputCalculation.effectiveDates.mtd,
     inputSentence.inputIndividualSentences[0].durationMonths,
