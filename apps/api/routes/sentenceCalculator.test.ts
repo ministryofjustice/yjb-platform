@@ -95,4 +95,15 @@ describe('POST /calculations', () => {
 
     return request(app).post('/calculations').send(input).expect(200, output)
   })
+
+  it('should return 400 with validation errors for an invalid input', async () => {
+    const input = {
+      inputIndividualSentences: [],
+    }
+
+    const response = await request(app).post('/calculations').send(input).expect(400)
+
+    expect(response.body.errors).toBeInstanceOf(Array)
+    expect(response.body.errors.length).toBeGreaterThan(0)
+  })
 })
