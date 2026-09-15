@@ -248,8 +248,8 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-06-11'),
         TUSED: new Date(0),
       },
-      ltd: 0,
-      etd: 0,
+      ltd: 0, //this is zero as sentence is less then 8 months
+      etd: 0, //this is zero as sentence is less then 8 months
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
