@@ -8,6 +8,7 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
     effectiveDatesPastAdjustments: [],
     ltd: new Date(0),
     etd: new Date(0),
+    unusedAdjustmentDays: 0,
   }
 
   // get all term dates, for now it will always be one
@@ -26,21 +27,23 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
 
   // apply adjustments
   if (inputSentence.remandAdjustment && inputSentence.remandAdjustment.days > 0) {
-    const { newEffectiveDates, newRecordOfAdjustment } = adjustCalculation(
+    const { newEffectiveDates, newRecordOfAdjustment, unusedAdjustmentDays } = adjustCalculation(
       outputCalculation,
       inputSentence.remandAdjustment,
     )
     outputCalculation.effectiveDates = newEffectiveDates
     outputCalculation.effectiveDatesPastAdjustments.push(newRecordOfAdjustment)
+    outputCalculation.unusedAdjustmentDays = unusedAdjustmentDays
   }
 
   if (inputSentence.taggedBailAdjustment && inputSentence.taggedBailAdjustment.days > 0) {
-    const { newEffectiveDates, newRecordOfAdjustment } = adjustCalculation(
+    const { newEffectiveDates, newRecordOfAdjustment, unusedAdjustmentDays } = adjustCalculation(
       outputCalculation,
       inputSentence.taggedBailAdjustment,
     )
     outputCalculation.effectiveDates = newEffectiveDates
     outputCalculation.effectiveDatesPastAdjustments.push(newRecordOfAdjustment)
+    outputCalculation.unusedAdjustmentDays = unusedAdjustmentDays
   }
 
   // finally calculate the LTD and ETD based on the effective dates post adjustments

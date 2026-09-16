@@ -79,10 +79,10 @@ export function adjustCalculation(srcCal: Readonly<OutputCalculation>, inputAdju
     adjustmentReason: inputAdjustment.name,
     adjustmentParameters: inputAdjustment,
     pastEffectiveDates: { ...srcCal.effectiveDates },
-    unusedAdjustmentDays: undefined,
   }
 
   const sentenceStartDate = new UTCDate(srcCal.calculatedTerms[0].inputSentence.from)
+  let unusedAdjustmentDays = srcCal.unusedAdjustmentDays
   const remainingMtdBudget = differenceInCalendarDays(srcCal.effectiveDates.mtd, sentenceStartDate) + 1
   const remainingSledBudget = differenceInCalendarDays(srcCal.effectiveDates.sled, sentenceStartDate) + 1
 
@@ -99,9 +99,9 @@ export function adjustCalculation(srcCal: Readonly<OutputCalculation>, inputAdju
       ? sentenceStartDate
       : subDays(srcCal.effectiveDates.sled, inputAdjustment.days)
 
-  if (inputAdjustment.days >= remainingMtdBudget) {
+  if (inputAdjustment.days >= remainingSledBudget) {
     // record how far past the MTD budget this adjustment went, for the audit trail
-    outputAdjustmentRecord.unusedAdjustmentDays = Math.max(0, inputAdjustment.days - remainingMtdBudget)
+    unusedAdjustmentDays = Math.max(0, inputAdjustment.days - remainingSledBudget)
   }
 
   const outputNewEffeciveDates: EffectiveDates = {
@@ -117,5 +117,6 @@ export function adjustCalculation(srcCal: Readonly<OutputCalculation>, inputAdju
   return {
     newEffectiveDates: outputNewEffeciveDates,
     newRecordOfAdjustment: outputAdjustmentRecord,
+    unusedAdjustmentDays: unusedAdjustmentDays 
   }
 }

@@ -307,6 +307,7 @@ describe('adjustCalculation', () => {
       },
       ltd: new Date('2027-01-12'),
       etd: new Date('2026-11-12'),
+      unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [],
     }
 
@@ -326,7 +327,6 @@ describe('adjustCalculation', () => {
       newRecordOfAdjustment: {
         adjustmentReason: 'remand',
         adjustmentParameters: remandAdjustment,
-        unusedAdjustmentDays: undefined,
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 0,
           sled: new Date('2027-05-28'),
@@ -334,6 +334,7 @@ describe('adjustCalculation', () => {
           TUSED: new Date(0),
         },
       },
+      unusedAdjustmentDays: 0,
     }
 
     expect(adjustCalculation(initialOutputCalculation, remandAdjustment)).toEqual(expectedRemandAdjustmentResult)
@@ -359,6 +360,7 @@ describe('adjustCalculation', () => {
       ltd: new Date('2027-01-12'),
       etd: new Date('2026-11-12'),
       effectiveDatesPastAdjustments: [],
+      unusedAdjustmentDays: 0,
     }
 
     const taggedBailAdjustment: TaggedBailAdjustment = {
@@ -376,7 +378,6 @@ describe('adjustCalculation', () => {
       newRecordOfAdjustment: {
         adjustmentReason: 'taggedBail',
         adjustmentParameters: taggedBailAdjustment,
-        unusedAdjustmentDays: undefined,
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 0,
           sled: new Date('2027-05-28'),
@@ -384,6 +385,7 @@ describe('adjustCalculation', () => {
           TUSED: new Date(0),
         },
       },
+      unusedAdjustmentDays: 0,
     }
 
     expect(adjustCalculation(initialOutputCalculation, taggedBailAdjustment)).toEqual(
@@ -411,6 +413,7 @@ describe('adjustCalculation', () => {
       ltd: new Date('2027-01-12'),
       etd: new Date('2026-11-12'),
       effectiveDatesPastAdjustments: [],
+      unusedAdjustmentDays: 0,
     }
 
     const remandAdjustment: RemandAdjustment = {
@@ -434,7 +437,6 @@ describe('adjustCalculation', () => {
       newRecordOfAdjustment: {
         adjustmentReason: 'taggedBail',
         adjustmentParameters: taggedBailAdjustment,
-        unusedAdjustmentDays: undefined,
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 10,
           sled: new Date('2027-05-18'),
@@ -442,6 +444,7 @@ describe('adjustCalculation', () => {
           TUSED: new Date(0),
         },
       },
+      unusedAdjustmentDays: 0,
     }
 
     // get the adjustmented Effective Date calcs for remand
@@ -476,6 +479,7 @@ describe('adjustCalculation', () => {
       ltd: new Date('2027-01-12'),
       etd: new Date('2026-11-12'),
       effectiveDatesPastAdjustments: [],
+      unusedAdjustmentDays: 0,
     }
 
     const remandAdjustment: RemandAdjustment = {
@@ -499,7 +503,6 @@ describe('adjustCalculation', () => {
       newRecordOfAdjustment: {
         adjustmentReason: 'remand',
         adjustmentParameters: remandAdjustment,
-        unusedAdjustmentDays: undefined,
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 5,
           sled: new Date('2027-05-23'),
@@ -507,6 +510,7 @@ describe('adjustCalculation', () => {
           TUSED: new Date(0),
         },
       },
+      unusedAdjustmentDays: 0,
     }
 
     // get the adjustmented Effective Date calcs for remand

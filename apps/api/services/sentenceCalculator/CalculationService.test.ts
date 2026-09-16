@@ -89,6 +89,7 @@ describe('calculateDTOSentence', () => {
       ltd: new Date('2027-01-12'),
       etd: new Date('2026-11-12'),
       effectiveDatesPastAdjustments: [],
+      unusedAdjustmentDays: 0,
     }
 
     expect(calculateDTOSentence(noRemandInput)).toEqual(expectedNoRemandOutput)
@@ -113,11 +114,11 @@ describe('calculateDTOSentence', () => {
       },
       ltd: new Date('2026-12-27'),
       etd: new Date('2026-10-27'),
+      unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
           adjustmentParameters: remandInput.remandAdjustment!,
-          unusedAdjustmentDays: undefined,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2027-05-28'),
@@ -150,11 +151,11 @@ describe('calculateDTOSentence', () => {
       },
       ltd: new Date('2026-12-27'),
       etd: new Date('2026-10-27'),
+      unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'taggedBail',
           adjustmentParameters: remandTaggedBailInput.taggedBailAdjustment!,
-          unusedAdjustmentDays: undefined,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2027-05-28'),
@@ -187,11 +188,11 @@ describe('calculateDTOSentence', () => {
       },
       ltd: new Date('2026-12-23'),
       etd: new Date('2026-10-23'),
+      unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
           adjustmentParameters: remandAndTaggedBailInput.remandAdjustment!,
-          unusedAdjustmentDays: undefined,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2027-05-28'),
@@ -202,7 +203,6 @@ describe('calculateDTOSentence', () => {
         {
           adjustmentReason: 'taggedBail',
           adjustmentParameters: remandAndTaggedBailInput.taggedBailAdjustment!,
-          unusedAdjustmentDays: undefined,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 15,
             sled: new Date('2027-05-13'),
@@ -250,11 +250,11 @@ describe('calculateDTOSentence', () => {
       },
       ltd: 0, // this is zero as sentence is less then 8 months
       etd: 0, // this is zero as sentence is less then 8 months
+      unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
           adjustmentParameters: remandInput.remandAdjustment!,
-          unusedAdjustmentDays: undefined,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2026-09-30'),
@@ -303,11 +303,11 @@ describe('calculateDTOSentence', () => {
       },
       ltd: 0,
       etd: 0,
+      unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
           adjustmentParameters: remandInput.remandAdjustment!,
-          unusedAdjustmentDays: 9,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2026-09-30'),
@@ -356,11 +356,11 @@ describe('calculateDTOSentence', () => {
       },
       ltd: 0,
       etd: 0,
+      unusedAdjustmentDays: 3,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
           adjustmentParameters: remandInput.remandAdjustment!,
-          unusedAdjustmentDays: 64,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2026-09-30'),
@@ -412,11 +412,11 @@ describe('calculateDTOSentence', () => {
       },
       ltd: 0,
       etd: 0,
+      unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
           adjustmentParameters: remandInput.remandAdjustment!,
-          unusedAdjustmentDays: undefined,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2026-09-30'),
@@ -427,7 +427,6 @@ describe('calculateDTOSentence', () => {
         {
           adjustmentReason: 'taggedBail',
           adjustmentParameters: remandInput.taggedBailAdjustment!,
-          unusedAdjustmentDays: 9,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 50,
             sled: new Date('2026-08-11'),

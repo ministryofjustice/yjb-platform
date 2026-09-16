@@ -37,6 +37,7 @@ describe('POST /calculations', () => {
       ltd: '2027-01-12',
       etd: '2026-11-12',
       effectiveDatesPastAdjustments: [],
+      unusedAdjustmentDays: 0,
     }
 
     return request(app).post('/calculations').send(input).expect(200, output)
@@ -75,6 +76,7 @@ describe('POST /calculations', () => {
       },
       ltd: '2026-12-27',
       etd: '2026-10-27',
+      unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',

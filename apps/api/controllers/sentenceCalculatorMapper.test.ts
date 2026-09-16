@@ -69,6 +69,7 @@ describe('formatOutputCalculation', () => {
       effectiveDatesPastAdjustments: [],
       ltd: new Date('2027-01-12'),
       etd: new Date('2026-11-12'),
+      unusedAdjustmentDays: 0,
     }
 
     const result = JSON.parse(formatOutputCalculation(outputCalculation))
