@@ -72,11 +72,8 @@ export function calculateTerm(inputSentence: InputIndividualSentence): Calculate
   }
 }
 
-export function adjustCalculation(srcCal: OutputCalculation, inputAdjustment: InputAdjustment): AdjustmentResult {
+export function adjustCalculation(srcCal: Readonly<OutputCalculation>, inputAdjustment: Readonly<InputAdjustment>): AdjustmentResult {
   // save existing effective dates and adjustment parameters prior to the adjustment
-
-  let outputEffectiveDatesSled: Date
-  let outputEffectiveDatesMTD: Date
 
   const outputAdjustmentRecord: RecordOfAdjustment = {
     adjustmentReason: inputAdjustment.name,
@@ -85,25 +82,26 @@ export function adjustCalculation(srcCal: OutputCalculation, inputAdjustment: In
     unusedAdjustmentDays: undefined,
   }
 
-  // if remand covers the whole sentence, there's no sentence left to serve
-  if (inputAdjustment.days >= srcCal.calculatedTerms[0].totalDaysMTD) {
-    // collapse mtd to the day the sentence began
-    const sentenceStartDate = new UTCDate(srcCal.calculatedTerms[0].inputSentence.from)
-    outputEffectiveDatesMTD = sentenceStartDate
+  const sentenceStartDate = new UTCDate(srcCal.calculatedTerms[0].inputSentence.from)
+  const remainingMtdBudget = differenceInCalendarDays(srcCal.effectiveDates.mtd, sentenceStartDate) + 1
+  const remainingSledBudget = differenceInCalendarDays(srcCal.effectiveDates.sled, sentenceStartDate) + 1
 
-    const unusedAdjustmentDays = inputAdjustment.days - srcCal.calculatedTerms[0].totalDaysMTD
-    // if adjustment is bigger even then the total days in term, collapse it too
-    if (inputAdjustment.days >= srcCal.calculatedTerms[0].totalDaysInTerm) {
-      outputEffectiveDatesSled = sentenceStartDate
-    } else {
-      // if adjustment not bigger then total days in term, then extract remaining Adjustment and
-      // recalculate the SLED with it
-      outputEffectiveDatesSled = subDays(srcCal.effectiveDates.sled, unusedAdjustmentDays)
-    }
-    outputAdjustmentRecord.unusedAdjustmentDays = unusedAdjustmentDays
-  } else {
-    outputEffectiveDatesSled = subDays(srcCal.effectiveDates.sled, inputAdjustment.days)
-    outputEffectiveDatesMTD = subDays(srcCal.effectiveDates.mtd, inputAdjustment.days)
+  // MTD and SLED each track their own remaining budget independently: every adjustment
+  // subtracts its full day count from both, and each collapses to the sentence start
+  // once its own budget is exhausted - there's no carryover from one to the other
+  const outputEffectiveDatesMTD =
+    inputAdjustment.days >= remainingMtdBudget
+      ? sentenceStartDate
+      : subDays(srcCal.effectiveDates.mtd, inputAdjustment.days)
+
+  const outputEffectiveDatesSled =
+    inputAdjustment.days >= remainingSledBudget
+      ? sentenceStartDate
+      : subDays(srcCal.effectiveDates.sled, inputAdjustment.days)
+
+  if (inputAdjustment.days >= remainingMtdBudget) {
+    // record how far past the MTD budget this adjustment went, for the audit trail
+    outputAdjustmentRecord.unusedAdjustmentDays = Math.max(0, inputAdjustment.days - remainingMtdBudget)
   }
 
   const outputNewEffeciveDates: EffectiveDates = {
