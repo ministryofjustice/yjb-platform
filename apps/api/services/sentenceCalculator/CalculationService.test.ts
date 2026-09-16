@@ -217,7 +217,7 @@ describe('calculateDTOSentence', () => {
   })
 
   it('returns full calculation for 4 months sentence starting on 2026-06-01 with 50 days remand', () => {
-    const remandInput: InputSentences = {
+    const fiftyDaysRemandInput: InputSentences = {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: AdjustmentTypes.remand,
@@ -254,7 +254,7 @@ describe('calculateDTOSentence', () => {
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
-          adjustmentParameters: remandInput.remandAdjustment!,
+          adjustmentParameters: fiftyDaysRemandInput.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2026-09-30'),
@@ -265,12 +265,12 @@ describe('calculateDTOSentence', () => {
       ],
     }
 
-    expect(calculateDTOSentence(remandInput)).toEqual(expectedRemandOutput)
+    expect(calculateDTOSentence(fiftyDaysRemandInput)).toEqual(expectedRemandOutput)
   })
 
   // for testing purpose these examples have very big remands, since dto sentences are min of 4 months
   it('returns full calculation for 4 months sentence starting on 2026-06-01 with 70 days remand', () => {
-    const remandInput: InputSentences = {
+    const seventyDaysRemandInput: InputSentences = {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: AdjustmentTypes.remand,
@@ -307,7 +307,7 @@ describe('calculateDTOSentence', () => {
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
-          adjustmentParameters: remandInput.remandAdjustment!,
+          adjustmentParameters: seventyDaysRemandInput.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2026-09-30'),
@@ -318,12 +318,12 @@ describe('calculateDTOSentence', () => {
       ],
     }
 
-    expect(calculateDTOSentence(remandInput)).toEqual(expectedRemandOutput)
+    expect(calculateDTOSentence(seventyDaysRemandInput)).toEqual(expectedRemandOutput)
   })
 
   // for testing purpose these examples have very big remands, since dto sentences are min of 4 months
   it('returns full calculation for 4 months sentence starting on 2026-06-01 with 125 days remand', () => {
-    const remandInput: InputSentences = {
+    const oneTwentyFiveDaysRemandInput: InputSentences = {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: AdjustmentTypes.remand,
@@ -360,7 +360,7 @@ describe('calculateDTOSentence', () => {
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
-          adjustmentParameters: remandInput.remandAdjustment!,
+          adjustmentParameters: oneTwentyFiveDaysRemandInput.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2026-09-30'),
@@ -371,11 +371,11 @@ describe('calculateDTOSentence', () => {
       ],
     }
 
-    expect(calculateDTOSentence(remandInput)).toEqual(expectedRemandOutput)
+    expect(calculateDTOSentence(oneTwentyFiveDaysRemandInput)).toEqual(expectedRemandOutput)
   })
 
   it('returns full calculation for 4 months sentence starting on 2026-06-01 with 50 days remand and 20 days tagged bail', () => {
-    const remandInput: InputSentences = {
+    const fiftyRemandTwentyTaggedBailInput: InputSentences = {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: AdjustmentTypes.remand,
@@ -416,7 +416,7 @@ describe('calculateDTOSentence', () => {
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
-          adjustmentParameters: remandInput.remandAdjustment!,
+          adjustmentParameters: fiftyRemandTwentyTaggedBailInput.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2026-09-30'),
@@ -426,7 +426,7 @@ describe('calculateDTOSentence', () => {
         },
         {
           adjustmentReason: 'taggedBail',
-          adjustmentParameters: remandInput.taggedBailAdjustment!,
+          adjustmentParameters: fiftyRemandTwentyTaggedBailInput.taggedBailAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 50,
             sled: new Date('2026-08-11'),
@@ -437,6 +437,6 @@ describe('calculateDTOSentence', () => {
       ],
     }
 
-    expect(calculateDTOSentence(remandInput)).toEqual(expectedRemandOutput)
+    expect(calculateDTOSentence(fiftyRemandTwentyTaggedBailInput)).toEqual(expectedRemandOutput)
   })
 })
