@@ -72,7 +72,10 @@ export function calculateTerm(inputSentence: InputIndividualSentence): Calculate
   }
 }
 
-export function adjustCalculation(srcCal: Readonly<OutputCalculation>, inputAdjustment: Readonly<InputAdjustment>): AdjustmentResult {
+export function adjustCalculation(
+  srcCal: Readonly<OutputCalculation>,
+  inputAdjustment: Readonly<InputAdjustment>,
+): AdjustmentResult {
   // save existing effective dates and adjustment parameters prior to the adjustment
 
   const outputAdjustmentRecord: RecordOfAdjustment = {
@@ -82,7 +85,7 @@ export function adjustCalculation(srcCal: Readonly<OutputCalculation>, inputAdju
   }
 
   const sentenceStartDate = new UTCDate(srcCal.calculatedTerms[0].inputSentence.from)
-  let unusedAdjustmentDays = srcCal.unusedAdjustmentDays
+  let { unusedAdjustmentDays } = srcCal
   const remainingMtdBudget = differenceInCalendarDays(srcCal.effectiveDates.mtd, sentenceStartDate) + 1
   const remainingSledBudget = differenceInCalendarDays(srcCal.effectiveDates.sled, sentenceStartDate) + 1
 
@@ -117,6 +120,6 @@ export function adjustCalculation(srcCal: Readonly<OutputCalculation>, inputAdju
   return {
     newEffectiveDates: outputNewEffeciveDates,
     newRecordOfAdjustment: outputAdjustmentRecord,
-    unusedAdjustmentDays: unusedAdjustmentDays 
+    unusedAdjustmentDays,
   }
 }

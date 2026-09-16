@@ -407,7 +407,7 @@ describe('calculateDTOSentence', () => {
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 70,
         sled: new Date('2026-07-22'),
-        mtd: new Date('2026-06-01'), //this has collapsed to sentence date after tagged bail takes us to date in the past
+        mtd: new Date('2026-06-01'), // this has collapsed to sentence date after tagged bail takes us to date in the past
         TUSED: new Date(0),
       },
       ltd: 0,
@@ -439,6 +439,4 @@ describe('calculateDTOSentence', () => {
 
     expect(calculateDTOSentence(remandInput)).toEqual(expectedRemandOutput)
   })
-
-
 })

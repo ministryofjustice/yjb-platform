@@ -37,7 +37,7 @@ describe('SentenceController', () => {
       ltd: new Date('2027-01-12'),
       etd: new Date('2026-11-12'),
       effectiveDatesPastAdjustments: [],
-      unusedAdjustmentDays: 0 
+      unusedAdjustmentDays: 0,
     }
     const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
@@ -89,7 +89,7 @@ describe('SentenceController', () => {
           },
         },
       ],
-      unusedAdjustmentDays: 0 
+      unusedAdjustmentDays: 0,
     }
     const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
@@ -206,7 +206,7 @@ describe('SentenceController', () => {
           },
         },
       ],
-      unusedAdjustmentDays: 0
+      unusedAdjustmentDays: 0,
     }
     const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
