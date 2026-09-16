@@ -36,6 +36,7 @@ export interface OutputCalculation {
   effectiveDatesPastAdjustments: AppendOnlyArray<RecordOfAdjustment>
   ltd: Date | 0
   etd: Date | 0
+  : number
 }
 
 export type EffectiveDates = {
@@ -63,6 +64,7 @@ export type RecordOfAdjustment = {
 export type AdjustmentResult = {
   newEffectiveDates: EffectiveDates
   newRecordOfAdjustment: RecordOfAdjustment
+  unusedAdjustmentDays: number
 }
 
 // internal types
