@@ -23,7 +23,7 @@
     "bunyan-format": "^0.2.1",
     "compression": "^1.8.1",
     "express": "^5.2.1",
-    "govuk-frontend": "^6.2.0",
+    "govuk-frontend": "^6.5.1",
     "helmet": "^8.2.0",
     "nocache": "^4.0.0",
     "nunjucks": "^3.2.4"

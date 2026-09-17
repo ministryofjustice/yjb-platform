@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
 import { OutputCalculation } from '../../types/dtoTypes'
 import sampleCalculationResult from '../../testutils/sampleObjects'
+import { ParsedDtoForm } from '../../services/dtoService'
 
 const env = createNunjucksTestSetup()
 const renderWithCheerio = (context = {}) => cheerio.load(env.render('pages/calculation-breakdown.njk', context))
@@ -20,20 +21,32 @@ describe('Calculation breakdown page', () => {
     })
   })
 
-  describe('data', () => {
-    // it('it renders the Release Dates ETD passed from the model', () => {
-    //   const calculationResult: OutputCalculation = sampleCalculationResult
-    //   // calculationResult.etd = new Date("2020-01-01")
-    //   const cheerioPage = renderWithCheerio({ calculationResult })
-    //   expect(cheerioPage('#release-dates').text()).toContain('ETD: Earliest Transfer Date Tue Oct 27 2026')
-    // })
-    //
-    // it('it renders the Release Dates ETD passed from the model', () => {
-    //   const calculationResult: OutputCalculation = sampleCalculationResult
-    //   const cheerioPage = renderWithoutCheerio({ calculationResult })
-    //   expect(cheerioPage).toContain('ETD: Earliest Transfer Date 2026-10-27')
-    // })
+  describe('navigation', () => {
+    it('renders a back button pointing to the calculation page', () => {
+      const cheerioPage = renderWithCheerio()
+      const button = cheerioPage('.govuk-back-link')
+      expect(button.text()).toBe('Back')
+      expect(button.prop('href')).toContain('/calculate?')
+    })
 
+    it('passes the submitted form data to the back button', () => {
+      const parsedInput: ParsedDtoForm = {
+        remandDays: 33,
+        taggedBailDays: 44,
+        sentenceLengthMonths: 22,
+        sentenceDate: new Date('01/22/2033'),
+        sentenceDateString: '01/22/2033',
+      }
+      const cheerioPage = renderWithCheerio({ inputData: parsedInput })
+      const button = cheerioPage('.govuk-back-link')
+      expect(button.prop('href')).toContain(`remandDays=${parsedInput.remandDays}`)
+      expect(button.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
+      expect(button.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
+      expect(button.prop('href')).toContain(`sentenceDate=01/22/2033`)
+    })
+  })
+
+  describe('data', () => {
     it('it renders the Release Dates ETD passed from the model', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
       const cheerioPage = renderWithCheerio({ calculationResult })

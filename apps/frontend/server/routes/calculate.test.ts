@@ -1,10 +1,12 @@
 import type { Express } from 'express'
 import request from 'supertest'
 import { isDeepStrictEqual } from 'util'
+import * as cheerio from 'cheerio'
 import { appWithAllRoutes } from '../testutils/appSetup'
 import YjbApiClient from '../data/yjbApi'
-import { InputSentences } from '../types/dtoTypes'
+import { InputSentences, OutputCalculation } from '../types/dtoTypes'
 import DtoService, { ValidationResult } from '../services/dtoService'
+import sampleCalculationResult from '../testutils/sampleObjects'
 
 jest.mock('../data/yjbApi')
 jest.mock('../services/dtoService')
@@ -28,7 +30,7 @@ afterEach(() => {
 })
 
 describe('GET /calculate', () => {
-  it('should render the new calculation', () => {
+  it('should render the new calculation form', () => {
     return request(app)
       .get('/calculate')
       .expect('Content-Type', /html/)
@@ -37,6 +39,33 @@ describe('GET /calculate', () => {
         expect(res.text).toContain('New calculation')
         expect(res.text).toContain('Youth Justice Platform - New calculation')
       })
+  })
+
+  describe('should render', () => {
+    it('a sentence date of 11/03/2044 when queryString sentenceDate=11/03/2044 is passed', () => {
+      return request(app)
+        .get('/calculate?sentenceDate=12/04/2045')
+        .expect(res => {
+          const $ = cheerio.load(res.text)
+          expect($('#sentence-date-day').attr('value')).toContain('12')
+          expect($('#sentence-date-month').attr('value')).toContain('4')
+          expect($('#sentence-date-year').attr('value')).toContain('2045')
+        })
+    })
+
+    const fieldTestCases = [
+      ['11', '#sentence-length-months', 'sentenceLengthMonths'],
+      ['73', '#remand-days', 'remandDays'],
+      ['654', '#tagged-bail-days', 'taggedBailDays'],
+    ]
+    it.each(fieldTestCases)('%s in field %s when queryString %s is passed', (value, elementId, queryString) => {
+      return request(app)
+        .get(`/calculate?${queryString}=${value}`)
+        .expect(res => {
+          const $ = cheerio.load(res.text)
+          expect($(elementId).attr('value')).toContain(value)
+        })
+    })
   })
 })
 
@@ -56,6 +85,61 @@ describe('POST /calculate', () => {
       .expect(res => {
         expect(res.text).toContain('Calculation breakdown')
         expect(res.text).toContain('Youth Justice Platform - Calculation breakdown')
+      })
+  })
+
+  it('should pass the calculationResult into the template', () => {
+    const validResult: ValidationResult = {
+      isValid: true,
+      input: {},
+      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+    }
+    const mockCalculationResult: OutputCalculation = {
+      ...sampleCalculationResult,
+      etd: new Date('01/01/3093'),
+    }
+    dtoService.validatePayload.mockReturnValue(validResult)
+    dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
+
+    return request(app)
+      .post('/calculate')
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        const $ = cheerio.load(res.text)
+        expect($('#release-dates').text()).toContain('ETD: Earliest Transfer Date Sun Jan 01 3093')
+      })
+  })
+
+  it('should pass the parsed input into the template', () => {
+    const input: Record<string, unknown> = {
+      formField: 'Testomatic Man!',
+    }
+
+    const validResult: ValidationResult = {
+      isValid: true,
+      input,
+      parsedInput: {
+        remandDays: 33,
+        taggedBailDays: 44,
+        sentenceLengthMonths: 22,
+        sentenceDate: new Date('01/22/2033'),
+        sentenceDateString: '01/22/2033',
+      },
+      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+    }
+
+    dtoService.validatePayload.mockReturnValue(validResult)
+    dtoService.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
+
+    return request(app)
+      .post('/calculate')
+      .send(input)
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        const $ = cheerio.load(res.text)
+        expect($('.govuk-back-link').prop('href')).toContain(`remandDays=${validResult.parsedInput.remandDays}`)
       })
   })
 
