@@ -1,5 +1,5 @@
 import YjbApiClient from '../data/yjbApi'
-import { InputIndividualSentence, InputSentences, OutputCalculation, RemandAdjustment } from '../types/dtoTypes'
+import { InputIndividualSentence, InputSentences, OutputCalculation, RemandAdjustment } from '@yjb-platform/shared-types'
 
 export type ValidationResult = {
   isValid: boolean

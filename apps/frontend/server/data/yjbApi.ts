@@ -1,7 +1,7 @@
 import { RestClient } from '@ministryofjustice/hmpps-rest-client'
 import logger from '../../logger'
 import config from '../config'
-import { InputSentences, OutputCalculation } from '../types/dtoTypes'
+import { InputSentences, OutputCalculation } from '@yjb-platform/shared-types'
 
 export default class YjbApiClient extends RestClient {
   constructor() {

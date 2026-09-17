@@ -4,7 +4,7 @@ import { isDeepStrictEqual } from 'util'
 import * as cheerio from 'cheerio'
 import { appWithAllRoutes } from '../testutils/appSetup'
 import YjbApiClient from '../data/yjbApi'
-import { InputSentences, OutputCalculation } from '../types/dtoTypes'
+import { InputSentences, OutputCalculation } from '@yjb-platform/shared-types'
 import DtoService, { ValidationResult } from '../services/dtoService'
 import sampleCalculationResult from '../testutils/sampleObjects'
 

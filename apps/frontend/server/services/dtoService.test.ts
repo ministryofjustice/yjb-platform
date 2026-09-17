@@ -1,6 +1,6 @@
 import DtoService, { ParsedDtoForm } from './dtoService'
 import YjbApiClient from '../data/yjbApi'
-import { InputSentences } from '../types/dtoTypes'
+import { InputSentences } from '@yjb-platform/shared-types'
 
 jest.mock('../data/yjbApi')
 

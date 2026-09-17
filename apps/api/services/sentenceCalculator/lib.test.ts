@@ -18,7 +18,7 @@ import {
   TaggedBailAdjustment,
   AdjustmentResult,
   CalculatedTerm,
-} from './types'
+} from '@yjb-platform/shared-types'
 
 describe('getTotalDaysInTerm', () => {
   it('returns 334 days for an 11 month term starting on 2026-06-29', () => {

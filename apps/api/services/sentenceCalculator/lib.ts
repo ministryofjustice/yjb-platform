@@ -8,7 +8,7 @@ import {
   EffectiveDates,
   AdjustmentResult,
   CalculatedTerm,
-} from './types'
+} from '@yjb-platform/shared-types'
 
 export function getTotalDaysInTerm(sentenceInput: InputIndividualSentence): number {
   const utcFrom = new UTCDate(sentenceInput.from)

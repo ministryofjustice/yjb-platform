@@ -1,6 +1,6 @@
 import { ZodError } from 'zod'
 import { parseInputSentences, formatOutputCalculation } from './sentenceCalculatorMapper'
-import { AdjustmentTypes, OutputCalculation } from '../services/sentenceCalculator/types'
+import { AdjustmentTypes, OutputCalculation } from '@yjb-platform/shared-types'
 
 describe('parseInputSentences', () => {
   it('deserializes date strings into Date objects', () => {

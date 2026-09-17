@@ -1,5 +1,5 @@
 import calculateDTOSentence from './CalculationService'
-import { AdjustmentTypes, InputSentences, OutputCalculation } from './types'
+import { AdjustmentTypes, InputSentences, OutputCalculation } from '@yjb-platform/shared-types'
 
 const remandInput: InputSentences = {
   offenderName: 'Test Offender',

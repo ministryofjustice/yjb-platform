@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
-import { OutputCalculation } from '../../types/dtoTypes'
+import { OutputCalculation } from '@yjb-platform/shared-types'
 import sampleCalculationResult from '../../testutils/sampleObjects'
 import { ParsedDtoForm } from '../../services/dtoService'
 
