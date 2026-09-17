@@ -1,4 +1,4 @@
-import { InputSentences, OutputCalculation, AdjustmentTypes } from '../services/sentenceCalculator/types'
+import { InputSentences, OutputCalculation, AdjustmentTypes } from '@yjb-platform/shared-types'
 import SentenceCalculatorController from './sentenceCalculatorController'
 
 let controller: SentenceCalculatorController

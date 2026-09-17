@@ -1,4 +1,4 @@
-import { InputSentences, OutputCalculation, EffectiveDates, AdjustmentResult } from './types'
+import { InputSentences, OutputCalculation, EffectiveDates, AdjustmentResult } from '@yjb-platform/shared-types'
 import { getLTDDate, getETDDate, adjustCalculation, calculateTerm } from './lib'
 
 export default function calculateDTOSentence(inputSentence: InputSentences): OutputCalculation {
