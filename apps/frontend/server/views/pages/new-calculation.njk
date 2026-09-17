@@ -75,11 +75,12 @@
           hint: {
             text: "For example, 27 3 2007"
           },
-          values: {
-            day: sentenceDateDay,
-            month: sentenceDateMonth,
-            year: sentenceDateYear
-          }
+          items: [
+            { name: 'day', value: sentenceDateDay },
+            { name: 'month', value: sentenceDateMonth },
+            { name: 'year', value: sentenceDateYear }
+          ]
+
         }) }}
 
         {% call govukFieldset({
