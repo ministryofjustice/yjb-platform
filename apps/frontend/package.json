@@ -15,7 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "@yjb-platform/shared-types": "*",
-    "@ministryofjustice/frontend": "^9.0.0",
+    "@ministryofjustice/frontend": "^11.0.1",
     "@ministryofjustice/hmpps-monitoring": "^2.1.0",
     "@ministryofjustice/hmpps-rest-client": "^2.1.0",
     "@types/http-errors": "^2.0.5",
