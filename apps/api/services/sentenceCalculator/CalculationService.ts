@@ -46,17 +46,18 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
     outputCalculation.unusedAdjustmentDays = adjustmentResult.unusedAdjustmentDays
   }
 
-  // TODO: Handle the case of MTD collapsing to the sentence date: the LTD should not be in the past
-  //   - It's also not clear if the ETD & LTD should be calculated at all if the MTD collapses
   // finally calculate the LTD and ETD based on the effective dates post adjustments
-  outputCalculation.ltd = getLTDDate(
-    outputCalculation.effectiveDates.mtd,
-    inputSentence.inputIndividualSentences[0].durationMonths,
-  )
-  outputCalculation.etd = getETDDate(
-    outputCalculation.effectiveDates.mtd,
-    inputSentence.inputIndividualSentences[0].durationMonths,
-  )
+  //leave it 0 if we have collapsed  the MTD
+  if(outputCalculation.effectiveDates.mtd != inputSentence.inputIndividualSentences[0].from){
+    outputCalculation.ltd = getLTDDate(
+      outputCalculation.effectiveDates.mtd,
+      inputSentence.inputIndividualSentences[0].durationMonths,
+    )
+    outputCalculation.etd = getETDDate(
+      outputCalculation.effectiveDates.mtd,
+      inputSentence.inputIndividualSentences[0].durationMonths,
+    )
+  }
 
   return outputCalculation
 }

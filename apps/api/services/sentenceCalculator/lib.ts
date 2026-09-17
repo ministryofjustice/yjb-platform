@@ -97,13 +97,13 @@ export function adjustCalculation(
       : subDays(srcCal.effectiveDates.mtd, inputAdjustment.days)
 
   const outputEffectiveDatesSled =
-    inputAdjustment.days >= initialSledBudget
+    inputAdjustment.days >= initialMtdBudget
       ? sentenceStartDate
       : subDays(srcCal.effectiveDates.sled, inputAdjustment.days)
 
-  if (inputAdjustment.days >= initialSledBudget) { // TODO: This should be MTD budget
+  if (inputAdjustment.days >= initialMtdBudget) { 
     // record how far past the MTD budget this adjustment went, for the audit trail
-    unusedAdjustmentDays = Math.max(0, inputAdjustment.days - initialSledBudget) // TODO: this too
+    unusedAdjustmentDays = Math.max(0, inputAdjustment.days - initialMtdBudget)
   }
 
   const outputNewEffectiveDates: EffectiveDates = {
