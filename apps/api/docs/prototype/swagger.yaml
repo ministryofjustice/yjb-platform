@@ -1,0 +1,456 @@
+openapi: 3.0.4
+info:
+  title: Prototype API
+  description: |
+    This is a draft proposed API footprints for new AssetPlus API endpoints, created solely to make it easier to discuss the current proposed user flows with stakeholders. It is not intended to be a final specification, and should not be used as a reference for implementation.
+
+    Some commons terms will be used here that might not be familiar to all readers:
+
+    - CYPID: Current Young Person Identifier, the current unique identifier for the child within AssetPlus
+    - SUI: A “Single Unique Identifier” or “Consistent Identifier”, a unique identifier for children in the UK, as provided for in [section 16LC of the Children Act 2004](https://www.legislation.gov.uk/ukpga/2004/31/section/16LC), as amended by [section 4 of the Children's Wellbeing and Schools Act 2026](https://www.legislation.gov.uk/ukpga/2026/21/section/4). This is likely to be a child’s NHS Number
+    - PNCID: Police National Computer identifier
+
+    It might also be useful for readers to be familiar with the [Person Standard](https://github.com/SocialCareData/person-standard) from [Data Standards for Social Care](https://github.com/SocialCareData/person-standard), sponsored by the Department for Education and the Department of Health and Social Care.
+  version: 0.0.1
+
+servers: []
+
+tags:
+  - name: Flow1
+    description: Endpoints for proposed user flow №1
+  - name: Flow2
+    description: Endpoints for proposed user flow №2
+
+paths:
+  /flow1/create:
+    put:
+      tags:
+        - Flow1
+      summary: Create a new AssetPlus record-stub
+      description: |
+        This endpoint creates a new AssetPlus record-stub. The request body must include the base demographic information to be able to disambiguate a child — either a CYPID or a SUI. The response will include a unique AssetPlus record identifier, which can be used to retrieve or update the record in subsequent API calls.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                child:
+                  $ref: "#/components/schemas/MinimalChild"
+      responses:
+        '200':
+          description: |
+            Success response (existing child)
+
+            For a child who is already known to the system, this will return a complete `FullChild` object, with as many or as few properties as are known to the server.
+
+            Note that a _new_ child will give a different response, with only a `CompleteChild`, which is expected to be the more common response.
+
+            As clients might struggle to accept a `201 Created` response, clients should validate whether a `200 OK` response contains only the `MinimalChild` submitted in the request or a more complete `CompleteChild`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompleteChild"
+        '201':
+          description: |
+            Success response (new child)
+
+            For a new child, this will return the same `MinimalChild` object, with as many or as few properties as was supplied in the request.
+
+            *Note:* We might send a `200 OK` header for this response in future, if clients struggle to accept a `201 Created`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MinimalChild"
+        '400':
+          description: |
+            Bad request
+
+            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (CYPID, SUI or PNCID).
+
+            Alternatively, some other unexpected error was found in the request data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '409':
+          description: |
+            Conflict
+
+            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same CYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+
+            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: |
+            Internal server error
+
+            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /flow1/partial-save:
+    post:
+      tags:
+        - Flow1
+      summary: Save a partial update to an existing AssetPlus record
+      description: |
+        This endpoint saves a partial update to an existing AssetPlus record. The request body must include the unique AssetPlus record identifier, and at least one property to update. The response will just be an acknowledgement of the update, with no content, or an error response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                child:
+                  $ref: "#/components/schemas/MinimalChild"
+                stage:
+                  type: object
+                  description: TODO TODO The stage of the child in the system.
+      responses:
+        '200':
+          description: Success response, optionally containing a notification message saying that someone else also has a partial Stage open for this child.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+                minimumItems: 0
+                maximumItems: 1
+        '400':
+          description: |
+            Bad request
+
+            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (CYPID, SUI or PNCID).
+
+            Alternatively, some other unexpected error was found in the request data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '409':
+          description: |
+            Conflict
+
+            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same CYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+
+            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: |
+            Internal server error
+
+            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /save:
+    post:
+      tags:
+        - Flow1
+        - Flow2
+      summary: Save a complete update to an existing AssetPlus record
+      description: |
+        This endpoint saves a complete update to an existing AssetPlus record. The request body must include the unique AssetPlus record identifier, and all properties to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                child:
+                  $ref: "#/components/schemas/CompleteChild"
+      responses:
+        '200':
+          description: Success response
+        '400':
+          description: |
+            Bad request
+
+            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (CYPID, SUI or PNCID).
+
+            Alternatively, some other unexpected error was found in the request data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '409':
+          description: |
+            Conflict
+
+            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same CYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+
+            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: |
+            Internal server error
+
+            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /flow2/register-stage:
+    post:
+      tags:
+        - Flow2
+      summary: Register the creation of a new Stage for an AssetPlus record (which may or may not already exist)
+      description: |
+        This endpoint registers the creation of a new Stage for an AssetPlus record. The request body must include the base demographic information to be able to disambiguate a child — either a CYPID or a SUI — and the fields that are being edited.
+
+        The response will include a unique AssetPlus record identifier, which can be used to retrieve or update the record in subsequent API calls.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MinimalChildWithFieldNames"
+      responses:
+        '200':
+          description: |
+            Success response (existing child)
+
+            For a child who is already known to the system, this will return a complete `FullChild` object, with as many or as few properties as are known to the server.
+
+            Note that a _new_ child will give a different response, with only a `CompleteChild`, which is expected to be the more common response.
+
+            As clients might struggle to accept a `201 Created` response, clients should validate whether a `200 OK` response contains only the `MinimalChild` submitted in the request or a more complete `CompleteChild`.
+          content:
+            application/json:
+              schema:
+                properties:
+                  child:
+                    $ref: "#/components/schemas/CompleteChild"
+                  notification:
+                    $ref: "#/components/schemas/Notification"
+        '201':
+          description: |
+            Success response (new child)
+
+            For a new child, this will return the `MinimalChild` object from the `MinimalChildWithFieldNames` in the request, with as many or as few properties as was supplied in the request.
+
+            *Note:* We might send a `200 OK` header for this response in future, if clients struggle to accept a `201 Created`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MinimalChild"
+        '400':
+          description: |
+            Bad request
+
+            The request body was invalid, for example if it did not include a `MinimalChildWithFieldNames` object, or if the `MinimalChildWithFieldNames` object did not include at least one identifier (CYPID, SUI or PNCID).
+
+            Alternatively, some other unexpected error was found in the request data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '409':
+          description: |
+            Conflict
+
+            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same CYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+
+            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: |
+            Internal server error
+
+            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        line1:
+          type: string
+          description: The first line of the address.
+        line2:
+          type: string
+          nullable: true
+          description: The second line of the address.
+        city:
+          type: string
+          description: The city or town of the address.
+        postcode:
+          type: string
+          description: The postal code of the address.
+        UPRN:
+          type: number
+          format: float16
+          nullable: true
+          description: The Unique Property Reference Number (UPRN) of the address, if known.
+        USRN:
+          type: number
+          format: float16
+          nullable: true
+          description: The Unique Street Reference Number (USRN) of the address, if known.
+      required:
+        - line1
+        - city
+        - postcode
+    CompleteChild:
+      description: |
+        A more-complete set of the properties of a child.
+
+        These properties are aligned to the [Person Standard](https://github.com/SocialCareData/person-standard) from [Data Standards for Social Care](https://github.com/SocialCareData/person-standard), sponsored by the Department for Education and the Department of Health and Social Care. We ignore the properties `Deceased`, `RelatedPerson` and `matchedPersonRef` from that standard, as they are unlikely to be relevant to the AssetPlus system at the time of implementation.
+      allOf:
+        - $ref: "#/components/schemas/MinimalChild"
+        - type: object
+          properties:
+            Gender:
+              type: string
+              enum: ["1", "2", "9", "X"]
+              nullable: true
+              description: |
+                The person’s stated gender. This information does not pertain to biological sex.
+
+                This aligns with the FHIR UK Core [PersonStatedGenderCode](https://www.datadictionary.nhs.uk/data_elements/person_stated_gender_code.html), which has the following values:
+
+                - 1: Male
+                - 2: Female
+                - 9: Indeterminate (unable to be classified as either male or female)
+                - X: Not known (`PERSON_STATED_GENDER_CODE` not recorded)
+            SexCode:
+              type: string
+              enum: ["1", "2", "9", "X"]
+              nullable: true
+              description: |
+                Observed phenotypic sex, where recorded.
+
+                This aligns with the FHIR UK Core [PersonPhenotypicSex](https://www.datadictionary.nhs.uk/data_elements/person_phenotypic_sex.html), which has the following values:
+
+                - 1: Male
+                - 2: Female
+                - 9: Indeterminate (unable to be classified as either male or female)
+                - X: Not known (`PERSON_PHENOTYPIC_SEX` not recorded)
+            EthnicCode:
+              type: number
+              format: int16
+              enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, -8]
+              nullable: true
+              description: |
+                The person's stated ethnicity, according to [ONS 18+1](https://www.ons.gov.uk/census/census2021dictionary/variablesbytopic/ethnicgroupnationalidentitylanguageandreligionvariablescensus2021/ethnicgroup/classifications#:~:text=Ethnic%20group%20classification%2020b) (the categories used in the 2021 census).
+    DateOfBirth:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: The date of birth of the child.
+        accuracyIndicator:
+          type: string
+          enum: ["A", "E", "U"]
+          nullable: true
+          description: Optionally indicates which parts of the date are known to be accurate (A), estimated (E) or unknown (U).
+      required:
+        - date
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: A human-readable error message.
+    IdentifierArray:
+      type: array
+      items:
+        type: object
+        properties:
+          identifierType:
+            type: string
+            description: The type of identifier, for example "CYPID", "SUI" or "PNCID". For supported identifier types, this may be given as an alternative to using the `system` property to provide a URI for the identifier system.
+          system:
+            type: string
+            format: uri
+            description: Identifier system URI, for example <https://fhir.nhs.uk/Id/nhs-number>
+          value:
+            type: string
+            description: The value of the identifier.
+      minItems: 1
+      uniqueItems: true
+    MinimalChild:
+      type: object
+      description: |
+        A subset of the properties of a child, including at least 1 identifier (CYPID, SUI or PNCID) and, optionally, some combination of name, date of birth and address.
+
+        These properties are aligned to the [Person Standard](https://github.com/SocialCareData/person-standard) from [Data Standards for Social Care](https://github.com/SocialCareData/person-standard), sponsored by the Department for Education and the Department of Health and Social Care.
+      properties:
+        Identifier:
+          $ref: "#/components/schemas/IdentifierArray"
+          description: "An array of identifiers for the child. At least one identifier must be provided: either a CYPID, a SUI or a PNCID."
+        Name:
+          $ref: "#/components/schemas/Name"
+        DateOfBirth:
+          nullable: true
+          $ref: "#/components/schemas/DateOfBirth"
+        Address:
+          $ref: "#/components/schemas/Address"
+      required:
+        - Identifier
+    MinimalChildWithFieldNames:
+      allOf:
+        - $ref: "#/components/schemas/MinimalChild"
+        - type: object
+          properties:
+            fieldNames:
+              type: array
+              items:
+                type: string
+              description: An array of the names of the fields that are being edited in this Stage.
+              minItems: 1
+    Name:
+      type: object
+      properties:
+        familyName:
+          type: string
+          description: The family name (surname) of the child.
+        givenNames:
+          type: array
+          items:
+            type: string
+          description: An array of given names (first and middle names) of the child.
+          minItems: 1
+        preferredName:
+          type: string
+          nullable: true
+          description: The preferred name of the child, if any.
+      required:
+        - familyName
+        - givenNames
+    Notification:
+      type: object
+      properties:
+        message:
+          type: string
+          description: A human-readable message describing the notification.
+        contact:
+          type: string
+          format: email
+          description: A contact email address for the notification.
