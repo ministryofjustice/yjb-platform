@@ -1,4 +1,4 @@
-import {InputSentences, OutputCalculation, EffectiveDates, AdjustmentResult} from './types'
+import { InputSentences, OutputCalculation, EffectiveDates, AdjustmentResult } from './types'
 import { getLTDDate, getETDDate, adjustCalculation, calculateTerm } from './lib'
 
 export default function calculateDTOSentence(inputSentence: InputSentences): OutputCalculation {
@@ -27,28 +27,22 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
 
   // apply adjustments
   if (inputSentence.remandAdjustment && inputSentence.remandAdjustment.days > 0) {
-    const adjustmentResult: AdjustmentResult = adjustCalculation(
-      outputCalculation,
-      inputSentence.remandAdjustment,
-    )
+    const adjustmentResult: AdjustmentResult = adjustCalculation(outputCalculation, inputSentence.remandAdjustment)
     outputCalculation.effectiveDates = adjustmentResult.newEffectiveDates
     outputCalculation.effectiveDatesPastAdjustments.push(adjustmentResult.newRecordOfAdjustment)
     outputCalculation.unusedAdjustmentDays = adjustmentResult.unusedAdjustmentDays
   }
 
   if (inputSentence.taggedBailAdjustment && inputSentence.taggedBailAdjustment.days > 0) {
-    const adjustmentResult: AdjustmentResult = adjustCalculation(
-      outputCalculation,
-      inputSentence.taggedBailAdjustment,
-    )
+    const adjustmentResult: AdjustmentResult = adjustCalculation(outputCalculation, inputSentence.taggedBailAdjustment)
     outputCalculation.effectiveDates = adjustmentResult.newEffectiveDates
     outputCalculation.effectiveDatesPastAdjustments.push(adjustmentResult.newRecordOfAdjustment)
     outputCalculation.unusedAdjustmentDays = adjustmentResult.unusedAdjustmentDays
   }
 
   // finally calculate the LTD and ETD based on the effective dates post adjustments
-  //leave it 0 if we have collapsed  the MTD
-  if(outputCalculation.effectiveDates.mtd != inputSentence.inputIndividualSentences[0].from){
+  // leave it 0 if we have collapsed  the MTD
+  if (outputCalculation.effectiveDates.mtd !== inputSentence.inputIndividualSentences[0].from) {
     outputCalculation.ltd = getLTDDate(
       outputCalculation.effectiveDates.mtd,
       inputSentence.inputIndividualSentences[0].durationMonths,
