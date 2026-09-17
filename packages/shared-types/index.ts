@@ -1,47 +1,39 @@
-import { z } from 'zod'
+import { AdjustmentTypes } from './adjustment-types'
 
-// internal types
-export const AdjustmentTypes = {
-  remand: 'remand',
-  taggedBail: 'taggedBail',
-} as const
+export { AdjustmentTypes }
 
-export type AdjustmentTypes = (typeof AdjustmentTypes)[keyof typeof AdjustmentTypes]
+// input types
+export type InputIndividualSentence = {
+  from: Date
+  durationMonths: number
+}
 
-// input schemas - the single source of truth: both the runtime validation and the
-// TypeScript types below are derived from these, so they can never drift apart
-export const inputIndividualSentenceSchema = z.object({
-  from: z.coerce.date(),
-  durationMonths: z.number(),
-})
+export type InputSentences = {
+  offenderName: string
+  remandAdjustment?: RemandAdjustment
+  taggedBailAdjustment?: TaggedBailAdjustment
+  inputIndividualSentences: InputIndividualSentence[]
+}
 
-export const remandAdjustmentSchema = z.object({
-  name: z.literal(AdjustmentTypes.remand),
-  days: z.number(),
-  startDate: z.coerce.date(),
-})
+// common shape every adjustment shares
+interface BaseAdjustment {
+  name: AdjustmentTypes
+  days: number
+}
 
-export const taggedBailAdjustmentSchema = z.object({
-  name: z.literal(AdjustmentTypes.taggedBail),
-  days: z.number(),
-})
+export interface RemandAdjustment extends BaseAdjustment {
+  name: typeof AdjustmentTypes.remand
+  startDate: Date
+}
 
-export const inputSentencesSchema = z.object({
-  offenderName: z.string(),
-  remandAdjustment: remandAdjustmentSchema.optional(),
-  taggedBailAdjustment: taggedBailAdjustmentSchema.optional(),
-  inputIndividualSentences: z.array(inputIndividualSentenceSchema).min(1),
-})
+export interface TaggedBailAdjustment extends BaseAdjustment {
+  name: typeof AdjustmentTypes.taggedBail
+  // no startDate — and TS will error if you try to read one
+}
 
-// input types, inferred from the schemas above
-export type InputIndividualSentence = z.infer<typeof inputIndividualSentenceSchema>
-export type RemandAdjustment = z.infer<typeof remandAdjustmentSchema>
-export type TaggedBailAdjustment = z.infer<typeof taggedBailAdjustmentSchema>
 export type InputAdjustment = RemandAdjustment | TaggedBailAdjustment
-export type InputSentences = z.infer<typeof inputSentencesSchema>
 
-// output types - produced internally from validated input, never parsed from
-// untrusted data, so there's no schema for these, only plain types
+// output types
 export interface OutputCalculation {
   calculatedTerms: AppendOnlyArray<CalculatedTerm>
   effectiveDates: EffectiveDates
@@ -87,3 +79,7 @@ export type AppendOnlyArray<T> = {
   push(...items: T[]): number
   [Symbol.iterator](): IterableIterator<T>
 }
+
+// zod schemas mirroring the input types above, for validating untrusted request
+// bodies at the API boundary - see schemas.ts for the definitions
+export * from './schemas'
