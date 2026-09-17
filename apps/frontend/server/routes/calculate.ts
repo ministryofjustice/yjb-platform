@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import type { Services } from '../services'
 import { OutputCalculation } from '@yjb-platform/shared-types'
+import type { Services } from '../services'
 import { ValidationResult } from '../services/dtoService'
 
 export default function calculateRoutes({ dtoService }: Partial<Services>): Router {
