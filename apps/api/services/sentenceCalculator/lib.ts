@@ -18,7 +18,7 @@ export function getTotalDaysInTerm(sentenceInput: InputIndividualSentence): numb
 }
 
 export function getTotalDaysMTD(totalDaysInTerm: number): number {
-  return Math.round(totalDaysInTerm / 2)
+  return Math.ceil(totalDaysInTerm / 2)
 }
 
 export function addDaysToDate(daysToAdd: number, dateToIncrease: Date): Date {
@@ -77,7 +77,6 @@ export function adjustCalculation(
   inputAdjustment: Readonly<InputAdjustment>,
 ): AdjustmentResult {
   // save existing effective dates and adjustment parameters prior to the adjustment
-
   const outputAdjustmentRecord: RecordOfAdjustment = {
     adjustmentReason: inputAdjustment.name,
     adjustmentParameters: inputAdjustment,
@@ -86,28 +85,28 @@ export function adjustCalculation(
 
   const sentenceStartDate = new UTCDate(srcCal.calculatedTerms[0].inputSentence.from)
   let { unusedAdjustmentDays } = srcCal
-  const remainingMtdBudget = differenceInCalendarDays(srcCal.effectiveDates.mtd, sentenceStartDate) + 1
-  const remainingSledBudget = differenceInCalendarDays(srcCal.effectiveDates.sled, sentenceStartDate) + 1
+  const initialMtdBudget = differenceInCalendarDays(srcCal.effectiveDates.mtd, sentenceStartDate) + 1
+  const initialSledBudget = differenceInCalendarDays(srcCal.effectiveDates.sled, sentenceStartDate) + 1
 
   // MTD and SLED each track their own remaining budget independently: every adjustment
   // subtracts its full day count from both, and each collapses to the sentence start
   // once its own budget is exhausted - there's no carryover from one to the other
   const outputEffectiveDatesMTD =
-    inputAdjustment.days >= remainingMtdBudget
+    inputAdjustment.days >= initialMtdBudget
       ? sentenceStartDate
       : subDays(srcCal.effectiveDates.mtd, inputAdjustment.days)
 
   const outputEffectiveDatesSled =
-    inputAdjustment.days >= remainingSledBudget
+    inputAdjustment.days >= initialSledBudget
       ? sentenceStartDate
       : subDays(srcCal.effectiveDates.sled, inputAdjustment.days)
 
-  if (inputAdjustment.days >= remainingSledBudget) {
+  if (inputAdjustment.days >= initialSledBudget) { // TODO: This should be MTD budget
     // record how far past the MTD budget this adjustment went, for the audit trail
-    unusedAdjustmentDays = Math.max(0, inputAdjustment.days - remainingSledBudget)
+    unusedAdjustmentDays = Math.max(0, inputAdjustment.days - initialSledBudget) // TODO: this too
   }
 
-  const outputNewEffeciveDates: EffectiveDates = {
+  const outputNewEffectiveDates: EffectiveDates = {
     totalNumberOfRemandAndTaggedBailDays: increaseTotalNumRTBDays(
       srcCal.effectiveDates.totalNumberOfRemandAndTaggedBailDays,
       inputAdjustment.days,
@@ -118,7 +117,7 @@ export function adjustCalculation(
   }
 
   return {
-    newEffectiveDates: outputNewEffeciveDates,
+    newEffectiveDates: outputNewEffectiveDates,
     newRecordOfAdjustment: outputAdjustmentRecord,
     unusedAdjustmentDays,
   }

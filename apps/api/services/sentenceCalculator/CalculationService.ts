@@ -1,4 +1,4 @@
-import { InputSentences, OutputCalculation, EffectiveDates } from './types'
+import {InputSentences, OutputCalculation, EffectiveDates, AdjustmentResult} from './types'
 import { getLTDDate, getETDDate, adjustCalculation, calculateTerm } from './lib'
 
 export default function calculateDTOSentence(inputSentence: InputSentences): OutputCalculation {
@@ -27,25 +27,27 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
 
   // apply adjustments
   if (inputSentence.remandAdjustment && inputSentence.remandAdjustment.days > 0) {
-    const { newEffectiveDates, newRecordOfAdjustment, unusedAdjustmentDays } = adjustCalculation(
+    const adjustmentResult: AdjustmentResult = adjustCalculation(
       outputCalculation,
       inputSentence.remandAdjustment,
     )
-    outputCalculation.effectiveDates = newEffectiveDates
-    outputCalculation.effectiveDatesPastAdjustments.push(newRecordOfAdjustment)
-    outputCalculation.unusedAdjustmentDays = unusedAdjustmentDays
+    outputCalculation.effectiveDates = adjustmentResult.newEffectiveDates
+    outputCalculation.effectiveDatesPastAdjustments.push(adjustmentResult.newRecordOfAdjustment)
+    outputCalculation.unusedAdjustmentDays = adjustmentResult.unusedAdjustmentDays
   }
 
   if (inputSentence.taggedBailAdjustment && inputSentence.taggedBailAdjustment.days > 0) {
-    const { newEffectiveDates, newRecordOfAdjustment, unusedAdjustmentDays } = adjustCalculation(
+    const adjustmentResult: AdjustmentResult = adjustCalculation(
       outputCalculation,
       inputSentence.taggedBailAdjustment,
     )
-    outputCalculation.effectiveDates = newEffectiveDates
-    outputCalculation.effectiveDatesPastAdjustments.push(newRecordOfAdjustment)
-    outputCalculation.unusedAdjustmentDays = unusedAdjustmentDays
+    outputCalculation.effectiveDates = adjustmentResult.newEffectiveDates
+    outputCalculation.effectiveDatesPastAdjustments.push(adjustmentResult.newRecordOfAdjustment)
+    outputCalculation.unusedAdjustmentDays = adjustmentResult.unusedAdjustmentDays
   }
 
+  // TODO: Handle the case of MTD collapsing to the sentence date: the LTD should not be in the past
+  //   - It's also not clear if the ETD & LTD should be calculated at all if the MTD collapses
   // finally calculate the LTD and ETD based on the effective dates post adjustments
   outputCalculation.ltd = getLTDDate(
     outputCalculation.effectiveDates.mtd,
