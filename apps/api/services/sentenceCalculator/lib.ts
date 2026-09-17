@@ -101,7 +101,7 @@ export function adjustCalculation(
       ? sentenceStartDate
       : subDays(srcCal.effectiveDates.sled, inputAdjustment.days)
 
-  if (inputAdjustment.days >= initialMtdBudget) { 
+  if (inputAdjustment.days >= initialMtdBudget) {
     // record how far past the MTD budget this adjustment went, for the audit trail
     unusedAdjustmentDays = Math.max(0, inputAdjustment.days - initialMtdBudget)
   }

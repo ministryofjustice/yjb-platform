@@ -1,4 +1,4 @@
-import { InputSentences, OutputCalculation } from '../services/sentenceCalculator/types'
+import { InputSentences, OutputCalculation } from '@yjb-platform/shared-types'
 import calculateDTOSentence from '../services/sentenceCalculator/CalculationService'
 
 export default class SentenceCalculatorController {
