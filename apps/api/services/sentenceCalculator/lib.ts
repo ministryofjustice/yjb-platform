@@ -97,7 +97,7 @@ export function adjustCalculation(
       : subDays(srcCal.effectiveDates.mtd, inputAdjustment.days)
 
   const outputEffectiveDatesSled =
-    inputAdjustment.days >= initialMtdBudget
+    inputAdjustment.days >= initialSledBudget
       ? sentenceStartDate
       : subDays(srcCal.effectiveDates.sled, inputAdjustment.days)
 
