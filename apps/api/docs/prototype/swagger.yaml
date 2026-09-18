@@ -2,7 +2,7 @@ openapi: 3.0.4
 info:
   title: Prototype API
   description: |
-    This is a draft proposed API footprints for new AssetPlus API endpoints, created solely to make it easier to discuss the current proposed user flows with stakeholders. It is not intended to be a final specification, and should not be used as a reference for implementation.
+    This is a draft proposed API footprint for new AssetPlus API endpoints, created solely to make it easier to discuss the current proposed user flows with stakeholders. It is not intended to be a final specification, and should not be used as a reference for implementation.
 
     > **⚠️ Please note that this spec is an illustrative draft of pseudocode, not a final spec.**
 
