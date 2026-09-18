@@ -11,7 +11,7 @@ export const inputIndividualSentenceSchema = z.object({
 export const remandAdjustmentSchema = z.object({
   name: z.literal(AdjustmentTypes.remand),
   days: z.number(),
-  startDate: z.coerce.date(),
+  startDate: z.coerce.date().optional(),
 })
 
 export const taggedBailAdjustmentSchema = z.object({

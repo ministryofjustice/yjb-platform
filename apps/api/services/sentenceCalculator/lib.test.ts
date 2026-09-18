@@ -18,6 +18,7 @@ import {
   getSledDate,
   getMTDDate,
   calculateTerm,
+  calculateAdjustmentStart,
 } from './lib'
 
 describe('getTotalDaysInTerm', () => {
@@ -526,5 +527,19 @@ describe('adjustCalculation', () => {
 
     // get the adjustmented Effective Date calcs for tagged bail
     expect(adjustCalculation(adjustedCalulationObject, remandAdjustment)).toEqual(finalAdjustmentResult)
+  })
+})
+
+describe('calculateAdjustmentStart', () => {
+  it('should return 2026-06-14 for 15 day remand on sentence starting 2026-06-29', () => {
+    const inputSentence: InputIndividualSentence = {
+      from: new Date('2026-06-29'),
+      durationMonths: 11,
+    }
+    const remandAdjustment: RemandAdjustment = {
+      name: AdjustmentTypes.remand,
+      days: 15,
+    }
+    expect(calculateAdjustmentStart(inputSentence.from, remandAdjustment.days)).toEqual(new Date('2026-06-14'))
   })
 })

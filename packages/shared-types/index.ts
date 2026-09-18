@@ -23,7 +23,7 @@ interface BaseAdjustment {
 
 export interface RemandAdjustment extends BaseAdjustment {
   name: typeof AdjustmentTypes.remand
-  startDate: Date
+  startDate?: Date
 }
 
 export interface TaggedBailAdjustment extends BaseAdjustment {
