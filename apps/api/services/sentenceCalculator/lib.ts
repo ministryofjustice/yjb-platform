@@ -157,3 +157,7 @@ export function adjustCalculation(
     unusedAdjustmentDays,
   }
 }
+
+export function calculateAdjustmentStart(sentenceStart: Date, adjustmentLenth: number): Date {
+  return subDays(sentenceStart, adjustmentLenth)
+}

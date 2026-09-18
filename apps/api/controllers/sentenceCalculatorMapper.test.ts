@@ -14,10 +14,26 @@ describe('parseInputSentences', () => {
     expect(result.inputIndividualSentences[0].from).toEqual(new Date('2026-06-29'))
   })
 
-  it('deserializes an optional remandAdjustment', () => {
+  it('deserializes an optional remandAdjustment with Start Date', () => {
     const body = {
       offenderName: 'Test Offender',
       remandAdjustment: { name: AdjustmentTypes.remand, days: 15, startDate: '2026-06-14' },
+      inputIndividualSentences: [{ from: '2026-06-29', durationMonths: 11 }],
+    }
+
+    const result = parseInputSentences(body)
+
+    expect(result.remandAdjustment).toEqual({
+      name: AdjustmentTypes.remand,
+      days: 15,
+      startDate: new Date('2026-06-14'),
+    })
+  })
+
+  it('deserializes an optional remandAdjustment without Start Date, expect start date to be 2026-06-14', () => {
+    const body = {
+      offenderName: 'Test Offender',
+      remandAdjustment: { name: AdjustmentTypes.remand, days: 15 },
       inputIndividualSentences: [{ from: '2026-06-29', durationMonths: 11 }],
     }
 
