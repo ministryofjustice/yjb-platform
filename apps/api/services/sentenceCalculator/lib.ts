@@ -8,6 +8,7 @@ import {
   EffectiveDates,
   AdjustmentResult,
   CalculatedTerm,
+  transferDatesObj,
 } from '@yjb-platform/shared-types'
 
 export function getTotalDaysInTerm(sentenceInput: InputIndividualSentence): number {
@@ -37,26 +38,60 @@ export function getMTDDate(totalDaysMTD: number, from: Date): Date {
   return addDaysToDate(totalDaysMTD, from)
 }
 
-export function getETDDate(mtd: Date, sentenceLenth: number): Date | 0 {
+export function getETDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
   if (sentenceLenth > 8 && sentenceLenth < 18) {
-    return subMonths(new UTCDate(mtd), 1)
+    return {
+      data: subMonths(new UTCDate(mtd), 1),
+      metadata: {
+        status: '1_month',
+        message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+      },
+    }
   }
   if (sentenceLenth > 18) {
-    return subMonths(new UTCDate(mtd), 2)
+    return {
+      data: subMonths(new UTCDate(mtd), 2),
+      metadata: {
+        status: '2_months',
+        message: '2 months away from the MTD for DTOs of more then 18 months',
+      },
+    }
   }
-  // not eligible: sentence is less than 8 months
-  return 0
+  return {
+    data: 0,
+    metadata: {
+      status: 'not_calculated',
+      message: 'Not applicable for DTOs of less then 8 months',
+    },
+  }
 }
 
-export function getLTDDate(mtd: Date, sentenceLenth: number): Date | 0 {
+export function getLTDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
   if (sentenceLenth > 8 && sentenceLenth < 18) {
-    return addMonths(new UTCDate(mtd), 1)
+    return {
+      data: addMonths(new UTCDate(mtd), 1),
+      metadata: {
+        status: '1_month',
+        message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+      },
+    }
   }
   if (sentenceLenth > 18) {
-    return addMonths(new UTCDate(mtd), 2)
+    return {
+      data: addMonths(new UTCDate(mtd), 2),
+      metadata: {
+        status: '2_months',
+        message: '2 months away from the MTD for DTOs of more then 18 months',
+      },
+    }
   }
-  // not eligible: sentence is less than 8 months
-  return 0
+  return {
+    data: 0,
+    metadata: {
+      status: 'not_calculated',
+      message: 'Not applicable for DTOs of less then 8 months',
+    },
+  }
 }
 
 export function calculateTerm(inputSentence: InputIndividualSentence): CalculatedTerm {

@@ -191,29 +191,65 @@ describe('getMTDDate', () => {
 
 describe('getETD', () => {
   it('returns 2026-11-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
-    expect(getETDDate(new Date('2026-12-12'), 11)).toEqual(new Date('2026-11-12'))
+    expect(getETDDate(new Date('2026-12-12'), 11)).toEqual({
+      data: new Date('2026-11-12'),
+      metadata: {
+        status: '1_month',
+        message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+      },
+    })
   })
 
   it('returns 2026-10-12 for a 19 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
-    expect(getETDDate(new Date('2026-12-12'), 19)).toEqual(new Date('2026-10-12'))
+    expect(getETDDate(new Date('2026-12-12'), 19)).toEqual({
+      data: new Date('2026-10-12'),
+      metadata: {
+        status: '2_months',
+        message: '2 months away from the MTD for DTOs of more then 18 months',
+      },
+    })
   })
 
   it('returns 0 for a 5 months long sentence, no remand, mtd on 2026-12-12', () => {
-    expect(getETDDate(new Date('2026-12-12'), 5)).toEqual(0)
+    expect(getETDDate(new Date('2026-12-12'), 5)).toEqual({
+      data: 0,
+      metadata: {
+        status: 'not_calculated',
+        message: 'Not applicable for DTOs of less then 8 months',
+      },
+    })
   })
 })
 
 describe('getLTD', () => {
   it('returns 2027-01-12 for a 11 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
-    expect(getLTDDate(new Date('2026-12-12'), 11)).toEqual(new Date('2027-01-12'))
+    expect(getLTDDate(new Date('2026-12-12'), 11)).toEqual({
+      data: new Date('2027-01-12'),
+      metadata: {
+        status: '1_month',
+        message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+      },
+    })
   })
 
   it('returns 2027-02-12 for a 19 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
-    expect(getLTDDate(new Date('2026-12-12'), 19)).toEqual(new Date('2027-02-12'))
+    expect(getLTDDate(new Date('2026-12-12'), 19)).toEqual({
+      data: new Date('2027-02-12'),
+      metadata: {
+        status: '2_months',
+        message: '2 months away from the MTD for DTOs of more then 18 months',
+      },
+    })
   })
 
   it('returns 0 for a 5 months long sentence, no remand, mtd on 2026-12-12', () => {
-    expect(getLTDDate(new Date('2026-12-12'), 5)).toEqual(0)
+    expect(getLTDDate(new Date('2026-12-12'), 5)).toEqual({
+      data: 0,
+      metadata: {
+        status: 'not_calculated',
+        message: 'Not applicable for DTOs of less then 8 months',
+      },
+    })
   })
 })
 
@@ -305,8 +341,20 @@ describe('adjustCalculation', () => {
         mtd: new Date('2026-12-12'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2027-01-12'),
-      etd: new Date('2026-11-12'),
+      ltd: {
+        data: new Date('2027-01-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-11-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [],
     }
@@ -357,8 +405,20 @@ describe('adjustCalculation', () => {
         mtd: new Date('2026-12-12'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2027-01-12'),
-      etd: new Date('2026-11-12'),
+      ltd: {
+        data: new Date('2027-01-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-11-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
     }
@@ -410,8 +470,20 @@ describe('adjustCalculation', () => {
         mtd: new Date('2026-12-12'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2027-01-12'),
-      etd: new Date('2026-11-12'),
+      ltd: {
+        data: new Date('2027-01-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-11-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
     }
@@ -476,8 +548,20 @@ describe('adjustCalculation', () => {
         mtd: new Date('2026-12-12'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2027-01-12'),
-      etd: new Date('2026-11-12'),
+      ltd: {
+        data: new Date('2027-01-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-11-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
     }

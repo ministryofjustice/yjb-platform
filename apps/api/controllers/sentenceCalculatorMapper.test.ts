@@ -67,15 +67,27 @@ describe('formatOutputCalculation', () => {
         TUSED: new Date(0),
       },
       effectiveDatesPastAdjustments: [],
-      ltd: new Date('2027-01-12'),
-      etd: new Date('2026-11-12'),
+      ltd: {
+        data: new Date('2027-01-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-11-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       unusedAdjustmentDays: 0,
     }
 
     const result = JSON.parse(formatOutputCalculation(outputCalculation))
 
-    expect(result.ltd).toBe('2027-01-12')
-    expect(result.etd).toBe('2026-11-12')
+    expect(result.ltd.data).toBe('2027-01-12')
+    expect(result.etd.data).toBe('2026-11-12')
     expect(result.effectiveDates.sled).toBe('2027-05-28')
     expect(result.calculatedTerms[0].sled).toBe('2027-05-28')
   })

@@ -6,8 +6,8 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
     calculatedTerms: [],
     effectiveDates: {} as EffectiveDates,
     effectiveDatesPastAdjustments: [],
-    ltd: new Date(0),
-    etd: new Date(0),
+    ltd: { data: new Date(0) },
+    etd: { data: new Date(0) },
     unusedAdjustmentDays: 0,
   }
 

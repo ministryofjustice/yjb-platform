@@ -34,8 +34,20 @@ describe('SentenceController', () => {
         mtd: new Date('2026-12-12'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2027-01-12'),
-      etd: new Date('2026-11-12'),
+      ltd: {
+        data: new Date('2027-01-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-11-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
     }
@@ -75,8 +87,20 @@ describe('SentenceController', () => {
         mtd: new Date('2026-11-27'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
+      ltd: {
+        data: new Date('2026-12-27'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-10-27'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -126,8 +150,20 @@ describe('SentenceController', () => {
         mtd: new Date('2026-11-27'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
+      ltd: {
+        data: new Date('2026-12-27'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-10-27'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'taggedBail',
@@ -182,8 +218,20 @@ describe('SentenceController', () => {
         mtd: new Date('2026-11-27'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
+      ltd: {
+        data: new Date('2026-12-27'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-10-27'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',

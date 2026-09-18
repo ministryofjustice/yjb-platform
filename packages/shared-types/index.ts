@@ -33,6 +33,16 @@ export interface TaggedBailAdjustment extends BaseAdjustment {
 
 export type InputAdjustment = RemandAdjustment | TaggedBailAdjustment
 
+export type transferDatesObj = {
+  data: Date | 0,
+  metadata: {
+    status: "not_calculated"|"1_month"|"2_months"
+    message: "Not applicable for DTOs of less then 8 months" |
+            "1 month away from the MTD for DTOs of 8 months, but less then 18 months" |
+            "2 months away from the MTD for DTOs of more then 18 months"
+  }
+}
+
 // output types
 export interface OutputCalculation {
   calculatedTerms: AppendOnlyArray<CalculatedTerm>

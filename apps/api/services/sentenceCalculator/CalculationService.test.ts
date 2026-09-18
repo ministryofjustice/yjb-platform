@@ -96,8 +96,20 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-12-12'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2027-01-12'),
-      etd: new Date('2026-11-12'),
+      ltd: {
+        data: new Date('2027-01-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-11-12'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
     }
@@ -123,8 +135,20 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-11-27'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
+      ltd: {
+        data: new Date('2026-12-27'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-10-27'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
@@ -161,8 +185,20 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-11-27'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
+      ltd: {
+        data: new Date('2026-12-27'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-10-27'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
@@ -199,8 +235,20 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-11-23'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-23'),
-      etd: new Date('2026-10-23'),
+      ltd: {
+        data: new Date('2026-12-23'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
+      etd: {
+        data: new Date('2026-10-23'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
       unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
@@ -262,8 +310,20 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-06-11'),
         TUSED: new Date(0),
       },
-      ltd: 0, // this is zero as sentence is less then 8 months
-      etd: 0, // this is zero as sentence is less then 8 months
+      ltd: {
+        data: 0,
+        metadata: {
+          status: 'not_calculated',
+          message: 'Not applicable for DTOs of less then 8 months',
+        },
+      },
+      etd: {
+        data: 0,
+        metadata: {
+          status: 'not_calculated',
+          message: 'Not applicable for DTOs of less then 8 months',
+        },
+      },
       unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
@@ -316,8 +376,20 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-06-01'),
         TUSED: new Date(0),
       },
-      ltd: 0,
-      etd: 0,
+      ltd: {
+        data: 0,
+        metadata: {
+          status: 'not_calculated',
+          message: 'Not applicable for DTOs of less then 8 months',
+        },
+      },
+      etd: {
+        data: 0,
+        metadata: {
+          status: 'not_calculated',
+          message: 'Not applicable for DTOs of less then 8 months',
+        },
+      },
       unusedAdjustmentDays: 9,
       effectiveDatesPastAdjustments: [
         {
@@ -370,8 +442,20 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-06-01'),
         TUSED: new Date(0),
       },
-      ltd: 0,
-      etd: 0,
+      ltd: {
+        data: 0,
+        metadata: {
+          status: 'not_calculated',
+          message: 'Not applicable for DTOs of less then 8 months',
+        },
+      },
+      etd: {
+        data: 0,
+        metadata: {
+          status: 'not_calculated',
+          message: 'Not applicable for DTOs of less then 8 months',
+        },
+      },
       unusedAdjustmentDays: 64,
       effectiveDatesPastAdjustments: [
         {
@@ -427,8 +511,20 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-06-01'), // this has collapsed to sentence date after tagged bail takes us to date in the past
         TUSED: new Date(0),
       },
-      ltd: 0,
-      etd: 0,
+      ltd: {
+        data: 0,
+        metadata: {
+          status: 'not_calculated',
+          message: 'Not applicable for DTOs of less then 8 months',
+        },
+      },
+      etd: {
+        data: 0,
+        metadata: {
+          status: 'not_calculated',
+          message: 'Not applicable for DTOs of less then 8 months',
+        },
+      },
       unusedAdjustmentDays: 9,
       effectiveDatesPastAdjustments: [
         {

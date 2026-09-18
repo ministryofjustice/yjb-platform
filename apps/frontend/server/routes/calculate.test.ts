@@ -96,7 +96,13 @@ describe('POST /calculate', () => {
     }
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
-      etd: new Date('01/01/3093'),
+      etd: {
+        data: new Date('01/01/3093'),
+        metadata: {
+          status: '1_month',
+          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        },
+      },
     }
     dtoService.validatePayload.mockReturnValue(validResult)
     dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
