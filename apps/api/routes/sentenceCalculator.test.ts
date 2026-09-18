@@ -37,6 +37,7 @@ describe('POST /calculations', () => {
       ltd: '2027-01-12',
       etd: '2026-11-12',
       effectiveDatesPastAdjustments: [],
+      unusedAdjustmentDays: 0,
     }
 
     return request(app).post('/calculations').send(input).expect(200, output)
@@ -75,6 +76,7 @@ describe('POST /calculations', () => {
       },
       ltd: '2026-12-27',
       etd: '2026-10-27',
+      unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -94,5 +96,16 @@ describe('POST /calculations', () => {
     }
 
     return request(app).post('/calculations').send(input).expect(200, output)
+  })
+
+  it('should return 400 with validation errors for an invalid input', async () => {
+    const input = {
+      inputIndividualSentences: [],
+    }
+
+    const response = await request(app).post('/calculations').send(input).expect(400)
+
+    expect(response.body.errors).toBeInstanceOf(Array)
+    expect(response.body.errors.length).toBeGreaterThan(0)
   })
 })

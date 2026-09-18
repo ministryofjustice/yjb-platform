@@ -1,4 +1,4 @@
-import { OutputCalculation } from '../types/dtoTypes'
+import { OutputCalculation } from '@yjb-platform/shared-types'
 
 const sampleCalculationResult: OutputCalculation = {
   calculatedTerms: [
@@ -37,5 +37,6 @@ const sampleCalculationResult: OutputCalculation = {
   ],
   ltd: new Date('2026-12-27'),
   etd: new Date('2026-10-27'),
+  unusedAdjustmentDays: 0,
 }
 export default sampleCalculationResult

@@ -1,5 +1,11 @@
-import { InputSentences, OutputCalculation, AdjustmentTypes } from '../services/sentenceCalculator/types'
-import sentenceCalculatorController from './sentenceCalculatorController'
+import { InputSentences, OutputCalculation, AdjustmentTypes } from '@yjb-platform/shared-types'
+import SentenceCalculatorController from './sentenceCalculatorController'
+
+let controller: SentenceCalculatorController
+
+beforeEach(() => {
+  controller = new SentenceCalculatorController()
+})
 
 describe('SentenceController', () => {
   it('returns 2027-05-28 sled and 2026-12-12 mtd for 11 month sentence starting on 026-06-29 with no remand', () => {
@@ -31,8 +37,9 @@ describe('SentenceController', () => {
       ltd: new Date('2027-01-12'),
       etd: new Date('2026-11-12'),
       effectiveDatesPastAdjustments: [],
+      unusedAdjustmentDays: 0,
     }
-    const calculatedCalculationObj = sentenceCalculatorController(inputSentence)
+    const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
   })
 
@@ -82,8 +89,9 @@ describe('SentenceController', () => {
           },
         },
       ],
+      unusedAdjustmentDays: 0,
     }
-    const calculatedCalculationObj = sentenceCalculatorController(inputSentence)
+    const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
   })
 
@@ -102,7 +110,7 @@ describe('SentenceController', () => {
       ],
     }
 
-    const expectedOutputCalculation = {
+    const expectedOutputCalculation: OutputCalculation = {
       calculatedTerms: [
         {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
@@ -123,7 +131,7 @@ describe('SentenceController', () => {
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'taggedBail',
-          adjustmentParameters: inputSentence.taggedBailAdjustment,
+          adjustmentParameters: inputSentence.taggedBailAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2027-05-28'),
@@ -132,8 +140,9 @@ describe('SentenceController', () => {
           },
         },
       ],
+      unusedAdjustmentDays: 0,
     }
-    const calculatedCalculationObj = sentenceCalculatorController(inputSentence)
+    const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
   })
 
@@ -157,7 +166,7 @@ describe('SentenceController', () => {
       ],
     }
 
-    const expectedOutputCalculation = {
+    const expectedOutputCalculation: OutputCalculation = {
       calculatedTerms: [
         {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
@@ -178,7 +187,7 @@ describe('SentenceController', () => {
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
-          adjustmentParameters: inputSentence.remandAdjustment,
+          adjustmentParameters: inputSentence.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
             sled: new Date('2027-05-28'),
@@ -188,7 +197,7 @@ describe('SentenceController', () => {
         },
         {
           adjustmentReason: 'taggedBail',
-          adjustmentParameters: inputSentence.taggedBailAdjustment,
+          adjustmentParameters: inputSentence.taggedBailAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 10,
             sled: new Date('2027-05-18'),
@@ -197,8 +206,9 @@ describe('SentenceController', () => {
           },
         },
       ],
+      unusedAdjustmentDays: 0,
     }
-    const calculatedCalculationObj = sentenceCalculatorController(inputSentence)
+    const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
   })
 })

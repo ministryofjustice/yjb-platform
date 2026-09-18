@@ -18,7 +18,8 @@
     "@ministryofjustice/hmpps-monitoring": "^2.1.0",
     "date-fns": "^4.4.0",
     "esbuild": "^0.28.1",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@ministryofjustice/eslint-config-hmpps": "^2.0.0-alpha.2",

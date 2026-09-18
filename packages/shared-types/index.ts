@@ -1,3 +1,7 @@
+import { AdjustmentTypes } from './adjustment-types'
+
+export { AdjustmentTypes }
+
 // input types
 export type InputIndividualSentence = {
   from: Date
@@ -36,6 +40,7 @@ export interface OutputCalculation {
   effectiveDatesPastAdjustments: AppendOnlyArray<RecordOfAdjustment>
   ltd: Date | 0
   etd: Date | 0
+  unusedAdjustmentDays: number
 }
 
 export type EffectiveDates = {
@@ -63,15 +68,8 @@ export type RecordOfAdjustment = {
 export type AdjustmentResult = {
   newEffectiveDates: EffectiveDates
   newRecordOfAdjustment: RecordOfAdjustment
+  unusedAdjustmentDays: number
 }
-
-// internal types
-export const AdjustmentTypes = {
-  remand: 'remand',
-  taggedBail: 'taggedBail',
-} as const
-
-export type AdjustmentTypes = (typeof AdjustmentTypes)[keyof typeof AdjustmentTypes]
 
 // exposes only push/read access - no pop, splice, shift, sort, etc. -
 // so array order (oldest first) can't be disturbed once a record is pushed
@@ -81,3 +79,7 @@ export type AppendOnlyArray<T> = {
   push(...items: T[]): number
   [Symbol.iterator](): IterableIterator<T>
 }
+
+// zod schemas mirroring the input types above, for validating untrusted request
+// bodies at the API boundary - see schemas.ts for the definitions
+export * from './schemas'

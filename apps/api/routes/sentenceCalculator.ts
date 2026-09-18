@@ -1,21 +1,26 @@
-import { Router, Request, Response } from 'express'
-import { InputSentences } from '../services/sentenceCalculator/types'
-import sentenceCalculatorController from '../controllers/sentenceCalculatorController'
-
-export function calculateSentence(req: Request, res: Response): void {
-  const sentence = req.body as InputSentences
-  const calculatedCalculationObj = sentenceCalculatorController(sentence)
-
-  res.status(200).type('application/json').send(JSON.stringify(calculatedCalculationObj, dateOnlyReplacer))
-}
-
-function dateOnlyReplacer(this: Record<string, unknown>, key: string, value: unknown): unknown {
-  const raw = this[key]
-  return raw instanceof Date ? raw.toISOString().slice(0, 10) : value
-}
+import { Router, Request, Response, NextFunction } from 'express'
+import { ZodError } from 'zod'
+import SentenceCalculatorController from '../controllers/sentenceCalculatorController'
+import { parseInputSentences, formatOutputCalculation } from '../controllers/sentenceCalculatorMapper'
 
 export default function sentenceCalculatorRoutes(): Router {
   const router = Router()
-  router.post('/', calculateSentence)
+  const controller = new SentenceCalculatorController()
+  router.post('/', (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const deserializedInput = parseInputSentences(req.body)
+      const calculatedCalculationObj = controller.getCalculation(deserializedInput)
+      res.status(200).type('application/json').send(formatOutputCalculation(calculatedCalculationObj))
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res
+          .status(400)
+          .type('application/json')
+          .send(JSON.stringify({ errors: error.issues }))
+        return
+      }
+      next(error)
+    }
+  })
   return router
 }
