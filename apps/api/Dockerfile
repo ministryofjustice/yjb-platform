@@ -23,6 +23,7 @@ RUN NPM_CONFIG_AUDIT=false NPM_CONFIG_FUND=false npm ci
 ENV NODE_ENV='production'
 COPY apps/api ./apps/api
 COPY packages/shared-types ./packages/shared-types
+RUN npm run build -w packages/shared-types
 RUN npm run build -w apps/api
 RUN npm prune --no-audit --no-fund --omit=dev
 
