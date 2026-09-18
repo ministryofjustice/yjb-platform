@@ -2,7 +2,12 @@ import type { Express } from 'express'
 import request from 'supertest'
 import { isDeepStrictEqual } from 'util'
 import * as cheerio from 'cheerio'
-import { InputSentences, OutputCalculation } from '@yjb-platform/shared-types'
+import {
+  InputSentences,
+  OutputCalculation,
+  DtoEligibilityStatus,
+  buildTransferDatesObj,
+} from '@yjb-platform/shared-types'
 import { appWithAllRoutes } from '../testutils/appSetup'
 import YjbApiClient from '../data/yjbApi'
 import DtoService, { ValidationResult } from '../services/dtoService'
@@ -96,7 +101,7 @@ describe('POST /calculate', () => {
     }
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
-      etd: new Date('01/01/3093'),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('01/01/3093')),
     }
     dtoService.validatePayload.mockReturnValue(validResult)
     dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)

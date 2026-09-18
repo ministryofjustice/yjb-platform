@@ -1,4 +1,11 @@
-import { InputSentences, OutputCalculation, EffectiveDates, AdjustmentResult } from '@yjb-platform/shared-types'
+import {
+  InputSentences,
+  OutputCalculation,
+  EffectiveDates,
+  AdjustmentResult,
+  DtoEligibilityStatus,
+  buildTransferDatesObj,
+} from '@yjb-platform/shared-types'
 import { getLTDDate, getETDDate, adjustCalculation, calculateTerm } from './lib'
 
 export default function calculateDTOSentence(inputSentence: InputSentences): OutputCalculation {
@@ -6,8 +13,8 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
     calculatedTerms: [],
     effectiveDates: {} as EffectiveDates,
     effectiveDatesPastAdjustments: [],
-    ltd: new Date(0),
-    etd: new Date(0),
+    ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, new Date(0)),
+    etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, new Date(0)),
     unusedAdjustmentDays: 0,
   }
 

@@ -1,4 +1,10 @@
-import { AdjustmentTypes, InputSentences, OutputCalculation } from '@yjb-platform/shared-types'
+import {
+  AdjustmentTypes,
+  InputSentences,
+  OutputCalculation,
+  DtoEligibilityStatus,
+  buildTransferDatesObj,
+} from '@yjb-platform/shared-types'
 import calculateDTOSentence from './CalculationService'
 
 const remandInput: InputSentences = {
@@ -96,8 +102,8 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-12-12'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2027-01-12'),
-      etd: new Date('2026-11-12'),
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
     }
@@ -123,8 +129,8 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-11-27'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
@@ -161,8 +167,8 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-11-27'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
@@ -199,8 +205,8 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-11-23'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-23'),
-      etd: new Date('2026-10-23'),
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-23')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-23')),
       unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
@@ -262,8 +268,8 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-06-11'),
         TUSED: new Date(0),
       },
-      ltd: 0, // this is zero as sentence is less then 8 months
-      etd: 0, // this is zero as sentence is less then 8 months
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
@@ -316,8 +322,8 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-06-01'),
         TUSED: new Date(0),
       },
-      ltd: 0,
-      etd: 0,
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       unusedAdjustmentDays: 9,
       effectiveDatesPastAdjustments: [
         {
@@ -370,8 +376,8 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-06-01'),
         TUSED: new Date(0),
       },
-      ltd: 0,
-      etd: 0,
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       unusedAdjustmentDays: 64,
       effectiveDatesPastAdjustments: [
         {
@@ -427,8 +433,8 @@ describe('calculateDTOSentence', () => {
         mtd: new Date('2026-06-01'), // this has collapsed to sentence date after tagged bail takes us to date in the past
         TUSED: new Date(0),
       },
-      ltd: 0,
-      etd: 0,
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       unusedAdjustmentDays: 9,
       effectiveDatesPastAdjustments: [
         {

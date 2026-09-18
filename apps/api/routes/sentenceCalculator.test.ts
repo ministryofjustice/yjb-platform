@@ -1,5 +1,6 @@
 import request from 'supertest'
 import express from 'express'
+import { DtoEligibilityStatus, DTO_ELIGIBILITY_MESSAGES } from '@yjb-platform/shared-types'
 import sentenceCalculatorRoutes from './sentenceCalculator'
 
 const app = express()
@@ -34,8 +35,20 @@ describe('POST /calculations', () => {
         mtd: '2026-12-12',
         TUSED: '1970-01-01',
       },
-      ltd: '2027-01-12',
-      etd: '2026-11-12',
+      ltd: {
+        data: '2027-01-12',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+        },
+      },
+      etd: {
+        data: '2026-11-12',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+        },
+      },
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
     }
@@ -74,8 +87,20 @@ describe('POST /calculations', () => {
         mtd: '2026-11-27',
         TUSED: '1970-01-01',
       },
-      ltd: '2026-12-27',
-      etd: '2026-10-27',
+      ltd: {
+        data: '2026-12-27',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+        },
+      },
+      etd: {
+        data: '2026-10-27',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+        },
+      },
       unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [
         {
@@ -133,8 +158,20 @@ describe('POST /calculations', () => {
         mtd: '2026-11-27',
         TUSED: '1970-01-01',
       },
-      ltd: '2026-12-27',
-      etd: '2026-10-27',
+      ltd: {
+        data: '2026-12-27',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+        },
+      },
+      etd: {
+        data: '2026-10-27',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+        },
+      },
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',

@@ -1,4 +1,4 @@
-import { OutputCalculation } from '@yjb-platform/shared-types'
+import { OutputCalculation, DtoEligibilityStatus, buildTransferDatesObj } from '@yjb-platform/shared-types'
 
 const sampleCalculationResult: OutputCalculation = {
   calculatedTerms: [
@@ -35,8 +35,8 @@ const sampleCalculationResult: OutputCalculation = {
       },
     },
   ],
-  ltd: new Date('2026-12-27'),
-  etd: new Date('2026-10-27'),
+  ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
+  etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
   unusedAdjustmentDays: 0,
 }
 export default sampleCalculationResult
