@@ -50,13 +50,13 @@ const remandAndTaggedBailInput: InputSentences = {
 }
 
 function compareOutputCalculations(outputCalculation1: OutputCalculation, outputCalculation2: OutputCalculation) {
-    expect(outputCalculation1.calculatedTerms).toEqual(outputCalculation2.calculatedTerms)
-    expect(outputCalculation1.effectiveDates).toEqual(outputCalculation2.effectiveDates)
-    expect(outputCalculation1.ltd).toEqual(outputCalculation2.ltd)
-    expect(outputCalculation1.etd).toEqual(outputCalculation2.etd)
-    expect(outputCalculation1.unusedAdjustmentDays).toEqual(outputCalculation2.unusedAdjustmentDays)
-    expect(outputCalculation1.effectiveDatesPastAdjustments).toEqual(outputCalculation2.effectiveDatesPastAdjustments)
-    expect(outputCalculation1).toEqual(outputCalculation2)
+  expect(outputCalculation1.calculatedTerms).toEqual(outputCalculation2.calculatedTerms)
+  expect(outputCalculation1.effectiveDates).toEqual(outputCalculation2.effectiveDates)
+  expect(outputCalculation1.ltd).toEqual(outputCalculation2.ltd)
+  expect(outputCalculation1.etd).toEqual(outputCalculation2.etd)
+  expect(outputCalculation1.unusedAdjustmentDays).toEqual(outputCalculation2.unusedAdjustmentDays)
+  expect(outputCalculation1.effectiveDatesPastAdjustments).toEqual(outputCalculation2.effectiveDatesPastAdjustments)
+  expect(outputCalculation1).toEqual(outputCalculation2)
 }
 
 describe('calculateDTOSentence', () => {
