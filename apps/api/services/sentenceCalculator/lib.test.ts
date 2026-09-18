@@ -6,6 +6,8 @@ import {
   TaggedBailAdjustment,
   AdjustmentResult,
   CalculatedTerm,
+  DtoEligibilityStatus,
+  buildTransferDatesObj,
 } from '@yjb-platform/shared-types'
 import {
   getTotalDaysInTerm,
@@ -342,20 +344,8 @@ describe('adjustCalculation', () => {
         mtd: new Date('2026-12-12'),
         TUSED: new Date(0),
       },
-      ltd: {
-        data: new Date('2027-01-12'),
-        metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-        },
-      },
-      etd: {
-        data: new Date('2026-11-12'),
-        metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-        },
-      },
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       unusedAdjustmentDays: 0,
       effectiveDatesPastAdjustments: [],
     }
@@ -406,20 +396,8 @@ describe('adjustCalculation', () => {
         mtd: new Date('2026-12-12'),
         TUSED: new Date(0),
       },
-      ltd: {
-        data: new Date('2027-01-12'),
-        metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-        },
-      },
-      etd: {
-        data: new Date('2026-11-12'),
-        metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-        },
-      },
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
     }
@@ -471,20 +449,8 @@ describe('adjustCalculation', () => {
         mtd: new Date('2026-12-12'),
         TUSED: new Date(0),
       },
-      ltd: {
-        data: new Date('2027-01-12'),
-        metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-        },
-      },
-      etd: {
-        data: new Date('2026-11-12'),
-        metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-        },
-      },
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
     }
@@ -549,20 +515,8 @@ describe('adjustCalculation', () => {
         mtd: new Date('2026-12-12'),
         TUSED: new Date(0),
       },
-      ltd: {
-        data: new Date('2027-01-12'),
-        metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-        },
-      },
-      etd: {
-        data: new Date('2026-11-12'),
-        metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-        },
-      },
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
     }

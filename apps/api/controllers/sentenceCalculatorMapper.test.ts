@@ -1,5 +1,10 @@
 import { ZodError } from 'zod'
-import { AdjustmentTypes, OutputCalculation } from '@yjb-platform/shared-types'
+import {
+  AdjustmentTypes,
+  OutputCalculation,
+  DtoEligibilityStatus,
+  buildTransferDatesObj,
+} from '@yjb-platform/shared-types'
 import { parseInputSentences, formatOutputCalculation } from './sentenceCalculatorMapper'
 
 describe('parseInputSentences', () => {
@@ -83,20 +88,8 @@ describe('formatOutputCalculation', () => {
         TUSED: new Date(0),
       },
       effectiveDatesPastAdjustments: [],
-      ltd: {
-        data: new Date('2027-01-12'),
-        metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-        },
-      },
-      etd: {
-        data: new Date('2026-11-12'),
-        metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-        },
-      },
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       unusedAdjustmentDays: 0,
     }
 

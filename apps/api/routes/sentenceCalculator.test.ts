@@ -1,5 +1,6 @@
 import request from 'supertest'
 import express from 'express'
+import { DtoEligibilityStatus, DTO_ELIGIBILITY_MESSAGES } from '@yjb-platform/shared-types'
 import sentenceCalculatorRoutes from './sentenceCalculator'
 
 const app = express()
@@ -37,15 +38,15 @@ describe('POST /calculations', () => {
       ltd: {
         data: '2027-01-12',
         metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
         },
       },
       etd: {
         data: '2026-11-12',
         metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
         },
       },
       effectiveDatesPastAdjustments: [],
@@ -89,15 +90,15 @@ describe('POST /calculations', () => {
       ltd: {
         data: '2026-12-27',
         metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
         },
       },
       etd: {
         data: '2026-10-27',
         metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
         },
       },
       unusedAdjustmentDays: 0,
@@ -160,15 +161,15 @@ describe('POST /calculations', () => {
       ltd: {
         data: '2026-12-27',
         metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
         },
       },
       etd: {
         data: '2026-10-27',
         metadata: {
-          status: '1_month',
-          message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
         },
       },
       effectiveDatesPastAdjustments: [

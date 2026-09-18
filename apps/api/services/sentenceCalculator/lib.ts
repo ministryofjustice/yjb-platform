@@ -9,6 +9,8 @@ import {
   AdjustmentResult,
   CalculatedTerm,
   transferDatesObj,
+  DtoEligibilityStatus,
+  buildTransferDatesObj,
 } from '@yjb-platform/shared-types'
 
 export function getTotalDaysInTerm(sentenceInput: InputIndividualSentence): number {
@@ -40,58 +42,22 @@ export function getMTDDate(totalDaysMTD: number, from: Date): Date {
 
 export function getETDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
   if (sentenceLenth > 8 && sentenceLenth < 18) {
-    return {
-      data: subMonths(new UTCDate(mtd), 1),
-      metadata: {
-        status: '1_month',
-        message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-      },
-    }
+    return buildTransferDatesObj(DtoEligibilityStatus.oneMonth, subMonths(new UTCDate(mtd), 1))
   }
   if (sentenceLenth > 18) {
-    return {
-      data: subMonths(new UTCDate(mtd), 2),
-      metadata: {
-        status: '2_months',
-        message: '2 months away from the MTD for DTOs of more then 18 months',
-      },
-    }
+    return buildTransferDatesObj(DtoEligibilityStatus.twoMonths, subMonths(new UTCDate(mtd), 2))
   }
-  return {
-    data: 0,
-    metadata: {
-      status: 'not_calculated',
-      message: 'Not applicable for DTOs of less then 8 months',
-    },
-  }
+  return buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)
 }
 
 export function getLTDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
   if (sentenceLenth > 8 && sentenceLenth < 18) {
-    return {
-      data: addMonths(new UTCDate(mtd), 1),
-      metadata: {
-        status: '1_month',
-        message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-      },
-    }
+    return buildTransferDatesObj(DtoEligibilityStatus.oneMonth, addMonths(new UTCDate(mtd), 1))
   }
   if (sentenceLenth > 18) {
-    return {
-      data: addMonths(new UTCDate(mtd), 2),
-      metadata: {
-        status: '2_months',
-        message: '2 months away from the MTD for DTOs of more then 18 months',
-      },
-    }
+    return buildTransferDatesObj(DtoEligibilityStatus.twoMonths, addMonths(new UTCDate(mtd), 2))
   }
-  return {
-    data: 0,
-    metadata: {
-      status: 'not_calculated',
-      message: 'Not applicable for DTOs of less then 8 months',
-    },
-  }
+  return buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)
 }
 
 export function calculateTerm(inputSentence: InputIndividualSentence): CalculatedTerm {
