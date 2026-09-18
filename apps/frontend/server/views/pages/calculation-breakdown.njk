@@ -22,9 +22,14 @@
   <h1 class="govuk-heading-l">Calculation breakdown</h1>
 
   <div class="govuk-grid-row">
-    {{ govukButton({ text: "Flag and Error"}) }}
-    {{ govukButton({ text: "Breakdown View"}) }}
-    {{ govukButton({ text: "Sheet View"}) }}
+    {{ govukButton({
+      text: "View 1",
+      attributes: { "data-action": "show-view-1" }
+    }) }}
+    {{ govukButton({
+      text: "View 2",
+      attributes: { "data-action": "show-view-2" }
+    }) }}
   </div>
 
   <div class="govuk-grid-row">
@@ -41,4 +46,26 @@
   {% include "../partials/calculation-breakdown/view-A.njk" %}
   {% include "../partials/calculation-breakdown/view-B.njk" %}
 
+{% endblock %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  <script nonce="{{ cspNonce }}">
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnView1 = document.querySelector('[data-action="show-view-1"]')
+      const btnView2 = document.querySelector('[data-action="show-view-2"]')
+      const view1 = document.getElementById('view-1')
+      const view2 = document.getElementById('view-2')
+
+      btnView1?.addEventListener('click', () => {
+        view1.hidden = false;
+        view2.hidden = true;
+      });
+
+      btnView2?.addEventListener('click', () => {
+        view1.hidden = true;
+        view2.hidden = false;
+      });
+    });
+  </script>
 {% endblock %}
