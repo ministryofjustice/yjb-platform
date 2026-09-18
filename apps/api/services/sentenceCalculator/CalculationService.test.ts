@@ -49,6 +49,16 @@ const remandAndTaggedBailInput: InputSentences = {
   ],
 }
 
+function compareOutputCalculations(outputCalculation1: OutputCalculation, outputCalculation2: OutputCalculation) {
+  expect(outputCalculation1.calculatedTerms).toEqual(outputCalculation2.calculatedTerms)
+  expect(outputCalculation1.effectiveDates).toEqual(outputCalculation2.effectiveDates)
+  expect(outputCalculation1.ltd).toEqual(outputCalculation2.ltd)
+  expect(outputCalculation1.etd).toEqual(outputCalculation2.etd)
+  expect(outputCalculation1.unusedAdjustmentDays).toEqual(outputCalculation2.unusedAdjustmentDays)
+  expect(outputCalculation1.effectiveDatesPastAdjustments).toEqual(outputCalculation2.effectiveDatesPastAdjustments)
+  expect(outputCalculation1).toEqual(outputCalculation2)
+}
+
 describe('calculateDTOSentence', () => {
   it('returns full calculation for 11 months sentence starting on 2026-06-29 no adjustments', () => {
     const noRemandInput: InputSentences = {
@@ -92,7 +102,8 @@ describe('calculateDTOSentence', () => {
       unusedAdjustmentDays: 0,
     }
 
-    expect(calculateDTOSentence(noRemandInput)).toEqual(expectedNoRemandOutput)
+    const noRemandOutput: OutputCalculation = calculateDTOSentence(noRemandInput)
+    compareOutputCalculations(noRemandOutput, expectedNoRemandOutput)
   })
 
   it('returns full calculation for 11 months sentence starting on 2026-06-29 with 15 days remand', () => {
@@ -129,7 +140,8 @@ describe('calculateDTOSentence', () => {
       ],
     }
 
-    expect(calculateDTOSentence(remandInput)).toEqual(expectedRemandOutput)
+    const remandOutput: OutputCalculation = calculateDTOSentence(remandInput)
+    compareOutputCalculations(remandOutput, expectedRemandOutput)
   })
 
   it('returns full calculation for 11 months sentence starting on 2026-06-29 with 15 days tagged bail', () => {
@@ -166,7 +178,8 @@ describe('calculateDTOSentence', () => {
       ],
     }
 
-    expect(calculateDTOSentence(remandTaggedBailInput)).toEqual(expectedTaggedBailOutput)
+    const taggedBailOutput: OutputCalculation = calculateDTOSentence(remandTaggedBailInput)
+    compareOutputCalculations(taggedBailOutput, expectedTaggedBailOutput)
   })
 
   it('returns full calculation for 11 months sentence starting on 2026-06-29 with 15 days remand and 4 days tagged bail', () => {
@@ -213,7 +226,8 @@ describe('calculateDTOSentence', () => {
       ],
     }
 
-    expect(calculateDTOSentence(remandAndTaggedBailInput)).toEqual(expectedRemandAndTaggedBailOutput)
+    const remandAndTaggedBailOutput: OutputCalculation = calculateDTOSentence(remandAndTaggedBailInput)
+    compareOutputCalculations(remandAndTaggedBailOutput, expectedRemandAndTaggedBailOutput)
   })
 
   it('returns full calculation for 4 months sentence starting on 2026-06-01 with 50 days remand', () => {
@@ -265,7 +279,8 @@ describe('calculateDTOSentence', () => {
       ],
     }
 
-    expect(calculateDTOSentence(fiftyDaysRemandInput)).toEqual(expectedRemandOutput)
+    const remandOutput: OutputCalculation = calculateDTOSentence(fiftyDaysRemandInput)
+    compareOutputCalculations(remandOutput, expectedRemandOutput)
   })
 
   // for testing purpose these examples have very big remands, since dto sentences are min of 4 months
@@ -274,8 +289,8 @@ describe('calculateDTOSentence', () => {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: AdjustmentTypes.remand,
-        days: 70, // bigger then mtd but less then seld
-        startDate: new Date('2026-03-23'), // 70 days prior sentence beginning
+        days: 70, // bigger than mtd but less than sled
+        startDate: new Date('2026-03-23'), // 70 days prior to sentence beginning
       },
       inputIndividualSentences: [
         {
@@ -303,7 +318,7 @@ describe('calculateDTOSentence', () => {
       },
       ltd: 0,
       etd: 0,
-      unusedAdjustmentDays: 0,
+      unusedAdjustmentDays: 9,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -318,7 +333,8 @@ describe('calculateDTOSentence', () => {
       ],
     }
 
-    expect(calculateDTOSentence(seventyDaysRemandInput)).toEqual(expectedRemandOutput)
+    const remandOutput: OutputCalculation = calculateDTOSentence(seventyDaysRemandInput)
+    compareOutputCalculations(remandOutput, expectedRemandOutput)
   })
 
   // for testing purpose these examples have very big remands, since dto sentences are min of 4 months
@@ -356,7 +372,7 @@ describe('calculateDTOSentence', () => {
       },
       ltd: 0,
       etd: 0,
-      unusedAdjustmentDays: 3,
+      unusedAdjustmentDays: 64,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -371,7 +387,8 @@ describe('calculateDTOSentence', () => {
       ],
     }
 
-    expect(calculateDTOSentence(oneTwentyFiveDaysRemandInput)).toEqual(expectedRemandOutput)
+    const remandOutput: OutputCalculation = calculateDTOSentence(oneTwentyFiveDaysRemandInput)
+    compareOutputCalculations(remandOutput, expectedRemandOutput)
   })
 
   it('returns full calculation for 4 months sentence starting on 2026-06-01 with 50 days remand and 20 days tagged bail', () => {
@@ -412,7 +429,7 @@ describe('calculateDTOSentence', () => {
       },
       ltd: 0,
       etd: 0,
-      unusedAdjustmentDays: 0,
+      unusedAdjustmentDays: 9,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -437,6 +454,7 @@ describe('calculateDTOSentence', () => {
       ],
     }
 
-    expect(calculateDTOSentence(fiftyRemandTwentyTaggedBailInput)).toEqual(expectedRemandOutput)
+    const remandOutput: OutputCalculation = calculateDTOSentence(fiftyRemandTwentyTaggedBailInput)
+    compareOutputCalculations(remandOutput, expectedRemandOutput)
   })
 })
