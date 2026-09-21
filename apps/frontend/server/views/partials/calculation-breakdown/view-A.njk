@@ -29,23 +29,55 @@
     <div class="govuk-grid-column-two-thirds">
       <div id="detailed-breakdown">
         <h2>Detailed breakdown</h2>
-        <p><span class="govuk-body govuk-!-font-weight-bold">Term type:</span> <span class="govuk-body">Detention and Training Order (DTO)</span><span class="govuk-body-s"></span></p>
+        <p>
+          <span class="govuk-body govuk-!-font-weight-bold">Term type:</span>
+          <span class="govuk-body">Detention and Training Order (DTO)</span><span class="govuk-body-s"></span></p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">Term length: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].totalDaysInTerm }} days</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
+        <p>
+          <span class="govuk-body govuk-!-font-weight-bold">Term length: </span>
+          <span class="govuk-body">{{ calculationResult.calculatedTerms[0].inputSentence.durationMonths }} months ({{ calculationResult.calculatedTerms[0].totalDaysInTerm }} days)</span><span class="govuk-body-s">, from {{ calculationResult.calculatedTerms[0].inputSentence.from.toISOString().slice(0, 10) if calculationResult.calculatedTerms[0].inputSentence.from.toISOString else calculationResult.calculatedTerms[0].inputSentence.from }} to {{ calculationResult.effectiveDates.sled.data.toISOString().slice(0, 10) if calculationResult.effectiveDates.sled.data.toISOString else calculationResult.effectiveDates.sled.data }}</span></p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">Custodial Period: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].totalDaysMTD }}</span><span class="govuk-body-s"></span></p>
+        <p>
+          <span class="govuk-body govuk-!-font-weight-bold">Custodial period: </span>
+          <span class="govuk-body">{{ calculationResult.calculatedTerms[0].totalDaysMTD }} days</span>
+          <span class="govuk-body-s"></span>
+        </p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">MTD: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].mtd }}</span><span class="govuk-body-s"></span></p>
+        <p>
+          <span class="govuk-body govuk-!-font-weight-bold">MTD: </span>
+          <span class="govuk-body">{{ calculationResult.calculatedTerms[0].mtd }}</span>
+          <span class="govuk-body-s"></span>
+        </p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">Remand Period: </span><span class="govuk-body">{{ calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days}}</span><span class="govuk-body-s"></span></p>
+        <p>
+          <span class="govuk-body govuk-!-font-weight-bold">Remand period: </span>
+          <span class="govuk-body">{{ calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days}}</span>
+          <span class="govuk-body-s"></span>
+        </p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">Final Sled: </span><span class="govuk-body">{{ calculationResult.effectiveDates.sled.data }}</span><span class="govuk-body-s"></span></p>
+        <p>
+          <span class="govuk-body govuk-!-font-weight-bold">Final Sled: </span>
+          <span class="govuk-body">{{ calculationResult.effectiveDates.sled.data }}</span>
+          <span class="govuk-body-s"> ({{ calculationResult.effectiveDates.sled.metadata.message }})</span>
+        </p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">Final MTD: </span><span class="govuk-body">{{ calculationResult.effectiveDates.mtd.data }}</span><span class="govuk-body-s"></span></p>
+        <p>
+          <span class="govuk-body govuk-!-font-weight-bold">Final MTD: </span>
+          <span class="govuk-body">{{ calculationResult.effectiveDates.mtd.data }}</span>
+          <span class="govuk-body-s"> ({{ calculationResult.effectiveDates.mtd.metadata.message }})</span>
+        </p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">ETD: </span><span class="govuk-body">{{  calculationResult.etd.data }}</span><span class="govuk-body-s"></span></p>
+        <p>
+          <span class="govuk-body govuk-!-font-weight-bold">ETD: </span>
+          <span class="govuk-body">{{  calculationResult.etd.data }}</span>
+          <span class="govuk-body-s"> ({{ calculationResult.etd.metadata.message }})</span>
+        </p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">LTD: </span><span class="govuk-body">{{  calculationResult.ltd.data }}</span><span class="govuk-body-s"></span></p>
+        <p>
+          <span class="govuk-body govuk-!-font-weight-bold">LTD: </span>
+          <span class="govuk-body">{{  calculationResult.ltd.data }}</span>
+          <span class="govuk-body-s"> ({{ calculationResult.ltd.metadata.message }})</span>
+        </p>
       </div>
     </div>
   </div>

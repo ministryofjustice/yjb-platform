@@ -31,7 +31,7 @@ const sampleCalculationResult: OutputCalculation = {
       adjustmentParameters: {
         name: 'remand',
         startDate: new Date('2026-06-14'),
-        days: 0,
+        days: 15,
       },
       pastEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
