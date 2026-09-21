@@ -61,7 +61,7 @@ describe('Calculation breakdown page', () => {
       ['Final Sled', 'Thu May 13 2027'],
       ['Final MTD', 'Fri Nov 27 2026'],
       ['LTD', 'Sun Dec 27 2026'],
-      ['ETD', 'Tue Oct 27 2026']
+      ['ETD', 'Tue Oct 27 2026'],
     ]
 
     const expectedExplanationValues: string[][] = [
@@ -69,9 +69,8 @@ describe('Calculation breakdown page', () => {
       ['Final Sled', '(2027-05-28 minus 15 days)'],
       ['Final MTD', '(2026-12-12 minus 15 days)'],
       ['LTD', '(1 month away from the MTD for DTOs of 8 months, but less then 18 months)'],
-      ['ETD', '(1 month away from the MTD for DTOs of 8 months, but less then 18 months)']
+      ['ETD', '(1 month away from the MTD for DTOs of 8 months, but less then 18 months)'],
     ]
-
 
     describe('your answers section', () => {
       const parsedInput: ParsedDtoForm = {
@@ -144,9 +143,12 @@ describe('Calculation breakdown page', () => {
         expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
       })
 
-      it.each(expectedExplanationValues)('correctly renders the calculation explanations for %s', (_key: string, value: string) => {
-        expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
-      })
+      it.each(expectedExplanationValues)(
+        'correctly renders the calculation explanations for %s',
+        (_key: string, value: string) => {
+          expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
+        },
+      )
     })
 
     describe('Calculation outputs B', () => {
@@ -165,14 +167,11 @@ describe('Calculation breakdown page', () => {
         explanationDataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
       })
 
-      it.each(expectedCalcValues)(
-        'correctly renders the calculation result for %s',
-        (key: string, value: string) => {
-          expect(calculationDataRows).toMatchObject({
-            [key]: expect.stringContaining(value),
-          })
-        },
-      )
+      it.each(expectedCalcValues)('correctly renders the calculation result for %s', (key: string, value: string) => {
+        expect(calculationDataRows).toMatchObject({
+          [key]: expect.stringContaining(value),
+        })
+      })
 
       it.each(expectedExplanationValues)(
         'correctly renders the calculation explanations for %s',
