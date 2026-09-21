@@ -12,31 +12,6 @@
       <p><span class="govuk-heading-m">SLED:</span> <span class="govuk-body-s">Sentence and licence expiry date</span> <span class="govuk-body-m govuk-!-font-weight-bold">{{ calculationResult.effectiveDates.sled }}</span></p>
     </div>
 
-    <div id="custodial-timeline">
-      <h2>Custodial timeline</h2>
-      <div class="timetable-row">
-        <div class="timetable-item  timetable-section-darker">
-          <div class="timetable-section">Sentenced</div>
-          <div class="timetable-value">{{ calculationResult.calculatedTerms[0].inputSentence.from }}</div>
-        </div>
-        <div class="timetable-item">
-          <div class="timetable-section">ETD</div>
-          <div class="timetable-value">{{ calculationResult.etd.data }}</div>
-        </div>
-        <div class="timetable-item   timetable-section-darker">
-          <div class="timetable-section">MTD</div>
-          <div class="timetable-value">{{ calculationResult.effectiveDates.mtd }}</div>
-        </div>
-        <div class="timetable-item">
-          <div class="timetable-section">LTD</div>
-          <div class="timetable-value">{{ calculationResult.ltd.data }}</div>
-        </div>
-        <div class="timetable-item timetable-section-darker">
-          <div class="timetable-section">SLED</div>
-          <div class="timetable-value">{{ calculationResult.effectiveDates.sled }}</div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div class="govuk-grid-column-two-thirds">
