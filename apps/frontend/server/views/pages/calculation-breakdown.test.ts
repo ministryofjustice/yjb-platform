@@ -6,7 +6,6 @@ import { ParsedDtoForm } from '../../services/dtoService'
 
 const env = createNunjucksTestSetup()
 const renderWithCheerio = (context = {}) => cheerio.load(env.render('pages/calculation-breakdown.njk', context))
-// const renderWithoutCheerio = (context = {}) => env.render('pages/calculation-breakdown.njk', context)
 
 describe('Calculation breakdown page', () => {
   describe('content', () => {
@@ -54,6 +53,23 @@ describe('Calculation breakdown page', () => {
   })
 
   describe('data', () => {
+    const expectedCalcValues: string[][] = [
+      ['Term length', '11 months (334 days)'],
+      ['Final Sled', 'Thu May 13 2027'],
+      ['Final MTD', 'Fri Nov 27 2026'],
+      ['LTD', 'Sun Dec 27 2026'],
+      ['ETD', 'Tue Oct 27 2026']
+    ]
+
+    const expectedExplanationValues: string[][] = [
+      ['Term length', ', from 2026-06-29 to 2027-05-13'],
+      ['Final Sled', '(2027-05-28 minus 15 days)'],
+      ['Final MTD', '(2026-12-12 minus 15 days)'],
+      ['LTD', '(1 month away from the MTD for DTOs of 8 months, but less then 18 months)'],
+      ['ETD', '(1 month away from the MTD for DTOs of 8 months, but less then 18 months)']
+    ]
+
+
     describe('your answers section', () => {
       const parsedInput: ParsedDtoForm = {
         remandDays: 33,
@@ -126,31 +142,36 @@ describe('Calculation breakdown page', () => {
       it('it renders the Detailed Breakdown MTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
         const calculationResult: OutputCalculation = sampleCalculationResult
         const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('MTD: Sat Dec 12 2026')
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('MTD: ')
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('Sat Dec 12 2026')
       })
 
       it('it renders the Detailed Breakdown Final Sled passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
         const calculationResult: OutputCalculation = sampleCalculationResult
         const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('Final Sled: Thu May 13 2027')
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('Final Sled: ')
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('Thu May 13 2027')
       })
 
       it('it renders the Detailed Breakdown Final MTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
         const calculationResult: OutputCalculation = sampleCalculationResult
         const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('Final MTD: Fri Nov 27 2026 ')
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('Final MTD: ')
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('Fri Nov 27 2026 ')
       })
 
       it('it renders the Detailed Breakdown ETD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
         const calculationResult: OutputCalculation = sampleCalculationResult
         const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('ETD: Tue Oct 27 2026')
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('ETD: ')
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('Tue Oct 27 2026')
       })
 
       it('it renders the Detailed Breakdown LTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
         const calculationResult: OutputCalculation = sampleCalculationResult
         const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('LTD: Sun Dec 27 2026')
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('LTD: ')
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('Sun Dec 27 2026')
       })
     })
 
@@ -158,22 +179,11 @@ describe('Calculation breakdown page', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
       const cheerioPage = renderWithCheerio({ calculationResult })
 
-      it('Correctly renders the Term length', () => {
-        const dataRow = cheerioPage('#detailed-breakdown').children().eq(3)
-        expect(dataRow.text()).toContain('Term length: 11 months (334 days)')
-      })
-      it('Correctly renders the Term length explanation', () => {
-        const dataRow = cheerioPage('#detailed-breakdown').children().eq(3)
-        expect(dataRow.text()).toContain(', from 2026-06-29 to 2027-05-13')
+      it.each(expectedCalcValues)('Correctly renders the calculation values for %s', (_key: string, value: string) => {
+        expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
       })
 
-      it.each([
-        ['Term length', ', from 2026-06-29 to 2027-05-13'],
-        ['Final Sled', '2027-05-28 minus 15 days'],
-        ['Final MTD', '2026-12-12 minus 15 days'],
-        ['LTD', '1 month away from the MTD for DTOs of 8 months, but less then 18 months'],
-        ['ETD', '1 month away from the MTD for DTOs of 8 months, but less then 18 months'],
-      ])('Correctly renders the calculation explanations for %s', (_key: string, value: string) => {
+      it.each(expectedExplanationValues)('Correctly renders the calculation explanations for %s', (_key: string, value: string) => {
         expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
       })
     })
@@ -194,13 +204,7 @@ describe('Calculation breakdown page', () => {
         explanationDataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
       })
 
-      it.each([
-        ['Term length', '11 months (334 days)'],
-        ['Final Sled', 'Thu May 13 2027'],
-        ['Final MTD', 'Fri Nov 27 2026'],
-        ['LTD', 'Sun Dec 27 2026'],
-        ['ETD', 'Tue Oct 27 2026']
-      ])(
+      it.each(expectedCalcValues)(
         'Correctly renders the calculation result for %s',
         (key: string, value: string) => {
           expect(calculationDataRows).toMatchObject({
@@ -209,13 +213,7 @@ describe('Calculation breakdown page', () => {
         },
       )
 
-      it.each([
-        ['Term length', ', from 2026-06-29 to 2027-05-13'],
-        ['Final Sled', '(2027-05-28 minus 15 days)'],
-        ['Final MTD', '(2026-12-12 minus 15 days)'],
-        ['LTD', '(1 month away from the MTD for DTOs of 8 months, but less then 18 months)'],
-        ['ETD', '(1 month away from the MTD for DTOs of 8 months, but less then 18 months)']
-      ])(
+      it.each(expectedCalcValues)(
         'Correctly renders the calculation explanations for %s',
         (key: string, value: string) => {
           expect(explanationDataRows).toMatchObject({
