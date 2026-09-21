@@ -1,49 +1,39 @@
 <div id="view-2" class="govuk-grid-row" hidden>
 
   {% set calculationResultsHtml %}
-  <div id="calculation-results-tab-content">
-    <h2>Release dates</h2>
-    <p><span class="govuk-body govuk-!-font-weight-bold">Term type:</span> <span class="govuk-body">Detention and Training Order (DTO)</span><span class="govuk-body-s"></span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Term length: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].inputSentence.durationMonths }} months ({{ calculationResult.calculatedTerms[0].totalDaysInTerm }} days)</span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Custodial Period: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].totalDaysMTD }} days</span><span class="govuk-body-s"></span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">MTD: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].mtd }}</span><span class="govuk-body-s"></span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Remand Period: </span><span class="govuk-body">{{ calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days}} days</span><span class="govuk-body-s"></span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Final Sled: </span><span class="govuk-body">{{ calculationResult.effectiveDates.sled }}</span><span class="govuk-body-s"></span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Final MTD: </span><span class="govuk-body">{{ calculationResult.effectiveDates.mtd }}</span><span class="govuk-body-s"></span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">ETD: </span><span class="govuk-body">{{  calculationResult.etd.data }}</span><span class="govuk-body-s"></span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">LTD: </span><span class="govuk-body">{{  calculationResult.ltd.data }}</span><span class="govuk-body-s"></span></p>
-  </div>
+  <h2>Calculation results</h2>
+
+  {{ govukSummaryList({
+        rows: [
+          { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" } },
+          { key: { text: "Term length" }, value: { text: calculationResult.calculatedTerms[0].inputSentence.durationMonths + "months (" + calculationResult.calculatedTerms[0].totalDaysInTerm + " days)" } },
+          { key: { text: "Custodial Period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days" } },
+          { key: { text: "MTD" }, value: { text: calculationResult.calculatedTerms[0].mtd } },
+          { key: { text: "Remand Period" }, value: { text: calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days + " days" } },
+          { key: { text: "Final Sled" }, value: { text: calculationResult.effectiveDates.sled } },
+          { key: { text: "Final MTD" }, value: { text: calculationResult.effectiveDates.mtd } },
+          { key: { text: "ETD" }, value: { text: calculationResult.etd.data } },
+          { key: { text: "LTD" }, value: { text: calculationResult.ltd.data } }
+        ]
+      }) }}
   {% endset -%}
 
   {% set resultsBreakdownHtml %}
-  <div id="results-breakdown-tab-content">
-    <h2>Results breakdown</h2>
-    <p><span class="govuk-body govuk-!-font-weight-bold">Term type:</span> <span class="govuk-body">Detention and Training Order (DTO)</span><span class="govuk-body-s"></span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Term length: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].inputSentence.durationMonths }} months ({{ calculationResult.calculatedTerms[0].totalDaysInTerm }} days)</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Custodial Period: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].totalDaysMTD }} days</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">MTD: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].mtd }}</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Remand Period: </span><span class="govuk-body">{{ calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days}} days</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Final Sled: </span><span class="govuk-body">{{ calculationResult.effectiveDates.sled }}</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span>/p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Final MTD: </span><span class="govuk-body">{{ calculationResult.effectiveDates.mtd }}</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">ETD: </span><span class="govuk-body">{{  calculationResult.etd.data }}</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">LTD: </span><span class="govuk-body">{{  calculationResult.ltd.data }}</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
-  </div>
+  <h2>Results breakdown</h2>
+
+  {{ govukSummaryList({
+    rows: [
+      { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" + " (Coming soon: calculation breakdown)" } },
+      { key: { text: "Term length" }, value: { text: calculationResult.calculatedTerms[0].inputSentence.durationMonths + " months (" + calculationResult.calculatedTerms[0].totalDaysInTerm + " days)" + " (Coming soon: calculation breakdown)" } },
+      { key: { text: "Custodial Period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days" + " (Coming soon: calculation breakdown)" } },
+      { key: { text: "MTD" }, value: { text: calculationResult.calculatedTerms[0].mtd + " (Coming soon: calculation breakdown)" } },
+      { key: { text: "Remand Period" }, value: { text: calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days + " days" + " (Coming soon: calculation breakdown)" } },
+      { key: { text: "Final Sled" }, value: { text: calculationResult.effectiveDates.sled + " (Coming soon: calculation breakdown)" } },
+      { key: { text: "Final MTD" }, value: { text: calculationResult.effectiveDates.mtd + " (Coming soon: calculation breakdown)" } },
+      { key: { text: "ETD" }, value: { text: calculationResult.etd.data + " (Coming soon: calculation breakdown)" } },
+      { key: { text: "LTD" }, value: { text: calculationResult.ltd.data + " (Coming soon: calculation breakdown)" } }
+    ]
+  }) }}
   {% endset -%}
 
   <div class="govuk-grid-column-two-thirds">
