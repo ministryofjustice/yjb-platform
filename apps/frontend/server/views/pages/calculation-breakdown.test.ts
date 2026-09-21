@@ -164,16 +164,11 @@ describe('Calculation breakdown page', () => {
       })
       it('Correctly renders the Term length explanation', () => {
         const dataRow = cheerioPage('#detailed-breakdown').children().eq(3)
-        expect(dataRow.text()).toContain(
-          ', from Mon Jun 29 2026 01:00:00 GMT+0100 (British Summer Time) to Thu May 13 2027 01:00:00 GMT+0100 (British Summer Time)',
-        )
+        expect(dataRow.text()).toContain(', from 2026-06-29 to 2027-05-13')
       })
 
       it.each([
-        [
-          'Term length',
-          ', from Mon Jun 29 2026 01:00:00 GMT+0100 (British Summer Time) to Thu May 13 2027 01:00:00 GMT+0100 (British Summer Time)',
-        ],
+        ['Term length', ', from 2026-06-29 to 2027-05-13'],
         ['Final Sled', '2027-05-28 minus 15 days'],
         ['Final MTD', '2026-12-12 minus 15 days'],
         ['LTD', '1 month away from the MTD for DTOs of 8 months, but less then 18 months'],
@@ -209,16 +204,14 @@ describe('Calculation breakdown page', () => {
         },
       )
 
-      it.each([
-        [
-          'Term length',
-          ', from Mon Jun 29 2026 01:00:00 GMT+0100 (British Summer Time) to Thu May 13 2027 01:00:00 GMT+0100 (British Summer Time)',
-        ],
-      ])('Correctly renders the calculation explanations for %s', (key: string, value: string) => {
-        expect(explanationDataRows).toMatchObject({
-          [key]: expect.stringContaining(value),
-        })
-      })
+      it.each([['Term length', ', from 2026-06-29 to 2027-05-13']])(
+        'Correctly renders the calculation explanations for %s',
+        (key: string, value: string) => {
+          expect(explanationDataRows).toMatchObject({
+            [key]: expect.stringContaining(value),
+          })
+        },
+      )
 
       it.each([['Final Sled', '2027-05-28 minus 15 days']])(
         'Correctly renders the calculation explanations for %s',
