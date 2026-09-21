@@ -44,61 +44,114 @@ describe('Calculation breakdown page', () => {
       expect(button.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
       expect(button.prop('href')).toContain(`sentenceDate=01/22/2033`)
     })
+
+    it('includes a Start a new calculation button', () => {
+      const cheerioPage = renderWithCheerio()
+      const link = cheerioPage('#new-calculation-link')
+      expect(link.text()).toBe('Start a new calculation')
+      expect(link.prop('href')).toBe('/calculate')
+    })
   })
 
   describe('data', () => {
-    it('it renders the Release Dates ETD passed from the model', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#release-dates').text()).toContain('ETD: Earliest Transfer Date Tue Oct 27 2026')
+    describe('your answers section', () => {
+      const parsedInput: ParsedDtoForm = {
+        remandDays: 33,
+        taggedBailDays: 44,
+        sentenceLengthMonths: 22,
+        sentenceDate: new Date('01/22/2033'),
+        sentenceDateString: '01/22/2033',
+      }
+
+      it('renders the panel', () => {
+        const cheerioPage = renderWithCheerio()
+        expect(cheerioPage('.govuk-summary-card').text()).toContain('Your answers')
+      })
+
+      it('renders the sentence date', () => {
+        const cheerioPage = renderWithCheerio({ inputData: parsedInput })
+        expect(cheerioPage('.govuk-summary-card').text()).toContain('Sentence date')
+        expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.sentenceDateString)
+      })
+
+      it('renders the sentence length', () => {
+        const cheerioPage = renderWithCheerio({ inputData: parsedInput })
+        expect(cheerioPage('.govuk-summary-card').text()).toContain('Sentence length')
+        expect(cheerioPage('.govuk-summary-card').text()).toContain(`${parsedInput.sentenceLengthMonths} months`)
+      })
+
+      it('renders the remand days', () => {
+        const cheerioPage = renderWithCheerio({ inputData: parsedInput })
+        expect(cheerioPage('.govuk-summary-card').text()).toContain('Days spent on remand')
+        expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.remandDays.toString())
+      })
+
+      it('renders the tagged bail days', () => {
+        const cheerioPage = renderWithCheerio({ inputData: parsedInput })
+        expect(cheerioPage('.govuk-summary-card').text()).toContain('Days spent on tagged bail')
+        expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.taggedBailDays.toString())
+      })
+
+      it('renders appropriate change answers link', () => {
+        const cheerioPage = renderWithCheerio({ inputData: parsedInput })
+        const changeAnswersLink = cheerioPage('.govuk-summary-card .govuk-summary-card__actions .govuk-link')
+        expect(changeAnswersLink.prop('href')).toContain(`remandDays=${parsedInput.remandDays}`)
+        expect(changeAnswersLink.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
+        expect(changeAnswersLink.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
+        expect(changeAnswersLink.prop('href')).toContain(`sentenceDate=01/22/2033`)
+      })
     })
 
-    it('it renders the  Release Dates MTD passed from the model', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#release-dates').text()).toContain('MTD: Mid term date Fri Nov 27 2026')
+    describe('Results summary', () => {
+      it('it renders the Release Dates passed from the model', () => {
+        const calculationResult: OutputCalculation = sampleCalculationResult
+        const cheerioPage = renderWithCheerio({ calculationResult })
+        const summaryData: Record<string, string> = {}
+
+        cheerioPage('#release-dates .govuk-summary-list__row').each((_, el) => {
+          const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
+          summaryData[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
+        })
+
+        expect(summaryData).toMatchObject({
+          ETD: expect.stringContaining('Tue Oct 27 2026'),
+          MTD: expect.stringContaining('Fri Nov 27 2026'),
+          LTD: expect.stringContaining('Sun Dec 27 2026'),
+          SLED: expect.stringContaining('Thu May 13 2027'),
+        })
+      })
     })
 
-    it('it renders the  Release Dates LTD passed from the model', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#release-dates').text()).toContain('LTD: Latest Transfer Date Sun Dec 27 2026')
-    })
+    describe('Results breakdown', () => {
+      it('it renders the Detailed Breakdown MTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
+        const calculationResult: OutputCalculation = sampleCalculationResult
+        const cheerioPage = renderWithCheerio({ calculationResult })
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('MTD: Sat Dec 12 2026')
+      })
 
-    it('it renders the Release Dates SLED passed from the model', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#release-dates').text()).toContain('SLED: Sentence and licence expiry date Thu May 13 2027')
-    })
+      it('it renders the Detailed Breakdown Final Sled passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
+        const calculationResult: OutputCalculation = sampleCalculationResult
+        const cheerioPage = renderWithCheerio({ calculationResult })
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('Final Sled: Thu May 13 2027')
+      })
 
-    it('it renders the Detailed Breakdown MTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#detailed-breakdown').text()).toContain('MTD: Sat Dec 12 2026')
-    })
+      it('it renders the Detailed Breakdown Final MTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
+        const calculationResult: OutputCalculation = sampleCalculationResult
+        const cheerioPage = renderWithCheerio({ calculationResult })
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('Final MTD: Fri Nov 27 2026 ')
+      })
 
-    it('it renders the Detailed Breakdown Final Sled passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#detailed-breakdown').text()).toContain('Final Sled: Thu May 13 2027')
-    })
+      it('it renders the Detailed Breakdown ETD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
+        const calculationResult: OutputCalculation = sampleCalculationResult
+        const cheerioPage = renderWithCheerio({ calculationResult })
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('ETD: Tue Oct 27 2026')
+      })
 
-    it('it renders the Detailed Breakdown Final MTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#detailed-breakdown').text()).toContain('Final MTD: Fri Nov 27 2026 ')
-    })
-
-    it('it renders the Detailed Breakdown ETD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#detailed-breakdown').text()).toContain('ETD: Tue Oct 27 2026')
-    })
-
-    it('it renders the Detailed Breakdown LTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult })
-      expect(cheerioPage('#detailed-breakdown').text()).toContain('LTD: Sun Dec 27 2026')
+      it('it renders the Detailed Breakdown LTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
+        const calculationResult: OutputCalculation = sampleCalculationResult
+        const cheerioPage = renderWithCheerio({ calculationResult })
+        expect(cheerioPage('#detailed-breakdown').text()).toContain('LTD: Sun Dec 27 2026')
+      })
     })
   })
 })
