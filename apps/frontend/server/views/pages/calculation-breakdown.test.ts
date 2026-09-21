@@ -44,6 +44,13 @@ describe('Calculation breakdown page', () => {
       expect(button.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
       expect(button.prop('href')).toContain(`sentenceDate=01/22/2033`)
     })
+
+    it('includes a Start a new calculation button', () => {
+      const cheerioPage = renderWithCheerio()
+      const link = cheerioPage('#new-calculation-link')
+      expect(link.text()).toBe('Start a new calculation')
+      expect(link.prop('href')).toBe('/calculate')
+    })
   })
 
   describe('data', () => {
