@@ -4,6 +4,8 @@ import {
   OutputCalculation,
   DtoEligibilityStatus,
   buildTransferDatesObj,
+  buildfinalDatesObj,
+  AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
 import calculateDTOSentence from './CalculationService'
 
@@ -98,8 +100,8 @@ describe('calculateDTOSentence', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
-        sled: new Date('2027-05-28'),
-        mtd: new Date('2026-12-12'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
@@ -125,8 +127,8 @@ describe('calculateDTOSentence', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 15,
-        sled: new Date('2027-05-13'),
-        mtd: new Date('2026-11-27'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-13'), new Date('2027-05-28'), 15),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-11-27'), new Date('2026-12-12'), 15),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
@@ -138,8 +140,8 @@ describe('calculateDTOSentence', () => {
           adjustmentParameters: remandInput.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2027-05-28'),
-            mtd: new Date('2026-12-12'),
+            sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+            mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
             TUSED: new Date(0),
           },
         },
@@ -163,8 +165,8 @@ describe('calculateDTOSentence', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 15,
-        sled: new Date('2027-05-13'),
-        mtd: new Date('2026-11-27'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-13'), new Date('2027-05-28'), 15),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-11-27'), new Date('2026-12-12'), 15),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
@@ -176,8 +178,8 @@ describe('calculateDTOSentence', () => {
           adjustmentParameters: remandTaggedBailInput.taggedBailAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2027-05-28'),
-            mtd: new Date('2026-12-12'),
+            sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+            mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
             TUSED: new Date(0),
           },
         },
@@ -201,8 +203,8 @@ describe('calculateDTOSentence', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 19,
-        sled: new Date('2027-05-09'),
-        mtd: new Date('2026-11-23'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-09'), new Date('2027-05-28'), 19),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-11-23'), new Date('2026-12-12'), 19),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-23')),
@@ -214,8 +216,8 @@ describe('calculateDTOSentence', () => {
           adjustmentParameters: remandAndTaggedBailInput.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2027-05-28'),
-            mtd: new Date('2026-12-12'),
+            sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+            mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
             TUSED: new Date(0),
           },
         },
@@ -224,8 +226,18 @@ describe('calculateDTOSentence', () => {
           adjustmentParameters: remandAndTaggedBailInput.taggedBailAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 15,
-            sled: new Date('2027-05-13'),
-            mtd: new Date('2026-11-27'),
+            sled: buildfinalDatesObj(
+              AppliedAdjustmentStatus.applied,
+              new Date('2027-05-13'),
+              new Date('2027-05-28'),
+              15,
+            ),
+            mtd: buildfinalDatesObj(
+              AppliedAdjustmentStatus.applied,
+              new Date('2026-11-27'),
+              new Date('2026-12-12'),
+              15,
+            ),
             TUSED: new Date(0),
           },
         },
@@ -264,8 +276,8 @@ describe('calculateDTOSentence', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 50,
-        sled: new Date('2026-08-11'),
-        mtd: new Date('2026-06-11'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-08-11'), new Date('2026-09-30'), 50),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-06-11'), new Date('2026-07-31'), 50),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
@@ -277,8 +289,8 @@ describe('calculateDTOSentence', () => {
           adjustmentParameters: fiftyDaysRemandInput.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2026-09-30'),
-            mtd: new Date('2026-07-31'),
+            sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-09-30')),
+            mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-07-31')),
             TUSED: new Date(0),
           },
         },
@@ -318,8 +330,14 @@ describe('calculateDTOSentence', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 70,
-        sled: new Date('2026-07-22'),
-        mtd: new Date('2026-06-01'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-07-22'), new Date('2026-09-30'), 70),
+        mtd: buildfinalDatesObj(
+          AppliedAdjustmentStatus.collapsedUnused,
+          new Date('2026-06-01'),
+          undefined,
+          undefined,
+          9,
+        ),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
@@ -331,8 +349,8 @@ describe('calculateDTOSentence', () => {
           adjustmentParameters: seventyDaysRemandInput.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2026-09-30'),
-            mtd: new Date('2026-07-31'),
+            sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-09-30')),
+            mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-07-31')),
             TUSED: new Date(0),
           },
         },
@@ -372,8 +390,20 @@ describe('calculateDTOSentence', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 125,
-        sled: new Date('2026-06-01'),
-        mtd: new Date('2026-06-01'),
+        sled: buildfinalDatesObj(
+          AppliedAdjustmentStatus.collapsedUnused,
+          new Date('2026-06-01'),
+          undefined,
+          undefined,
+          64,
+        ),
+        mtd: buildfinalDatesObj(
+          AppliedAdjustmentStatus.collapsedUnused,
+          new Date('2026-06-01'),
+          undefined,
+          undefined,
+          64,
+        ),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
@@ -385,8 +415,8 @@ describe('calculateDTOSentence', () => {
           adjustmentParameters: oneTwentyFiveDaysRemandInput.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2026-09-30'),
-            mtd: new Date('2026-07-31'),
+            sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-09-30')),
+            mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-07-31')),
             TUSED: new Date(0),
           },
         },
@@ -429,8 +459,14 @@ describe('calculateDTOSentence', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 70,
-        sled: new Date('2026-07-22'),
-        mtd: new Date('2026-06-01'), // this has collapsed to sentence date after tagged bail takes us to date in the past
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-07-22'), new Date('2026-09-30'), 70),
+        mtd: buildfinalDatesObj(
+          AppliedAdjustmentStatus.collapsedUnused,
+          new Date('2026-06-01'),
+          undefined,
+          undefined,
+          9,
+        ), // this has collapsed to sentence date after tagged bail takes us to date in the past
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
@@ -442,8 +478,8 @@ describe('calculateDTOSentence', () => {
           adjustmentParameters: fiftyRemandTwentyTaggedBailInput.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2026-09-30'),
-            mtd: new Date('2026-07-31'),
+            sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-09-30')),
+            mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-07-31')),
             TUSED: new Date(0),
           },
         },
@@ -452,8 +488,18 @@ describe('calculateDTOSentence', () => {
           adjustmentParameters: fiftyRemandTwentyTaggedBailInput.taggedBailAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 50,
-            sled: new Date('2026-08-11'),
-            mtd: new Date('2026-06-11'),
+            sled: buildfinalDatesObj(
+              AppliedAdjustmentStatus.applied,
+              new Date('2026-08-11'),
+              new Date('2026-09-30'),
+              50,
+            ),
+            mtd: buildfinalDatesObj(
+              AppliedAdjustmentStatus.applied,
+              new Date('2026-06-11'),
+              new Date('2026-07-31'),
+              50,
+            ),
             TUSED: new Date(0),
           },
         },

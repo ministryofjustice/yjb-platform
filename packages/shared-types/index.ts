@@ -1,8 +1,10 @@
 import { AdjustmentTypes } from './adjustment-types'
 import { transferDatesObj } from './dto-eligibility-status'
+import { finalDatesObj } from './final-dates-status'
 
 export { AdjustmentTypes }
 export * from './dto-eligibility-status'
+export * from './final-dates-status'
 
 // input types
 export type InputIndividualSentence = {
@@ -47,8 +49,8 @@ export interface OutputCalculation {
 
 export type EffectiveDates = {
   totalNumberOfRemandAndTaggedBailDays: number
-  sled: Date
-  mtd: Date
+  sled: finalDatesObj
+  mtd: finalDatesObj
   TUSED: Date
 }
 

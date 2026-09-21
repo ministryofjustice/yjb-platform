@@ -1,4 +1,10 @@
-import { OutputCalculation, DtoEligibilityStatus, DTO_ELIGIBILITY_MESSAGES } from '@yjb-platform/shared-types'
+import {
+  OutputCalculation,
+  DtoEligibilityStatus,
+  DTO_ELIGIBILITY_MESSAGES,
+  AppliedAdjustmentStatus,
+  buildfinalDatesObj,
+} from '@yjb-platform/shared-types'
 
 const sampleCalculationResult: OutputCalculation = {
   calculatedTerms: [
@@ -15,8 +21,8 @@ const sampleCalculationResult: OutputCalculation = {
   ],
   effectiveDates: {
     totalNumberOfRemandAndTaggedBailDays: 0,
-    sled: new Date('2027-05-13'),
-    mtd: new Date('2026-11-27'),
+    sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-13'), new Date('2027-05-28'), 15),
+    mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-11-27'), new Date('2026-12-12'), 15),
     TUSED: new Date('1970-01-01'),
   },
   effectiveDatesPastAdjustments: [
@@ -29,8 +35,8 @@ const sampleCalculationResult: OutputCalculation = {
       },
       pastEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
-        sled: new Date('2027-05-28'),
-        mtd: new Date('2026-12-12'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
         TUSED: new Date('1970-01-01'),
       },
     },

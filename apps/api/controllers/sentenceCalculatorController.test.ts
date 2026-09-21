@@ -4,6 +4,8 @@ import {
   AdjustmentTypes,
   DtoEligibilityStatus,
   buildTransferDatesObj,
+  buildfinalDatesObj,
+  AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
 import SentenceCalculatorController from './sentenceCalculatorController'
 
@@ -36,8 +38,8 @@ describe('SentenceController', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
-        sled: new Date('2027-05-28'),
-        mtd: new Date('2026-12-12'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
@@ -65,7 +67,7 @@ describe('SentenceController', () => {
       ],
     }
 
-    const expectedOutputCalculation = {
+    const expectedOutputCalculation: OutputCalculation = {
       calculatedTerms: [
         {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
@@ -77,8 +79,8 @@ describe('SentenceController', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 15,
-        sled: new Date('2027-05-13'),
-        mtd: new Date('2026-11-27'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-13'), new Date('2027-05-28'), 15),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-11-27'), new Date('2026-12-12'), 15),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
@@ -86,11 +88,11 @@ describe('SentenceController', () => {
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
-          adjustmentParameters: inputSentence.remandAdjustment,
+          adjustmentParameters: inputSentence.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2027-05-28'),
-            mtd: new Date('2026-12-12'),
+            sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+            mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
             TUSED: new Date(0),
           },
         },
@@ -128,8 +130,8 @@ describe('SentenceController', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 15,
-        sled: new Date('2027-05-13'),
-        mtd: new Date('2026-11-27'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-13'), new Date('2027-05-28'), 15),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-11-27'), new Date('2026-12-12'), 15),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
@@ -140,8 +142,8 @@ describe('SentenceController', () => {
           adjustmentParameters: inputSentence.taggedBailAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2027-05-28'),
-            mtd: new Date('2026-12-12'),
+            sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+            mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
             TUSED: new Date(0),
           },
         },
@@ -184,8 +186,8 @@ describe('SentenceController', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 15,
-        sled: new Date('2027-05-13'),
-        mtd: new Date('2026-11-27'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-13'), new Date('2027-05-28'), 15),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-11-27'), new Date('2026-12-12'), 15),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
@@ -196,8 +198,8 @@ describe('SentenceController', () => {
           adjustmentParameters: inputSentence.remandAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 0,
-            sled: new Date('2027-05-28'),
-            mtd: new Date('2026-12-12'),
+            sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+            mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
             TUSED: new Date(0),
           },
         },
@@ -206,8 +208,18 @@ describe('SentenceController', () => {
           adjustmentParameters: inputSentence.taggedBailAdjustment!,
           pastEffectiveDates: {
             totalNumberOfRemandAndTaggedBailDays: 10,
-            sled: new Date('2027-05-18'),
-            mtd: new Date('2026-12-02'),
+            sled: buildfinalDatesObj(
+              AppliedAdjustmentStatus.applied,
+              new Date('2027-05-18'),
+              new Date('2027-05-28'),
+              10,
+            ),
+            mtd: buildfinalDatesObj(
+              AppliedAdjustmentStatus.applied,
+              new Date('2026-12-02'),
+              new Date('2026-12-12'),
+              10,
+            ),
             TUSED: new Date(0),
           },
         },

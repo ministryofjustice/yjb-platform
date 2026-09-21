@@ -8,6 +8,8 @@ import {
   CalculatedTerm,
   DtoEligibilityStatus,
   buildTransferDatesObj,
+  buildfinalDatesObj,
+  AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
 import {
   getTotalDaysInTerm,
@@ -340,8 +342,8 @@ describe('adjustCalculation', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
-        sled: new Date('2027-05-28'),
-        mtd: new Date('2026-12-12'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
@@ -359,8 +361,8 @@ describe('adjustCalculation', () => {
     const expectedRemandAdjustmentResult: AdjustmentResult = {
       newEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 10,
-        sled: new Date('2027-05-18'),
-        mtd: new Date('2026-12-02'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-18'), new Date('2027-05-28'), 10),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-12-02'), new Date('2026-12-12'), 10),
         TUSED: new Date(0),
       },
       newRecordOfAdjustment: {
@@ -368,8 +370,8 @@ describe('adjustCalculation', () => {
         adjustmentParameters: remandAdjustment,
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 0,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+          mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
           TUSED: new Date(0),
         },
       },
@@ -392,8 +394,8 @@ describe('adjustCalculation', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
-        sled: new Date('2027-05-28'),
-        mtd: new Date('2026-12-12'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
@@ -410,8 +412,8 @@ describe('adjustCalculation', () => {
     const expectedTaggedBailAdjustmentResult: AdjustmentResult = {
       newEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 10,
-        sled: new Date('2027-05-18'),
-        mtd: new Date('2026-12-02'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-18'), new Date('2027-05-28'), 10),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-12-02'), new Date('2026-12-12'), 10),
         TUSED: new Date(0),
       },
       newRecordOfAdjustment: {
@@ -419,8 +421,8 @@ describe('adjustCalculation', () => {
         adjustmentParameters: taggedBailAdjustment,
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 0,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+          mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
           TUSED: new Date(0),
         },
       },
@@ -445,8 +447,8 @@ describe('adjustCalculation', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
-        sled: new Date('2027-05-28'),
-        mtd: new Date('2026-12-12'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
@@ -469,8 +471,8 @@ describe('adjustCalculation', () => {
     const finalAdjustmentResult: AdjustmentResult = {
       newEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 15,
-        sled: new Date('2027-05-13'),
-        mtd: new Date('2026-11-27'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-13'), new Date('2027-05-28'), 15),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-11-27'), new Date('2026-12-12'), 15),
         TUSED: new Date(0),
       },
       newRecordOfAdjustment: {
@@ -478,8 +480,8 @@ describe('adjustCalculation', () => {
         adjustmentParameters: taggedBailAdjustment,
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 10,
-          sled: new Date('2027-05-18'),
-          mtd: new Date('2026-12-02'),
+          sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-18'), new Date('2027-05-28'), 10),
+          mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-12-02'), new Date('2026-12-12'), 10),
           TUSED: new Date(0),
         },
       },
@@ -511,8 +513,8 @@ describe('adjustCalculation', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
-        sled: new Date('2027-05-28'),
-        mtd: new Date('2026-12-12'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-28')),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-12-12')),
         TUSED: new Date(0),
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
@@ -535,8 +537,8 @@ describe('adjustCalculation', () => {
     const finalAdjustmentResult: AdjustmentResult = {
       newEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 15,
-        sled: new Date('2027-05-13'),
-        mtd: new Date('2026-11-27'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-13'), new Date('2027-05-28'), 15),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-11-27'), new Date('2026-12-12'), 15),
         TUSED: new Date(0),
       },
       newRecordOfAdjustment: {
@@ -544,8 +546,8 @@ describe('adjustCalculation', () => {
         adjustmentParameters: remandAdjustment,
         pastEffectiveDates: {
           totalNumberOfRemandAndTaggedBailDays: 5,
-          sled: new Date('2027-05-23'),
-          mtd: new Date('2026-12-07'),
+          sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-23'), new Date('2027-05-28'), 5),
+          mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-12-07'), new Date('2026-12-12'), 5),
           TUSED: new Date(0),
         },
       },

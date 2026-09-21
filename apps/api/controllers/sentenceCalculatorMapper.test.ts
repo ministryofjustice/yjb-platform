@@ -4,6 +4,8 @@ import {
   OutputCalculation,
   DtoEligibilityStatus,
   buildTransferDatesObj,
+  buildfinalDatesObj,
+  AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
 import { parseInputSentences, formatOutputCalculation } from './sentenceCalculatorMapper'
 
@@ -83,8 +85,8 @@ describe('formatOutputCalculation', () => {
       ],
       effectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
-        sled: new Date('2027-05-28'),
-        mtd: new Date('2026-12-12'),
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
         TUSED: new Date(0),
       },
       effectiveDatesPastAdjustments: [],
@@ -97,7 +99,7 @@ describe('formatOutputCalculation', () => {
 
     expect(result.ltd.data).toBe('2027-01-12')
     expect(result.etd.data).toBe('2026-11-12')
-    expect(result.effectiveDates.sled).toBe('2027-05-28')
+    expect(result.effectiveDates.sled.data).toBe('2027-05-28')
     expect(result.calculatedTerms[0].sled).toBe('2027-05-28')
   })
 })
