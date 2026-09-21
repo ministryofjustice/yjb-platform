@@ -1,4 +1,10 @@
-import { InputSentences, OutputCalculation, AdjustmentTypes } from '@yjb-platform/shared-types'
+import {
+  InputSentences,
+  OutputCalculation,
+  AdjustmentTypes,
+  DtoEligibilityStatus,
+  buildTransferDatesObj,
+} from '@yjb-platform/shared-types'
 import SentenceCalculatorController from './sentenceCalculatorController'
 
 let controller: SentenceCalculatorController
@@ -34,8 +40,8 @@ describe('SentenceController', () => {
         mtd: new Date('2026-12-12'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2027-01-12'),
-      etd: new Date('2026-11-12'),
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
     }
@@ -75,8 +81,8 @@ describe('SentenceController', () => {
         mtd: new Date('2026-11-27'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -126,8 +132,8 @@ describe('SentenceController', () => {
         mtd: new Date('2026-11-27'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'taggedBail',
@@ -182,8 +188,8 @@ describe('SentenceController', () => {
         mtd: new Date('2026-11-27'),
         TUSED: new Date(0),
       },
-      ltd: new Date('2026-12-27'),
-      etd: new Date('2026-10-27'),
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',

@@ -3,11 +3,11 @@
   <div class="govuk-grid-column-one-third">
     <div id="release-dates" class='release-date-gray'>
       <h2>Release dates</h2>
-      <p><span class="govuk-heading-m">ETD:</span> <span class="govuk-body-s">Earliest Transfer Date</span> <span class="govuk-body-m govuk-!-font-weight-bold">{{ calculationResult.etd }}</span></p>
+      <p><span class="govuk-heading-m">ETD:</span> <span class="govuk-body-s">Earliest Transfer Date</span> <span class="govuk-body-m govuk-!-font-weight-bold">{{ calculationResult.etd.data }}</span></p>
       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
       <p><span class="govuk-heading-m">MTD:</span> <span class="govuk-body-s">Mid term date</span> <span class="govuk-body-m govuk-!-font-weight-bold">{{ calculationResult.effectiveDates.mtd }}</span></p>
       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-      <p><span class="govuk-heading-m">LTD:</span> <span class="govuk-body-s">Latest Transfer Date</span> <span class="govuk-body-lm govuk-!-font-weight-bold">{{ calculationResult.ltd }}</span></p>
+      <p><span class="govuk-heading-m">LTD:</span> <span class="govuk-body-s">Latest Transfer Date</span> <span class="govuk-body-lm govuk-!-font-weight-bold">{{ calculationResult.ltd.data }}</span></p>
       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
       <p><span class="govuk-heading-m">SLED:</span> <span class="govuk-body-s">Sentence and licence expiry date</span> <span class="govuk-body-m govuk-!-font-weight-bold">{{ calculationResult.effectiveDates.sled }}</span></p>
     </div>
@@ -21,7 +21,7 @@
         </div>
         <div class="timetable-item">
           <div class="timetable-section">ETD</div>
-          <div class="timetable-value">{{ calculationResult.etd }}</div>
+          <div class="timetable-value">{{ calculationResult.etd.data }}</div>
         </div>
         <div class="timetable-item   timetable-section-darker">
           <div class="timetable-section">MTD</div>
@@ -29,7 +29,7 @@
         </div>
         <div class="timetable-item">
           <div class="timetable-section">LTD</div>
-          <div class="timetable-value">{{ calculationResult.ltd }}</div>
+          <div class="timetable-value">{{ calculationResult.ltd.data }}</div>
         </div>
         <div class="timetable-item timetable-section-darker">
           <div class="timetable-section">SLED</div>
@@ -56,9 +56,9 @@
       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
       <p><span class="govuk-body govuk-!-font-weight-bold">Final MTD: </span><span class="govuk-body">{{ calculationResult.effectiveDates.mtd }}</span><span class="govuk-body-s"></span></p>
       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-      <p><span class="govuk-body govuk-!-font-weight-bold">ETD: </span><span class="govuk-body">{{  calculationResult.etd }}</span><span class="govuk-body-s"></span></p>
+      <p><span class="govuk-body govuk-!-font-weight-bold">ETD: </span><span class="govuk-body">{{  calculationResult.etd.data }}</span><span class="govuk-body-s"></span></p>
       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-      <p><span class="govuk-body govuk-!-font-weight-bold">LTD: </span><span class="govuk-body">{{  calculationResult.ltd }}</span><span class="govuk-body-s"></span></p>
+      <p><span class="govuk-body govuk-!-font-weight-bold">LTD: </span><span class="govuk-body">{{  calculationResult.ltd.data }}</span><span class="govuk-body-s"></span></p>
     </div>
   </div>
 </div>

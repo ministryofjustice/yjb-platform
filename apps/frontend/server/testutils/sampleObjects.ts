@@ -1,4 +1,4 @@
-import { OutputCalculation } from '@yjb-platform/shared-types'
+import { OutputCalculation, DtoEligibilityStatus, DTO_ELIGIBILITY_MESSAGES } from '@yjb-platform/shared-types'
 
 const sampleCalculationResult: OutputCalculation = {
   calculatedTerms: [
@@ -35,8 +35,20 @@ const sampleCalculationResult: OutputCalculation = {
       },
     },
   ],
-  ltd: new Date('2026-12-27'),
-  etd: new Date('2026-10-27'),
+  ltd: {
+    data: new Date('2026-12-27'),
+    metadata: {
+      status: DtoEligibilityStatus.oneMonth,
+      message: DTO_ELIGIBILITY_MESSAGES['1_month'],
+    },
+  },
+  etd: {
+    data: new Date('2026-10-27'),
+    metadata: {
+      status: DtoEligibilityStatus.oneMonth,
+      message: DTO_ELIGIBILITY_MESSAGES['1_month'],
+    },
+  },
   unusedAdjustmentDays: 0,
 }
 export default sampleCalculationResult

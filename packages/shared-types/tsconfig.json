@@ -7,5 +7,5 @@
     "rootDir": ".",
     "strict": true
   },
-  "include": ["index.ts", "adjustment-types.ts", "schemas.ts"]
+  "include": ["index.ts", "adjustment-types.ts", "schemas.ts", "dto-eligibility-status.ts"]
 }

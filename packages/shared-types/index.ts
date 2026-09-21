@@ -1,6 +1,8 @@
 import { AdjustmentTypes } from './adjustment-types'
+import { transferDatesObj } from './dto-eligibility-status'
 
 export { AdjustmentTypes }
+export * from './dto-eligibility-status'
 
 // input types
 export type InputIndividualSentence = {
@@ -38,8 +40,8 @@ export interface OutputCalculation {
   calculatedTerms: AppendOnlyArray<CalculatedTerm>
   effectiveDates: EffectiveDates
   effectiveDatesPastAdjustments: AppendOnlyArray<RecordOfAdjustment>
-  ltd: Date | 0
-  etd: Date | 0
+  ltd: transferDatesObj
+  etd: transferDatesObj
   unusedAdjustmentDays: number
 }
 

@@ -8,6 +8,9 @@ import {
   EffectiveDates,
   AdjustmentResult,
   CalculatedTerm,
+  transferDatesObj,
+  DtoEligibilityStatus,
+  buildTransferDatesObj,
 } from '@yjb-platform/shared-types'
 
 export function getTotalDaysInTerm(sentenceInput: InputIndividualSentence): number {
@@ -37,26 +40,24 @@ export function getMTDDate(totalDaysMTD: number, from: Date): Date {
   return addDaysToDate(totalDaysMTD, from)
 }
 
-export function getETDDate(mtd: Date, sentenceLenth: number): Date | 0 {
+export function getETDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
   if (sentenceLenth > 8 && sentenceLenth < 18) {
-    return subMonths(new UTCDate(mtd), 1)
+    return buildTransferDatesObj(DtoEligibilityStatus.oneMonth, subMonths(new UTCDate(mtd), 1))
   }
   if (sentenceLenth > 18) {
-    return subMonths(new UTCDate(mtd), 2)
+    return buildTransferDatesObj(DtoEligibilityStatus.twoMonths, subMonths(new UTCDate(mtd), 2))
   }
-  // not eligible: sentence is less than 8 months
-  return 0
+  return buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)
 }
 
-export function getLTDDate(mtd: Date, sentenceLenth: number): Date | 0 {
+export function getLTDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
   if (sentenceLenth > 8 && sentenceLenth < 18) {
-    return addMonths(new UTCDate(mtd), 1)
+    return buildTransferDatesObj(DtoEligibilityStatus.oneMonth, addMonths(new UTCDate(mtd), 1))
   }
   if (sentenceLenth > 18) {
-    return addMonths(new UTCDate(mtd), 2)
+    return buildTransferDatesObj(DtoEligibilityStatus.twoMonths, addMonths(new UTCDate(mtd), 2))
   }
-  // not eligible: sentence is less than 8 months
-  return 0
+  return buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)
 }
 
 export function calculateTerm(inputSentence: InputIndividualSentence): CalculatedTerm {
