@@ -2,16 +2,16 @@
 
   {% set calculationResultsHtml %}
   <div id="calculation-results-tab-content">
-    <h2>Detailed breakdown</h2>
+    <h2>Release dates</h2>
     <p><span class="govuk-body govuk-!-font-weight-bold">Term type:</span> <span class="govuk-body">Detention and Training Order (DTO)</span><span class="govuk-body-s"></span></p>
     <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Term length: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].totalDaysInTerm }} days</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
+    <p><span class="govuk-body govuk-!-font-weight-bold">Term length: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].inputSentence.durationMonths }} months ({{ calculationResult.calculatedTerms[0].totalDaysInTerm }} days)</span></p>
     <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Custodial Period: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].totalDaysMTD }}</span><span class="govuk-body-s"></span></p>
+    <p><span class="govuk-body govuk-!-font-weight-bold">Custodial Period: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].totalDaysMTD }} days</span><span class="govuk-body-s"></span></p>
     <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
     <p><span class="govuk-body govuk-!-font-weight-bold">MTD: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].mtd }}</span><span class="govuk-body-s"></span></p>
     <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <p><span class="govuk-body govuk-!-font-weight-bold">Remand Period: </span><span class="govuk-body">{{ calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days}}</span><span class="govuk-body-s"></span></p>
+    <p><span class="govuk-body govuk-!-font-weight-bold">Remand Period: </span><span class="govuk-body">{{ calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days}} days</span><span class="govuk-body-s"></span></p>
     <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
     <p><span class="govuk-body govuk-!-font-weight-bold">Final Sled: </span><span class="govuk-body">{{ calculationResult.effectiveDates.sled }}</span><span class="govuk-body-s"></span></p>
     <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
@@ -23,9 +23,26 @@
   </div>
   {% endset -%}
 
-  {% set calculationBreakdownHtml %}
-  <div id="calculation-breakdown-tab-content">
-    <p>I'm a problem!</p>
+  {% set resultsBreakdownHtml %}
+  <div id="results-breakdown-tab-content">
+    <h2>Results breakdown</h2>
+    <p><span class="govuk-body govuk-!-font-weight-bold">Term type:</span> <span class="govuk-body">Detention and Training Order (DTO)</span><span class="govuk-body-s"></span></p>
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <p><span class="govuk-body govuk-!-font-weight-bold">Term length: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].inputSentence.durationMonths }} months ({{ calculationResult.calculatedTerms[0].totalDaysInTerm }} days)</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <p><span class="govuk-body govuk-!-font-weight-bold">Custodial Period: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].totalDaysMTD }} days</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <p><span class="govuk-body govuk-!-font-weight-bold">MTD: </span><span class="govuk-body">{{ calculationResult.calculatedTerms[0].mtd }}</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <p><span class="govuk-body govuk-!-font-weight-bold">Remand Period: </span><span class="govuk-body">{{ calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days}} days</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <p><span class="govuk-body govuk-!-font-weight-bold">Final Sled: </span><span class="govuk-body">{{ calculationResult.effectiveDates.sled }}</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span>/p>
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <p><span class="govuk-body govuk-!-font-weight-bold">Final MTD: </span><span class="govuk-body">{{ calculationResult.effectiveDates.mtd }}</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <p><span class="govuk-body govuk-!-font-weight-bold">ETD: </span><span class="govuk-body">{{  calculationResult.etd.data }}</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <p><span class="govuk-body govuk-!-font-weight-bold">LTD: </span><span class="govuk-body">{{  calculationResult.ltd.data }}</span><span class="govuk-body-s"> (Coming soon: break down calculation )</span></p>
   </div>
   {% endset -%}
 
@@ -33,17 +50,17 @@
     {{ govukTabs({
       items: [
         {
-          label: "Calcaultion results",
+          label: "Calculation results",
           id: "calculation-results-tab",
           panel: {
             html: calculationResultsHtml
           }
         },
         {
-          label: "Calculation breakdown",
-          id: "calculation-breakdown-tab",
+          label: "Results breakdown",
+          id: "results-breakdown-tab",
           panel: {
-            html: calculationBreakdownHtml
+            html: resultsBreakdownHtml
           }
         }
       ]
