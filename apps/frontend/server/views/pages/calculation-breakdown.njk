@@ -44,23 +44,29 @@
       {% endcall %}
   </div>
 
-  {{ govukSummaryList({
-    card: {
-      title: { text: "Your answers" },
-      actions: { items: [
-        {
-          text: "Change answers",
-          href: backHref
-        }
-      ] }
-    },
-    rows: [
-      { key: { text: "Sentence date" }, value: { text: inputData.sentenceDateString } },
-      { key: { text: "Sentence length" }, value: { text: inputData.sentenceLengthMonths + " months" } },
-      { key: { text: "Days spent on remand" }, value: { text: inputData.remandDays } },
-      { key: { text: "Days spent on tagged bail" }, value: { text: inputData.taggedBailDays } }
-    ]
-  }) }}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+
+      {{ govukSummaryList({
+        card: {
+          title: { text: "Your answers" },
+          actions: { items: [
+            {
+              text: "Change answers",
+              href: backHref
+            }
+          ] }
+        },
+        rows: [
+          { key: { text: "Sentence date" }, value: { text: inputData.sentenceDateString } },
+          { key: { text: "Sentence length" }, value: { text: inputData.sentenceLengthMonths + " months" } },
+          { key: { text: "Days spent on remand" }, value: { text: inputData.remandDays } },
+          { key: { text: "Days spent on tagged bail" }, value: { text: inputData.taggedBailDays } }
+        ]
+      }) }}
+    </div>
+  </div>
 
   {% include "../partials/calculation-breakdown/view-A.njk" %}
   {% include "../partials/calculation-breakdown/view-B.njk" %}

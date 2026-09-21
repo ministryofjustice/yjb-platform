@@ -96,28 +96,22 @@ describe('Calculation breakdown page', () => {
     })
 
     describe('Results summary', () => {
-      it('it renders the Release Dates ETD passed from the model', () => {
+      it('it renders the Release Dates passed from the model', () => {
         const calculationResult: OutputCalculation = sampleCalculationResult
         const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#release-dates').text()).toContain('ETD: Earliest Transfer Date Tue Oct 27 2026')
-      })
+        const summaryData: Record<string, string> = {}
 
-      it('it renders the  Release Dates MTD passed from the model', () => {
-        const calculationResult: OutputCalculation = sampleCalculationResult
-        const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#release-dates').text()).toContain('MTD: Mid term date Fri Nov 27 2026')
-      })
+        cheerioPage('#release-dates .govuk-summary-list__row').each((_, el) => {
+          const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
+          summaryData[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
+        })
 
-      it('it renders the  Release Dates LTD passed from the model', () => {
-        const calculationResult: OutputCalculation = sampleCalculationResult
-        const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#release-dates').text()).toContain('LTD: Latest Transfer Date Sun Dec 27 2026')
-      })
-
-      it('it renders the Release Dates SLED passed from the model', () => {
-        const calculationResult: OutputCalculation = sampleCalculationResult
-        const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#release-dates').text()).toContain('SLED: Sentence and licence expiry date Thu May 13 2027')
+        expect(summaryData).toMatchObject({
+          ETD: expect.stringContaining('Tue Oct 27 2026'),
+          MTD: expect.stringContaining('Fri Nov 27 2026'),
+          LTD: expect.stringContaining('Sun Dec 27 2026'),
+          SLED: expect.stringContaining('Thu May 13 2027'),
+        })
       })
     })
 
