@@ -153,5 +153,53 @@ describe('Calculation breakdown page', () => {
         expect(cheerioPage('#detailed-breakdown').text()).toContain('LTD: Sun Dec 27 2026')
       })
     })
+
+    describe('Calculation outputs A', () => {
+      const calculationResult: OutputCalculation = sampleCalculationResult
+      const cheerioPage = renderWithCheerio({ calculationResult })
+
+      it('Correctly renders the Term length', () => {
+        const dataRow = cheerioPage('#detailed-breakdown').children().eq(3)
+        expect(dataRow.text()).toContain('Term length: 11 months (334 days)')
+      })
+      it('Correctly renders the Term length explanation', () => {
+        const dataRow = cheerioPage('#detailed-breakdown').children().eq(3)
+        expect(dataRow.text()).toContain(
+          ', from Mon Jun 29 2026 01:00:00 GMT+0100 (British Summer Time) to Thu May 13 2027 01:00:00 GMT+0100 (British Summer Time)',
+        )
+      })
+    })
+
+    describe('Calculation outputs B', () => {
+      const calculationResult: OutputCalculation = sampleCalculationResult
+      const cheerioPage = renderWithCheerio({ calculationResult })
+
+      const dataRows: Record<string, string> = {}
+
+      cheerioPage('#calculation-results-tab .govuk-summary-list__row').each((_, el) => {
+        const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
+        dataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
+      })
+
+      it.each([['Term length', '11 months (334 days)']])(
+        'Correctly renders the calculation result for %s',
+        (key: string, value: string) => {
+          expect(dataRows).toMatchObject({
+            [key]: expect.stringContaining(value),
+          })
+        },
+      )
+
+      it.each([
+        [
+          'Term length',
+          ', from Mon Jun 29 2026 01:00:00 GMT+0100 (British Summer Time) to Thu May 13 2027 01:00:00 GMT+0100 (British Summer Time)',
+        ],
+      ])('Correctly renders the calculation explanations for %s', (key: string, value: string) => {
+        expect(dataRows).toMatchObject({
+          [key]: expect.stringContaining(value),
+        })
+      })
+    })
   })
 })
