@@ -118,12 +118,12 @@ describe('Calculation breakdown page', () => {
       })
     })
 
-    describe('Results summary', () => {
-      it('it renders the Release Dates passed from the model', () => {
-        const calculationResult: OutputCalculation = sampleCalculationResult
-        const cheerioPage = renderWithCheerio({ calculationResult })
-        const summaryData: Record<string, string> = {}
+    describe('Calculation outputs A', () => {
+      const calculationResult: OutputCalculation = sampleCalculationResult
+      const cheerioPage = renderWithCheerio({ calculationResult })
 
+      it('correctly renders the Calculation Summary panel values', () => {
+        const summaryData: Record<string, string> = {}
         cheerioPage('#release-dates .govuk-summary-list__row').each((_, el) => {
           const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
           summaryData[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
@@ -136,54 +136,12 @@ describe('Calculation breakdown page', () => {
           SLED: expect.stringContaining('Thu May 13 2027'),
         })
       })
-    })
 
-    describe('Results breakdown', () => {
-      it('it renders the Detailed Breakdown MTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
-        const calculationResult: OutputCalculation = sampleCalculationResult
-        const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('MTD: ')
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('Sat Dec 12 2026')
-      })
-
-      it('it renders the Detailed Breakdown Final Sled passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
-        const calculationResult: OutputCalculation = sampleCalculationResult
-        const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('Final Sled: ')
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('Thu May 13 2027')
-      })
-
-      it('it renders the Detailed Breakdown Final MTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
-        const calculationResult: OutputCalculation = sampleCalculationResult
-        const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('Final MTD: ')
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('Fri Nov 27 2026 ')
-      })
-
-      it('it renders the Detailed Breakdown ETD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
-        const calculationResult: OutputCalculation = sampleCalculationResult
-        const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('ETD: ')
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('Tue Oct 27 2026')
-      })
-
-      it('it renders the Detailed Breakdown LTD passed from the model for sentence 19/06/26, 15 days remand 11 months', () => {
-        const calculationResult: OutputCalculation = sampleCalculationResult
-        const cheerioPage = renderWithCheerio({ calculationResult })
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('LTD: ')
-        expect(cheerioPage('#detailed-breakdown').text()).toContain('Sun Dec 27 2026')
-      })
-    })
-
-    describe('Calculation outputs A', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult })
-
-      it.each(expectedCalcValues)('Correctly renders the calculation values for %s', (_key: string, value: string) => {
+      it.each(expectedCalcValues)('correctly renders the calculation values for %s', (_key: string, value: string) => {
         expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
       })
 
-      it.each(expectedExplanationValues)('Correctly renders the calculation explanations for %s', (_key: string, value: string) => {
+      it.each(expectedExplanationValues)('correctly renders the calculation explanations for %s', (_key: string, value: string) => {
         expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
       })
     })
@@ -205,7 +163,7 @@ describe('Calculation breakdown page', () => {
       })
 
       it.each(expectedCalcValues)(
-        'Correctly renders the calculation result for %s',
+        'correctly renders the calculation result for %s',
         (key: string, value: string) => {
           expect(calculationDataRows).toMatchObject({
             [key]: expect.stringContaining(value),
@@ -214,7 +172,7 @@ describe('Calculation breakdown page', () => {
       )
 
       it.each(expectedCalcValues)(
-        'Correctly renders the calculation explanations for %s',
+        'correctly renders the calculation explanations for %s',
         (key: string, value: string) => {
           expect(explanationDataRows).toMatchObject({
             [key]: expect.stringContaining(value),
