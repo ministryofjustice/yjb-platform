@@ -174,17 +174,23 @@ describe('Calculation breakdown page', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
       const cheerioPage = renderWithCheerio({ calculationResult })
 
-      const dataRows: Record<string, string> = {}
+      const calculationDataRows: Record<string, string> = {}
+      const explanationDataRows: Record<string, string> = {}
 
       cheerioPage('#calculation-results-tab .govuk-summary-list__row').each((_, el) => {
         const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
-        dataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
+        calculationDataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
+      })
+
+      cheerioPage('#results-breakdown-tab .govuk-summary-list__row').each((_, el) => {
+        const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
+        explanationDataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
       })
 
       it.each([['Term length', '11 months (334 days)']])(
         'Correctly renders the calculation result for %s',
         (key: string, value: string) => {
-          expect(dataRows).toMatchObject({
+          expect(calculationDataRows).toMatchObject({
             [key]: expect.stringContaining(value),
           })
         },
@@ -196,7 +202,7 @@ describe('Calculation breakdown page', () => {
           ', from Mon Jun 29 2026 01:00:00 GMT+0100 (British Summer Time) to Thu May 13 2027 01:00:00 GMT+0100 (British Summer Time)',
         ],
       ])('Correctly renders the calculation explanations for %s', (key: string, value: string) => {
-        expect(dataRows).toMatchObject({
+        expect(explanationDataRows).toMatchObject({
           [key]: expect.stringContaining(value),
         })
       })

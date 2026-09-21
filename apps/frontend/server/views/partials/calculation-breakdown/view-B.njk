@@ -6,7 +6,7 @@
   {{ govukSummaryList({
         rows: [
           { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" } },
-          { key: { text: "Term length" }, value: { text: calculationResult.calculatedTerms[0].inputSentence.durationMonths + " months (" + calculationResult.calculatedTerms[0].totalDaysInTerm + " days)" + ", from " + calculationResult.calculatedTerms[0].inputSentence.from + " to " + calculationResult.effectiveDates.sled } },
+          { key: { text: "Term length" }, value: { text: calculationResult.calculatedTerms[0].inputSentence.durationMonths + " months (" + calculationResult.calculatedTerms[0].totalDaysInTerm + " days)" } },
           { key: { text: "Custodial Period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days" } },
           { key: { text: "MTD" }, value: { text: calculationResult.calculatedTerms[0].mtd } },
           { key: { text: "Remand Period" }, value: { text: calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days + " days" } },
@@ -24,7 +24,7 @@
   {{ govukSummaryList({
     rows: [
       { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" + " (Coming soon: calculation breakdown)" } },
-      { key: { text: "Term length" }, value: { text: calculationResult.calculatedTerms[0].inputSentence.durationMonths + " months (" + calculationResult.calculatedTerms[0].totalDaysInTerm + " days)" + " (Coming soon: calculation breakdown)" } },
+      { key: { text: "Term length" }, value: { text: calculationResult.calculatedTerms[0].inputSentence.durationMonths + " months (" + calculationResult.calculatedTerms[0].totalDaysInTerm + " days)" + ", from " + calculationResult.calculatedTerms[0].inputSentence.from + " to " + calculationResult.effectiveDates.sled } },
       { key: { text: "Custodial Period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days" + " (Coming soon: calculation breakdown)" } },
       { key: { text: "MTD" }, value: { text: calculationResult.calculatedTerms[0].mtd + " (Coming soon: calculation breakdown)" } },
       { key: { text: "Remand Period" }, value: { text: calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days + " days" + " (Coming soon: calculation breakdown)" } },
