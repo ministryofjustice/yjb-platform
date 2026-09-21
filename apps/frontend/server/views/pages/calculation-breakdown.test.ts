@@ -168,6 +168,19 @@ describe('Calculation breakdown page', () => {
           ', from Mon Jun 29 2026 01:00:00 GMT+0100 (British Summer Time) to Thu May 13 2027 01:00:00 GMT+0100 (British Summer Time)',
         )
       })
+
+      it.each([
+        [
+          'Term length',
+          ', from Mon Jun 29 2026 01:00:00 GMT+0100 (British Summer Time) to Thu May 13 2027 01:00:00 GMT+0100 (British Summer Time)',
+        ],
+        ['Final Sled', '2027-05-28 minus 15 days'],
+        ['Final MTD', '2026-12-12 minus 15 days'],
+        ['LTD', '1 month away from the MTD for DTOs of 8 months, but less then 18 months'],
+        ['ETD', '1 month away from the MTD for DTOs of 8 months, but less then 18 months'],
+      ])('Correctly renders the calculation explanations for %s', (_key: string, value: string) => {
+        expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
+      })
     })
 
     describe('Calculation outputs B', () => {
@@ -206,6 +219,42 @@ describe('Calculation breakdown page', () => {
           [key]: expect.stringContaining(value),
         })
       })
+
+      it.each([['Final Sled', '2027-05-28 minus 15 days']])(
+        'Correctly renders the calculation explanations for %s',
+        (key: string, value: string) => {
+          expect(explanationDataRows).toMatchObject({
+            [key]: expect.stringContaining(value),
+          })
+        },
+      )
+
+      it.each([['Final MTD', '2026-12-12 minus 15 days']])(
+        'Correctly renders the calculation explanations for %s',
+        (key: string, value: string) => {
+          expect(explanationDataRows).toMatchObject({
+            [key]: expect.stringContaining(value),
+          })
+        },
+      )
+
+      it.each([['LTD', '1 month away from the MTD for DTOs of 8 months, but less then 18 months']])(
+        'Correctly renders the calculation explanations for %s',
+        (key: string, value: string) => {
+          expect(explanationDataRows).toMatchObject({
+            [key]: expect.stringContaining(value),
+          })
+        },
+      )
+
+      it.each([['ETD', '1 month away from the MTD for DTOs of 8 months, but less then 18 months']])(
+        'Correctly renders the calculation explanations for %s',
+        (key: string, value: string) => {
+          expect(explanationDataRows).toMatchObject({
+            [key]: expect.stringContaining(value),
+          })
+        },
+      )
     })
   })
 })

@@ -39,13 +39,13 @@
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p><span class="govuk-body govuk-!-font-weight-bold">Remand Period: </span><span class="govuk-body">{{ calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days}}</span><span class="govuk-body-s"></span></p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">Final Sled: </span><span class="govuk-body">{{ calculationResult.effectiveDates.sled.data }}</span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">Final Sled: </span><span class="govuk-body">{{ calculationResult.effectiveDates.sled.data }}</span><span class="govuk-body-s">{{ calculationResult.effectiveDates.sled.metadata.message }}</span></p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">Final MTD: </span><span class="govuk-body">{{ calculationResult.effectiveDates.mtd.data }}</span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">Final MTD: </span><span class="govuk-body">{{ calculationResult.effectiveDates.mtd.data }}</span><span class="govuk-body-s">{{ calculationResult.effectiveDates.mtd.metadata.message }}</span></p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">ETD: </span><span class="govuk-body">{{  calculationResult.etd.data }}</span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">ETD: </span><span class="govuk-body">{{  calculationResult.etd.data }}</span><span class="govuk-body-s">{{ calculationResult.etd.metadata.message }}</span></p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">LTD: </span><span class="govuk-body">{{  calculationResult.ltd.data }}</span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">LTD: </span><span class="govuk-body">{{  calculationResult.ltd.data }}</span><span class="govuk-body-s">{{ calculationResult.ltd.metadata.message }}</span></p>
       </div>
     </div>
   </div>
