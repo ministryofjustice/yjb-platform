@@ -55,6 +55,9 @@ describe('Calculation breakdown page', () => {
   describe('data', () => {
     const expectedCalcValues: string[][] = [
       ['Term length', '11 months (334 days)'],
+      ['Custodial period', '167 days'],
+      ['MTD', 'Sat Dec 12 2026'],
+      ['Remand period', '15 days'],
       ['Final Sled', 'Thu May 13 2027'],
       ['Final MTD', 'Fri Nov 27 2026'],
       ['LTD', 'Sun Dec 27 2026'],
@@ -171,7 +174,7 @@ describe('Calculation breakdown page', () => {
         },
       )
 
-      it.each(expectedCalcValues)(
+      it.each(expectedExplanationValues)(
         'correctly renders the calculation explanations for %s',
         (key: string, value: string) => {
           expect(explanationDataRows).toMatchObject({
