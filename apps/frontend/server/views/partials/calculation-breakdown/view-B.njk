@@ -10,8 +10,8 @@
           { key: { text: "Custodial Period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days" } },
           { key: { text: "MTD" }, value: { text: calculationResult.calculatedTerms[0].mtd } },
           { key: { text: "Remand Period" }, value: { text: calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days + " days" } },
-          { key: { text: "Final Sled" }, value: { text: calculationResult.effectiveDates.sled } },
-          { key: { text: "Final MTD" }, value: { text: calculationResult.effectiveDates.mtd } },
+          { key: { text: "Final Sled" }, value: { text: calculationResult.effectiveDates.sled.data } },
+          { key: { text: "Final MTD" }, value: { text: calculationResult.effectiveDates.mtd.data } },
           { key: { text: "ETD" }, value: { text: calculationResult.etd.data } },
           { key: { text: "LTD" }, value: { text: calculationResult.ltd.data } }
         ]
@@ -28,8 +28,8 @@
       { key: { text: "Custodial Period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days" + " (Coming soon: calculation breakdown)" } },
       { key: { text: "MTD" }, value: { text: calculationResult.calculatedTerms[0].mtd + " (Coming soon: calculation breakdown)" } },
       { key: { text: "Remand Period" }, value: { text: calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days + " days" + " (Coming soon: calculation breakdown)" } },
-      { key: { text: "Final Sled" }, value: { text: calculationResult.effectiveDates.sled + " (Coming soon: calculation breakdown)" } },
-      { key: { text: "Final MTD" }, value: { text: calculationResult.effectiveDates.mtd + " (Coming soon: calculation breakdown)" } },
+      { key: { text: "Final Sled" }, value: { text: calculationResult.effectiveDates.sled.data + " (Coming soon: calculation breakdown)" } },
+      { key: { text: "Final MTD" }, value: { text: calculationResult.effectiveDates.mtd.data + " (Coming soon: calculation breakdown)" } },
       { key: { text: "ETD" }, value: { text: calculationResult.etd.data + " (Coming soon: calculation breakdown)" } },
       { key: { text: "LTD" }, value: { text: calculationResult.ltd.data + " (Coming soon: calculation breakdown)" } }
     ]

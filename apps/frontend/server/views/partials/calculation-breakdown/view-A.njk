@@ -6,11 +6,11 @@
         rows: [
           {
             key: { text: "SLED" },
-            value: { text: calculationResult.effectiveDates.sled }
+            value: { text: calculationResult.effectiveDates.sled.data }
           },
           {
             key: { text: "MTD" },
-            value: { text: calculationResult.effectiveDates.mtd }
+            value: { text: calculationResult.effectiveDates.mtd.data }
           },
           {
             key: { text: "ETD" },
@@ -39,9 +39,9 @@
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p><span class="govuk-body govuk-!-font-weight-bold">Remand Period: </span><span class="govuk-body">{{ calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days}}</span><span class="govuk-body-s"></span></p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">Final Sled: </span><span class="govuk-body">{{ calculationResult.effectiveDates.sled }}</span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">Final Sled: </span><span class="govuk-body">{{ calculationResult.effectiveDates.sled.data }}</span><span class="govuk-body-s"></span></p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p><span class="govuk-body govuk-!-font-weight-bold">Final MTD: </span><span class="govuk-body">{{ calculationResult.effectiveDates.mtd }}</span><span class="govuk-body-s"></span></p>
+        <p><span class="govuk-body govuk-!-font-weight-bold">Final MTD: </span><span class="govuk-body">{{ calculationResult.effectiveDates.mtd.data }}</span><span class="govuk-body-s"></span></p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p><span class="govuk-body govuk-!-font-weight-bold">ETD: </span><span class="govuk-body">{{  calculationResult.etd.data }}</span><span class="govuk-body-s"></span></p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">

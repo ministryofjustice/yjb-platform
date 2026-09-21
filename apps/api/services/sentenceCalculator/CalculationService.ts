@@ -5,6 +5,8 @@ import {
   AdjustmentResult,
   DtoEligibilityStatus,
   buildTransferDatesObj,
+  buildfinalDatesObj,
+  AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
 import { getLTDDate, getETDDate, adjustCalculation, calculateTerm } from './lib'
 
@@ -27,8 +29,8 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
   // for now 1 term only; prior adjustments the effective dates match the term
   outputCalculation.effectiveDates = {
     totalNumberOfRemandAndTaggedBailDays: 0,
-    sled: outputCalculation.calculatedTerms[0].sled,
-    mtd: outputCalculation.calculatedTerms[0].mtd,
+    sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, outputCalculation.calculatedTerms[0].sled),
+    mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, outputCalculation.calculatedTerms[0].mtd),
     TUSED: new Date(0),
   }
 
@@ -49,13 +51,13 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
 
   // finally calculate the LTD and ETD based on the effective dates post adjustments
   // leave it 0 if we have collapsed  the MTD
-  if (outputCalculation.effectiveDates.mtd !== inputSentence.inputIndividualSentences[0].from) {
+  if (outputCalculation.effectiveDates.mtd.data !== inputSentence.inputIndividualSentences[0].from) {
     outputCalculation.ltd = getLTDDate(
-      outputCalculation.effectiveDates.mtd,
+      outputCalculation.effectiveDates.mtd.data,
       inputSentence.inputIndividualSentences[0].durationMonths,
     )
     outputCalculation.etd = getETDDate(
-      outputCalculation.effectiveDates.mtd,
+      outputCalculation.effectiveDates.mtd.data,
       inputSentence.inputIndividualSentences[0].durationMonths,
     )
   }

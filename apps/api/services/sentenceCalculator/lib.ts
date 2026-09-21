@@ -11,6 +11,9 @@ import {
   transferDatesObj,
   DtoEligibilityStatus,
   buildTransferDatesObj,
+  buildfinalDatesObj,
+  AppliedAdjustmentStatus,
+  finalDatesObj,
 } from '@yjb-platform/shared-types'
 
 export function getTotalDaysInTerm(sentenceInput: InputIndividualSentence): number {
@@ -73,6 +76,25 @@ export function calculateTerm(inputSentence: InputIndividualSentence): Calculate
   }
 }
 
+// builds the finalDatesObj for one field (sled or mtd) once its own collapse
+// decision and post-adjustment date are known - unusedDays is always the shared,
+// MTD-budget-derived counter (see adjustCalculation), not this field's own excess
+function buildFieldFinalDatesObj(
+  isCollapsed: boolean,
+  data: Date,
+  originalDate: Date,
+  daysApplied: number,
+  unusedDays: number,
+): finalDatesObj {
+  if (!isCollapsed) {
+    return buildfinalDatesObj(AppliedAdjustmentStatus.applied, data, originalDate, daysApplied)
+  }
+  if (unusedDays > 0) {
+    return buildfinalDatesObj(AppliedAdjustmentStatus.collapsedUnused, data, undefined, undefined, unusedDays)
+  }
+  return buildfinalDatesObj(AppliedAdjustmentStatus.collapsed, data)
+}
+
 export function adjustCalculation(
   srcCal: Readonly<OutputCalculation>,
   inputAdjustment: Readonly<InputAdjustment>,
@@ -86,34 +108,52 @@ export function adjustCalculation(
 
   const sentenceStartDate = new UTCDate(srcCal.calculatedTerms[0].inputSentence.from)
   let { unusedAdjustmentDays } = srcCal
-  const initialMtdBudget = differenceInCalendarDays(srcCal.effectiveDates.mtd, sentenceStartDate) + 1
-  const initialSledBudget = differenceInCalendarDays(srcCal.effectiveDates.sled, sentenceStartDate) + 1
+  const initialMtdBudget = differenceInCalendarDays(srcCal.effectiveDates.mtd.data, sentenceStartDate) + 1
+  const initialSledBudget = differenceInCalendarDays(srcCal.effectiveDates.sled.data, sentenceStartDate) + 1
 
   // MTD and SLED each track their own remaining budget independently: every adjustment
   // subtracts its full day count from both, and each collapses to the sentence start
   // once its own budget is exhausted - there's no carryover from one to the other
-  const outputEffectiveDatesMTD =
-    inputAdjustment.days >= initialMtdBudget
-      ? sentenceStartDate
-      : subDays(srcCal.effectiveDates.mtd, inputAdjustment.days)
+  const isMtdCollapsed = inputAdjustment.days >= initialMtdBudget
+  const isSledCollapsed = inputAdjustment.days >= initialSledBudget
 
-  const outputEffectiveDatesSled =
-    inputAdjustment.days >= initialSledBudget
-      ? sentenceStartDate
-      : subDays(srcCal.effectiveDates.sled, inputAdjustment.days)
+  const outputEffectiveDatesMTD = isMtdCollapsed
+    ? sentenceStartDate
+    : subDays(srcCal.effectiveDates.mtd.data, inputAdjustment.days)
 
-  if (inputAdjustment.days >= initialMtdBudget) {
+  const outputEffectiveDatesSled = isSledCollapsed
+    ? sentenceStartDate
+    : subDays(srcCal.effectiveDates.sled.data, inputAdjustment.days)
+
+  if (isMtdCollapsed) {
     // record how far past the MTD budget this adjustment went, for the audit trail
     unusedAdjustmentDays = Math.max(0, inputAdjustment.days - initialMtdBudget)
   }
 
+  // the "applied" message always describes the net shift from the originally
+  // calculated date using the cumulative total, not this step's own days -
+  // subDays chaining is additive, so this stays accurate across multiple adjustments
+  const cumulativeAdjustmentDays = increaseTotalNumRTBDays(
+    srcCal.effectiveDates.totalNumberOfRemandAndTaggedBailDays,
+    inputAdjustment.days,
+  )
+
   const outputNewEffectiveDates: EffectiveDates = {
-    totalNumberOfRemandAndTaggedBailDays: increaseTotalNumRTBDays(
-      srcCal.effectiveDates.totalNumberOfRemandAndTaggedBailDays,
-      inputAdjustment.days,
+    totalNumberOfRemandAndTaggedBailDays: cumulativeAdjustmentDays,
+    sled: buildFieldFinalDatesObj(
+      isSledCollapsed,
+      outputEffectiveDatesSled,
+      srcCal.calculatedTerms[0].sled,
+      cumulativeAdjustmentDays,
+      unusedAdjustmentDays,
     ),
-    sled: outputEffectiveDatesSled,
-    mtd: outputEffectiveDatesMTD,
+    mtd: buildFieldFinalDatesObj(
+      isMtdCollapsed,
+      outputEffectiveDatesMTD,
+      srcCal.calculatedTerms[0].mtd,
+      cumulativeAdjustmentDays,
+      unusedAdjustmentDays,
+    ),
     TUSED: new Date(0),
   }
 
