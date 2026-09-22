@@ -10,7 +10,7 @@
           { key: { text: "Custodial period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days" } },
           { key: { text: "MTD" }, value: { text: calculationResult.calculatedTerms[0].mtd } },
           { key: { text: "Remand period" }, value: { text: calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days + " days" } },
-          { key: { text: "Final SLED" }, value: { text: calculationResult.effectiveDates.sled.data } },
+          { key: { text: "SLED" }, value: { text: calculationResult.effectiveDates.sled.data } },
           { key: { text: "Final MTD" }, value: { text: calculationResult.effectiveDates.mtd.data } },
           { key: { text: "ETD" }, value: { text: calculationResult.etd.data } },
           { key: { text: "LTD" }, value: { text: calculationResult.ltd.data } }
@@ -28,7 +28,7 @@
       { key: { text: "Custodial period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days (" + breakdownObj.custodialPeriodBreakdown + ")" } },
       { key: { text: "MTD" }, value: { text: calculationResult.calculatedTerms[0].mtd + ", "+breakdownObj.mtdBreadown } },
       { key: { text: "Remand period" }, value: { text: calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days + " days " + breakdownObj.remandPeriodBreakdown } },
-      { key: { text: "Final SLED" }, value: { text: calculationResult.effectiveDates.sled.data + " (" + calculationResult.effectiveDates.sled.metadata.message + ")" } },
+      { key: { text: "SLED" }, value: { text: calculationResult.effectiveDates.sled.data + " (" + calculationResult.effectiveDates.sled.metadata.message + ")" } },
       { key: { text: "Final MTD" }, value: { text: calculationResult.effectiveDates.mtd.data + " (" +  calculationResult.effectiveDates.mtd.metadata.message + ")" } },
       { key: { text: "ETD" }, value: { text: calculationResult.etd.data + " (" +  calculationResult.etd.metadata.message + ")" } },
       { key: { text: "LTD" }, value: { text: calculationResult.ltd.data + " (" +  calculationResult.etd.metadata.message + ")" } }
