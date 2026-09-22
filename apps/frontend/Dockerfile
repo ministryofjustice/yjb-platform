@@ -49,6 +49,15 @@ COPY --from=build --chown=node:node \
         /app/node_modules \
         /app/node_modules
 
+# TODO: Re-examine the below
+# Copy the shared types package to fix a bug whereby the front end cannot access a const we've put in shared types; there may be a better solution!
+COPY --from=build --chown=node:node \
+        /app/packages/shared-types/package.json \
+        /app/packages/shared-types/package.json
+COPY --from=build --chown=node:node \
+        /app/packages/shared-types/dist \
+        /app/packages/shared-types/dist
+
 EXPOSE 3000
 ENV BUILD_NUMBER=${BUILD_NUMBER}
 ENV GIT_REF=${GIT_REF}
