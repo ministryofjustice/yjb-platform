@@ -240,7 +240,7 @@ describe('getETD', () => {
       data: 0,
       metadata: {
         status: 'not_calculated',
-        message: 'Not applicable for DTOs of less then 8 months',
+        message: 'Not applicable for DTOs of less than 8 months',
       },
     })
   })
@@ -292,7 +292,7 @@ describe('getLTD', () => {
       data: 0,
       metadata: {
         status: 'not_calculated',
-        message: 'Not applicable for DTOs of less then 8 months',
+        message: 'Not applicable for DTOs of less than 8 months',
       },
     })
   })
