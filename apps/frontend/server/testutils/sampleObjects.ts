@@ -4,6 +4,7 @@ import {
   DTO_ELIGIBILITY_MESSAGES,
   AppliedAdjustmentStatus,
   buildfinalDatesObj,
+  calcBreakdown,
 } from '@yjb-platform/shared-types'
 
 export const sampleCalculationResult: OutputCalculation = {
@@ -58,8 +59,9 @@ export const sampleCalculationResult: OutputCalculation = {
   unusedAdjustmentDays: 0,
 }
 
-export const breakdownObj: Record<string, string> = {
+export const breakdownObj: calcBreakdown = {
   custodialPeriodBreakdown: '(334 / 2)',
+  mtdBreadown: '167 days from the beginning of the sentence (29 June 2026)',
 }
 
 export const sampleCalculationResult2: OutputCalculation = {

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { OutputCalculation } from '@yjb-platform/shared-types'
+import { OutputCalculation, calcBreakdown } from '@yjb-platform/shared-types'
 import type { Services } from '../services'
 import { ValidationResult } from '../services/dtoService'
 
@@ -33,12 +33,15 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       const calculationResultString = JSON.stringify(calculationResult)
 
       // TODO: move breakdown string construction in a dedicated method
-      const breakdownObj: Record<string, string> = {}
-
-      // construct custodial period breakdown test
-      breakdownObj.custodialPeriodBreakdown = `${calculationResult.calculatedTerms[0].totalDaysInTerm} / 2${
-        calculationResult.calculatedTerms[0].totalDaysInTerm % 2 ? ', rounded up' : ''
-      }`
+      const breakdownObj: calcBreakdown = {
+        custodialPeriodBreakdown: `${calculationResult.calculatedTerms[0].totalDaysInTerm} / 2${
+          calculationResult.calculatedTerms[0].totalDaysInTerm % 2 ? ', rounded up' : ''
+        }`,
+        mtdBreadown: `${calculationResult.calculatedTerms[0].totalDaysMTD} days from the beginning of the sentence (${new Intl.DateTimeFormat(
+          'en-GB',
+          { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' },
+        ).format(new Date(calculationResult.calculatedTerms[0].inputSentence.from))})`,
+      }
 
       return res.render('pages/calculation-breakdown', {
         calculationResult,
