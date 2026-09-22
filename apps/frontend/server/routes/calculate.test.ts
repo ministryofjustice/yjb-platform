@@ -75,135 +75,141 @@ describe('GET /calculate', () => {
 })
 
 describe('POST /calculate', () => {
-  it('should render a calculation breakdown page when the payload is valid', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      input: {},
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
-    dtoService.validatePayload.mockReturnValue(validResult)
+  describe('all paths', () => {
+    it('should call the dtoService.validatePayload with the payload, and return a result', () => {
+      const payload: object = {
+        formField: 'Testomatic Man!',
+      }
 
-    return request(app)
-      .post('/calculate')
-      .expect('Content-Type', /html/)
-      .expect(200)
-      .expect(res => {
-        expect(res.text).toContain('Calculation breakdown')
-        expect(res.text).toContain('Youth Justice Platform - Calculation breakdown')
-      })
+      dtoService.validatePayload.mockReturnValue({ isValid: false, input: payload as Record<string, unknown> })
+
+      return request(app)
+        .post('/calculate')
+        .send(payload)
+        .expect('Content-Type', /html/)
+        .expect(200)
+        .expect(res => {
+          expect(dtoService.validatePayload).toHaveBeenCalledWith(payload)
+        })
+    })
   })
 
-  it('should pass the calculationResult into the template', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      input: {},
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
-    const mockCalculationResult: OutputCalculation = {
-      ...sampleCalculationResult,
-      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('01/01/3093')),
-    }
-    dtoService.validatePayload.mockReturnValue(validResult)
-    dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
+  describe('unhappy path', () => {
+    it('should render the new calculation page when the payload is invalid', () => {
+      const invalidResult: ValidationResult = {
+        isValid: false,
+        input: {},
+      }
+      dtoService.validatePayload.mockReturnValue(invalidResult)
 
-    return request(app)
-      .post('/calculate')
-      .expect('Content-Type', /html/)
-      .expect(200)
-      .expect(res => {
-        const $ = cheerio.load(res.text)
-        expect($('#release-dates').text()).toContain('Sun Jan 01 3093')
-      })
+      return request(app)
+        .post('/calculate')
+        .expect('Content-Type', /html/)
+        .expect(200)
+        .expect(res => {
+          expect(res.text).toContain('New calculation')
+        })
+    })
   })
 
-  it('should pass the parsed input into the template', () => {
-    const input: Record<string, unknown> = {
-      formField: 'Testomatic Man!',
-    }
+  describe('success result', () => {
+    it('should call the dtoService.calculateDtoSentence with a validated payload, and return a result', () => {
+      const payload: object = {
+        formField: 'Testomatic Man!',
+      }
 
-    const validResult: ValidationResult = {
-      isValid: true,
-      input,
-      parsedInput: {
-        remandDays: 33,
-        taggedBailDays: 44,
-        sentenceLengthMonths: 22,
-        sentenceDate: new Date('01/22/2033'),
-        sentenceDateString: '01/22/2033',
-      },
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+      const validatedPayload: InputSentences = {
+        offenderName: 'Place Holder',
+        inputIndividualSentences: [],
+      }
 
-    dtoService.validatePayload.mockReturnValue(validResult)
-    dtoService.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
+      dtoService.validatePayload.mockImplementation(input =>
+        isDeepStrictEqual(input, payload)
+          ? { isValid: true, input, payload: validatedPayload }
+          : { isValid: false, input },
+      )
 
-    return request(app)
-      .post('/calculate')
-      .send(input)
-      .expect('Content-Type', /html/)
-      .expect(200)
-      .expect(res => {
-        const $ = cheerio.load(res.text)
-        expect($('.govuk-back-link').prop('href')).toContain(`remandDays=${validResult.parsedInput.remandDays}`)
-      })
-  })
+      return request(app)
+        .post('/calculate')
+        .send(payload)
+        .expect('Content-Type', /html/)
+        .expect(200)
+        .expect(res => {
+          expect(dtoService.calculateDtoSentence).toHaveBeenCalledWith(validatedPayload)
+        })
+    })
 
-  it('should render the new calculation page when the payload is invalid', () => {
-    const invalidResult: ValidationResult = {
-      isValid: false,
-      input: {},
-    }
-    dtoService.validatePayload.mockReturnValue(invalidResult)
+    it('should render a calculation breakdown page when the payload is valid', () => {
+      const validResult: ValidationResult = {
+        isValid: true,
+        input: {},
+        payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+      }
+      dtoService.validatePayload.mockReturnValue(validResult)
 
-    return request(app)
-      .post('/calculate')
-      .expect('Content-Type', /html/)
-      .expect(200)
-      .expect(res => {
-        expect(res.text).toContain('New calculation')
-      })
-  })
+      return request(app)
+        .post('/calculate')
+        .expect('Content-Type', /html/)
+        .expect(200)
+        .expect(res => {
+          expect(res.text).toContain('Calculation breakdown')
+          expect(res.text).toContain('Youth Justice Platform - Calculation breakdown')
+        })
+    })
 
-  it('should call the dtoService.validatePayload with the payload, and return a result', () => {
-    const payload: object = {
-      formField: 'Testomatic Man!',
-    }
+    it('should pass the calculationResult into the template', () => {
+      const validResult: ValidationResult = {
+        isValid: true,
+        input: {},
+        payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+      }
+      const mockCalculationResult: OutputCalculation = {
+        ...sampleCalculationResult,
+        etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('01/01/3093')),
+      }
+      dtoService.validatePayload.mockReturnValue(validResult)
+      dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
 
-    dtoService.validatePayload.mockReturnValue({ isValid: false, input: payload as Record<string, unknown> })
+      return request(app)
+        .post('/calculate')
+        .expect('Content-Type', /html/)
+        .expect(200)
+        .expect(res => {
+          const $ = cheerio.load(res.text)
+          expect($('#release-dates').text()).toContain('Sun Jan 01 3093')
+        })
+    })
 
-    return request(app)
-      .post('/calculate')
-      .send(payload)
-      .expect('Content-Type', /html/)
-      .expect(200)
-      .expect(res => {
-        expect(dtoService.validatePayload).toHaveBeenCalledWith(payload)
-      })
-  })
+    it('should pass the parsed input into the template', () => {
+      const input: Record<string, unknown> = {
+        formField: 'Testomatic Man!',
+      }
 
-  it('should call the dtoService.calculateDtoSentence with a validated payload, and return a result', () => {
-    const payload: object = {
-      formField: 'Testomatic Man!',
-    }
+      const validResult: ValidationResult = {
+        isValid: true,
+        input,
+        parsedInput: {
+          remandDays: 33,
+          taggedBailDays: 44,
+          sentenceLengthMonths: 22,
+          sentenceDate: new Date('01/22/2033'),
+          sentenceDateString: '01/22/2033',
+        },
+        payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+      }
 
-    const validatedPayload: InputSentences = {
-      offenderName: 'Place Holder',
-      inputIndividualSentences: [],
-    }
+      dtoService.validatePayload.mockReturnValue(validResult)
+      dtoService.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
 
-    dtoService.validatePayload.mockImplementation(input =>
-      isDeepStrictEqual(input, payload)
-        ? { isValid: true, input, payload: validatedPayload }
-        : { isValid: false, input },
-    )
-
-    return request(app)
-      .post('/calculate')
-      .send(payload)
-      .expect('Content-Type', /html/)
-      .expect(200)
-      .expect(res => {
-        expect(dtoService.calculateDtoSentence).toHaveBeenCalledWith(validatedPayload)
-      })
+      return request(app)
+        .post('/calculate')
+        .send(input)
+        .expect('Content-Type', /html/)
+        .expect(200)
+        .expect(res => {
+          const $ = cheerio.load(res.text)
+          expect($('.govuk-back-link').prop('href')).toContain(`remandDays=${validResult.parsedInput.remandDays}`)
+        })
+    })
   })
 })
