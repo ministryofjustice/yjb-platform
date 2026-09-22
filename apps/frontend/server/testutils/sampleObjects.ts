@@ -59,7 +59,7 @@ export const sampleCalculationResult: OutputCalculation = {
 }
 
 export const breakdownObj: Record<string, string> = {
-  custodialPeriodBreakdown: ' 334 / 2',
+  custodialPeriodBreakdown: '(334 / 2)',
 }
 
 export const sampleCalculationResult2: OutputCalculation = {
@@ -115,5 +115,5 @@ export const sampleCalculationResult2: OutputCalculation = {
 }
 
 export const breakdownObj2: Record<string, string> = {
-  custodialPeriodBreakdown: '333 / 2 , rounded up',
+  custodialPeriodBreakdown: '(333 / 2, rounded up)',
 }

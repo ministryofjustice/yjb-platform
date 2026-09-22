@@ -36,7 +36,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       const breakdownObj: Record<string, string> = {}
 
       // construct custodial period breakdown test
-      breakdownObj.custodialPeriodBreakdown = `${calculationResult.calculatedTerms[0].totalDaysInTerm} / 2 ${
+      breakdownObj.custodialPeriodBreakdown = `${calculationResult.calculatedTerms[0].totalDaysInTerm} / 2${
         calculationResult.calculatedTerms[0].totalDaysInTerm % 2 ? ', rounded up' : ''
       }`
 
