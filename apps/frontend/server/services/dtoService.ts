@@ -11,6 +11,7 @@ export type ValidationResult = {
   input: Record<string, unknown>
   parsedInput?: ParsedDtoForm
   payload?: InputSentences
+  errors?: Record<string, string>
 }
 
 export type ParsedDtoForm = {
@@ -21,9 +22,14 @@ export type ParsedDtoForm = {
   sentenceDateString: string
 }
 
-function parseDtoForm(formData: Record<string, unknown>): ParsedDtoForm {
-  const sentenceDate: Date = new Date(
-    Date.UTC(
+export function parseDtoForm(formData: Record<string, unknown>): ParsedDtoForm {
+  const badDate = (
+    Number.isInteger(formData['sentence-date-year'])
+    && Number.isInteger(formData['sentence-date-month']) && Number(formData['sentence-date-month']) < 13 && Number(formData['sentence-date-month']) > 0
+    && Number.isInteger(formData['sentence-date-day']) && Number(formData['sentence-date-day']) < 32 && Number(formData['sentence-date-day']) > 0
+  ) ? false : true
+  const sentenceDate: Date = badDate ? undefined : new Date(
+  Date.UTC(
       Number(formData['sentence-date-year']),
       Number(formData['sentence-date-month']) - 1,
       Number(formData['sentence-date-day']),
@@ -33,9 +39,9 @@ function parseDtoForm(formData: Record<string, unknown>): ParsedDtoForm {
     remandDays: formData['remand-days'] !== undefined ? Number(formData['remand-days']) : 0,
     taggedBailDays: formData['tagged-bail-days'] !== undefined ? Number(formData['tagged-bail-days']) : 0,
     sentenceLengthMonths:
-      formData['sentence-length-months'] !== undefined ? Number(formData['sentence-length-months']) : 0,
-    sentenceDate,
-    sentenceDateString: sentenceDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+      formData['sentence-length-months'] !== undefined ? Number(formData['sentence-length-months']) : -1,
+    sentenceDate: badDate ? undefined : sentenceDate,
+    sentenceDateString: badDate ? undefined : sentenceDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
   }
 }
 
@@ -61,13 +67,28 @@ export default class DtoService {
   constructor(private readonly yjbApiClient: YjbApiClient) {}
 
   validatePayload(formData: Record<string, unknown>): ValidationResult {
+    const errorMessages: Record<string, string> = {}
+
     const parsedDtoForm = parseDtoForm(formData)
-    const isValid = Number.isInteger(parsedDtoForm.sentenceLengthMonths) && parsedDtoForm.sentenceLengthMonths > 0
+    const { sentenceLengthMonths, remandDays } = parsedDtoForm
+
+    if (!Number.isInteger(sentenceLengthMonths) || sentenceLengthMonths < 4) {
+      errorMessages["sentenceLengthMonths"] = "Sentence length must be a whole number of 4 months or more"
+    }
+
+    if (!Number.isInteger(remandDays) || remandDays < 0) {
+      errorMessages["remandDays"] = "Remand days must be a whole number of 0 days or more"
+    }
+
+    // const isValid = Number.isInteger(parsedDtoForm.sentenceLengthMonths) && parsedDtoForm.sentenceLengthMonths > 0
+    const isValid = Object.keys(errorMessages).length === 0
     return {
       isValid,
       input: formData,
       parsedInput: isValid ? parsedDtoForm : undefined,
       payload: isValid ? constructInputSentences(parsedDtoForm) : undefined,
+      errors: isValid ? undefined : errorMessages
+      // payload: constructInputSentences(parsedDtoForm),
     }
   }
 

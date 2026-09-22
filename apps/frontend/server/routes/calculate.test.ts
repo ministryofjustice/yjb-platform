@@ -110,6 +110,13 @@ describe('POST /calculate', () => {
           expect(res.text).toContain('New calculation')
         })
     })
+
+    it('should pass an error object back to the page to be rendered', () => {
+      const invalidResult: ValidationResult = {
+        isValid: false,
+        input: {},
+      }
+    })
   })
 
   describe('success result', () => {
