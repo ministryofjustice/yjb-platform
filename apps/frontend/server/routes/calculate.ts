@@ -50,7 +50,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
           : ''
 
       const breakdownObj: calcBreakdown = {
-        custodialPeriodBreakdown: `${calculationResult.calculatedTerms[0].totalDaysInTerm} / 2${
+        custodialPeriodBreakdown: `${calculationResult.calculatedTerms[0].totalDaysInTerm} divided by 2${
           calculationResult.calculatedTerms[0].totalDaysInTerm % 2 ? ', rounded up' : ''
         }`,
         mtdBreadown: `${calculationResult.calculatedTerms[0].totalDaysMTD} days from the beginning of the sentence (${formatUkDate(

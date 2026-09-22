@@ -66,7 +66,7 @@ describe('Calculation breakdown page', () => {
 
     const expectedExplanationValues: string[][] = [
       ['Term length', ', from 2026-06-29 to 2027-05-13'],
-      ['Custodial period', '(334 / 2)'],
+      ['Custodial period', '(334 divided by 2)'],
       ['MTD', '167 days from the beginning of the sentence (29 June 2026)'],
       ['Remand period', '(14 June 2026 to 28 June 2026)'],
       ['SLED', '(2027-05-28 minus 15 days)'],
