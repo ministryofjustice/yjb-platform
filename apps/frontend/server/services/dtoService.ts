@@ -40,8 +40,10 @@ function parseDtoForm(formData: Record<string, unknown>): ParsedDtoForm {
 }
 
 function constructInputSentences(parsed: ParsedDtoForm): InputSentences {
+  // startDate is intentionally omitted - the API derives it from the sentence
+  // start date and remand day count when it isn't supplied (see parseInputSentences)
   const remandAdjustment: RemandAdjustment =
-    parsed.remandDays > 0 ? { name: 'remand', startDate: new Date(), days: parsed.remandDays } : undefined
+    parsed.remandDays > 0 ? { name: 'remand', days: parsed.remandDays } : undefined
 
   const taggedBailAdjustment =
     parsed.taggedBailDays > 0 ? { name: 'taggedBail' as const, days: parsed.taggedBailDays } : undefined
