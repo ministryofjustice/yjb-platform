@@ -188,6 +188,51 @@ describe('POST /calculate', () => {
       })
   })
 
+  it('should pass the breakdownObj into the template for remand period breakdown', () => {
+    const validResult: ValidationResult = {
+      isValid: true,
+      input: {},
+      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+    }
+    const mockCalculationResult: OutputCalculation = {
+      ...sampleCalculationResult,
+    }
+    dtoService.validatePayload.mockReturnValue(validResult)
+    dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
+
+    return request(app)
+      .post('/calculate')
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        const $ = cheerio.load(res.text)
+        expect($('#detailed-breakdown').text()).toContain(breakdownObj.remandPeriodBreakdown)
+        expect(breakdownObj.remandPeriodBreakdown).toBe('(14 June 2026 to 28 June 2026)')
+      })
+  })
+
+  it('should render the remand period breakdown correctly when dates arrive as JSON-serialized strings (real API shape)', () => {
+    const validResult: ValidationResult = {
+      isValid: true,
+      input: {},
+      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+    }
+    // the real API sends dates as plain YYYY-MM-DD strings, not Date objects -
+    // this simulates that shape to guard against calling Date-only methods on a string
+    const mockCalculationResult: OutputCalculation = JSON.parse(JSON.stringify(sampleCalculationResult))
+    dtoService.validatePayload.mockReturnValue(validResult)
+    dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
+
+    return request(app)
+      .post('/calculate')
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        const $ = cheerio.load(res.text)
+        expect($('#detailed-breakdown').text()).toContain('(14 June 2026 to 28 June 2026)')
+      })
+  })
+
   it('should pass the parsed input into the template', () => {
     const input: Record<string, unknown> = {
       formField: 'Testomatic Man!',

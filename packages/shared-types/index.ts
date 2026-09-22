@@ -87,7 +87,8 @@ export type AppendOnlyArray<T> = {
 
 export type calcBreakdown = {
   custodialPeriodBreakdown: string,
-  mtdBreadown: string
+  mtdBreadown: string,
+  remandPeriodBreakdown: string
 }
 
 // zod schemas mirroring the input types above, for validating untrusted request

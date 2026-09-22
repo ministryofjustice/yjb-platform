@@ -117,6 +117,18 @@ describe('DtoService', () => {
         }),
       )
     })
+
+    it('should not set a remandAdjustment startDate, leaving the API to derive it from the sentence date and remand days', () => {
+      const inputData: Record<string, unknown> = {
+        ...exampleValidPayload,
+        'remand-days': 5,
+      }
+
+      const { payload } = dtoService.validatePayload(inputData)
+
+      expect(payload.remandAdjustment).toEqual({ name: 'remand', days: 5 })
+      expect(payload.remandAdjustment.startDate).toBeUndefined()
+    })
   })
 
   describe('calculateDTO', () => {

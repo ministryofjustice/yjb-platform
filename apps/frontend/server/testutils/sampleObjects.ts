@@ -62,6 +62,7 @@ export const sampleCalculationResult: OutputCalculation = {
 export const breakdownObj: calcBreakdown = {
   custodialPeriodBreakdown: '(334 / 2)',
   mtdBreadown: '167 days from the beginning of the sentence (29 June 2026)',
+  remandPeriodBreakdown: '(14 June 2026 to 28 June 2026)',
 }
 
 export const sampleCalculationResult2: OutputCalculation = {
