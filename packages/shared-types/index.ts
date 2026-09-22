@@ -1,3 +1,4 @@
+import { exactOptional } from 'zod'
 import { AdjustmentTypes } from './adjustment-types'
 import { transferDatesObj } from './dto-eligibility-status'
 import { finalDatesObj } from './final-dates-status'
@@ -82,6 +83,11 @@ export type AppendOnlyArray<T> = {
   readonly [index: number]: T
   push(...items: T[]): number
   [Symbol.iterator](): IterableIterator<T>
+}
+
+export type calcBreakdown = {
+  custodialPeriodBreakdown: string,
+  mtdBreadown: string
 }
 
 // zod schemas mirroring the input types above, for validating untrusted request

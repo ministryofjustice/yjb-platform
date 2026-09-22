@@ -122,7 +122,7 @@ describe('POST /calculate', () => {
       })
   })
 
-  it('should pass the breakdownObj into the template', () => {
+  it('should pass the breakdownObj with custodial breakdown into the template', () => {
     const validResult: ValidationResult = {
       isValid: true,
       input: {},
@@ -144,7 +144,7 @@ describe('POST /calculate', () => {
       })
   })
 
-  it('should pass the breakdownObj into the template for rounded number', () => {
+  it('should pass the breakdownObj into the template for with custodial breakdown with rounded number', () => {
     const validResult: ValidationResult = {
       isValid: true,
       input: {},
@@ -163,6 +163,28 @@ describe('POST /calculate', () => {
       .expect(res => {
         const $ = cheerio.load(res.text)
         expect($('#detailed-breakdown').text()).toContain(breakdownObj2.custodialPeriodBreakdown)
+      })
+  })
+
+  it('should pass the breakdownObj into the template for MTD breakdown', () => {
+    const validResult: ValidationResult = {
+      isValid: true,
+      input: {},
+      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+    }
+    const mockCalculationResult: OutputCalculation = {
+      ...sampleCalculationResult,
+    }
+    dtoService.validatePayload.mockReturnValue(validResult)
+    dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
+
+    return request(app)
+      .post('/calculate')
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        const $ = cheerio.load(res.text)
+        expect($('#detailed-breakdown').text()).toContain(breakdownObj.mtdBreadown)
       })
   })
 
