@@ -46,7 +46,7 @@ describe('Calculation breakdown page', () => {
 
     it('includes a Start a new calculation button', () => {
       const cheerioPage = renderWithCheerio()
-      const link = cheerioPage('#new-calculation-link')
+      const link = cheerioPage('#new-calculation-link-a')
       expect(link.text()).toBe('Start a new DTO calculation')
       expect(link.prop('href')).toBe('/calculate')
     })
