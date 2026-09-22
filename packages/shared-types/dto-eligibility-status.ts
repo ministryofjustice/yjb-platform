@@ -8,8 +8,8 @@ export type DtoEligibilityStatus = (typeof DtoEligibilityStatus)[keyof typeof Dt
 
 export const DTO_ELIGIBILITY_MESSAGES: Record<DtoEligibilityStatus, string> = {
   [DtoEligibilityStatus.notCalculated]: 'Not applicable for DTOs of less then 8 months',
-  [DtoEligibilityStatus.oneMonth]: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
-  [DtoEligibilityStatus.twoMonths]: '2 months away from the MTD for DTOs of more then 18 months',
+  [DtoEligibilityStatus.oneMonth]: '1 month away from the MTD for DTOs of 8 months up to 18 months',
+  [DtoEligibilityStatus.twoMonths]: '2 months away from the MTD for DTOs of 18 months or more',
 }
 
 export type transferDatesObj = {
