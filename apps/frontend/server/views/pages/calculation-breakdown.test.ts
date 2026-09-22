@@ -152,6 +152,27 @@ describe('Calculation breakdown page', () => {
           expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
         },
       )
+
+      // TODO: it(renders the explanation for collapsed sentences correctly)
+      // it('renders the explanation for collapsed sentences correctly', () => {
+      //   const collapsedDates: EffectiveDates = {
+      //     totalNumberOfRemandAndTaggedBailDays: 4000,
+      //       sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-03-24'), new Date('2027-05-28'), 4000),
+      //       mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2025-11-27'), new Date('2026-12-12'), 4000),
+      //       TUSED: new Date('1970-01-01'),
+      //   }
+      //
+      //   const collapsedCalculationResult: OutputCalculation = {
+      //     ...sampleCalculationResult,
+      //     effectiveDates: collapsedDates
+      //   }
+      //   const cheerioPage = renderWithCheerio({ collapsedCalculationResult, breakdownObj })
+      //   const expectedExplanation: string = "(Date was collapsed to sentence day, with 64 unused days )"
+      //   const foundText = cheerioPage('#detailed-breakdown').text()
+      //   // expect(cheerioPage('#detailed-breakdown').text()).toContain(expectedExplanation)
+      //   expect(foundText).toContain(expectedExplanation)
+      //
+      // })
     })
 
     describe('Calculation outputs B', () => {
