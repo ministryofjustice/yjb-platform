@@ -11,7 +11,12 @@ import {
 import { appWithAllRoutes } from '../testutils/appSetup'
 import YjbApiClient from '../data/yjbApi'
 import DtoService, { ValidationResult } from '../services/dtoService'
-import sampleCalculationResult from '../testutils/sampleObjects'
+import {
+  sampleCalculationResult,
+  sampleCalculationResult2,
+  breakdownObj,
+  breakdownObj2,
+} from '../testutils/sampleObjects'
 
 jest.mock('../data/yjbApi')
 jest.mock('../services/dtoService')
@@ -82,6 +87,7 @@ describe('POST /calculate', () => {
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
     }
     dtoService.validatePayload.mockReturnValue(validResult)
+    dtoService.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
 
     return request(app)
       .post('/calculate')
@@ -113,6 +119,50 @@ describe('POST /calculate', () => {
       .expect(res => {
         const $ = cheerio.load(res.text)
         expect($('#release-dates').text()).toContain('Sun Jan 01 3093')
+      })
+  })
+
+  it('should pass the breakdownObj into the template', () => {
+    const validResult: ValidationResult = {
+      isValid: true,
+      input: {},
+      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+    }
+    const mockCalculationResult: OutputCalculation = {
+      ...sampleCalculationResult,
+    }
+    dtoService.validatePayload.mockReturnValue(validResult)
+    dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
+
+    return request(app)
+      .post('/calculate')
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        const $ = cheerio.load(res.text)
+        expect($('#detailed-breakdown').text()).toContain(breakdownObj.custodialPeriodBreakdown)
+      })
+  })
+
+  it('should pass the breakdownObj into the template for rounded number', () => {
+    const validResult: ValidationResult = {
+      isValid: true,
+      input: {},
+      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+    }
+    const mockCalculationResult: OutputCalculation = {
+      ...sampleCalculationResult2,
+    }
+    dtoService.validatePayload.mockReturnValue(validResult)
+    dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
+
+    return request(app)
+      .post('/calculate')
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        const $ = cheerio.load(res.text)
+        expect($('#detailed-breakdown').text()).toContain(breakdownObj2.custodialPeriodBreakdown)
       })
   })
 
@@ -196,6 +246,7 @@ describe('POST /calculate', () => {
         ? { isValid: true, input, payload: validatedPayload }
         : { isValid: false, input },
     )
+    dtoService.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
 
     return request(app)
       .post('/calculate')
