@@ -200,7 +200,27 @@ describe('getETD', () => {
       data: new Date('2026-11-12'),
       metadata: {
         status: '1_month',
-        message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        message: '1 month away from the MTD for DTOs of 8 months up to 18 months',
+      },
+    })
+  })
+
+  it('returns 2026-11-12 for a 17 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
+    expect(getETDDate(new Date('2026-12-12'), 17)).toEqual({
+      data: new Date('2026-11-12'),
+      metadata: {
+        status: '1_month',
+        message: '1 month away from the MTD for DTOs of 8 months up to 18 months',
+      },
+    })
+  })
+
+  it('returns 2026-11-12 for a 18 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
+    expect(getETDDate(new Date('2026-12-12'), 18)).toEqual({
+      data: new Date('2026-11-12'),
+      metadata: {
+        status: '1_month',
+        message: '1 month away from the MTD for DTOs of 8 months up to 18 months',
       },
     })
   })
@@ -210,7 +230,7 @@ describe('getETD', () => {
       data: new Date('2026-10-12'),
       metadata: {
         status: '2_months',
-        message: '2 months away from the MTD for DTOs of more then 18 months',
+        message: '2 months away from the MTD for DTOs of 18 months or more',
       },
     })
   })
@@ -232,7 +252,27 @@ describe('getLTD', () => {
       data: new Date('2027-01-12'),
       metadata: {
         status: '1_month',
-        message: '1 month away from the MTD for DTOs of 8 months, but less then 18 months',
+        message: '1 month away from the MTD for DTOs of 8 months up to 18 months',
+      },
+    })
+  })
+
+  it('returns 2027-01-12 for a 17 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
+    expect(getLTDDate(new Date('2026-12-12'), 17)).toEqual({
+      data: new Date('2027-01-12'),
+      metadata: {
+        status: '1_month',
+        message: '1 month away from the MTD for DTOs of 8 months up to 18 months',
+      },
+    })
+  })
+
+  it('returns 2027-01-12 for a 18 months long sentence, NO REMAND, mtd on 2026-12-12', () => {
+    expect(getLTDDate(new Date('2026-12-12'), 18)).toEqual({
+      data: new Date('2027-01-12'),
+      metadata: {
+        status: '1_month',
+        message: '1 month away from the MTD for DTOs of 8 months up to 18 months',
       },
     })
   })
@@ -242,7 +282,7 @@ describe('getLTD', () => {
       data: new Date('2027-02-12'),
       metadata: {
         status: '2_months',
-        message: '2 months away from the MTD for DTOs of more then 18 months',
+        message: '2 months away from the MTD for DTOs of 18 months or more',
       },
     })
   })

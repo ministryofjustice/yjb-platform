@@ -68,8 +68,8 @@ describe('Calculation breakdown page', () => {
       ['Term length', ', from 2026-06-29 to 2027-05-13'],
       ['Final Sled', '(2027-05-28 minus 15 days)'],
       ['Final MTD', '(2026-12-12 minus 15 days)'],
-      ['LTD', '(1 month away from the MTD for DTOs of 8 months, but less then 18 months)'],
-      ['ETD', '(1 month away from the MTD for DTOs of 8 months, but less then 18 months)'],
+      ['LTD', '(1 month away from the MTD for DTOs of 8 months up to 18 months)'],
+      ['ETD', '(1 month away from the MTD for DTOs of 8 months up to 18 months)'],
     ]
 
     describe('your answers section', () => {
