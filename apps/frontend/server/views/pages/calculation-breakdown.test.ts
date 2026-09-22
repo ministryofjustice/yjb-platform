@@ -71,8 +71,8 @@ describe('Calculation breakdown page', () => {
       ['Remand period', '(14 June 2026 to 28 June 2026)'],
       ['SLED', '(2027-05-28 minus 15 days)'],
       ['Final MTD', '(2026-12-12 minus 15 days)'],
-      ['LTD', '(1 month away from the MTD for DTOs of 8 months up to 18 months)'],
-      ['ETD', '(1 month away from the MTD for DTOs of 8 months up to 18 months)'],
+      ['LTD', '(1 month away from the MTD for DTOs with terms from 8 to 18 months)'],
+      ['ETD', '(1 month away from the MTD for DTOs with terms from 8 to 18 months)'],
     ]
 
     describe('your answers section', () => {
