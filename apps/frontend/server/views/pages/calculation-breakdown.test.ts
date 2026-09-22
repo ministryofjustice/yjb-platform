@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio'
 import { OutputCalculation } from '@yjb-platform/shared-types'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
-import sampleCalculationResult from '../../testutils/sampleObjects'
+import { sampleCalculationResult, breakdownObj } from '../../testutils/sampleObjects'
 import { ParsedDtoForm } from '../../services/dtoService'
 
 const env = createNunjucksTestSetup()
@@ -66,6 +66,7 @@ describe('Calculation breakdown page', () => {
 
     const expectedExplanationValues: string[][] = [
       ['Term length', ', from 2026-06-29 to 2027-05-13'],
+      ['Custodial period', '(334 / 2)'],
       ['Final Sled', '(2027-05-28 minus 15 days)'],
       ['Final MTD', '(2026-12-12 minus 15 days)'],
       ['LTD', '(1 month away from the MTD for DTOs of 8 months up to 18 months)'],
@@ -122,7 +123,7 @@ describe('Calculation breakdown page', () => {
 
     describe('Calculation outputs A', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult })
+      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj })
 
       it('correctly renders the Calculation Summary panel values', () => {
         const summaryData: Record<string, string> = {}
@@ -153,7 +154,7 @@ describe('Calculation breakdown page', () => {
 
     describe('Calculation outputs B', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult })
+      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj })
 
       const calculationDataRows: Record<string, string> = {}
       cheerioPage('#calculation-results-tab .govuk-summary-list__row').each((_, el) => {

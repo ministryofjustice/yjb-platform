@@ -32,10 +32,19 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult.payload)
       const calculationResultString = JSON.stringify(calculationResult)
 
+      // TODO: move breakdown string construction in a dedicated method
+      const breakdownObj: Record<string, string> = {}
+
+      // construct custodial period breakdown test
+      breakdownObj.custodialPeriodBreakdown = `${calculationResult.calculatedTerms[0].totalDaysInTerm} / 2${
+        calculationResult.calculatedTerms[0].totalDaysInTerm % 2 ? ', rounded up' : ''
+      }`
+
       return res.render('pages/calculation-breakdown', {
         calculationResult,
         inputData: validationResult.parsedInput,
         payloadString,
+        breakdownObj,
         calculationResultString,
       })
     }

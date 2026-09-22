@@ -2,7 +2,7 @@ import nock from 'nock'
 import { InputSentences } from '@yjb-platform/shared-types'
 import YjbApiClient from './yjbApi'
 import config from '../config'
-import sampleCalculationResult from '../testutils/sampleObjects'
+import { sampleCalculationResult } from '../testutils/sampleObjects'
 
 describe('ExampleApiClient', () => {
   let yjbApiClient: YjbApiClient
