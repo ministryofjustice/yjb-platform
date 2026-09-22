@@ -10,8 +10,8 @@ export type AppliedAdjustmentStatus = (typeof AppliedAdjustmentStatus)[keyof typ
 export const FINAL_SLED_BREAKDOWN_MESSAGE: Record<AppliedAdjustmentStatus, string> = {
   [AppliedAdjustmentStatus.not_applied]: ' No adjustments applied',
   [AppliedAdjustmentStatus.applied]: '{0} minus {1} days',
-  [AppliedAdjustmentStatus.collapsed]: 'Date was collapsed to sentence day, due to remand/tagged bail bigger then sentence period',
-  [AppliedAdjustmentStatus.collapsedUnused]: 'Date was collapsed to sentence day, with {0} unused days '
+  [AppliedAdjustmentStatus.collapsed]: 'Date was collapsed to sentence date, due to remand/tagged bail bigger then sentence period',
+  [AppliedAdjustmentStatus.collapsedUnused]: 'Date was collapsed to sentence date, with {0} unused days '
 }
 
 export type finalDatesObj = {

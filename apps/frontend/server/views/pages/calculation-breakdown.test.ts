@@ -46,8 +46,8 @@ describe('Calculation breakdown page', () => {
 
     it('includes a Start a new calculation button', () => {
       const cheerioPage = renderWithCheerio()
-      const link = cheerioPage('#new-calculation-link')
-      expect(link.text()).toBe('Start a new calculation')
+      const link = cheerioPage('#new-calculation-link-a')
+      expect(link.text()).toBe('Start a new DTO calculation')
       expect(link.prop('href')).toBe('/calculate')
     })
   })
@@ -58,7 +58,7 @@ describe('Calculation breakdown page', () => {
       ['Custodial period', '167 days'],
       ['MTD', 'Sat Dec 12 2026'],
       ['Remand period', '15 days'],
-      ['Final Sled', 'Thu May 13 2027'],
+      ['SLED', 'Thu May 13 2027'],
       ['Final MTD', 'Fri Nov 27 2026'],
       ['LTD', 'Sun Dec 27 2026'],
       ['ETD', 'Tue Oct 27 2026'],
@@ -66,13 +66,13 @@ describe('Calculation breakdown page', () => {
 
     const expectedExplanationValues: string[][] = [
       ['Term length', ', from 2026-06-29 to 2027-05-13'],
-      ['Custodial period', '(334 / 2)'],
+      ['Custodial period', '(334 divided by 2)'],
       ['MTD', '167 days from the beginning of the sentence (29 June 2026)'],
       ['Remand period', '(14 June 2026 to 28 June 2026)'],
-      ['Final Sled', '(2027-05-28 minus 15 days)'],
+      ['SLED', '(2027-05-28 minus 15 days)'],
       ['Final MTD', '(2026-12-12 minus 15 days)'],
-      ['LTD', '(1 month away from the MTD for DTOs of 8 months up to 18 months)'],
-      ['ETD', '(1 month away from the MTD for DTOs of 8 months up to 18 months)'],
+      ['LTD', '(1 month away from the MTD for DTOs with terms from 8 to 18 months)'],
+      ['ETD', '(1 month away from the MTD for DTOs with terms from 8 to 18 months)'],
     ]
 
     describe('your answers section', () => {
@@ -152,6 +152,27 @@ describe('Calculation breakdown page', () => {
           expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
         },
       )
+
+      // TODO: it(renders the explanation for collapsed sentences correctly)
+      // it('renders the explanation for collapsed sentences correctly', () => {
+      //   const collapsedDates: EffectiveDates = {
+      //     totalNumberOfRemandAndTaggedBailDays: 4000,
+      //       sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-03-24'), new Date('2027-05-28'), 4000),
+      //       mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2025-11-27'), new Date('2026-12-12'), 4000),
+      //       TUSED: new Date('1970-01-01'),
+      //   }
+      //
+      //   const collapsedCalculationResult: OutputCalculation = {
+      //     ...sampleCalculationResult,
+      //     effectiveDates: collapsedDates
+      //   }
+      //   const cheerioPage = renderWithCheerio({ collapsedCalculationResult, breakdownObj })
+      //   const expectedExplanation: string = "(Date was collapsed to sentence day, with 64 unused days )"
+      //   const foundText = cheerioPage('#detailed-breakdown').text()
+      //   // expect(cheerioPage('#detailed-breakdown').text()).toContain(expectedExplanation)
+      //   expect(foundText).toContain(expectedExplanation)
+      //
+      // })
     })
 
     describe('Calculation outputs B', () => {

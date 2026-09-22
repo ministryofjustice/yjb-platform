@@ -200,7 +200,7 @@ describe('getETD', () => {
       data: new Date('2026-11-12'),
       metadata: {
         status: '1_month',
-        message: '1 month away from the MTD for DTOs of 8 months up to 18 months',
+        message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
       },
     })
   })
@@ -210,7 +210,7 @@ describe('getETD', () => {
       data: new Date('2026-11-12'),
       metadata: {
         status: '1_month',
-        message: '1 month away from the MTD for DTOs of 8 months up to 18 months',
+        message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
       },
     })
   })
@@ -220,7 +220,7 @@ describe('getETD', () => {
       data: new Date('2026-11-12'),
       metadata: {
         status: '1_month',
-        message: '1 month away from the MTD for DTOs of 8 months up to 18 months',
+        message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
       },
     })
   })
@@ -230,7 +230,7 @@ describe('getETD', () => {
       data: new Date('2026-10-12'),
       metadata: {
         status: '2_months',
-        message: '2 months away from the MTD for DTOs of 18 months or more',
+        message: '2 months away from the MTD for DTOs with terms over 18 months',
       },
     })
   })
@@ -240,7 +240,7 @@ describe('getETD', () => {
       data: 0,
       metadata: {
         status: 'not_calculated',
-        message: 'Not applicable for DTOs of less then 8 months',
+        message: 'Not applicable for DTOs with terms less than 8 months',
       },
     })
   })
@@ -252,7 +252,7 @@ describe('getLTD', () => {
       data: new Date('2027-01-12'),
       metadata: {
         status: '1_month',
-        message: '1 month away from the MTD for DTOs of 8 months up to 18 months',
+        message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
       },
     })
   })
@@ -262,7 +262,7 @@ describe('getLTD', () => {
       data: new Date('2027-01-12'),
       metadata: {
         status: '1_month',
-        message: '1 month away from the MTD for DTOs of 8 months up to 18 months',
+        message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
       },
     })
   })
@@ -272,7 +272,7 @@ describe('getLTD', () => {
       data: new Date('2027-01-12'),
       metadata: {
         status: '1_month',
-        message: '1 month away from the MTD for DTOs of 8 months up to 18 months',
+        message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
       },
     })
   })
@@ -282,7 +282,7 @@ describe('getLTD', () => {
       data: new Date('2027-02-12'),
       metadata: {
         status: '2_months',
-        message: '2 months away from the MTD for DTOs of 18 months or more',
+        message: '2 months away from the MTD for DTOs with terms over 18 months',
       },
     })
   })
@@ -292,7 +292,7 @@ describe('getLTD', () => {
       data: 0,
       metadata: {
         status: 'not_calculated',
-        message: 'Not applicable for DTOs of less then 8 months',
+        message: 'Not applicable for DTOs with terms less than 8 months',
       },
     })
   })
