@@ -75,6 +75,7 @@ describe('New calculation page', () => {
       )
       expect(remandFieldset.length).toBe(1)
       expect(remandFieldset.find('#remand-days').attr('name')).toEqual('remand-days')
+      expect(remandFieldset.find('#remand-start-date').attr('name')).toEqual('remand-start-date')
       expect(remandFieldset.find('#tagged-bail-days').attr('name')).toEqual('tagged-bail-days')
     })
 

@@ -84,7 +84,7 @@
 
         {% call govukFieldset({
           legend: {
-            text: "Remand periods (days)",
+            text: "Remand periods",
             classes: "govuk-fieldset__legend--s"
           }
         }) %}
@@ -93,14 +93,26 @@
             <div class="govuk-grid-column-one-half">
               {{ govukInput({
                 label: {
-                  text: "Remand"
+                  text: "Remand Start Date"
+                },
+                id: "remand-start-date",
+                name: "remand-start-date",
+                value: remandStartDate
+              }) }}
+            </div>
+
+            <div class="govuk-grid-column-one-half">
+              {{ govukInput({
+                label: {
+                  text: "Remand in Days"
                 },
                 id: "remand-days",
                 name: "remand-days",
                 value: remandDays
               }) }}
             </div>
-
+        </div>
+        <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
               {{ govukInput({
                 label: {
