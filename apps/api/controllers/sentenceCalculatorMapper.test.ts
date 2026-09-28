@@ -53,6 +53,22 @@ describe('parseInputSentences', () => {
     })
   })
 
+  it('deserializes an optional remandAdjustment with Start Date only, expect start date to be 2026-06-14', () => {
+    const body = {
+      offenderName: 'Test Offender',
+      remandAdjustment: { name: AdjustmentTypes.remand,  startDate: '2026-06-14'  },
+      inputIndividualSentences: [{ from: '2026-06-29', durationMonths: 11 }],
+    }
+
+    const result = parseInputSentences(body)
+
+    expect(result.remandAdjustment).toEqual({
+      name: AdjustmentTypes.remand,
+      days: 15,
+      startDate: new Date('2026-06-14'),
+    })
+  })
+
   it('throws a ZodError when a required field is missing', () => {
     const body = {
       inputIndividualSentences: [{ from: '2026-06-29', durationMonths: 11 }],

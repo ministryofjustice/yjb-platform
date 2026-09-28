@@ -23,6 +23,7 @@ import {
   getMTDDate,
   calculateTerm,
   calculateAdjustmentStart,
+  calculateRemandDays,
 } from './lib'
 
 describe('getTotalDaysInTerm', () => {
@@ -620,6 +621,21 @@ describe('calculateAdjustmentStart', () => {
       name: AdjustmentTypes.remand,
       days: 15,
     }
-    expect(calculateAdjustmentStart(inputSentence.from, remandAdjustment.days)).toEqual(new Date('2026-06-14'))
+    expect(calculateAdjustmentStart(inputSentence.from, remandAdjustment.days!)).toEqual(new Date('2026-06-14'))
+  })
+})
+
+describe('calculateRemandDays', () => {
+  it('returns 9 for remand starting on 2026-06-01 and sentence day on 2026-06-10', ()=>{
+    const inputSentence: InputIndividualSentence = {
+      from: new Date('2026-06-10'),
+      durationMonths: 11,
+    }
+    const remandAdjustment: RemandAdjustment = {
+      name: AdjustmentTypes.remand,
+      startDate: new Date('2026-06-01'),
+    }
+
+     expect(calculateRemandDays(inputSentence.from, remandAdjustment.startDate!)).toEqual(9)
   })
 })

@@ -20,19 +20,15 @@ export type InputSentences = {
   inputIndividualSentences: InputIndividualSentence[]
 }
 
-// common shape every adjustment shares
-interface BaseAdjustment {
-  name: AdjustmentTypes
-  days: number
-}
-
-export interface RemandAdjustment extends BaseAdjustment {
+export interface RemandAdjustment {
   name: typeof AdjustmentTypes.remand
   startDate?: Date
+  days?: number
 }
 
-export interface TaggedBailAdjustment extends BaseAdjustment {
+export interface TaggedBailAdjustment {
   name: typeof AdjustmentTypes.taggedBail
+  days: number
   // no startDate — and TS will error if you try to read one
 }
 

@@ -10,7 +10,7 @@ export const inputIndividualSentenceSchema = z.object({
 
 export const remandAdjustmentSchema = z.object({
   name: z.literal(AdjustmentTypes.remand),
-  days: z.number(),
+  days: z.number().optional(),
   startDate: z.coerce.date().optional(),
 })
 

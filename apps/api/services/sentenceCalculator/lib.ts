@@ -114,20 +114,20 @@ export function adjustCalculation(
   // MTD and SLED each track their own remaining budget independently: every adjustment
   // subtracts its full day count from both, and each collapses to the sentence start
   // once its own budget is exhausted - there's no carryover from one to the other
-  const isMtdCollapsed = inputAdjustment.days >= initialMtdBudget
-  const isSledCollapsed = inputAdjustment.days >= initialSledBudget
+  const isMtdCollapsed = inputAdjustment.days! >= initialMtdBudget
+  const isSledCollapsed = inputAdjustment.days! >= initialSledBudget
 
   const outputEffectiveDatesMTD = isMtdCollapsed
     ? sentenceStartDate
-    : subDays(srcCal.effectiveDates.mtd.data, inputAdjustment.days)
+    : subDays(srcCal.effectiveDates.mtd.data, inputAdjustment.days!)
 
   const outputEffectiveDatesSled = isSledCollapsed
     ? sentenceStartDate
-    : subDays(srcCal.effectiveDates.sled.data, inputAdjustment.days)
+    : subDays(srcCal.effectiveDates.sled.data, inputAdjustment.days!)
 
   if (isMtdCollapsed) {
     // record how far past the MTD budget this adjustment went, for the audit trail
-    unusedAdjustmentDays = Math.max(0, inputAdjustment.days - initialMtdBudget)
+    unusedAdjustmentDays = Math.max(0, inputAdjustment.days! - initialMtdBudget)
   }
 
   // the "applied" message always describes the net shift from the originally
@@ -135,7 +135,7 @@ export function adjustCalculation(
   // subDays chaining is additive, so this stays accurate across multiple adjustments
   const cumulativeAdjustmentDays = increaseTotalNumRTBDays(
     srcCal.effectiveDates.totalNumberOfRemandAndTaggedBailDays,
-    inputAdjustment.days,
+    inputAdjustment.days!,
   )
 
   const outputNewEffectiveDates: EffectiveDates = {
@@ -166,4 +166,8 @@ export function adjustCalculation(
 
 export function calculateAdjustmentStart(sentenceStart: Date, adjustmentLenth: number): Date {
   return subDays(sentenceStart, adjustmentLenth)
+}
+
+export function calculateRemandDays(sentenceStart: Date, remandStart: Date): number {
+  return differenceInCalendarDays(sentenceStart, remandStart )
 }

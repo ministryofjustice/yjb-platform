@@ -1,15 +1,38 @@
 import { inputSentencesSchema, InputSentences, OutputCalculation } from '@yjb-platform/shared-types'
-import { calculateAdjustmentStart } from '../services/sentenceCalculator/lib'
+import { calculateAdjustmentStart, calculateRemandDays } from '../services/sentenceCalculator/lib'
 
 export function parseInputSentences(body: unknown): InputSentences {
   const parsedInput = inputSentencesSchema.parse(body)
-  // for remand with no start date extract the start date
-  if (parsedInput.remandAdjustment && !parsedInput.remandAdjustment!.startDate) {
-    parsedInput.remandAdjustment!.startDate = calculateAdjustmentStart(
-      parsedInput.inputIndividualSentences[0].from,
-      parsedInput.remandAdjustment!.days,
-    )
+  const { remandAdjustment } = parsedInput
+
+  if (!remandAdjustment) {
+    return parsedInput
   }
+
+  const sentenceStart = parsedInput.inputIndividualSentences[0].from
+
+  // for remand with no start date extract the start date
+  if (!remandAdjustment.startDate) {
+    return {
+      ...parsedInput,
+      remandAdjustment: {
+        ...remandAdjustment,
+        startDate: calculateAdjustmentStart(sentenceStart, remandAdjustment.days!),
+      },
+    }
+  }
+
+  // for remand with start day only calculate the number of remand days
+  if (!remandAdjustment.days) {
+    return {
+      ...parsedInput,
+      remandAdjustment: {
+        ...remandAdjustment,
+        days: calculateRemandDays(sentenceStart, remandAdjustment.startDate),
+      },
+    }
+  }
+
   return parsedInput
 }
 

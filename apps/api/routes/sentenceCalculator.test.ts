@@ -294,4 +294,95 @@ describe('POST /calculations', () => {
     expect(response.body.errors).toBeInstanceOf(Array)
     expect(response.body.errors.length).toBeGreaterThan(0)
   })
+
+
+  it('returns full calculation + 15 days remand for Remand Start Date 2026-06-14, setance starting 2026-06-29 and no remand days', () => {
+    const input = {
+      offenderName: 'Test Offender',
+      remandAdjustment: {
+        name: 'remand',
+        startDate: new Date('2026-06-14'),
+      },
+      inputIndividualSentences: [
+        {
+          from: '2026-06-29',
+          durationMonths: 11,
+        },
+      ],
+    }
+    const output = {
+      calculatedTerms: [
+        {
+          inputSentence: { from: '2026-06-29', durationMonths: 11 },
+          totalDaysInTerm: 334,
+          totalDaysMTD: 167,
+          sled: '2027-05-28',
+          mtd: '2026-12-12',
+        },
+      ],
+      effectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 15,
+        sled: {
+          data: '2027-05-13',
+          metadata: {
+            status: AppliedAdjustmentStatus.applied,
+            message: '2027-05-28 minus 15 days',
+          },
+        },
+        mtd: {
+          data: '2026-11-27',
+          metadata: {
+            status: AppliedAdjustmentStatus.applied,
+            message: '2026-12-12 minus 15 days',
+          },
+        },
+        TUSED: '1970-01-01',
+      },
+      ltd: {
+        data: '2026-12-27',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+        },
+      },
+      etd: {
+        data: '2026-10-27',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+        },
+      },
+      unusedAdjustmentDays: 0,
+      effectiveDatesPastAdjustments: [
+        {
+          adjustmentReason: 'remand',
+          adjustmentParameters: {
+            name: 'remand',
+            days: 15,
+            startDate: '2026-06-14',
+          },
+          pastEffectiveDates: {
+            totalNumberOfRemandAndTaggedBailDays: 0,
+            sled: {
+              data: '2027-05-28',
+              metadata: {
+                status: AppliedAdjustmentStatus.not_applied,
+                message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+              },
+            },
+            mtd: {
+              data: '2026-12-12',
+              metadata: {
+                status: AppliedAdjustmentStatus.not_applied,
+                message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+              },
+            },
+            TUSED: '1970-01-01',
+          },
+        },
+      ],
+    }
+
+    return request(app).post('/calculations').send(input).expect(200, output)
+  })
 })
