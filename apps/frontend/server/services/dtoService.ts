@@ -23,13 +23,19 @@ export type ParsedDtoForm = {
   sentenceDateString: string
 }
 
-function parseDtoForm(formData: Record<string, unknown>): ParsedDtoForm {
+type FieldError = { field: string; message: string }
+
+type ParseResult =
+  | { success: true; input: Record<string, unknown>; data: ParsedDtoForm }
+  | { success: false; input: Record<string, unknown>; errors: FieldError[] }
+
+function parseDtoForm(formData: Record<string, unknown>): ParseResult {
   const hasDateFields =
     formData['sentence-date-year'] !== undefined &&
     formData['sentence-date-month'] !== undefined &&
     formData['sentence-date-day'] !== undefined
 
-  // only assemble the date when there's something to assemble it from 
+  // only assemble the date when there's something to assemble it from
   const sentenceDate = hasDateFields
     ? new Date(
         Date.UTC(
@@ -40,7 +46,7 @@ function parseDtoForm(formData: Record<string, unknown>): ParsedDtoForm {
       )
     : new Date(NaN)
 
-  const parsed = dtoFormSchema.parse({
+  const result = dtoFormSchema.safeParse({
     from: sentenceDate,
     durationMonths: formData['sentence-length-months'],
     remandDays: formData['remand-days'],
@@ -48,18 +54,33 @@ function parseDtoForm(formData: Record<string, unknown>): ParsedDtoForm {
     taggedBailDays: formData['tagged-bail-days'],
   })
 
-  // turn the already parsed date to string 
+  if (!result.success) {
+    return {
+      success: false,
+      input: formData,
+      errors: result.error.issues.map(issue => ({
+        field: String(issue.path[0]),
+        message: issue.message,
+      })),
+    }
+  }
+
+  const { data: parsed } = result
+
+  // turn the already parsed date to string
   const sentenceDateString = sentenceDateStringSchema
     .catch('Invalid Date')
     .parse(parsed.from.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }))
 
-  return {
+  const data: ParsedDtoForm = {
     remandDays: parsed.remandDays,
     taggedBailDays: parsed.taggedBailDays,
     sentenceLengthMonths: parsed.durationMonths,
     sentenceDate: parsed.from,
     sentenceDateString,
   }
+
+  return { success: true, input: formData, data }
 }
 
 function constructInputSentences(parsed: ParsedDtoForm): InputSentences {
@@ -86,8 +107,20 @@ export default class DtoService {
   constructor(private readonly yjbApiClient: YjbApiClient) {}
 
   validatePayload(formData: Record<string, unknown>): ValidationResult {
-    const parsedDtoForm = parseDtoForm(formData)
+    const parseResult = parseDtoForm(formData)
+
+    if (!parseResult.success) { 
+      return {
+        isValid: false,
+        input: formData,
+        parsedInput: undefined,
+        payload: undefined,
+      }
+    }
+
+    const { data: parsedDtoForm } = parseResult
     const isValid = Number.isInteger(parsedDtoForm.sentenceLengthMonths) && parsedDtoForm.sentenceLengthMonths > 0
+
     return {
       isValid,
       input: formData,
