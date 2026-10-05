@@ -3,6 +3,8 @@ import {
   InputSentences,
   OutputCalculation,
   RemandAdjustment,
+  dtoFormSchema,
+  sentenceDateStringSchema,
 } from '@yjb-platform/shared-types'
 import YjbApiClient from '../data/yjbApi'
 
@@ -22,20 +24,41 @@ export type ParsedDtoForm = {
 }
 
 function parseDtoForm(formData: Record<string, unknown>): ParsedDtoForm {
-  const sentenceDate: Date = new Date(
-    Date.UTC(
-      Number(formData['sentence-date-year']),
-      Number(formData['sentence-date-month']) - 1,
-      Number(formData['sentence-date-day']),
-    ),
-  )
+  const hasDateFields =
+    formData['sentence-date-year'] !== undefined &&
+    formData['sentence-date-month'] !== undefined &&
+    formData['sentence-date-day'] !== undefined
+
+  // only assemble the date when there's something to assemble it from 
+  const sentenceDate = hasDateFields
+    ? new Date(
+        Date.UTC(
+          Number(formData['sentence-date-year']),
+          Number(formData['sentence-date-month']) - 1,
+          Number(formData['sentence-date-day']),
+        ),
+      )
+    : new Date(NaN)
+
+  const parsed = dtoFormSchema.parse({
+    from: sentenceDate,
+    durationMonths: formData['sentence-length-months'],
+    remandDays: formData['remand-days'],
+    remandStartDate: formData['remand-start-date'],
+    taggedBailDays: formData['tagged-bail-days'],
+  })
+
+  // turn the already parsed date to string 
+  const sentenceDateString = sentenceDateStringSchema
+    .catch('Invalid Date')
+    .parse(parsed.from.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }))
+
   return {
-    remandDays: formData['remand-days'] !== undefined ? Number(formData['remand-days']) : 0,
-    taggedBailDays: formData['tagged-bail-days'] !== undefined ? Number(formData['tagged-bail-days']) : 0,
-    sentenceLengthMonths:
-      formData['sentence-length-months'] !== undefined ? Number(formData['sentence-length-months']) : 0,
-    sentenceDate,
-    sentenceDateString: sentenceDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+    remandDays: parsed.remandDays,
+    taggedBailDays: parsed.taggedBailDays,
+    sentenceLengthMonths: parsed.durationMonths,
+    sentenceDate: parsed.from,
+    sentenceDateString,
   }
 }
 

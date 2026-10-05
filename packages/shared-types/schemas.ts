@@ -8,14 +8,15 @@ export const taggedBailDaysSchema = z.number()
 export const sentenceFrom = z.coerce.date()
 export const sentanceDurationMonths = z.number()
 export const sentanceOffenderName = z.string()
+export const sentenceDateStringSchema = z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/)
 
 //dto form schemas
 export const dtoFormSchema = z.object({
-  from: sentenceFrom,
-  durationMonths: sentanceDurationMonths,
-  remandDays: remandDaysSchema.optional,
-  remandStartDate: remandStartDateSchema.optional,
-  taggedBailDays: taggedBailDaysSchema.optional,
+  from: sentenceFrom.catch(new Date(NaN)),
+  durationMonths: sentanceDurationMonths.default(0),
+  remandDays: remandDaysSchema.default(0),
+  remandStartDate: remandStartDateSchema,
+  taggedBailDays: taggedBailDaysSchema.default(0),
 })
 
 //input object schemas
