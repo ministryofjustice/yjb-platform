@@ -1,12 +1,33 @@
 import { Router } from 'express'
 import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform/shared-types'
 import type { Services } from '../services'
-import { ValidationResult } from '../services/dtoService'
+import { FieldError, ValidationResult } from '../services/dtoService'
 
 function formatUkDate(date: Date | string): string {
   return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
     new Date(date),
   )
+}
+
+export type FormPageObject = {
+  isValid: boolean
+  formData: Record<string, unknown>
+  errors: FieldError[]
+  errorSummary: { text: string; href: string }[]
+}
+
+function dtoFormPresenter(validationResult: ValidationResult): FormPageObject {
+  const errors = validationResult.errors ?? []
+
+  return {
+    isValid: validationResult.isValid,
+    formData: validationResult.input,
+    errors,
+    errorSummary: errors.map(error => ({
+      text: error.message,
+      href: `#${error.field}`,
+    })),
+  }
 }
 
 export default function calculateRoutes({ dtoService }: Partial<Services>): Router {
@@ -67,8 +88,8 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
         calculationResultString,
       })
     }
-    // TODO: construct an error object and use it here
-    return res.render('pages/new-calculation', { validationError: true })
+
+    return res.render('pages/new-calculation', dtoFormPresenter(validationResult))
   })
 
   return router
