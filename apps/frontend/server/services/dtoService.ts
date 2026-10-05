@@ -13,6 +13,7 @@ export type ValidationResult = {
   input: Record<string, unknown>
   parsedInput?: ParsedDtoForm
   payload?: InputSentences
+  errors?: FieldError[]
 }
 
 export type ParsedDtoForm = {
@@ -23,11 +24,14 @@ export type ParsedDtoForm = {
   sentenceDateString: string
 }
 
-type FieldError = { field: string; message: string }
+export type FieldError = { field: string; message: string }
 
-type ParseResult =
-  | { success: true; input: Record<string, unknown>; data: ParsedDtoForm }
-  | { success: false; input: Record<string, unknown>; errors: FieldError[] }
+type ParseResult = {
+  success: boolean
+  input: Record<string, unknown>
+  data: ParsedDtoForm
+  errors: FieldError[]
+}
 
 function parseDtoForm(formData: Record<string, unknown>): ParseResult {
   const hasDateFields =
@@ -55,9 +59,19 @@ function parseDtoForm(formData: Record<string, unknown>): ParseResult {
   })
 
   if (!result.success) {
+
+    const emptyParsedDtoForm: ParsedDtoForm = {
+      remandDays: 0,
+      taggedBailDays: 0,
+      sentenceLengthMonths: 0,
+      sentenceDate: new Date(NaN),
+      sentenceDateString: 'Invalid Date',
+    }
+    
     return {
       success: false,
       input: formData,
+      data: emptyParsedDtoForm,
       errors: result.error.issues.map(issue => ({
         field: String(issue.path[0]),
         message: issue.message,
@@ -80,7 +94,7 @@ function parseDtoForm(formData: Record<string, unknown>): ParseResult {
     sentenceDateString,
   }
 
-  return { success: true, input: formData, data }
+  return { success: true, input: formData, data, errors: [] }
 }
 
 function constructInputSentences(parsed: ParsedDtoForm): InputSentences {
@@ -109,12 +123,11 @@ export default class DtoService {
   validatePayload(formData: Record<string, unknown>): ValidationResult {
     const parseResult = parseDtoForm(formData)
 
-    if (!parseResult.success) { 
+    if (!parseResult.success) {
       return {
         isValid: false,
-        input: formData,
-        parsedInput: undefined,
-        payload: undefined,
+        input: parseResult.input,
+        errors: parseResult.errors,
       }
     }
 
@@ -123,7 +136,7 @@ export default class DtoService {
 
     return {
       isValid,
-      input: formData,
+      input: parseResult.input,
       parsedInput: isValid ? parsedDtoForm : undefined,
       payload: isValid ? constructInputSentences(parsedDtoForm) : undefined,
     }
