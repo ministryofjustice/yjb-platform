@@ -1,27 +1,44 @@
 import { z } from 'zod'
 import { AdjustmentTypes } from './adjustment-types'
 
-// input schemas - the single source of truth: both the runtime validation and the
-// TypeScript types derived from these in index.ts, so they can never drift apart
+//indivudual schemas for reuse from front and backend
+export const remandStartDateSchema = z.coerce.date().optional()
+export const remandDaysSchema = z.number()
+export const taggedBailDaysSchema = z.number()
+export const sentenceFrom = z.coerce.date()
+export const sentanceDurationMonths = z.number()
+export const sentanceOffenderName = z.string()
+
+//dto form schemas
+export const dtoFormSchema = z.object({
+  from: sentenceFrom,
+  durationMonths: sentanceDurationMonths,
+  remandDays: remandDaysSchema.optional,
+  remandStartDate: remandStartDateSchema.optional,
+  taggedBailDays: taggedBailDaysSchema.optional,
+})
+
+//input object schemas
 export const inputIndividualSentenceSchema = z.object({
-  from: z.coerce.date(),
-  durationMonths: z.number(),
+  from: sentenceFrom,
+  durationMonths: sentanceDurationMonths,
 })
 
 export const remandAdjustmentSchema = z.object({
   name: z.literal(AdjustmentTypes.remand),
-  days: z.number(),
-  startDate: z.coerce.date().optional(),
+  days: remandDaysSchema,
+  startDate: remandStartDateSchema,
 })
 
 export const taggedBailAdjustmentSchema = z.object({
   name: z.literal(AdjustmentTypes.taggedBail),
-  days: z.number(),
+  days: taggedBailDaysSchema,
 })
 
 export const inputSentencesSchema = z.object({
-  offenderName: z.string(),
+  offenderName: sentanceOffenderName,
   remandAdjustment: remandAdjustmentSchema.optional(),
   taggedBailAdjustment: taggedBailAdjustmentSchema.optional(),
   inputIndividualSentences: z.array(inputIndividualSentenceSchema).min(1),
 })
+
