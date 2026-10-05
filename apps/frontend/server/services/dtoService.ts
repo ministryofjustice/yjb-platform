@@ -105,7 +105,7 @@ function constructInputSentences(parsed: ParsedDtoForm): InputSentences {
     parsed.sentenceLengthMonths > 0 ? [{ from: parsed.sentenceDate, durationMonths: parsed.sentenceLengthMonths }] : []
 
   return {
-    offenderName: 'William Gates',
+    offenderName: 'John Doe',
     remandAdjustment,
     taggedBailAdjustment,
     inputIndividualSentences,
@@ -118,22 +118,15 @@ export default class DtoService {
   validatePayload(formData: Record<string, unknown>): ValidationResult {
     const parseResult = parseDtoForm(formData)
 
-    if (!parseResult.success) {
-      return {
-        isValid: false,
-        input: parseResult.input,
-        errors: parseResult.errors,
-      }
-    }
-
-    const { data: parsedDtoForm } = parseResult
-    const isValid = Number.isInteger(parsedDtoForm.sentenceLengthMonths) && parsedDtoForm.sentenceLengthMonths > 0
+    // TODO: replace bellow line with a proper business validation function
+    const isValid = parseResult.success && Number.isInteger(parseResult.data.sentenceLengthMonths) && parseResult.data.sentenceLengthMonths > 0
 
     return {
-      isValid,
+      isValid: isValid,
       input: parseResult.input,
-      parsedInput: isValid ? parsedDtoForm : undefined,
-      payload: isValid ? constructInputSentences(parsedDtoForm) : undefined,
+      parsedInput:  isValid ? parseResult.data : undefined,
+      errors: parseResult.success ? [] : parseResult.errors,
+      payload: isValid ? constructInputSentences(parseResult.data) : undefined
     }
   }
 
