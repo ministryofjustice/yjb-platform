@@ -42,6 +42,15 @@ describe('DtoService', () => {
       expect(dtoService.validatePayload(payload).isValid).toBe(true)
     })
 
+    it('should return isValid false for remand NAN', () => {
+      const payload: Record<string, unknown> = {
+        ...exampleValidPayload,
+        'remand-days': 'abc',
+      }
+      
+      expect(dtoService.validatePayload(payload).isValid).toBe(false)
+    })
+
     it('should return the raw form data as input', () => {
       const inputData: Record<string, unknown> = { 'some-field': 'some-value' }
       expect(dtoService.validatePayload(inputData).input).toBe(inputData)
