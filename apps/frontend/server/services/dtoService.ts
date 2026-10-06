@@ -79,11 +79,12 @@ function parseDtoForm(formData: Record<string, unknown>): ParseResult {
     taggedBailDays: formData['tagged-bail-days'],
   })
 
-  const schemaErrors: FieldError[] = result.success ? [] : 
-  result.error.issues.map(issue => ({
-    field: String(issue.path[0]),
-    message: issue.message,
-  }))
+  const schemaErrors: FieldError[] = result.success
+    ? []
+    : result.error.issues.map(issue => ({
+        field: String(issue.path[0]),
+        message: issue.message,
+      }))
 
   const errors = [...dateErrors, ...schemaErrors]
   const success = result.success && dateErrors.length === 0

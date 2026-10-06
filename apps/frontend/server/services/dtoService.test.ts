@@ -47,7 +47,7 @@ describe('DtoService', () => {
         ...exampleValidPayload,
         'remand-days': 'abc',
       }
-      
+
       expect(dtoService.validatePayload(payload).isValid).toBe(false)
     })
 
