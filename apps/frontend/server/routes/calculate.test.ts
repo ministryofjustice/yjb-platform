@@ -84,6 +84,8 @@ describe('POST /calculate', () => {
     const validResult: ValidationResult = {
       isValid: true,
       input: {},
+      parsedInput: {},
+      errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
     }
     dtoService.validatePayload.mockReturnValue(validResult)
@@ -103,6 +105,8 @@ describe('POST /calculate', () => {
     const validResult: ValidationResult = {
       isValid: true,
       input: {},
+      parsedInput: {},
+      errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
     }
     const mockCalculationResult: OutputCalculation = {
@@ -126,6 +130,8 @@ describe('POST /calculate', () => {
     const validResult: ValidationResult = {
       isValid: true,
       input: {},
+      parsedInput: {},
+      errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
     }
     const mockCalculationResult: OutputCalculation = {
@@ -148,6 +154,8 @@ describe('POST /calculate', () => {
     const validResult: ValidationResult = {
       isValid: true,
       input: {},
+      parsedInput: {},
+      errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
     }
     const mockCalculationResult: OutputCalculation = {
@@ -170,6 +178,8 @@ describe('POST /calculate', () => {
     const validResult: ValidationResult = {
       isValid: true,
       input: {},
+      parsedInput: {},
+      errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
     }
     const mockCalculationResult: OutputCalculation = {
@@ -192,6 +202,8 @@ describe('POST /calculate', () => {
     const validResult: ValidationResult = {
       isValid: true,
       input: {},
+      parsedInput: {},
+      errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
     }
     const mockCalculationResult: OutputCalculation = {
@@ -215,6 +227,8 @@ describe('POST /calculate', () => {
     const validResult: ValidationResult = {
       isValid: true,
       input: {},
+      parsedInput: {},
+      errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
     }
     // the real API sends dates as plain YYYY-MM-DD strings, not Date objects -
@@ -248,6 +262,7 @@ describe('POST /calculate', () => {
         sentenceDate: new Date('01/22/2033'),
         sentenceDateString: '01/22/2033',
       },
+      errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
     }
 
@@ -269,6 +284,8 @@ describe('POST /calculate', () => {
     const invalidResult: ValidationResult = {
       isValid: false,
       input: {},
+      parsedInput: {},
+      errors: [],
     }
     dtoService.validatePayload.mockReturnValue(invalidResult)
 
@@ -286,7 +303,12 @@ describe('POST /calculate', () => {
       formField: 'Testomatic Man!',
     }
 
-    dtoService.validatePayload.mockReturnValue({ isValid: false, input: payload as Record<string, unknown> })
+    dtoService.validatePayload.mockReturnValue({
+      isValid: false,
+      input: payload as Record<string, unknown>,
+      parsedInput: {},
+      errors: [],
+    })
 
     return request(app)
       .post('/calculate')
@@ -310,8 +332,8 @@ describe('POST /calculate', () => {
 
     dtoService.validatePayload.mockImplementation(input =>
       isDeepStrictEqual(input, payload)
-        ? { isValid: true, input, payload: validatedPayload }
-        : { isValid: false, input },
+        ? { isValid: true, input, parsedInput: {}, errors: [], payload: validatedPayload }
+        : { isValid: false, input, parsedInput: {}, errors: [] },
     )
     dtoService.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
 

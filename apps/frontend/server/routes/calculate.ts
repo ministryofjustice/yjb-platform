@@ -17,11 +17,11 @@ export type FormPageObject = {
 }
 
 function dtoFormPresenter(validationResult: ValidationResult): FormPageObject {
-  const errors = validationResult.errors ?? []
+  const { errors } = validationResult
 
   return {
     isValid: validationResult.isValid,
-    formData: validationResult.input,
+    formData: validationResult.parsedInput,
     errors,
     errorSummary: errors.map(error => ({
       text: error.message,
@@ -39,19 +39,23 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       ? (sentenceDate as string).split('/')
       : []
 
-    // TODO: this should be a ParsedDtoForm object which we validate with zod
-    return res.render('pages/new-calculation', {
-      sentenceLengthMonths,
-      remandDays,
-      taggedBailDays,
-      sentenceDateDay,
-      sentenceDateMonth,
-      sentenceDateYear,
-      // no payload has been submitted yet on first load, so there's nothing to
-      // validate - isValid stays true so the error summary doesn't render
+    const formPageObject: FormPageObject = {
+      // no payload has been submitted on first load, so there's nothing to
+      // validate, isValid is true so the error summary doesn't render
       isValid: true,
+      formData: {
+        sentenceLengthMonths,
+        remandDays,
+        taggedBailDays,
+        sentenceDateDay,
+        sentenceDateMonth,
+        sentenceDateYear,
+      },
+      errors: [],
       errorSummary: [],
-    })
+    }
+
+    return res.render('pages/new-calculation', formPageObject)
   })
 
   router.post('/', async (req, res, _next) => {

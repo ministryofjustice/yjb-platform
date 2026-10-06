@@ -59,7 +59,7 @@
             classes: "govuk-!-width-one-quarter",
             id: "sentence-length-months",
             name: "sentence-length-months",
-            value: sentenceLengthMonths
+            value: formData.sentenceLengthMonths
           }) }}
         {% endcall %}
       </div>
@@ -77,9 +77,9 @@
             text: "For example, 27 03 2007"
           },
           values: {
-            day: sentenceDateDay,
-            month: sentenceDateMonth,
-            year: sentenceDateYear
+            day: formData.sentenceDateDay,
+            month: formData.sentenceDateMonth,
+            year: formData.sentenceDateYear
           }
         }) }}
 
@@ -98,7 +98,7 @@
                 },
                 id: "remand-days",
                 name: "remand-days",
-                value: remandDays
+                value: formData.remandDays
               }) }}
             </div>
 
@@ -109,7 +109,7 @@
                 },
                 id: "tagged-bail-days",
                 name: "tagged-bail-days",
-                value: taggedBailDays
+                value: formData.taggedBailDays
               }) }}
             </div>
           </div>

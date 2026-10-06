@@ -40,24 +40,17 @@ export const sentenceDateYearSchema = z.coerce
   .max(2100)
 
 //dto form schemas
-// the HTML form always submits strings (even for number-shaped fields), unlike the
-// JSON API payload, so these coerce first and then re-validate against the same
-// rule the API uses - the API's own schemas below stay strict, uncoerced
-export const dtoFormSchema = z.object({
-  from: sentenceFrom.catch(new Date(NaN)),
-  durationMonths: z.coerce
-    .number({ error: ValidationErrorMessages.invalidSentenceDuration })
-    .pipe(sentanceDurationMonths),
-  remandDays: z.coerce
-    .number({ error: ValidationErrorMessages.invalidRemandDays })
-    .pipe(remandDaysSchema)
-    .default(0),
-  remandStartDate: remandStartDateSchema,
-  taggedBailDays: z.coerce
-    .number({ error: ValidationErrorMessages.invalidTaggedBailDays })
-    .pipe(taggedBailDaysSchema)
-    .default(0),
-})
+//
+// each field is validated standalone 
+export const dtoDurationMonthsSchema = z.coerce
+  .number({ error: ValidationErrorMessages.invalidSentenceDuration })
+  .pipe(sentanceDurationMonths)
+export const dtoRemandDaysSchema = z.coerce
+  .number({ error: ValidationErrorMessages.invalidRemandDays })
+  .pipe(remandDaysSchema)
+export const dtoTaggedBailDaysSchema = z.coerce
+  .number({ error: ValidationErrorMessages.invalidTaggedBailDays })
+  .pipe(taggedBailDaysSchema)
 
 //input object schemas
 export const inputIndividualSentenceSchema = z.object({

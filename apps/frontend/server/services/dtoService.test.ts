@@ -61,7 +61,7 @@ describe('DtoService', () => {
       expect(dtoService.validatePayload(exampleValidPayload).payload).toBeDefined()
     })
 
-    it('should return the parsed form data as parsedInput only when valid', () => {
+    it('should return the parsed form data as parsedInput, with only the fields that were submitted and valid', () => {
       const payload: Record<string, unknown> = {
         'sentence-length-months': 1,
         'sentence-date-year': 1990,
@@ -69,14 +69,16 @@ describe('DtoService', () => {
         'sentence-date-day': 14,
       }
       const expectedParsedInput: ParsedDtoForm = {
-        remandDays: 0,
-        taggedBailDays: 0,
         sentenceLengthMonths: 1,
+        sentenceDateDay: 14,
+        sentenceDateMonth: 5,
+        sentenceDateYear: 1990,
         sentenceDate: new Date(Date.UTC(1990, 4, 14)),
         sentenceDateString: '14/05/1990',
       }
       expect(dtoService.validatePayload(payload).parsedInput).toEqual(expectedParsedInput)
-      expect(dtoService.validatePayload({}).parsedInput).toBeUndefined()
+      // nothing submitted, parsedInput is still returned, just empty
+      expect(dtoService.validatePayload({}).parsedInput).toEqual({})
     })
 
     it('should populate inputIndividualSentences in the payload from sentence-length-months and sentence-date', () => {
