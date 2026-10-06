@@ -47,6 +47,10 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       sentenceDateDay,
       sentenceDateMonth,
       sentenceDateYear,
+      // no payload has been submitted yet on first load, so there's nothing to
+      // validate - isValid stays true so the error summary doesn't render
+      isValid: true,
+      errorSummary: [],
     })
   })
 

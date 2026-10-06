@@ -4,17 +4,18 @@
 {% from "govuk/components/select/macro.njk" import govukSelect %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% set pageTitle = applicationName + " - New calculation" %}
 {% set mainClasses = "govuk-body" %}
 
 {% block content %}
 
-  {% if validationError %}
-    <div class="govuk-grid-row">
-      <h1>ERROR PLACEHOLDER</h1>
-      <p>The submitted data was not valid</p>
-    </div>
+  {% if not (isValid | default(true)) %}
+   {{ govukErrorSummary({
+    titleText: "There is a problem",
+    errorList: errorSummary
+  }) }}
   {% endif %}
 
   <h1>New calculation</h1>
