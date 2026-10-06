@@ -14,6 +14,7 @@ export type FormPageObject = {
   formData: Record<string, unknown>
   errors: FieldError[]
   errorSummary: { text: string; href: string }[]
+  errorsByField: Record<string, string>
 }
 
 function dtoFormPresenter(validationResult: ValidationResult): FormPageObject {
@@ -27,6 +28,7 @@ function dtoFormPresenter(validationResult: ValidationResult): FormPageObject {
       text: error.message,
       href: `#${error.field}`,
     })),
+    errorsByField: Object.fromEntries(errors.map(error => [error.field, error.message])),
   }
 }
 
@@ -53,6 +55,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       },
       errors: [],
       errorSummary: [],
+      errorsByField: {},
     }
 
     return res.render('pages/new-calculation', formPageObject)

@@ -59,11 +59,14 @@
             classes: "govuk-!-width-one-quarter",
             id: "sentence-length-months",
             name: "sentence-length-months",
-            value: formData.sentenceLengthMonths
+            value: formData.sentenceLengthMonths,
+            errorMessage: errorsByField['sentence-length-months'] and { text: errorsByField['sentence-length-months'] }
           }) }}
         {% endcall %}
       </div>
       <div class="govuk-grid-column-one-third">
+        {% set sentenceDateErrors = [errorsByField['sentence-date-day'], errorsByField['sentence-date-month'], errorsByField['sentence-date-year']] | reject('undefined') | list %}
+        {% set sentenceDateError = sentenceDateErrors | join('<br>') %}
         {{ govukDateInput({
           id: 'sentence-date',
           namePrefix: "sentence-date",
@@ -76,11 +79,12 @@
           hint: {
             text: "For example, 27 03 2007"
           },
-          values: {
-            day: formData.sentenceDateDay,
-            month: formData.sentenceDateMonth,
-            year: formData.sentenceDateYear
-          }
+          errorMessage: sentenceDateError and { html: sentenceDateError },
+          items: [
+            { name: 'day', value: formData.sentenceDateDay, error: errorsByField['sentence-date-day'] or false },
+            { name: 'month', value: formData.sentenceDateMonth, error: errorsByField['sentence-date-month'] or false },
+            { name: 'year', value: formData.sentenceDateYear, error: errorsByField['sentence-date-year'] or false }
+          ]
         }) }}
 
         {% call govukFieldset({
@@ -98,7 +102,8 @@
                 },
                 id: "remand-days",
                 name: "remand-days",
-                value: formData.remandDays
+                value: formData.remandDays,
+                errorMessage: errorsByField['remand-days'] and { text: errorsByField['remand-days'] }
               }) }}
             </div>
 
@@ -109,7 +114,8 @@
                 },
                 id: "tagged-bail-days",
                 name: "tagged-bail-days",
-                value: formData.taggedBailDays
+                value: formData.taggedBailDays,
+                errorMessage: errorsByField['tagged-bail-days'] and { text: errorsByField['tagged-bail-days'] }
               }) }}
             </div>
           </div>
