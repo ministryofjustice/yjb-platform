@@ -52,7 +52,6 @@ type ParsedDate = {
 }
 
 function parseDate(day: unknown, month: unknown, year: unknown): ParsedDate {
-
   // no need to parse date if fields are empty
   const hasAnyDateField = day !== undefined || month !== undefined || year !== undefined
   if (!hasAnyDateField) {
@@ -92,11 +91,13 @@ function parseDate(day: unknown, month: unknown, year: unknown): ParsedDate {
 }
 
 function parseDtoForm(formData: Record<string, unknown>): ParseResult {
-  const { day, month, year, sentenceDate, errors: dateErrors } = parseDate(
-    formData['sentence-date-day'],
-    formData['sentence-date-month'],
-    formData['sentence-date-year'],
-  )
+  const {
+    day,
+    month,
+    year,
+    sentenceDate,
+    errors: dateErrors,
+  } = parseDate(formData['sentence-date-day'], formData['sentence-date-month'], formData['sentence-date-year'])
 
   const errors: FieldError[] = [...dateErrors]
   const data: ParsedDtoForm = {
