@@ -52,12 +52,10 @@ type ParsedDate = {
 }
 
 function parseDate(day: unknown, month: unknown, year: unknown): ParsedDate {
-
   const parsedDateResult: ParsedDate = { errors: [] }
 
   const dateFieldIsMissing = day === undefined && month === undefined && year === undefined
   if (!dateFieldIsMissing) {
-
     const dayResult = sentenceDateDaySchema.safeParse(day)
     if (!dayResult.success) {
       parsedDateResult.errors.push({ field: 'sentence-date-day', message: dayResult.error.issues[0].message })
@@ -90,62 +88,61 @@ function parseDate(day: unknown, month: unknown, year: unknown): ParsedDate {
 }
 
 function parseDtoForm(formData: Record<string, unknown>): ParseResult {
-  const {
-    day,
-    month,
-    year,
-    sentenceDate,
-    errors: dateErrors,
-  } = parseDate(formData['sentence-date-day'], formData['sentence-date-month'], formData['sentence-date-year'])
+  const dateResult = parseDate(
+    formData['sentence-date-day'],
+    formData['sentence-date-month'],
+    formData['sentence-date-year'],
+  )
 
-  const errors: FieldError[] = [...dateErrors]
-  const data: ParsedDtoForm = {
-    sentenceDateDay: day,
-    sentenceDateMonth: month,
-    sentenceDateYear: year,
+  const parseResult: ParseResult = {
+    success: false,
+    input: formData,
+    errors: [...dateResult.errors],
+    data: {
+      sentenceDateDay: dateResult.day,
+      sentenceDateMonth: dateResult.month,
+      sentenceDateYear: dateResult.year,
+    },
   }
 
-  if (sentenceDate) {
-    data.sentenceDate = sentenceDate
-    data.sentenceDateString = sentenceDateStringSchema
+  if (dateResult.sentenceDate) {
+    parseResult.data.sentenceDate = dateResult.sentenceDate
+    parseResult.data.sentenceDateString = sentenceDateStringSchema
       .catch('Invalid Date')
-      .parse(sentenceDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }))
+      .parse(dateResult.sentenceDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }))
   }
 
   // evaluate all fields individually and either push err or parsed field
   if (formData['sentence-length-months'] !== undefined) {
     const result = dtoDurationMonthsSchema.safeParse(formData['sentence-length-months'])
     if (result.success) {
-      data.sentenceLengthMonths = result.data
+      parseResult.data.sentenceLengthMonths = result.data
     } else {
-      errors.push({ field: 'sentence-length-months', message: result.error.issues[0].message })
+      parseResult.errors.push({ field: 'sentence-length-months', message: result.error.issues[0].message })
     }
   }
 
   if (formData['remand-days'] !== undefined) {
     const result = dtoRemandDaysSchema.safeParse(formData['remand-days'])
     if (result.success) {
-      data.remandDays = result.data
+      parseResult.data.remandDays = result.data
     } else {
-      errors.push({ field: 'remand-days', message: result.error.issues[0].message })
+      parseResult.errors.push({ field: 'remand-days', message: result.error.issues[0].message })
     }
   }
 
   if (formData['tagged-bail-days'] !== undefined) {
     const result = dtoTaggedBailDaysSchema.safeParse(formData['tagged-bail-days'])
     if (result.success) {
-      data.taggedBailDays = result.data
+      parseResult.data.taggedBailDays = result.data
     } else {
-      errors.push({ field: 'tagged-bail-days', message: result.error.issues[0].message })
+      parseResult.errors.push({ field: 'tagged-bail-days', message: result.error.issues[0].message })
     }
   }
 
-  return {
-    success: errors.length === 0,
-    input: formData,
-    data,
-    errors,
-  }
+  parseResult.success = parseResult.errors.length === 0
+
+  return parseResult
 }
 
 function constructInputSentences(parsed: ParsedDtoForm): InputSentences {
