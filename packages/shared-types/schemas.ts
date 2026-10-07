@@ -13,10 +13,10 @@ export const ValidationErrorMessages = {
 
 //indivudual schemas for reuse from front and backend
 export const remandStartDateSchema = z.coerce.date().optional()
-export const remandDaysSchema = z.number()
-export const taggedBailDaysSchema = z.number()
+export const remandDaysSchema = z.number().int().positive()
+export const taggedBailDaysSchema = z.number().int().positive()
 export const sentenceFrom = z.coerce.date()
-export const sentanceDurationMonths = z.number()
+export const sentanceDurationMonths = z.number().int().positive()
 export const sentanceOffenderName = z.string()
 export const sentenceDateStringSchema = z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/)
 
@@ -40,15 +40,23 @@ export const sentenceDateYearSchema = z.coerce
   .max(2100)
 
 //dto form schemas
-// each field is validated standalone 
+// each field is validated standalone - the same friendly message covers every way
+// it can fail (not a number, not whole, not positive), then re-validated against
+// the shared base schema so the API and the form enforce the identical rule
 export const dtoDurationMonthsSchema = z.coerce
   .number({ error: ValidationErrorMessages.invalidSentenceDuration })
+  .int({ error: ValidationErrorMessages.invalidSentenceDuration })
+  .positive({ error: ValidationErrorMessages.invalidSentenceDuration })
   .pipe(sentanceDurationMonths)
 export const dtoRemandDaysSchema = z.coerce
   .number({ error: ValidationErrorMessages.invalidRemandDays })
+  .int({ error: ValidationErrorMessages.invalidRemandDays })
+  .positive({ error: ValidationErrorMessages.invalidRemandDays })
   .pipe(remandDaysSchema)
 export const dtoTaggedBailDaysSchema = z.coerce
   .number({ error: ValidationErrorMessages.invalidTaggedBailDays })
+  .int({ error: ValidationErrorMessages.invalidTaggedBailDays })
+  .positive({ error: ValidationErrorMessages.invalidTaggedBailDays })
   .pipe(taggedBailDaysSchema)
 
 //input object schemas
