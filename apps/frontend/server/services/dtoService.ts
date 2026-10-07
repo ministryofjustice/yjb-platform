@@ -10,6 +10,7 @@ import {
   sentenceDateDaySchema,
   sentenceDateMonthSchema,
   sentenceDateYearSchema,
+  ValidationErrorMessages,
 } from '@yjb-platform/shared-types'
 import YjbApiClient from '../data/yjbApi'
 
@@ -169,13 +170,23 @@ export default class DtoService {
   constructor(private readonly yjbApiClient: YjbApiClient) {}
 
   validatePayload(formData: Record<string, unknown>): ValidationResult {
-    const parseResult = parseDtoForm(formData)
+    const parseResult: ParseResult = parseDtoForm(formData)
+    const { sentenceLengthMonths } = parseResult.data
 
-    // TODO: replace bellow line with a proper business validation function
-    const isValid =
-      parseResult.success &&
-      Number.isInteger(parseResult.data.sentenceLengthMonths) &&
-      parseResult.data.sentenceLengthMonths > 0
+    // TODO: replace this with a proper business validation function
+    let isBusinessValid = false
+    if (sentenceLengthMonths !== undefined) {
+      if (sentenceLengthMonths >= 4 && sentenceLengthMonths <= 24) {
+        isBusinessValid = true
+      } else {
+        parseResult.errors.push({
+          field: 'sentence-length-months',
+          message: ValidationErrorMessages.sentenceDurationOutOfRange,
+        })
+      }
+    }
+
+    const isValid = parseResult.success && isBusinessValid
 
     return {
       isValid,

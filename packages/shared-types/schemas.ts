@@ -9,6 +9,7 @@ export const ValidationErrorMessages = {
   invalidSentenceDuration: 'Please provide a valid sentence duration',
   invalidRemandDays: 'Please provide a valid number of days spend on remand',
   invalidTaggedBailDays: 'Please provide a valid number of tagged bail days',
+  sentenceDurationOutOfRange: 'Sentence length must be between 4 and 24 months',
 } as const
 
 //indivudual schemas for reuse from front and backend
@@ -40,9 +41,7 @@ export const sentenceDateYearSchema = z.coerce
   .max(2100)
 
 //dto form schemas
-// each field is validated standalone - the same friendly message covers every way
-// it can fail (not a number, not whole, not positive), then re-validated against
-// the shared base schema so the API and the form enforce the identical rule
+// each field is validated standalone
 export const dtoDurationMonthsSchema = z.coerce
   .number({ error: ValidationErrorMessages.invalidSentenceDuration })
   .int({ error: ValidationErrorMessages.invalidSentenceDuration })

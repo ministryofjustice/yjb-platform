@@ -1,4 +1,4 @@
-import { InputSentences } from '@yjb-platform/shared-types'
+import { InputSentences, ValidationErrorMessages } from '@yjb-platform/shared-types'
 import DtoService, { ParsedDtoForm } from './dtoService'
 import YjbApiClient from '../data/yjbApi'
 
@@ -15,7 +15,7 @@ describe('DtoService', () => {
 
   describe('validatePayload', () => {
     const exampleValidPayload: Record<string, unknown> = {
-      'sentence-length-months': 1,
+      'sentence-length-months': 4,
       'sentence-date-year': 1990,
       'sentence-date-month': 5,
       'sentence-date-day': 14,
@@ -34,12 +34,38 @@ describe('DtoService', () => {
       expect(dtoService.validatePayload(payload).isValid).toBe(false)
     })
 
-    it.each([1, 6, 11, 24])('should return isValid true for sentence length %s', months => {
+    it.each([4, 6, 11, 24])('should return isValid true for sentence length %s', months => {
       const payload: Record<string, unknown> = {
         ...exampleValidPayload,
         'sentence-length-months': months,
       }
       expect(dtoService.validatePayload(payload).isValid).toBe(true)
+    })
+
+    it('should return isValid false for a 1 month sentence, below the 4 month DTO minimum', () => {
+      const payload: Record<string, unknown> = {
+        ...exampleValidPayload,
+        'sentence-length-months': 1,
+      }
+      const result = dtoService.validatePayload(payload)
+      expect(result.isValid).toBe(false)
+      expect(result.errors).toContainEqual({
+        field: 'sentence-length-months',
+        message: ValidationErrorMessages.sentenceDurationOutOfRange,
+      })
+    })
+
+    it('should return isValid false for a 25 month sentence, above the 24 month DTO maximum', () => {
+      const payload: Record<string, unknown> = {
+        ...exampleValidPayload,
+        'sentence-length-months': 25,
+      }
+      const result = dtoService.validatePayload(payload)
+      expect(result.isValid).toBe(false)
+      expect(result.errors).toContainEqual({
+        field: 'sentence-length-months',
+        message: ValidationErrorMessages.sentenceDurationOutOfRange,
+      })
     })
 
     it('should return isValid false for remand NAN', () => {
@@ -84,7 +110,7 @@ describe('DtoService', () => {
     it('should populate inputIndividualSentences in the payload from sentence-length-months and sentence-date', () => {
       const inputData: Record<string, unknown> = {
         ...exampleValidPayload,
-        'sentence-length-months': 3,
+        'sentence-length-months': 4,
         'sentence-date-day': '11',
         'sentence-date-month': '2',
         'sentence-date-year': '2054',
@@ -94,7 +120,7 @@ describe('DtoService', () => {
 
       expect(payload).toEqual(
         expect.objectContaining({
-          inputIndividualSentences: [{ from: new Date(2054, 1, 11), durationMonths: 3 }],
+          inputIndividualSentences: [{ from: new Date(2054, 1, 11), durationMonths: 4 }],
         }),
       )
     })
