@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform/shared-types'
 import type { Services } from '../services'
-import { FieldError, ValidationResult } from '../services/dtoService'
+import { ValidationResult } from '../services/dtoService'
 
 function formatUkDate(date: Date | string): string {
   return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(

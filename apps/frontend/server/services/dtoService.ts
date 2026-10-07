@@ -52,42 +52,41 @@ type ParsedDate = {
 }
 
 function parseDate(day: unknown, month: unknown, year: unknown): ParsedDate {
-  // no need to parse date if fields are empty
-  const hasAnyDateField = day !== undefined || month !== undefined || year !== undefined
-  if (!hasAnyDateField) {
-    return { errors: [] }
+
+  const parsedDateResult: ParsedDate = { errors: [] }
+
+  const dateFieldIsMissing = day === undefined && month === undefined && year === undefined
+  if (!dateFieldIsMissing) {
+
+    const dayResult = sentenceDateDaySchema.safeParse(day)
+    if (!dayResult.success) {
+      parsedDateResult.errors.push({ field: 'sentence-date-day', message: dayResult.error.issues[0].message })
+    } else {
+      parsedDateResult.day = dayResult.data
+    }
+
+    const monthResult = sentenceDateMonthSchema.safeParse(month)
+    if (!monthResult.success) {
+      parsedDateResult.errors.push({ field: 'sentence-date-month', message: monthResult.error.issues[0].message })
+    } else {
+      parsedDateResult.month = monthResult.data
+    }
+
+    const yearResult = sentenceDateYearSchema.safeParse(year)
+    if (!yearResult.success) {
+      parsedDateResult.errors.push({ field: 'sentence-date-year', message: yearResult.error.issues[0].message })
+    } else {
+      parsedDateResult.year = yearResult.data
+    }
+
+    // a combined date only makes sense once all three parts are valid
+    parsedDateResult.sentenceDate =
+      dayResult.success && monthResult.success && yearResult.success
+        ? new Date(Date.UTC(yearResult.data, monthResult.data - 1, dayResult.data))
+        : undefined
   }
 
-  const errors: FieldError[] = []
-
-  const dayResult = sentenceDateDaySchema.safeParse(day)
-  if (!dayResult.success) {
-    errors.push({ field: 'sentence-date-day', message: dayResult.error.issues[0].message })
-  }
-
-  const monthResult = sentenceDateMonthSchema.safeParse(month)
-  if (!monthResult.success) {
-    errors.push({ field: 'sentence-date-month', message: monthResult.error.issues[0].message })
-  }
-
-  const yearResult = sentenceDateYearSchema.safeParse(year)
-  if (!yearResult.success) {
-    errors.push({ field: 'sentence-date-year', message: yearResult.error.issues[0].message })
-  }
-
-  // a combined date only makes sense once all three parts are valid
-  const sentenceDate =
-    dayResult.success && monthResult.success && yearResult.success
-      ? new Date(Date.UTC(yearResult.data, monthResult.data - 1, dayResult.data))
-      : undefined
-
-  return {
-    day: dayResult.success ? dayResult.data : undefined,
-    month: monthResult.success ? monthResult.data : undefined,
-    year: yearResult.success ? yearResult.data : undefined,
-    sentenceDate,
-    errors,
-  }
+  return parsedDateResult
 }
 
 function parseDtoForm(formData: Record<string, unknown>): ParseResult {
