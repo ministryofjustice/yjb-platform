@@ -12,7 +12,6 @@ function formatUkDate(date: Date | string): string {
 export type FormPageObject = {
   isValid: boolean
   formData: Record<string, unknown>
-  errors: FieldError[]
   errorSummary: { text: string; href: string }[]
   errorsByField: Record<string, string>
 }
@@ -23,7 +22,6 @@ function dtoFormPresenter(validationResult: ValidationResult): FormPageObject {
   return {
     isValid: validationResult.isValid,
     formData: validationResult.parsedInput,
-    errors,
     errorSummary: errors.map(error => ({
       text: error.message,
       href: `#${error.field}`,
@@ -53,7 +51,6 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
         sentenceDateMonth,
         sentenceDateYear,
       },
-      errors: [],
       errorSummary: [],
       errorsByField: {},
     }
