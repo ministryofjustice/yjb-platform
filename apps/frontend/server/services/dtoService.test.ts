@@ -51,7 +51,7 @@ describe('DtoService', () => {
       expect(result.isValid).toBe(false)
       expect(result.errors).toContainEqual({
         field: 'sentence-length-months',
-        message: ValidationErrorMessages.sentenceDurationOutOfRange,
+        message: ValidationErrorMessages.SentenceDurationOutOfRange,
       })
     })
 
@@ -64,7 +64,7 @@ describe('DtoService', () => {
       expect(result.isValid).toBe(false)
       expect(result.errors).toContainEqual({
         field: 'sentence-length-months',
-        message: ValidationErrorMessages.sentenceDurationOutOfRange,
+        message: ValidationErrorMessages.SentenceDurationOutOfRange,
       })
     })
 

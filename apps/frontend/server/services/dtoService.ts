@@ -192,7 +192,7 @@ export default class DtoService {
       } else {
         parseResult.errors.push({
           field: 'sentence-length-months',
-          message: ValidationErrorMessages.sentenceDurationOutOfRange,
+          message: ValidationErrorMessages.SentenceDurationOutOfRange,
         })
       }
     }

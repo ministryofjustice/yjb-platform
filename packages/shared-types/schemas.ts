@@ -2,15 +2,15 @@ import { z } from 'zod'
 import { AdjustmentTypes } from './adjustment-types'
 
 // every user-facing zod error message
-export const ValidationErrorMessages = {
-  invalidDay: 'Please provide a valid day',
-  invalidMonth: 'Please provide a valid month',
-  invalidYear: 'Please provide a valid year',
-  invalidSentenceDuration: 'Please provide a valid sentence duration',
-  invalidRemandDays: 'Please provide a valid number of days spend on remand',
-  invalidTaggedBailDays: 'Please provide a valid number of tagged bail days',
-  sentenceDurationOutOfRange: 'Sentence length must be between 4 and 24 months',
-} as const
+export enum ValidationErrorMessages {
+  InvalidDay = 'Please provide a valid day',
+  InvalidMonth = 'Please provide a valid month',
+  InvalidYear = 'Please provide a valid year between 1900 and 2100',
+  InvalidSentenceDuration = 'Please provide a valid sentence duration',
+  InvalidRemandDays = 'Please provide a valid number of days spend on remand',
+  InvalidTaggedBailDays = 'Please provide a valid number of tagged bail days',
+  SentenceDurationOutOfRange = 'Sentence length must be between 4 and 24 months',
+}
 
 //indivudual schemas for reuse from front and backend
 export const remandStartDateSchema = z.coerce.date().optional()
@@ -25,17 +25,17 @@ export const sentenceDateStringSchema = z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/
 // only check each part's own range independently (e.g. day <= 31 regardless of
 // month), not whether the combination is a real calendar date (e.g. 31 February)
 export const sentenceDateDaySchema = z.coerce
-  .number({ error: ValidationErrorMessages.invalidDay })
+  .number({ error: ValidationErrorMessages.InvalidDay })
   .int()
   .min(1)
   .max(31)
 export const sentenceDateMonthSchema = z.coerce
-  .number({ error: ValidationErrorMessages.invalidMonth })
+  .number({ error: ValidationErrorMessages.InvalidMonth })
   .int()
   .min(1)
   .max(12)
 export const sentenceDateYearSchema = z.coerce
-  .number({ error: ValidationErrorMessages.invalidYear })
+  .number({ error: ValidationErrorMessages.InvalidYear })
   .int()
   .min(1900)
   .max(2100)
@@ -43,19 +43,19 @@ export const sentenceDateYearSchema = z.coerce
 //dto form schemas
 // each field is validated standalone
 export const dtoDurationMonthsSchema = z.coerce
-  .number({ error: ValidationErrorMessages.invalidSentenceDuration })
-  .int({ error: ValidationErrorMessages.invalidSentenceDuration })
-  .positive({ error: ValidationErrorMessages.invalidSentenceDuration })
+  .number({ error: ValidationErrorMessages.InvalidSentenceDuration })
+  .int({ error: ValidationErrorMessages.InvalidSentenceDuration })
+  .positive({ error: ValidationErrorMessages.InvalidSentenceDuration })
   .pipe(sentanceDurationMonths)
 export const dtoRemandDaysSchema = z.coerce
-  .number({ error: ValidationErrorMessages.invalidRemandDays })
-  .int({ error: ValidationErrorMessages.invalidRemandDays })
-  .positive({ error: ValidationErrorMessages.invalidRemandDays })
+  .number({ error: ValidationErrorMessages.InvalidRemandDays })
+  .int({ error: ValidationErrorMessages.InvalidRemandDays })
+  .positive({ error: ValidationErrorMessages.InvalidRemandDays })
   .pipe(remandDaysSchema)
 export const dtoTaggedBailDaysSchema = z.coerce
-  .number({ error: ValidationErrorMessages.invalidTaggedBailDays })
-  .int({ error: ValidationErrorMessages.invalidTaggedBailDays })
-  .positive({ error: ValidationErrorMessages.invalidTaggedBailDays })
+  .number({ error: ValidationErrorMessages.InvalidTaggedBailDays })
+  .int({ error: ValidationErrorMessages.InvalidTaggedBailDays })
+  .positive({ error: ValidationErrorMessages.InvalidTaggedBailDays })
   .pipe(taggedBailDaysSchema)
 
 //input object schemas
