@@ -2,37 +2,12 @@ import { Router } from 'express'
 import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform/shared-types'
 import type { Services } from '../services'
 import { ValidationResult } from '../services/dtoService'
+import DtoFormPresenter, { FormPageObject } from '../presenters/dtoFormPresenter'
 
 function formatUkDate(date: Date | string): string {
   return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
     new Date(date),
   )
-}
-
-export type FormPageObject = {
-  isValid: boolean
-  formData: Record<string, unknown>
-  errorSummary: { text: string; href: string }[]
-  errorsByField: Record<string, string>
-  sentenceDateError?: string
-}
-
-const sentenceDateFields = ['sentence-date-day', 'sentence-date-month', 'sentence-date-year']
-
-function dtoFormPresenter(validationResult: ValidationResult): FormPageObject {
-  const { errors } = validationResult
-  const errorsByField: Record<string, string> = Object.fromEntries(errors.map(error => [error.field, error.message]))
-
-  return {
-    isValid: validationResult.isValid,
-    formData: validationResult.parsedInput,
-    errorSummary: errors.map(error => ({
-      text: error.message,
-      href: `#${error.field}`,
-    })),
-    errorsByField,
-    sentenceDateError: sentenceDateFields.map(field => errorsByField[field]).find(Boolean),
-  }
 }
 
 export default function calculateRoutes({ dtoService }: Partial<Services>): Router {
@@ -103,7 +78,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       })
     }
 
-    return res.render('pages/new-calculation', dtoFormPresenter(validationResult))
+    return res.render('pages/new-calculation', new DtoFormPresenter(validationResult).present())
   })
 
   return router
