@@ -13,6 +13,8 @@ import {
   ValidationErrorMessages,
 } from '@yjb-platform/shared-types'
 import YjbApiClient from '../data/yjbApi'
+import z, { ZodType } from 'zod'
+import e from 'express'
 
 export type ValidationResult = {
   isValid: boolean
@@ -36,11 +38,34 @@ export type ParsedDtoForm = {
 
 export type FieldError = { field: string; message: string }
 
-type ParseResult = {
-  success: boolean
+class ParseResult {
   input: Record<string, unknown>
   data: ParsedDtoForm
   errors: FieldError[]
+
+  constructor(input: Record<string, unknown>, data: ParsedDtoForm, errors: FieldError[]){
+    this.input = input
+    this.data = data
+    this.errors = errors
+  }
+
+  processFormField<K extends keyof ParsedDtoForm>(
+    formFieldRaw: unknown,
+    schema: ZodType<ParsedDtoForm[K]>,
+    formFieldName: string,
+    formFieldPropertyName: K
+  ) {
+    if (formFieldRaw !== undefined) {
+      const result = schema.safeParse(formFieldRaw)
+      if (result.success) {
+        this.data[formFieldPropertyName] = result.data
+      } else {
+        this.errors.push( { field: formFieldName, message: result.error.issues[0].message })
+      }
+    }
+  }
+
+  get success(): boolean { return this.errors.length === 0 }
 }
 
 // optional fields same like ParsedDtoForm, not all fields will be always parsed
@@ -88,6 +113,7 @@ function parseDate(day: unknown, month: unknown, year: unknown): ParsedDate {
   return parsedDateResult
 }
 
+
 function parseDtoForm(formData: Record<string, unknown>): ParseResult {
   const dateResult = parseDate(
     formData['sentence-date-day'],
@@ -95,16 +121,11 @@ function parseDtoForm(formData: Record<string, unknown>): ParseResult {
     formData['sentence-date-year'],
   )
 
-  const parseResult: ParseResult = {
-    success: false,
-    input: formData,
-    errors: [...dateResult.errors],
-    data: {
+  const parseResult: ParseResult =  new ParseResult(formData, {
       sentenceDateDay: dateResult.day,
       sentenceDateMonth: dateResult.month,
       sentenceDateYear: dateResult.year,
-    },
-  }
+    }, [...dateResult.errors])
 
   if (dateResult.sentenceDate) {
     parseResult.data.sentenceDate = dateResult.sentenceDate
@@ -114,34 +135,26 @@ function parseDtoForm(formData: Record<string, unknown>): ParseResult {
   }
 
   // evaluate all fields individually and either push err or parsed field
-  if (formData['sentence-length-months'] !== undefined) {
-    const result = dtoDurationMonthsSchema.safeParse(formData['sentence-length-months'])
-    if (result.success) {
-      parseResult.data.sentenceLengthMonths = result.data
-    } else {
-      parseResult.errors.push({ field: 'sentence-length-months', message: result.error.issues[0].message })
-    }
-  }
+  parseResult.processFormField(
+    formData['sentence-length-months'],
+    dtoDurationMonthsSchema,
+    'sentence-length-months',
+    'sentenceLengthMonths'
+  )
 
-  if (formData['remand-days'] !== undefined) {
-    const result = dtoRemandDaysSchema.safeParse(formData['remand-days'])
-    if (result.success) {
-      parseResult.data.remandDays = result.data
-    } else {
-      parseResult.errors.push({ field: 'remand-days', message: result.error.issues[0].message })
-    }
-  }
-
-  if (formData['tagged-bail-days'] !== undefined) {
-    const result = dtoTaggedBailDaysSchema.safeParse(formData['tagged-bail-days'])
-    if (result.success) {
-      parseResult.data.taggedBailDays = result.data
-    } else {
-      parseResult.errors.push({ field: 'tagged-bail-days', message: result.error.issues[0].message })
-    }
-  }
-
-  parseResult.success = parseResult.errors.length === 0
+  parseResult.processFormField(
+    formData['remand-days'],
+    dtoRemandDaysSchema,
+    'remand-days',
+    'remandDays'
+  )
+ 
+  parseResult.processFormField(
+    formData['tagged-bail-days'],
+    dtoTaggedBailDaysSchema,
+    'tagged-bail-days',
+    'taggedBailDays'
+  )
 
   return parseResult
 }
@@ -168,8 +181,29 @@ function constructInputSentences(parsed: ParsedDtoForm): InputSentences {
 
 export default class DtoService {
   constructor(private readonly yjbApiClient: YjbApiClient) {}
+// validatePayload(formData: Record<string, unknown>): ValidationResult {
+  //   const parseResult: ParseResult = parseDtoForm(formData)
+  //   let isBusinessValid = isValid = false;
 
-  validatePayload(formData: Record<string, unknown>): ValidationResult {
+  //   // TODO: replace bellow line with a proper business validation function
+  //   (parseResult.data.sentenceLengthMonths >= 4 &&
+  //     parseResult.data.sentenceLengthMonths <= 24) ? isBusinessValid = true : 
+  //     parseResult.errors.push(<push error here>)
+
+    
+
+  //   isValid =
+  //     parseResult.success && isBusinessValid
+      
+  //   return {
+  //     isValid,
+  //     input: parseResult.input,
+  //     parsedInput: parseResult.data,
+  //     errors: parseResult.errors,
+  //     payload: isValid ? constructInputSentences(parseResult.data) : undefined,
+  //   }
+  // }
+ validatePayload(formData: Record<string, unknown>): ValidationResult {
     const parseResult: ParseResult = parseDtoForm(formData)
     const { sentenceLengthMonths } = parseResult.data
 
@@ -196,7 +230,6 @@ export default class DtoService {
       payload: isValid ? constructInputSentences(parseResult.data) : undefined,
     }
   }
-
   async calculateDtoSentence(payload: InputSentences): Promise<OutputCalculation> {
     return this.yjbApiClient.calculateDtoSentence(payload)
   }
