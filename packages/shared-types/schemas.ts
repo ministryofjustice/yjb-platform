@@ -10,6 +10,7 @@ export enum ValidationErrorMessages {
   InvalidRemandDays = 'Please provide a valid number of days spend on remand',
   InvalidTaggedBailDays = 'Please provide a valid number of tagged bail days',
   SentenceDurationOutOfRange = 'Sentence length must be between 4 and 24 months',
+  ZeroSentenceDuration = 'Sentence duration cannot be 0',
 }
 
 //indivudual schemas for reuse from front and backend
@@ -45,6 +46,7 @@ export const sentenceDateYearSchema = z.coerce
 export const dtoDurationMonthsSchema = z.coerce
   .number({ error: ValidationErrorMessages.InvalidSentenceDuration })
   .int({ error: ValidationErrorMessages.InvalidSentenceDuration })
+  .refine((n) => n !== 0, { error: ValidationErrorMessages.ZeroSentenceDuration })
   .positive({ error: ValidationErrorMessages.InvalidSentenceDuration })
   .pipe(sentanceDurationMonths)
 export const dtoRemandDaysSchema = z.coerce
