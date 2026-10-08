@@ -18,7 +18,6 @@ import e from 'express'
 
 export type ValidationResult = {
   isValid: boolean
-  input: Record<string, unknown>
   parsedInput: ParsedDtoForm
   payload?: InputSentences
   errors: FieldError[]
@@ -181,28 +180,6 @@ function constructInputSentences(parsed: ParsedDtoForm): InputSentences {
 
 export default class DtoService {
   constructor(private readonly yjbApiClient: YjbApiClient) {}
-// validatePayload(formData: Record<string, unknown>): ValidationResult {
-  //   const parseResult: ParseResult = parseDtoForm(formData)
-  //   let isBusinessValid = isValid = false;
-
-  //   // TODO: replace bellow line with a proper business validation function
-  //   (parseResult.data.sentenceLengthMonths >= 4 &&
-  //     parseResult.data.sentenceLengthMonths <= 24) ? isBusinessValid = true : 
-  //     parseResult.errors.push(<push error here>)
-
-    
-
-  //   isValid =
-  //     parseResult.success && isBusinessValid
-      
-  //   return {
-  //     isValid,
-  //     input: parseResult.input,
-  //     parsedInput: parseResult.data,
-  //     errors: parseResult.errors,
-  //     payload: isValid ? constructInputSentences(parseResult.data) : undefined,
-  //   }
-  // }
  validatePayload(formData: Record<string, unknown>): ValidationResult {
     const parseResult: ParseResult = parseDtoForm(formData)
     const { sentenceLengthMonths } = parseResult.data
@@ -224,7 +201,6 @@ export default class DtoService {
 
     return {
       isValid,
-      input: parseResult.input,
       parsedInput: parseResult.data,
       errors: parseResult.errors,
       payload: isValid ? constructInputSentences(parseResult.data) : undefined,
