@@ -77,9 +77,24 @@ describe('DtoService', () => {
       expect(dtoService.validatePayload(payload).isValid).toBe(false)
     })
 
-    it('should return the raw form data as input', () => {
-      const inputData: Record<string, unknown> = { 'some-field': 'some-value' }
-      expect(dtoService.validatePayload(inputData).input).toBe(inputData)
+    it('should return only correctly parsed fields', () => {
+      const inputData: Record<string, unknown> = {
+        ...exampleValidPayload,
+        'remand-days': 15,
+        'tagged-bail-days': 4,
+      }
+
+      const expectedParsedInput: ParsedDtoForm = {
+        remandDays: 15,
+        taggedBailDays: 4,
+        sentenceLengthMonths: 4,
+        sentenceDateDay: 14,
+        sentenceDateMonth: 5,
+        sentenceDateYear: 1990,
+        sentenceDate: new Date(Date.UTC(1990, 4, 14)),
+        sentenceDateString: '14/05/1990',
+      }
+      expect(dtoService.validatePayload(inputData).parsedInput).toEqual(expectedParsedInput)
     })
 
     it('should return a payload only when valid', () => {
