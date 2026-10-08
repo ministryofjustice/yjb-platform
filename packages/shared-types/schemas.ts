@@ -15,8 +15,8 @@ export enum ValidationErrorMessages {
 
 //indivudual schemas for reuse from front and backend
 export const remandStartDateSchema = z.coerce.date().optional()
-export const remandDaysSchema = z.number().int().positive()
-export const taggedBailDaysSchema = z.number().int().positive()
+export const remandDaysSchema = z.number().int().nonnegative()
+export const taggedBailDaysSchema = z.number().int().nonnegative()
 export const sentenceFrom = z.coerce.date()
 export const sentanceDurationMonths = z.number().int().positive()
 export const sentanceOffenderName = z.string()
@@ -52,12 +52,12 @@ export const dtoDurationMonthsSchema = z.coerce
 export const dtoRemandDaysSchema = z.coerce
   .number({ error: ValidationErrorMessages.InvalidRemandDays })
   .int({ error: ValidationErrorMessages.InvalidRemandDays })
-  .positive({ error: ValidationErrorMessages.InvalidRemandDays })
+  .nonnegative({ error: ValidationErrorMessages.InvalidRemandDays })
   .pipe(remandDaysSchema)
 export const dtoTaggedBailDaysSchema = z.coerce
   .number({ error: ValidationErrorMessages.InvalidTaggedBailDays })
   .int({ error: ValidationErrorMessages.InvalidTaggedBailDays })
-  .positive({ error: ValidationErrorMessages.InvalidTaggedBailDays })
+  .nonnegative({ error: ValidationErrorMessages.InvalidTaggedBailDays })
   .pipe(taggedBailDaysSchema)
 
 //input object schemas

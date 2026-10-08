@@ -122,6 +122,49 @@ describe('DtoService', () => {
       expect(dtoService.validatePayload({}).parsedInput).toEqual({})
     })
 
+
+    it('should return the parsed form data as parsedInput for tagged bail 4 and remand 5', () => {
+      const inputData: Record<string, unknown> = {
+        ...exampleValidPayload,
+        'tagged-bail-days': 5,
+        'remand-days': 4,
+      }
+
+      const expectedParsedInput: ParsedDtoForm = {
+        sentenceLengthMonths: 4,
+        sentenceDateDay: 14,
+        sentenceDateMonth: 5,
+        sentenceDateYear: 1990,
+        sentenceDate: new Date(Date.UTC(1990, 4, 14)),
+        sentenceDateString: '14/05/1990',
+        remandDays: 4,
+        taggedBailDays: 5
+      }
+
+      expect(dtoService.validatePayload(inputData).parsedInput).toEqual(expectedParsedInput)
+    })
+
+    it('should return the parsed form data as parsedInput for tagged bail 0 and remand 0', () => {
+      const inputData: Record<string, unknown> = {
+        ...exampleValidPayload,
+        'tagged-bail-days': 0,
+        'remand-days': 0,
+      }
+
+      const expectedParsedInput: ParsedDtoForm = {
+        sentenceLengthMonths: 4,
+        sentenceDateDay: 14,
+        sentenceDateMonth: 5,
+        sentenceDateYear: 1990,
+        sentenceDate: new Date(Date.UTC(1990, 4, 14)),
+        sentenceDateString: '14/05/1990',
+        remandDays: 0,
+        taggedBailDays: 0
+      }
+
+      expect(dtoService.validatePayload(inputData).parsedInput).toEqual(expectedParsedInput)
+    })
+
     it('should populate inputIndividualSentences in the payload from sentence-length-months and sentence-date', () => {
       const inputData: Record<string, unknown> = {
         ...exampleValidPayload,
