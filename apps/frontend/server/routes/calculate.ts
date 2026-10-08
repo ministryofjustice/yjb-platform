@@ -14,10 +14,14 @@ export type FormPageObject = {
   formData: Record<string, unknown>
   errorSummary: { text: string; href: string }[]
   errorsByField: Record<string, string>
+  sentenceDateError?: string
 }
+
+const sentenceDateFields = ['sentence-date-day', 'sentence-date-month', 'sentence-date-year']
 
 function dtoFormPresenter(validationResult: ValidationResult): FormPageObject {
   const { errors } = validationResult
+  const errorsByField: Record<string, string> = Object.fromEntries(errors.map(error => [error.field, error.message]))
 
   return {
     isValid: validationResult.isValid,
@@ -26,7 +30,8 @@ function dtoFormPresenter(validationResult: ValidationResult): FormPageObject {
       text: error.message,
       href: `#${error.field}`,
     })),
-    errorsByField: Object.fromEntries(errors.map(error => [error.field, error.message])),
+    errorsByField,
+    sentenceDateError: sentenceDateFields.map(field => errorsByField[field]).find(Boolean),
   }
 }
 
