@@ -83,7 +83,6 @@ describe('POST /calculate', () => {
   it('should render a calculation breakdown page when the payload is valid', () => {
     const validResult: ValidationResult = {
       isValid: true,
-      input: {},
       parsedInput: {},
       errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
@@ -104,7 +103,6 @@ describe('POST /calculate', () => {
   it('should pass the calculationResult into the template', () => {
     const validResult: ValidationResult = {
       isValid: true,
-      input: {},
       parsedInput: {},
       errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
@@ -129,7 +127,6 @@ describe('POST /calculate', () => {
   it('should pass the breakdownObj with custodial breakdown into the template', () => {
     const validResult: ValidationResult = {
       isValid: true,
-      input: {},
       parsedInput: {},
       errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
@@ -153,7 +150,6 @@ describe('POST /calculate', () => {
   it('should pass the breakdownObj into the template for with custodial breakdown with rounded number', () => {
     const validResult: ValidationResult = {
       isValid: true,
-      input: {},
       parsedInput: {},
       errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
@@ -177,7 +173,6 @@ describe('POST /calculate', () => {
   it('should pass the breakdownObj into the template for MTD breakdown', () => {
     const validResult: ValidationResult = {
       isValid: true,
-      input: {},
       parsedInput: {},
       errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
@@ -201,7 +196,6 @@ describe('POST /calculate', () => {
   it('should pass the breakdownObj into the template for remand period breakdown', () => {
     const validResult: ValidationResult = {
       isValid: true,
-      input: {},
       parsedInput: {},
       errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
@@ -226,7 +220,6 @@ describe('POST /calculate', () => {
   it('should render the remand period breakdown correctly when dates arrive as JSON-serialized strings (real API shape)', () => {
     const validResult: ValidationResult = {
       isValid: true,
-      input: {},
       parsedInput: {},
       errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
@@ -254,7 +247,6 @@ describe('POST /calculate', () => {
 
     const validResult: ValidationResult = {
       isValid: true,
-      input,
       parsedInput: {
         remandDays: 33,
         taggedBailDays: 44,
@@ -283,7 +275,6 @@ describe('POST /calculate', () => {
   it('should render the new calculation page when the payload is invalid', () => {
     const invalidResult: ValidationResult = {
       isValid: false,
-      input: {},
       parsedInput: {},
       errors: [],
     }
@@ -305,7 +296,6 @@ describe('POST /calculate', () => {
 
     dtoService.validatePayload.mockReturnValue({
       isValid: false,
-      input: payload as Record<string, unknown>,
       parsedInput: {},
       errors: [],
     })
