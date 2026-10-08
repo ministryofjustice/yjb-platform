@@ -122,7 +122,6 @@ describe('DtoService', () => {
       expect(dtoService.validatePayload({}).parsedInput).toEqual({})
     })
 
-
     it('should return the parsed form data as parsedInput for tagged bail 4 and remand 5', () => {
       const inputData: Record<string, unknown> = {
         ...exampleValidPayload,
@@ -138,7 +137,7 @@ describe('DtoService', () => {
         sentenceDate: new Date(Date.UTC(1990, 4, 14)),
         sentenceDateString: '14/05/1990',
         remandDays: 4,
-        taggedBailDays: 5
+        taggedBailDays: 5,
       }
 
       expect(dtoService.validatePayload(inputData).parsedInput).toEqual(expectedParsedInput)
@@ -159,7 +158,7 @@ describe('DtoService', () => {
         sentenceDate: new Date(Date.UTC(1990, 4, 14)),
         sentenceDateString: '14/05/1990',
         remandDays: 0,
-        taggedBailDays: 0
+        taggedBailDays: 0,
       }
 
       expect(dtoService.validatePayload(inputData).parsedInput).toEqual(expectedParsedInput)
