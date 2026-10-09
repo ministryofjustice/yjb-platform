@@ -57,6 +57,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
         },
       },
       etd: {
@@ -64,6 +65,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Thursday',
         },
       },
       effectiveDatesPastAdjustments: [],
@@ -121,6 +123,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Sunday',
         },
       },
       etd: {
@@ -128,6 +131,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
         },
       },
       unusedAdjustmentDays: 0,
@@ -216,6 +220,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Sunday',
         },
       },
       etd: {
@@ -223,6 +228,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
         },
       },
       effectiveDatesPastAdjustments: [

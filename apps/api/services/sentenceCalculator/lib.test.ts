@@ -201,6 +201,7 @@ describe('getETD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Thursday',
       },
     })
   })
@@ -211,6 +212,7 @@ describe('getETD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Thursday',
       },
     })
   })
@@ -221,6 +223,7 @@ describe('getETD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Thursday',
       },
     })
   })
@@ -231,6 +234,7 @@ describe('getETD', () => {
       metadata: {
         status: '2_months',
         message: '2 months away from the MTD for DTOs with terms over 18 months',
+        dayOfWeek: 'Monday',
       },
     })
   })
@@ -253,6 +257,7 @@ describe('getLTD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Tuesday',
       },
     })
   })
@@ -263,6 +268,7 @@ describe('getLTD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Tuesday',
       },
     })
   })
@@ -273,6 +279,7 @@ describe('getLTD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Tuesday',
       },
     })
   })
@@ -283,6 +290,7 @@ describe('getLTD', () => {
       metadata: {
         status: '2_months',
         message: '2 months away from the MTD for DTOs with terms over 18 months',
+        dayOfWeek: 'Friday',
       },
     })
   })

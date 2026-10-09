@@ -15,17 +15,24 @@ export const DTO_ELIGIBILITY_MESSAGES: Record<DtoEligibilityStatus, string> = {
 export type transferDatesObj = {
   data: Date | 0
   metadata: {
+    dayOfWeek?: string
     status: DtoEligibilityStatus
     message: string
   }
 }
 
 export function buildTransferDatesObj(status: DtoEligibilityStatus, data: Date | 0): transferDatesObj {
-  return {
+  const res:transferDatesObj = {
     data,
     metadata: {
       status,
       message: DTO_ELIGIBILITY_MESSAGES[status],
     },
   }
+  if (status !== DtoEligibilityStatus.notCalculated && data instanceof Date) {
+    // timeZone UTC as dates are built with Date.UTC, so local time can't shift the day
+    res.metadata.dayOfWeek = data.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' })
+  }
+  return res
+  
 }
