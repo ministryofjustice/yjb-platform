@@ -17,6 +17,7 @@ export const FINAL_SLED_BREAKDOWN_MESSAGE: Record<AppliedAdjustmentStatus, strin
 export type finalDatesObj = {
   data: Date 
   metadata: {
+    dayOfWeek: string
     status: AppliedAdjustmentStatus
     message: string
   }
@@ -32,6 +33,7 @@ export function buildfinalDatesObj(status: AppliedAdjustmentStatus, data: Date, 
   if(status == AppliedAdjustmentStatus.applied && initialDate && adjustmentDuration){
     const sentenceStartStr = initialDate.toISOString().slice(0, 10);
     message =  format(FINAL_SLED_BREAKDOWN_MESSAGE[status], sentenceStartStr, adjustmentDuration)
+   
   }else if(status == AppliedAdjustmentStatus.collapsedUnused && unusedDays){
     message =   format(FINAL_SLED_BREAKDOWN_MESSAGE[status],unusedDays)
   }
@@ -39,6 +41,7 @@ export function buildfinalDatesObj(status: AppliedAdjustmentStatus, data: Date, 
   return {
     data,
     metadata: {
+      dayOfWeek: data.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' }),
       status,
       message: message,
     },

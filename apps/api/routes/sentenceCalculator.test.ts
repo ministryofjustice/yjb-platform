@@ -41,6 +41,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.not_applied,
             message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+            dayOfWeek: 'Friday',
           },
         },
         mtd: {
@@ -48,6 +49,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.not_applied,
             message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+            dayOfWeek: 'Saturday',
           },
         },
         TUSED: '1970-01-01',
@@ -107,6 +109,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.applied,
             message: '2027-05-28 minus 15 days',
+            dayOfWeek: 'Thursday',
           },
         },
         mtd: {
@@ -114,6 +117,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.applied,
             message: '2026-12-12 minus 15 days',
+            dayOfWeek: 'Friday',
           },
         },
         TUSED: '1970-01-01',
@@ -150,6 +154,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.not_applied,
                 message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+                dayOfWeek: 'Friday',
               },
             },
             mtd: {
@@ -157,6 +162,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.not_applied,
                 message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+                dayOfWeek: 'Saturday',
               },
             },
             TUSED: '1970-01-01',
@@ -204,6 +210,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.applied,
             message: '2027-05-28 minus 15 days',
+            dayOfWeek: 'Thursday',
           },
         },
         mtd: {
@@ -211,6 +218,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.applied,
             message: '2026-12-12 minus 15 days',
+            dayOfWeek: 'Friday',
           },
         },
         TUSED: '1970-01-01',
@@ -246,6 +254,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.not_applied,
                 message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+                dayOfWeek: 'Friday',
               },
             },
             mtd: {
@@ -253,6 +262,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.not_applied,
                 message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+                dayOfWeek: 'Saturday',
               },
             },
             TUSED: '1970-01-01',
@@ -271,6 +281,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.applied,
                 message: '2027-05-28 minus 10 days',
+                dayOfWeek: 'Tuesday',
               },
             },
             mtd: {
@@ -278,6 +289,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.applied,
                 message: '2026-12-12 minus 10 days',
+                dayOfWeek: 'Wednesday',
               },
             },
             TUSED: '1970-01-01',
