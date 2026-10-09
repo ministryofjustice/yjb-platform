@@ -3,10 +3,9 @@ import {
   InputSentences,
   OutputCalculation,
   DtoEligibilityStatus,
-  buildTransferDatesObj,
-  buildfinalDatesObj,
   AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
+import { buildTransferDatesObj, buildfinalDatesObj } from './helpers/dateObjects'
 import calculateDTOSentence from './CalculationService'
 
 const remandInput: InputSentences = {
@@ -94,8 +93,20 @@ describe('calculateDTOSentence', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -121,8 +132,20 @@ describe('calculateDTOSentence', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -159,8 +182,20 @@ describe('calculateDTOSentence', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -197,8 +232,20 @@ describe('calculateDTOSentence', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -270,8 +317,20 @@ describe('calculateDTOSentence', () => {
           inputSentence: { from: new Date('2026-06-01'), durationMonths: 4 },
           totalDaysInTerm: 122,
           totalDaysMTD: 61,
-          sled: new Date('2026-09-30'),
-          mtd: new Date('2026-07-31'),
+          sled: {
+            data: new Date('2026-09-30'),
+            metadata: {
+              dayOfWeek: 'Wednesday',
+              message: '122 days from the beginning of the sentence (2026-06-01)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-07-31'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '61 days from the beginning of the sentence (2026-06-01)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -324,8 +383,20 @@ describe('calculateDTOSentence', () => {
           inputSentence: { from: new Date('2026-06-01'), durationMonths: 4 },
           totalDaysInTerm: 122,
           totalDaysMTD: 61,
-          sled: new Date('2026-09-30'),
-          mtd: new Date('2026-07-31'),
+          sled: {
+            data: new Date('2026-09-30'),
+            metadata: {
+              dayOfWeek: 'Wednesday',
+              message: '122 days from the beginning of the sentence (2026-06-01)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-07-31'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '61 days from the beginning of the sentence (2026-06-01)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -384,8 +455,20 @@ describe('calculateDTOSentence', () => {
           inputSentence: { from: new Date('2026-06-01'), durationMonths: 4 },
           totalDaysInTerm: 122,
           totalDaysMTD: 61,
-          sled: new Date('2026-09-30'),
-          mtd: new Date('2026-07-31'),
+          sled: {
+            data: new Date('2026-09-30'),
+            metadata: {
+              dayOfWeek: 'Wednesday',
+              message: '122 days from the beginning of the sentence (2026-06-01)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-07-31'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '61 days from the beginning of the sentence (2026-06-01)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -453,8 +536,20 @@ describe('calculateDTOSentence', () => {
           inputSentence: { from: new Date('2026-06-01'), durationMonths: 4 },
           totalDaysInTerm: 122,
           totalDaysMTD: 61,
-          sled: new Date('2026-09-30'),
-          mtd: new Date('2026-07-31'),
+          sled: {
+            data: new Date('2026-09-30'),
+            metadata: {
+              dayOfWeek: 'Wednesday',
+              message: '122 days from the beginning of the sentence (2026-06-01)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-07-31'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '61 days from the beginning of the sentence (2026-06-01)',
+            },
+          },
         },
       ],
       effectiveDates: {

@@ -4,10 +4,9 @@ import {
   EffectiveDates,
   AdjustmentResult,
   DtoEligibilityStatus,
-  buildTransferDatesObj,
-  buildfinalDatesObj,
   AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
+import { buildTransferDatesObj, buildfinalDatesObj } from './helpers/dateObjects'
 import { getLTDDate, getETDDate, adjustCalculation, calculateTerm } from './lib'
 
 export default function calculateDTOSentence(inputSentence: InputSentences): OutputCalculation {
@@ -29,8 +28,8 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
   // for now 1 term only; prior adjustments the effective dates match the term
   outputCalculation.effectiveDates = {
     totalNumberOfRemandAndTaggedBailDays: 0,
-    sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, outputCalculation.calculatedTerms[0].sled),
-    mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, outputCalculation.calculatedTerms[0].mtd),
+    sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, outputCalculation.calculatedTerms[0].sled.data),
+    mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, outputCalculation.calculatedTerms[0].mtd.data),
     TUSED: new Date(0),
   }
 

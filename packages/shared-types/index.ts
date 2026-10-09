@@ -55,13 +55,21 @@ export type EffectiveDates = {
   TUSED: Date
 }
 
+export type termDatesObj = {
+  data: Date
+  metadata: {
+    dayOfWeek: string
+    message: string
+  }
+}
+
 // each term corresponds to one line on the sheet or one sentence
 export type CalculatedTerm = {
   inputSentence: InputIndividualSentence
   totalDaysInTerm: number
   totalDaysMTD: number
-  sled: Date
-  mtd: Date
+  sled: termDatesObj
+  mtd: termDatesObj
 }
 
 export type RecordOfAdjustment = {

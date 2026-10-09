@@ -10,11 +10,10 @@ import {
   CalculatedTerm,
   transferDatesObj,
   DtoEligibilityStatus,
-  buildTransferDatesObj,
-  buildfinalDatesObj,
   AppliedAdjustmentStatus,
   finalDatesObj,
 } from '@yjb-platform/shared-types'
+import { buildTransferDatesObj, buildfinalDatesObj, buildTermDatesObj } from './helpers/dateObjects'
 
 export function getTotalDaysInTerm(sentenceInput: InputIndividualSentence): number {
   const utcFrom = new UTCDate(sentenceInput.from)
@@ -71,8 +70,8 @@ export function calculateTerm(inputSentence: InputIndividualSentence): Calculate
     inputSentence,
     totalDaysInTerm,
     totalDaysMTD,
-    sled: getSledDate(totalDaysInTerm, inputSentence.from),
-    mtd: getMTDDate(totalDaysMTD, inputSentence.from),
+    sled: buildTermDatesObj(getSledDate(totalDaysInTerm, inputSentence.from), totalDaysInTerm, inputSentence.from),
+    mtd: buildTermDatesObj(getMTDDate(totalDaysMTD, inputSentence.from), totalDaysMTD, inputSentence.from),
   }
 }
 
@@ -143,14 +142,14 @@ export function adjustCalculation(
     sled: buildFieldFinalDatesObj(
       isSledCollapsed,
       outputEffectiveDatesSled,
-      srcCal.calculatedTerms[0].sled,
+      srcCal.calculatedTerms[0].sled.data,
       cumulativeAdjustmentDays,
       unusedAdjustmentDays,
     ),
     mtd: buildFieldFinalDatesObj(
       isMtdCollapsed,
       outputEffectiveDatesMTD,
-      srcCal.calculatedTerms[0].mtd,
+      srcCal.calculatedTerms[0].mtd.data,
       cumulativeAdjustmentDays,
       unusedAdjustmentDays,
     ),
