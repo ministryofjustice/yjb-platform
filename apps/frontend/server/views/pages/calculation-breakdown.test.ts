@@ -67,13 +67,18 @@ describe('Calculation breakdown page', () => {
     const expectedExplanationValues: string[][] = [
       ['Term length', ', from 2026-06-29 to 2027-05-13'],
       ['Custodial period', '(334 divided by 2)'],
-      ['MTD', '167 days from the beginning of the sentence (29 June 2026)'],
       ['Remand period', '(14 June 2026 to 28 June 2026)'],
-      ['SLED', '(2027-05-28 minus 15 days)'],
-      ['Final MTD', '(2026-12-12 minus 15 days)'],
-      ['LTD', '(1 month away from the MTD for DTOs with terms from 8 to 18 months)'],
-      ['ETD', '(1 month away from the MTD for DTOs with terms from 8 to 18 months)'],
+      ['SLED', 'Thursday, 13 May 2027, 2027-05-28 minus 15 days'],
+      ['MTD', 'Friday, 27 November 2026, 2026-12-12 minus 15 days'],
+      ['LTD', 'Sunday, 27 December 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
+      ['ETD', 'Tuesday, 27 October 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
     ]
+
+    // the breakdowns show dates as part of their explanation (see
+    // expectedExplanationValues) - the breakdown MTD is the final MTD - so only
+    // the non-date values are rendered on their own
+    const dateKeys = ['MTD', 'SLED', 'Final MTD', 'LTD', 'ETD']
+    const expectedDetailedBreakdownValues = expectedCalcValues.filter(([key]) => !dateKeys.includes(key))
 
     describe('your answers section', () => {
       const parsedInput: ParsedDtoForm = {
@@ -142,9 +147,12 @@ describe('Calculation breakdown page', () => {
         })
       })
 
-      it.each(expectedCalcValues)('correctly renders the calculation values for %s', (_key: string, value: string) => {
-        expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
-      })
+      it.each(expectedDetailedBreakdownValues)(
+        'correctly renders the calculation values for %s',
+        (_key: string, value: string) => {
+          expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
+        },
+      )
 
       it.each(expectedExplanationValues)(
         'correctly renders the calculation explanations for %s',
