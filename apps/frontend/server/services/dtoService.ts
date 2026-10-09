@@ -13,7 +13,7 @@ import {
   ValidationErrorMessages,
 } from '@yjb-platform/shared-types'
 import YjbApiClient from '../data/yjbApi'
-import ParseResult, { FieldError, ParsedDtoForm } from './parseResult'
+import DtoParseResult, {FieldError, ParsedDtoForm} from "./helpers/dtoParseResult";
 
 export type { FieldError, ParsedDtoForm }
 
@@ -69,14 +69,14 @@ function parseDate(day: unknown, month: unknown, year: unknown): ParsedDate {
   return parsedDateResult
 }
 
-function parseDtoForm(formData: Record<string, unknown>): ParseResult {
+function parseDtoForm(formData: Record<string, unknown>): DtoParseResult {
   const dateResult = parseDate(
     formData['sentence-date-day'],
     formData['sentence-date-month'],
     formData['sentence-date-year'],
   )
 
-  const parseResult: ParseResult = new ParseResult(
+  const parseResult: DtoParseResult = new DtoParseResult(
     formData,
     {
       sentenceDateDay: dateResult.day,
@@ -137,7 +137,7 @@ export default class DtoService {
   constructor(private readonly yjbApiClient: YjbApiClient) {}
 
   validatePayload(formData: Record<string, unknown>): ValidationResult {
-    const parseResult: ParseResult = parseDtoForm(formData)
+    const parseResult: DtoParseResult = parseDtoForm(formData)
     const { sentenceLengthMonths } = parseResult.data
 
     // TODO: replace this with a proper business validation function

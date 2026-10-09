@@ -11,10 +11,8 @@ export type ParsedDtoForm = {
   sentenceDate?: Date
   sentenceDateString?: string
 }
-
 export type FieldError = { field: string; message: string }
-
-export default class ParseResult {
+export default class DtoParseResult {
   input: Record<string, unknown>
 
   data: ParsedDtoForm
@@ -38,7 +36,7 @@ export default class ParseResult {
       if (result.success) {
         this.data[formFieldPropertyName] = result.data
       } else {
-        this.errors.push({ field: formFieldName, message: result.error.issues[0].message })
+        this.errors.push({field: formFieldName, message: result.error.issues[0].message})
       }
     }
   }
