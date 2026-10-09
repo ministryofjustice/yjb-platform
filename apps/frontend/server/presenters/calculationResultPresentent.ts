@@ -2,6 +2,8 @@ import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform
 
 export type CalculationResutlObj = {
   breakdownObj: calcBreakdown
+  termDates: { sled: string; mtd: string }
+  resultDates: { sled: string; finalMtd: string; etd: string; ltd: string }
   calculationResultString: string
 }
 
@@ -33,12 +35,28 @@ export default class CalculationResultPresentent {
 
     return {
       breakdownObj,
+      termDates: {
+        sled: this.formatDayAndDate(term.sled.data, term.sled.metadata),
+        mtd: this.formatDayAndDate(term.mtd.data, term.mtd.metadata),
+      },
+      resultDates: {
+        sled: this.formatDayAndDate(effectiveDates.sled.data, effectiveDates.sled.metadata),
+        finalMtd: this.formatDayAndDate(effectiveDates.mtd.data, effectiveDates.mtd.metadata),
+        etd: this.formatDayAndDate(etd.data, etd.metadata),
+        ltd: this.formatDayAndDate(ltd.data, ltd.metadata),
+      },
       calculationResultString: JSON.stringify(this.calculationResult),
     }
   }
 
   formatDateBreakdown(date: Date | string | 0, metadata: DateMetadata): string {
     return [metadata.dayOfWeek, date ? this.formatUkDate(date) : undefined, metadata.message].filter(Boolean).join(', ')
+  }
+
+  // e.g. "Thursday 2027-05-13" - a transfer date that wasn't calculated has data 0, so its message is shown instead
+  formatDayAndDate(date: Date | string | 0, metadata: DateMetadata): string {
+    if (!date) return metadata.message
+    return [metadata.dayOfWeek, new Date(date).toISOString().slice(0, 10)].filter(Boolean).join(', ')
   }
 
   formatUkDate(date: Date | string): string {

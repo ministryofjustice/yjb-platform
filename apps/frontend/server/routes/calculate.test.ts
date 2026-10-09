@@ -2,12 +2,7 @@ import type { Express } from 'express'
 import request from 'supertest'
 import { isDeepStrictEqual } from 'util'
 import * as cheerio from 'cheerio'
-import {
-  InputSentences,
-  OutputCalculation,
-  DtoEligibilityStatus,
-  buildTransferDatesObj,
-} from '@yjb-platform/shared-types'
+import { InputSentences, OutputCalculation, DtoEligibilityStatus } from '@yjb-platform/shared-types'
 import { appWithAllRoutes } from '../testutils/appSetup'
 import YjbApiClient from '../data/yjbApi'
 import DtoService, { ValidationResult } from '../services/dtoService'
@@ -109,7 +104,14 @@ describe('POST /calculate', () => {
     }
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
-      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('01/01/3093')),
+      etd: {
+        data: new Date('3093-01-01'),
+        metadata: {
+          dayOfWeek: 'Sunday',
+          status: DtoEligibilityStatus.oneMonth,
+          message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        },
+      },
     }
     dtoService.validatePayload.mockReturnValue(validResult)
     dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
@@ -120,7 +122,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#release-dates').text()).toContain('Sun Jan 01 3093')
+        expect($('#release-dates').text()).toContain('Sunday 3093-01-01')
       })
   })
 

@@ -1,9 +1,7 @@
 import {
   OutputCalculation,
   DtoEligibilityStatus,
-  DTO_ELIGIBILITY_MESSAGES,
   AppliedAdjustmentStatus,
-  buildfinalDatesObj,
   calcBreakdown,
 } from '@yjb-platform/shared-types'
 
@@ -16,14 +14,40 @@ export const sampleCalculationResult: OutputCalculation = {
       },
       totalDaysInTerm: 334,
       totalDaysMTD: 167,
-      sled: new Date('2027-05-28'),
-      mtd: new Date('2026-12-12'),
+      sled: {
+        data: new Date('2027-05-28'),
+        metadata: {
+          dayOfWeek: 'Friday',
+          message: '334 days from the beginning of the sentence (2026-06-29)',
+        },
+      },
+      mtd: {
+        data: new Date('2026-12-12'),
+        metadata: {
+          dayOfWeek: 'Saturday',
+          message: '167 days from the beginning of the sentence (2026-06-29)',
+        },
+      },
     },
   ],
   effectiveDates: {
     totalNumberOfRemandAndTaggedBailDays: 0,
-    sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-13'), new Date('2027-05-28'), 15),
-    mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-11-27'), new Date('2026-12-12'), 15),
+    sled: {
+      data: new Date('2027-05-13'),
+      metadata: {
+        dayOfWeek: 'Thursday',
+        status: AppliedAdjustmentStatus.applied,
+        message: '2027-05-28 minus 15 days',
+      },
+    },
+    mtd: {
+      data: new Date('2026-11-27'),
+      metadata: {
+        dayOfWeek: 'Friday',
+        status: AppliedAdjustmentStatus.applied,
+        message: '2026-12-12 minus 15 days',
+      },
+    },
     TUSED: new Date('1970-01-01'),
   },
   effectiveDatesPastAdjustments: [
@@ -36,8 +60,22 @@ export const sampleCalculationResult: OutputCalculation = {
       },
       pastEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
-        sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
-        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
+        sled: {
+          data: new Date('2027-05-28'),
+          metadata: {
+            dayOfWeek: 'Friday',
+            status: AppliedAdjustmentStatus.not_applied,
+            message: ' No adjustments applied',
+          },
+        },
+        mtd: {
+          data: new Date('2026-12-12'),
+          metadata: {
+            dayOfWeek: 'Saturday',
+            status: AppliedAdjustmentStatus.not_applied,
+            message: ' No adjustments applied',
+          },
+        },
         TUSED: new Date('1970-01-01'),
       },
     },
@@ -47,7 +85,7 @@ export const sampleCalculationResult: OutputCalculation = {
     metadata: {
       dayOfWeek: 'Sunday',
       status: DtoEligibilityStatus.oneMonth,
-      message: DTO_ELIGIBILITY_MESSAGES['1_month'],
+      message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
     },
   },
   etd: {
@@ -55,10 +93,22 @@ export const sampleCalculationResult: OutputCalculation = {
     metadata: {
       dayOfWeek: 'Tuesday',
       status: DtoEligibilityStatus.oneMonth,
-      message: DTO_ELIGIBILITY_MESSAGES['1_month'],
+      message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
     },
   },
   unusedAdjustmentDays: 0,
+}
+
+export const termDates = {
+  sled: 'Friday 2027-05-28',
+  mtd: 'Saturday 2026-12-12',
+}
+
+export const resultDates = {
+  sled: 'Thursday 2027-05-13',
+  finalMtd: 'Friday 2026-11-27',
+  etd: 'Tuesday 2026-10-27',
+  ltd: 'Sunday 2026-12-27',
 }
 
 export const breakdownObj: calcBreakdown = {
@@ -79,14 +129,40 @@ export const sampleCalculationResult2: OutputCalculation = {
       },
       totalDaysInTerm: 333,
       totalDaysMTD: 167,
-      sled: new Date('2027-05-27'),
-      mtd: new Date('2026-12-11'),
+      sled: {
+        data: new Date('2027-05-27'),
+        metadata: {
+          dayOfWeek: 'Thursday',
+          message: '333 days from the beginning of the sentence (2026-06-28)',
+        },
+      },
+      mtd: {
+        data: new Date('2026-12-11'),
+        metadata: {
+          dayOfWeek: 'Friday',
+          message: '167 days from the beginning of the sentence (2026-06-28)',
+        },
+      },
     },
   ],
   effectiveDates: {
     totalNumberOfRemandAndTaggedBailDays: 0,
-    sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-12'), new Date('2027-05-27'), 15),
-    mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-11-26'), new Date('2026-12-11'), 15),
+    sled: {
+      data: new Date('2027-05-12'),
+      metadata: {
+        dayOfWeek: 'Wednesday',
+        status: AppliedAdjustmentStatus.applied,
+        message: '2027-05-27 minus 15 days',
+      },
+    },
+    mtd: {
+      data: new Date('2026-11-26'),
+      metadata: {
+        dayOfWeek: 'Thursday',
+        status: AppliedAdjustmentStatus.applied,
+        message: '2026-12-11 minus 15 days',
+      },
+    },
     TUSED: new Date('1970-01-01'),
   },
   effectiveDatesPastAdjustments: [
@@ -99,8 +175,22 @@ export const sampleCalculationResult2: OutputCalculation = {
       },
       pastEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
-        sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-27')),
-        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-11')),
+        sled: {
+          data: new Date('2027-05-27'),
+          metadata: {
+            dayOfWeek: 'Thursday',
+            status: AppliedAdjustmentStatus.not_applied,
+            message: ' No adjustments applied',
+          },
+        },
+        mtd: {
+          data: new Date('2026-12-11'),
+          metadata: {
+            dayOfWeek: 'Friday',
+            status: AppliedAdjustmentStatus.not_applied,
+            message: ' No adjustments applied',
+          },
+        },
         TUSED: new Date('1970-01-01'),
       },
     },
@@ -110,7 +200,7 @@ export const sampleCalculationResult2: OutputCalculation = {
     metadata: {
       dayOfWeek: 'Saturday',
       status: DtoEligibilityStatus.oneMonth,
-      message: DTO_ELIGIBILITY_MESSAGES['1_month'],
+      message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
     },
   },
   etd: {
@@ -118,7 +208,7 @@ export const sampleCalculationResult2: OutputCalculation = {
     metadata: {
       dayOfWeek: 'Monday',
       status: DtoEligibilityStatus.oneMonth,
-      message: DTO_ELIGIBILITY_MESSAGES['1_month'],
+      message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
     },
   },
   unusedAdjustmentDays: 0,
