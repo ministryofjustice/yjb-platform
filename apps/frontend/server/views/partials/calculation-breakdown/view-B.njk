@@ -8,12 +8,12 @@
           { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" } },
           { key: { text: "Term length" }, value: { text: calculationResult.calculatedTerms[0].inputSentence.durationMonths + " months (" + calculationResult.calculatedTerms[0].totalDaysInTerm + " days)" } },
           { key: { text: "Custodial period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days" } },
-          { key: { text: "MTD" }, value: { text: calculationResult.calculatedTerms[0].mtd } },
+          { key: { text: "MTD" }, value: { text: termDates.mtd } },
           { key: { text: "Remand period" }, value: { text: calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days + " days" } },
-          { key: { text: "SLED" }, value: { text: calculationResult.effectiveDates.sled.data } },
-          { key: { text: "Final MTD" }, value: { text: calculationResult.effectiveDates.mtd.data } },
-          { key: { text: "ETD" }, value: { text: calculationResult.etd.data } },
-          { key: { text: "LTD" }, value: { text: calculationResult.ltd.data } }
+          { key: { text: "SLED" }, value: { text: resultDates.sled } },
+          { key: { text: "Final MTD" }, value: { text: resultDates.finalMtd } },
+          { key: { text: "ETD" }, value: { text: resultDates.etd } },
+          { key: { text: "LTD" }, value: { text: resultDates.ltd } }
         ]
       }) }}
   {% endset -%}
@@ -26,12 +26,11 @@
       { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" } },
       { key: { text: "Term length" }, value: { text: calculationResult.calculatedTerms[0].inputSentence.durationMonths + " months (" + calculationResult.calculatedTerms[0].totalDaysInTerm + " days)" + ", from " + (calculationResult.calculatedTerms[0].inputSentence.from.toISOString().slice(0, 10) if calculationResult.calculatedTerms[0].inputSentence.from.toISOString else calculationResult.calculatedTerms[0].inputSentence.from) + " to " + (calculationResult.effectiveDates.sled.data.toISOString().slice(0, 10) if calculationResult.effectiveDates.sled.data.toISOString else calculationResult.effectiveDates.sled.data) } },
       { key: { text: "Custodial period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days (" + breakdownObj.custodialPeriodBreakdown + ")" } },
-      { key: { text: "MTD" }, value: { text: calculationResult.calculatedTerms[0].mtd + ", "+breakdownObj.mtdBreadown } },
       { key: { text: "Remand period" }, value: { text: calculationResult.effectiveDatesPastAdjustments[0].adjustmentParameters.days + " days " + breakdownObj.remandPeriodBreakdown } },
-      { key: { text: "SLED" }, value: { text: calculationResult.effectiveDates.sled.data + " (" + calculationResult.effectiveDates.sled.metadata.message + ")" } },
-      { key: { text: "Final MTD" }, value: { text: calculationResult.effectiveDates.mtd.data + " (" +  calculationResult.effectiveDates.mtd.metadata.message + ")" } },
-      { key: { text: "ETD" }, value: { text: calculationResult.etd.data + " (" +  calculationResult.etd.metadata.message + ")" } },
-      { key: { text: "LTD" }, value: { text: calculationResult.ltd.data + " (" +  calculationResult.etd.metadata.message + ")" } }
+      { key: { text: "SLED" }, value: { text: breakdownObj.sledBreakdown } },
+      { key: { text: "MTD" }, value: { text: breakdownObj.finalMtdBreakdown } },
+      { key: { text: "ETD" }, value: { text: breakdownObj.etdBreakdown } },
+      { key: { text: "LTD" }, value: { text: breakdownObj.ltdBreakdown } }
     ]
   }) }}
   {% endset -%}

@@ -7,10 +7,9 @@ import {
   AdjustmentResult,
   CalculatedTerm,
   DtoEligibilityStatus,
-  buildTransferDatesObj,
-  buildfinalDatesObj,
   AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
+import { buildTransferDatesObj, buildfinalDatesObj } from './helpers/dateObjects'
 import {
   getTotalDaysInTerm,
   addDaysToDate,
@@ -201,6 +200,7 @@ describe('getETD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Thursday',
       },
     })
   })
@@ -211,6 +211,7 @@ describe('getETD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Thursday',
       },
     })
   })
@@ -221,6 +222,7 @@ describe('getETD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Thursday',
       },
     })
   })
@@ -231,6 +233,7 @@ describe('getETD', () => {
       metadata: {
         status: '2_months',
         message: '2 months away from the MTD for DTOs with terms over 18 months',
+        dayOfWeek: 'Monday',
       },
     })
   })
@@ -253,6 +256,7 @@ describe('getLTD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Tuesday',
       },
     })
   })
@@ -263,6 +267,7 @@ describe('getLTD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Tuesday',
       },
     })
   })
@@ -273,6 +278,7 @@ describe('getLTD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Tuesday',
       },
     })
   })
@@ -283,6 +289,7 @@ describe('getLTD', () => {
       metadata: {
         status: '2_months',
         message: '2 months away from the MTD for DTOs with terms over 18 months',
+        dayOfWeek: 'Friday',
       },
     })
   })
@@ -309,8 +316,20 @@ describe('calculateTerm', () => {
       inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
       totalDaysInTerm: 334,
       totalDaysMTD: 167,
-      sled: new Date('2027-05-28'),
-      mtd: new Date('2026-12-12'),
+      sled: {
+        data: new Date('2027-05-28'),
+        metadata: {
+          dayOfWeek: 'Friday',
+          message: '334 days from the beginning of the sentence (2026-06-29)',
+        },
+      },
+      mtd: {
+        data: new Date('2026-12-12'),
+        metadata: {
+          dayOfWeek: 'Saturday',
+          message: '167 days from the beginning of the sentence (2026-06-29)',
+        },
+      },
     }
 
     expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
@@ -326,8 +345,20 @@ describe('calculateTerm', () => {
       inputSentence: { from: new Date('2026-08-24'), durationMonths: 2 },
       totalDaysInTerm: 61,
       totalDaysMTD: 31,
-      sled: new Date('2026-10-23'),
-      mtd: new Date('2026-09-23'),
+      sled: {
+        data: new Date('2026-10-23'),
+        metadata: {
+          dayOfWeek: 'Friday',
+          message: '61 days from the beginning of the sentence (2026-08-24)',
+        },
+      },
+      mtd: {
+        data: new Date('2026-09-23'),
+        metadata: {
+          dayOfWeek: 'Wednesday',
+          message: '31 days from the beginning of the sentence (2026-08-24)',
+        },
+      },
     }
 
     expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
@@ -343,8 +374,20 @@ describe('calculateTerm', () => {
       inputSentence: { from: new Date('2028-02-20'), durationMonths: 1 },
       totalDaysInTerm: 29,
       totalDaysMTD: 15,
-      sled: new Date('2028-03-19'),
-      mtd: new Date('2028-03-05'),
+      sled: {
+        data: new Date('2028-03-19'),
+        metadata: {
+          dayOfWeek: 'Sunday',
+          message: '29 days from the beginning of the sentence (2028-02-20)',
+        },
+      },
+      mtd: {
+        data: new Date('2028-03-05'),
+        metadata: {
+          dayOfWeek: 'Sunday',
+          message: '15 days from the beginning of the sentence (2028-02-20)',
+        },
+      },
     }
 
     expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
@@ -360,8 +403,20 @@ describe('calculateTerm', () => {
       inputSentence: { from: new Date('2027-01-31'), durationMonths: 1 },
       totalDaysInTerm: 28,
       totalDaysMTD: 14,
-      sled: new Date('2027-02-27'),
-      mtd: new Date('2027-02-13'),
+      sled: {
+        data: new Date('2027-02-27'),
+        metadata: {
+          dayOfWeek: 'Saturday',
+          message: '28 days from the beginning of the sentence (2027-01-31)',
+        },
+      },
+      mtd: {
+        data: new Date('2027-02-13'),
+        metadata: {
+          dayOfWeek: 'Saturday',
+          message: '14 days from the beginning of the sentence (2027-01-31)',
+        },
+      },
     }
 
     expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
@@ -376,8 +431,20 @@ describe('adjustCalculation', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -428,8 +495,20 @@ describe('adjustCalculation', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -481,8 +560,20 @@ describe('adjustCalculation', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -547,8 +638,20 @@ describe('adjustCalculation', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {

@@ -1,14 +1,9 @@
 import { Router } from 'express'
-import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform/shared-types'
+import { OutputCalculation } from '@yjb-platform/shared-types'
 import type { Services } from '../services'
 import { ValidationResult } from '../services/dtoService'
 import DtoFormPresenter, { FormPageObject } from '../presenters/dtoFormPresenter'
-
-function formatUkDate(date: Date | string): string {
-  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
-    new Date(date),
-  )
-}
+import CalculationResultPresentent, { CalculationResutlObj } from '../presenters/calculationResultPresentent'
 
 export default function calculateRoutes({ dtoService }: Partial<Services>): Router {
   const router = Router()
@@ -46,35 +41,13 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
 
     if (validationResult.isValid) {
       const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult.payload)
-      const calculationResultString = JSON.stringify(calculationResult)
-
-      // TODO: move breakdown string construction in a dedicated method
-      const remandAdjustmentRecord = calculationResult.effectiveDatesPastAdjustments[0]
-      const remandBreakdown =
-        remandAdjustmentRecord?.adjustmentParameters.name === AdjustmentTypes.remand
-          ? `(${formatUkDate(remandAdjustmentRecord.adjustmentParameters.startDate)} to ${formatUkDate(
-              new Date(
-                new Date(calculationResult.calculatedTerms[0].inputSentence.from).getTime() - 24 * 60 * 60 * 1000,
-              ),
-            )})`
-          : ''
-
-      const breakdownObj: calcBreakdown = {
-        custodialPeriodBreakdown: `${calculationResult.calculatedTerms[0].totalDaysInTerm} divided by 2${
-          calculationResult.calculatedTerms[0].totalDaysInTerm % 2 ? ', rounded up' : ''
-        }`,
-        mtdBreadown: `${calculationResult.calculatedTerms[0].totalDaysMTD} days from the beginning of the sentence (${formatUkDate(
-          calculationResult.calculatedTerms[0].inputSentence.from,
-        )})`,
-        remandPeriodBreakdown: remandBreakdown,
-      }
+      const formatedCalculation: CalculationResutlObj = new CalculationResultPresentent(calculationResult).prensent()
 
       return res.render('pages/calculation-breakdown', {
         calculationResult,
         inputData: validationResult.parsedInput,
         payloadString,
-        breakdownObj,
-        calculationResultString,
+        ...formatedCalculation,
       })
     }
 
