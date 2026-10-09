@@ -3,40 +3,114 @@ import {
   InputSentences,
   OutputCalculation,
   RemandAdjustment,
+  dtoDurationMonthsSchema,
+  dtoRemandDaysSchema,
+  dtoTaggedBailDaysSchema,
+  sentenceDateStringSchema,
+  sentenceDateDaySchema,
+  sentenceDateMonthSchema,
+  sentenceDateYearSchema,
+  ValidationErrorMessages,
 } from '@yjb-platform/shared-types'
 import YjbApiClient from '../data/yjbApi'
+import DtoParseResult, { FieldError, ParsedDtoForm } from './helpers/dtoParseResult'
+
+export type { FieldError, ParsedDtoForm }
 
 export type ValidationResult = {
   isValid: boolean
-  input: Record<string, unknown>
-  parsedInput?: ParsedDtoForm
+  parsedInput: ParsedDtoForm
   payload?: InputSentences
+  errors: FieldError[]
 }
 
-export type ParsedDtoForm = {
-  remandDays: number
-  taggedBailDays: number
-  sentenceLengthMonths: number
-  sentenceDate: Date
-  sentenceDateString: string
+// optional fields same like ParsedDtoForm, not all fields will be always parsed
+type ParsedDate = {
+  day?: number
+  month?: number
+  year?: number
+  sentenceDate?: Date
+  errors: FieldError[]
 }
 
-function parseDtoForm(formData: Record<string, unknown>): ParsedDtoForm {
-  const sentenceDate: Date = new Date(
-    Date.UTC(
-      Number(formData['sentence-date-year']),
-      Number(formData['sentence-date-month']) - 1,
-      Number(formData['sentence-date-day']),
-    ),
-  )
-  return {
-    remandDays: formData['remand-days'] !== undefined ? Number(formData['remand-days']) : 0,
-    taggedBailDays: formData['tagged-bail-days'] !== undefined ? Number(formData['tagged-bail-days']) : 0,
-    sentenceLengthMonths:
-      formData['sentence-length-months'] !== undefined ? Number(formData['sentence-length-months']) : 0,
-    sentenceDate,
-    sentenceDateString: sentenceDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+function parseDate(day: unknown, month: unknown, year: unknown): ParsedDate {
+  const parsedDateResult: ParsedDate = { errors: [] }
+
+  const dateFieldIsMissing = day === undefined && month === undefined && year === undefined
+  if (!dateFieldIsMissing) {
+    const dayResult = sentenceDateDaySchema.safeParse(day)
+    if (!dayResult.success) {
+      parsedDateResult.errors.push({ field: 'sentence-date-day', message: dayResult.error.issues[0].message })
+    } else {
+      parsedDateResult.day = dayResult.data
+    }
+
+    const monthResult = sentenceDateMonthSchema.safeParse(month)
+    if (!monthResult.success) {
+      parsedDateResult.errors.push({ field: 'sentence-date-month', message: monthResult.error.issues[0].message })
+    } else {
+      parsedDateResult.month = monthResult.data
+    }
+
+    const yearResult = sentenceDateYearSchema.safeParse(year)
+    if (!yearResult.success) {
+      parsedDateResult.errors.push({ field: 'sentence-date-year', message: yearResult.error.issues[0].message })
+    } else {
+      parsedDateResult.year = yearResult.data
+    }
+
+    // a combined date only makes sense once all three parts are valid
+    parsedDateResult.sentenceDate =
+      dayResult.success && monthResult.success && yearResult.success
+        ? new Date(Date.UTC(yearResult.data, monthResult.data - 1, dayResult.data))
+        : undefined
   }
+
+  return parsedDateResult
+}
+
+function parseDtoForm(formData: Record<string, unknown>): DtoParseResult {
+  const dateResult = parseDate(
+    formData['sentence-date-day'],
+    formData['sentence-date-month'],
+    formData['sentence-date-year'],
+  )
+
+  const parseResult: DtoParseResult = new DtoParseResult(
+    formData,
+    {
+      sentenceDateDay: dateResult.day,
+      sentenceDateMonth: dateResult.month,
+      sentenceDateYear: dateResult.year,
+    },
+    [...dateResult.errors],
+  )
+
+  if (dateResult.sentenceDate) {
+    parseResult.data.sentenceDate = dateResult.sentenceDate
+    parseResult.data.sentenceDateString = sentenceDateStringSchema
+      .catch('Invalid Date')
+      .parse(dateResult.sentenceDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }))
+  }
+
+  // evaluate all fields individually and either push err or parsed field
+  parseResult.processFormField(
+    formData['sentence-length-months'],
+    dtoDurationMonthsSchema,
+    'sentence-length-months',
+    'sentenceLengthMonths',
+  )
+
+  parseResult.processFormField(formData['remand-days'], dtoRemandDaysSchema, 'remand-days', 'remandDays')
+
+  parseResult.processFormField(
+    formData['tagged-bail-days'],
+    dtoTaggedBailDaysSchema,
+    'tagged-bail-days',
+    'taggedBailDays',
+  )
+
+  return parseResult
 }
 
 function constructInputSentences(parsed: ParsedDtoForm): InputSentences {
@@ -52,7 +126,7 @@ function constructInputSentences(parsed: ParsedDtoForm): InputSentences {
     parsed.sentenceLengthMonths > 0 ? [{ from: parsed.sentenceDate, durationMonths: parsed.sentenceLengthMonths }] : []
 
   return {
-    offenderName: 'William Gates',
+    offenderName: 'John Doe',
     remandAdjustment,
     taggedBailAdjustment,
     inputIndividualSentences,
@@ -63,13 +137,29 @@ export default class DtoService {
   constructor(private readonly yjbApiClient: YjbApiClient) {}
 
   validatePayload(formData: Record<string, unknown>): ValidationResult {
-    const parsedDtoForm = parseDtoForm(formData)
-    const isValid = Number.isInteger(parsedDtoForm.sentenceLengthMonths) && parsedDtoForm.sentenceLengthMonths > 0
+    const parseResult: DtoParseResult = parseDtoForm(formData)
+    const { sentenceLengthMonths } = parseResult.data
+
+    // TODO: replace this with a proper business validation function
+    let isBusinessValid = false
+    if (sentenceLengthMonths !== undefined) {
+      if (sentenceLengthMonths >= 4 && sentenceLengthMonths <= 24) {
+        isBusinessValid = true
+      } else {
+        parseResult.errors.push({
+          field: 'sentence-length-months',
+          message: ValidationErrorMessages.SentenceDurationOutOfRange,
+        })
+      }
+    }
+
+    const isValid = parseResult.success && isBusinessValid
+
     return {
       isValid,
-      input: formData,
-      parsedInput: isValid ? parsedDtoForm : undefined,
-      payload: isValid ? constructInputSentences(parsedDtoForm) : undefined,
+      parsedInput: parseResult.data,
+      errors: parseResult.errors,
+      payload: isValid ? constructInputSentences(parseResult.data) : undefined,
     }
   }
 

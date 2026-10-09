@@ -4,17 +4,18 @@
 {% from "govuk/components/select/macro.njk" import govukSelect %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% set pageTitle = applicationName + " - New calculation" %}
 {% set mainClasses = "govuk-body" %}
 
 {% block content %}
 
-  {% if validationError %}
-    <div class="govuk-grid-row">
-      <h1>ERROR PLACEHOLDER</h1>
-      <p>The submitted data was not valid</p>
-    </div>
+  {% if not (isValid | default(true)) %}
+   {{ govukErrorSummary({
+    titleText: "There is a problem",
+    errorList: errorSummary
+  }) }}
   {% endif %}
 
   <h1>New calculation</h1>
@@ -58,7 +59,8 @@
             classes: "govuk-!-width-one-quarter",
             id: "sentence-length-months",
             name: "sentence-length-months",
-            value: sentenceLengthMonths
+            value: formData.sentenceLengthMonths,
+            errorMessage: errorsByField['sentence-length-months'] and { text: errorsByField['sentence-length-months'] }
           }) }}
         {% endcall %}
       </div>
@@ -75,11 +77,12 @@
           hint: {
             text: "For example, 27 03 2007"
           },
-          values: {
-            day: sentenceDateDay,
-            month: sentenceDateMonth,
-            year: sentenceDateYear
-          }
+          errorMessage: sentenceDateError and { text: sentenceDateError },
+          items: [
+            { name: 'day', value: formData.sentenceDateDay, error: errorsByField['sentence-date-day'] or false },
+            { name: 'month', value: formData.sentenceDateMonth, error: errorsByField['sentence-date-month'] or false },
+            { name: 'year', value: formData.sentenceDateYear, error: errorsByField['sentence-date-year'] or false }
+          ]
         }) }}
 
         {% call govukFieldset({
@@ -97,7 +100,8 @@
                 },
                 id: "remand-days",
                 name: "remand-days",
-                value: remandDays
+                value: formData.remandDays,
+                errorMessage: errorsByField['remand-days'] and { text: errorsByField['remand-days'] }
               }) }}
             </div>
 
@@ -108,7 +112,8 @@
                 },
                 id: "tagged-bail-days",
                 name: "tagged-bail-days",
-                value: taggedBailDays
+                value: formData.taggedBailDays,
+                errorMessage: errorsByField['tagged-bail-days'] and { text: errorsByField['tagged-bail-days'] }
               }) }}
             </div>
           </div>

@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform/shared-types'
 import type { Services } from '../services'
 import { ValidationResult } from '../services/dtoService'
+import DtoFormPresenter, { FormPageObject } from '../presenters/dtoFormPresenter'
 
 function formatUkDate(date: Date | string): string {
   return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
@@ -18,14 +19,23 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       ? (sentenceDate as string).split('/')
       : []
 
-    return res.render('pages/new-calculation', {
-      sentenceLengthMonths,
-      remandDays,
-      taggedBailDays,
-      sentenceDateDay,
-      sentenceDateMonth,
-      sentenceDateYear,
-    })
+    const formPageObject: FormPageObject = {
+      // no payload has been submitted on first load, so there's nothing to
+      // validate, isValid is true so the error summary doesn't render
+      isValid: true,
+      formData: {
+        sentenceLengthMonths,
+        remandDays,
+        taggedBailDays,
+        sentenceDateDay,
+        sentenceDateMonth,
+        sentenceDateYear,
+      },
+      errorSummary: [],
+      errorsByField: {},
+    }
+
+    return res.render('pages/new-calculation', formPageObject)
   })
 
   router.post('/', async (req, res, _next) => {
@@ -67,8 +77,8 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
         calculationResultString,
       })
     }
-    // TODO: construct an error object and use it here
-    return res.render('pages/new-calculation', { validationError: true })
+
+    return res.render('pages/new-calculation', new DtoFormPresenter(validationResult).present())
   })
 
   return router
