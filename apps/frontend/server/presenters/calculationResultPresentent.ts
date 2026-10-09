@@ -7,7 +7,7 @@ export type CalculationResutlObj = {
 
 type DateMetadata = { dayOfWeek?: string; message: string }
 
-export default class CalculationResultPresentent {
+export default class calculationResultPresentent {
   constructor(private readonly calculationResult: OutputCalculation) {}
 
   prensent(): CalculationResutlObj {
@@ -24,11 +24,6 @@ export default class CalculationResultPresentent {
 
     const breakdownObj: calcBreakdown = {
       custodialPeriodBreakdown: `${term.totalDaysInTerm} divided by 2${term.totalDaysInTerm % 2 ? ', rounded up' : ''}`,
-      // the term MTD has no metadata, so its day of the week is worked out here
-      mtdBreadown: this.formatDateBreakdown(term.mtd, {
-        dayOfWeek: this.formatDayOfWeek(term.mtd),
-        message: `${term.totalDaysMTD} days from the beginning of the sentence (${this.formatUkDate(term.inputSentence.from)})`,
-      }),
       remandPeriodBreakdown: remandBreakdown,
       sledBreakdown: this.formatDateBreakdown(effectiveDates.sled.data, effectiveDates.sled.metadata),
       finalMtdBreakdown: this.formatDateBreakdown(effectiveDates.mtd.data, effectiveDates.mtd.metadata),
@@ -42,10 +37,10 @@ export default class CalculationResultPresentent {
     }
   }
 
-  // e.g. "Saturday, 12 December 2026, 167 days from the beginning of the sentence (29 June 2026)"
-  // - a transfer date that wasn't calculated has data 0 and no dayOfWeek, so only its message is shown
   formatDateBreakdown(date: Date | string | 0, metadata: DateMetadata): string {
-    return [metadata.dayOfWeek, date ? this.formatUkDate(date) : undefined, metadata.message].filter(Boolean).join(', ')
+    return [metadata.dayOfWeek, date ? this.formatUkDate(date) : undefined, metadata.message]
+      .filter(Boolean)
+      .join(', ')
   }
 
   formatDayOfWeek(date: Date | string): string {

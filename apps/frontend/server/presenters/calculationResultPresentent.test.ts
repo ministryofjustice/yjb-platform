@@ -5,12 +5,6 @@ import { sampleCalculationResult } from '../testutils/sampleObjects'
 describe('calculationResultPresentent', () => {
   const { breakdownObj } = new CalculationResultPresentent(sampleCalculationResult).prensent()
 
-  it('formats the MTD breakdown as day of the week, date and explanation', () => {
-    expect(breakdownObj.mtdBreadown).toBe(
-      'Saturday, 12 December 2026, 167 days from the beginning of the sentence (29 June 2026)',
-    )
-  })
-
   it('formats the SLED and final MTD breakdowns from their metadata', () => {
     expect(breakdownObj.sledBreakdown).toBe('Thursday, 13 May 2027, 2027-05-28 minus 15 days')
     expect(breakdownObj.finalMtdBreakdown).toBe('Friday, 27 November 2026, 2026-12-12 minus 15 days')
