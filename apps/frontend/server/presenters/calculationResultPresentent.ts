@@ -7,7 +7,7 @@ export type CalculationResutlObj = {
 
 type DateMetadata = { dayOfWeek?: string; message: string }
 
-export default class calculationResultPresentent {
+export default class CalculationResultPresentent {
   constructor(private readonly calculationResult: OutputCalculation) {}
 
   prensent(): CalculationResutlObj {
@@ -38,13 +38,7 @@ export default class calculationResultPresentent {
   }
 
   formatDateBreakdown(date: Date | string | 0, metadata: DateMetadata): string {
-    return [metadata.dayOfWeek, date ? this.formatUkDate(date) : undefined, metadata.message]
-      .filter(Boolean)
-      .join(', ')
-  }
-
-  formatDayOfWeek(date: Date | string): string {
-    return new Intl.DateTimeFormat('en-GB', { weekday: 'long', timeZone: 'UTC' }).format(new Date(date))
+    return [metadata.dayOfWeek, date ? this.formatUkDate(date) : undefined, metadata.message].filter(Boolean).join(', ')
   }
 
   formatUkDate(date: Date | string): string {

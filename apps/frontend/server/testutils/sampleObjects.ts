@@ -45,6 +45,7 @@ export const sampleCalculationResult: OutputCalculation = {
   ltd: {
     data: new Date('2026-12-27'),
     metadata: {
+      dayOfWeek: 'Sunday',
       status: DtoEligibilityStatus.oneMonth,
       message: DTO_ELIGIBILITY_MESSAGES['1_month'],
     },
@@ -52,6 +53,7 @@ export const sampleCalculationResult: OutputCalculation = {
   etd: {
     data: new Date('2026-10-27'),
     metadata: {
+      dayOfWeek: 'Tuesday',
       status: DtoEligibilityStatus.oneMonth,
       message: DTO_ELIGIBILITY_MESSAGES['1_month'],
     },
@@ -61,8 +63,11 @@ export const sampleCalculationResult: OutputCalculation = {
 
 export const breakdownObj: calcBreakdown = {
   custodialPeriodBreakdown: '(334 divided by 2)',
-  mtdBreadown: '167 days from the beginning of the sentence (29 June 2026)',
   remandPeriodBreakdown: '(14 June 2026 to 28 June 2026)',
+  sledBreakdown: 'Thursday, 13 May 2027, 2027-05-28 minus 15 days',
+  finalMtdBreakdown: 'Friday, 27 November 2026, 2026-12-12 minus 15 days',
+  etdBreakdown: 'Tuesday, 27 October 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months',
+  ltdBreakdown: 'Sunday, 27 December 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months',
 }
 
 export const sampleCalculationResult2: OutputCalculation = {
@@ -103,6 +108,7 @@ export const sampleCalculationResult2: OutputCalculation = {
   ltd: {
     data: new Date('2026-12-26'),
     metadata: {
+      dayOfWeek: 'Saturday',
       status: DtoEligibilityStatus.oneMonth,
       message: DTO_ELIGIBILITY_MESSAGES['1_month'],
     },
@@ -110,6 +116,7 @@ export const sampleCalculationResult2: OutputCalculation = {
   etd: {
     data: new Date('2026-10-26'),
     metadata: {
+      dayOfWeek: 'Monday',
       status: DtoEligibilityStatus.oneMonth,
       message: DTO_ELIGIBILITY_MESSAGES['1_month'],
     },

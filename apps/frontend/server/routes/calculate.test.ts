@@ -170,7 +170,7 @@ describe('POST /calculate', () => {
       })
   })
 
-  it('should pass the breakdownObj into the template for MTD breakdown', () => {
+  it('should pass the date breakdowns into the template', () => {
     const validResult: ValidationResult = {
       isValid: true,
       parsedInput: {},
@@ -189,7 +189,11 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#detailed-breakdown').text()).toContain(breakdownObj.mtdBreadown)
+        const detailedBreakdown = $('#detailed-breakdown').text()
+        expect(detailedBreakdown).toContain(breakdownObj.sledBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.finalMtdBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.etdBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.ltdBreakdown)
       })
   })
 
