@@ -42,12 +42,7 @@
           <span class="govuk-body">{{ calculationResult.calculatedTerms[0].totalDaysMTD }} days</span>
           <span class="govuk-body">({{ breakdownObj.custodialPeriodBreakdown }})</span>
         </p>
-        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        <p>
-          <span class="govuk-body govuk-!-font-weight-bold">MTD: </span>
-          <span class="govuk-body">{{ calculationResult.calculatedTerms[0].mtd }}, </span>
-          <span class="govuk-body">{{ breakdownObj.mtdBreadown }}</span>
-        </p>
+
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p>
           <span class="govuk-body govuk-!-font-weight-bold">Remand period: </span>
@@ -57,26 +52,22 @@
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p>
           <span class="govuk-body govuk-!-font-weight-bold">SLED: </span>
-          <span class="govuk-body">{{ calculationResult.effectiveDates.sled.data }}</span>
-          <span class="govuk-body"> ({{ calculationResult.effectiveDates.sled.metadata.message }})</span>
+          <span class="govuk-body">{{ breakdownObj.sledBreakdown }}</span>
         </p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p>
-          <span class="govuk-body govuk-!-font-weight-bold">Final MTD: </span>
-          <span class="govuk-body">{{ calculationResult.effectiveDates.mtd.data }}</span>
-          <span class="govuk-body"> ({{ calculationResult.effectiveDates.mtd.metadata.message }})</span>
+          <span class="govuk-body govuk-!-font-weight-bold">MTD: </span>
+          <span class="govuk-body">{{ breakdownObj.finalMtdBreakdown }}</span>
         </p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p>
           <span class="govuk-body govuk-!-font-weight-bold">ETD: </span>
-          <span class="govuk-body">{{  calculationResult.etd.data }}</span>
-          <span class="govuk-body"> ({{ calculationResult.etd.metadata.message }})</span>
+          <span class="govuk-body">{{ breakdownObj.etdBreakdown }}</span>
         </p>
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
         <p>
           <span class="govuk-body govuk-!-font-weight-bold">LTD: </span>
-          <span class="govuk-body">{{  calculationResult.ltd.data }}</span>
-          <span class="govuk-body"> ({{ calculationResult.ltd.metadata.message }})</span>
+          <span class="govuk-body">{{ breakdownObj.ltdBreakdown }}</span>
         </p>
       </div>
     </div>
