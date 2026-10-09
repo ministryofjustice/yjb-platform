@@ -122,7 +122,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#release-dates').text()).toContain('Sunday 3093-01-01')
+        expect($('#release-dates').text()).toContain('Sunday, 3093-01-01')
       })
   })
 

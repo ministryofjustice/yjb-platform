@@ -6,16 +6,16 @@ describe('calculationResultPresentent', () => {
   const { breakdownObj, termDates, resultDates } = new CalculationResultPresentent(sampleCalculationResult).prensent()
 
   it('formats the term SLED and MTD from their metadata', () => {
-    expect(termDates.sled).toBe('Friday 2027-05-28')
-    expect(termDates.mtd).toBe('Saturday 2026-12-12')
+    expect(termDates.sled).toBe('Friday, 2027-05-28')
+    expect(termDates.mtd).toBe('Saturday, 2026-12-12')
   })
 
   it('formats the result dates as day of the week and date', () => {
     expect(resultDates).toEqual({
-      sled: 'Thursday 2027-05-13',
-      finalMtd: 'Friday 2026-11-27',
-      etd: 'Tuesday 2026-10-27',
-      ltd: 'Sunday 2026-12-27',
+      sled: 'Thursday, 2027-05-13',
+      finalMtd: 'Friday, 2026-11-27',
+      etd: 'Tuesday, 2026-10-27',
+      ltd: 'Sunday, 2026-12-27',
     })
   })
 
