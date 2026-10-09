@@ -36,7 +36,7 @@ export default class DtoParseResult {
       if (result.success) {
         this.data[formFieldPropertyName] = result.data
       } else {
-        this.errors.push({field: formFieldName, message: result.error.issues[0].message})
+        this.errors.push({ field: formFieldName, message: result.error.issues[0].message })
       }
     }
   }

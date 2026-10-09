@@ -13,7 +13,7 @@ import {
   ValidationErrorMessages,
 } from '@yjb-platform/shared-types'
 import YjbApiClient from '../data/yjbApi'
-import DtoParseResult, {FieldError, ParsedDtoForm} from "./helpers/dtoParseResult";
+import DtoParseResult, { FieldError, ParsedDtoForm } from './helpers/dtoParseResult'
 
 export type { FieldError, ParsedDtoForm }
 
