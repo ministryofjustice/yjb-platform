@@ -2,32 +2,164 @@ openapi: 3.0.4
 info:
   title: Prototype API
   description: |
-    This is a draft proposed API footprint for new AssetPlus API endpoints, created solely to make it easier to discuss the current proposed user flows with stakeholders. It is not intended to be a final specification, and should not be used as a reference for implementation.
+    This is a draft proposed API footprint for new AssetPlus API endpoints, created solely to make it easier to discuss the current recommended user flow with stakeholders. It is not intended to be a final specification, and should not be used as a reference for implementation.
 
     > **⚠️ Please note that this spec is an illustrative draft of pseudocode, not a final spec.**
 
     Some commons terms will be used here that might not be familiar to all readers:
 
-    - CYPID: Current Young Person Identifier, the current unique identifier for the child within AssetPlus
+    - YPID: YJAF Young Person Identifier, the unique identifier for a child within AssetPlus. This is a numeric string and is currently the identifier that will be used to discuss AssetPlus stages for a child.
+    - CYPID: Current Young Person Identifier, the current unique identifier for the child within a local authority's CMS. When used in an API, this must be provided as an uncertain OYPID (see below) with a 2-letter YJS code attached.
+    - OYPID: Original Young Person Identifier, the original unique identifier for the child within a local authority's CMS plus a 2-letter YJS code. This is a unique identifier across Youth Justice, reflecting the first CYPID that was allocated to a child and a note of which local authority allocated it.
+    
+      This ID allows the linking of records of children who move between YJSs or have looked-after status placed out of area and assign data to the YJS or local authority responsible for them at different times.
+
+      - When the OYPID is known for certain, it will be a CYPID, a local authority code and `-LAC`, for example `111AZ-AA-LAC`, where `111AZ` is the CYPID and `AA` is the local authority code.
+      - When the OYPID is uncertain, it will be a CYPID and a local authority code, without the `-LAC` suffix, for example `111AZ-AA`, where `111AZ` is the CYPID and `AA` is the local authority code.
+      - When the OYPID and the local authority are unknown, it will be a CYPID and a local authority code of `XX`. This allows for searching when a CYPID is known but the originating local authority is not.
     - SUI: A “Single Unique Identifier” or “Consistent Identifier”, a unique identifier for children in the UK, as provided for in [section 16LC of the Children Act 2004](https://www.legislation.gov.uk/ukpga/2004/31/section/16LC), as amended by [section 4 of the Children's Wellbeing and Schools Act 2026](https://www.legislation.gov.uk/ukpga/2026/21/section/4). This is likely to be a child’s NHS Number
-    - PNCID: Police National Computer identifier
+    - PNCID: Police National Computer identifier, in the format `YYYY/NNNNNNNA`, where `YYYY` is the year the individual was first recorded for an offence and `NNNNNNN` is a 7-digit serial part and `A` is a letter. Example: `2024/0236206A`. The dummy value `0000/0000000A` will lead to a 400 Bad Request response from any API here. In `GET` requests, the slash must be URL-encoded as `%2F`, for example `2024%2F0236206A`.
 
     It might also be useful for readers to be familiar with the [Person Standard](https://github.com/SocialCareData/person-standard) from [Data Standards for Social Care](https://github.com/SocialCareData/person-standard), sponsored by the Department for Education and the Department of Health and Social Care.
-  version: 0.0.1
+  version: 0.0.2
 
 servers: []
 
-tags:
-  - name: Flow1
-    description: Endpoints for proposed user flow №1
-  - name: Flow2
-    description: Endpoints for proposed user flow №2
+tags: []
 
 paths:
-  /flow1/create:
+  /children:
+    get:
+      summary: Retrieve a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address)
+      description: |
+        This endpoint retrieves a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address). The response will be an array of `MinimalChild` objects, which may be empty if no matching records are found.
+
+         **Note:** Several parameters here contain personally-identifiable information and should not be sent in the querystring. If passing any of the following parameters, use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body. This applies to `family_name`, `given_names`, `date_of_birth` and `postcode`. If any of these parameters is sent in the querystring, a `400 Bad Request` response will be returned.
+      parameters:
+        - in: query
+          name: oypid
+          schema:
+            type: string
+          description: An Original Young Person Identifier (OYPID) of the child.
+        - in: query
+          name: sui
+          schema:
+            type: string
+          description: The Single Unique Identifier (SUI) of the child.
+        - in: query
+          name: pncid
+          schema:
+            type: string
+          description: The Police National Computer identifier (PNCID) of the child.
+        - in: header
+          name: family_name
+          schema:
+            type: string
+          description: The family name (surname) of the child. **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body.
+        - in: header
+          name: given_names
+          schema:
+            type: string
+          description: The given names (first and middle names) of the child. **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body.
+        - in: header
+          name: date_of_birth
+          schema:
+            type: string
+            format: date
+          description: The date of birth of the child, provided as an [ISO 8601](https://www.w3.org/QA/Tips/iso-date) formatted date of birth (`YYYY-MM-DD`). **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body.
+        - in: header
+          name: date_of_birth_accuracy
+          schema:
+            type: string
+            enum: [
+              "AAA", "AAE", "AAU", "AEA", "AEE", "AEU", "AUA", "AUE", "AUU",
+              "EAA", "EAE", "EAU", "EEA", "EEE", "EEU", "EUA", "EUE", "EUU",
+              "UAA", "UAE", "UAU", "UEA", "UEE", "UEU", "UUA", "UUE", "UUU" ]
+          description: |
+            Optionally indicates which parts of the date are known to be accurate (`A`), estimated (`E`) or unknown (`U`).
+
+            This should be provided as a string of three characters, where the first character indicates the accuracy of the day, the second character indicates the accuracy of the month, and the third character indicates the accuracy of the year. For example, `AAU` indicates that the day and month are known to be accurate, but the year is unknown.
+
+            This aligns with the FHIR Extension [“Date Accuracy Indicator”](https://hl7.org/fhir/extension-datetime-accuracy.html), which is used in the FHIR UK Core [Person.dateOfBirth](https://www.datadictionary.nhs.uk/data_elements/person_date_of_birth.html) data element.
+        - in: header
+          name: postcode
+          schema:
+            type: string
+          description: The postal code of the child's address. **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body.
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MinimalChild"
+        '400':
+          description: |
+            Bad request
+
+  /children/search:
+    post:
+      summary: Search for a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address)
+      description: |
+        This endpoint searches for a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address). The response will be an array of `MinimalChild` objects, which may be empty if no matching records are found.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oypid:
+                  type: string
+                  description: An Original Young Person Identifier (OYPID) of the child.
+                sui:
+                  type: string
+                  description: The Single Unique Identifier (SUI) of the child.
+                pncid:
+                  type: string
+                  description: The Police National Computer identifier (PNCID) of the child.
+                family_name:
+                  type: string
+                  description: The family name (surname) of the child.
+                given_names:
+                  type: string
+                  description: The given names (first and middle names) of the child.
+                date_of_birth:
+                  type: string
+                  format: date
+                  description: The date of birth of the child, provided as an [ISO 8601](https://www.w3.org/QA/Tips/iso-date) formatted date of birth (`YYYY-MM-DD`).
+                date_of_birth_accuracy:
+                  type: string
+                  enum: [
+                    "AAA", "AAE", "AAU", "AEA", "AEE", "AEU", "AUA", "AUE", "AUU",
+                    "EAA", "EAE", "EAU", "EEA", "EEE", "EEU", "EUA", "EUE", "EUU",
+                    "UAA", "UAE", "UAU", "UEA", "UEE", "UEU", "UUA", "UUE", "UUU" ]
+                  description: |
+                    Optionally indicates which parts of the date are known to be accurate (`A`), estimated (`E`) or unknown (`U`).
+
+                    This should be provided as a string of three characters, where the first character indicates the accuracy of the day, the second character indicates the accuracy of the month, and the third character indicates the accuracy of the year. For example, `AAU` indicates that the day and month are known to be accurate, but the year is unknown.
+
+                    This aligns with the FHIR Extension [“Date Accuracy Indicator”](https://hl7.org/fhir/extension-datetime-accuracy.html), which is used in the FHIR UK Core [Person.dateOfBirth](https://www.datadictionary.nhs.uk/data_elements/person_date_of_birth.html) data element.
+                postcode:
+                  type: string
+                  description: The postal code of the child's address.
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MinimalChild"
+        '400':
+          description: |
+            Bad request
+
+  /children/{ypid}/stages/:
     put:
-      tags:
-        - Flow1
       summary: Create a new AssetPlus record-stub
       description: |
         This endpoint creates a new AssetPlus record-stub. The request body must include the base demographic information to be able to disambiguate a child — either a CYPID or a SUI. The response will include a unique AssetPlus record identifier, which can be used to retrieve or update the record in subsequent API calls.
@@ -69,7 +201,7 @@ paths:
           description: |
             Bad request
 
-            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (CYPID, SUI or PNCID).
+            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (OYPID, SUI or PNCID).
 
             Alternatively, some other unexpected error was found in the request data.
           content:
@@ -395,7 +527,7 @@ components:
         properties:
           identifierType:
             type: string
-            description: The type of identifier, for example "CYPID", "SUI" or "PNCID". For supported identifier types, this may be given as an alternative to using the `system` property to provide a URI for the identifier system.
+            description: The type of identifier, for example "OYPID", "SUI" or "PNCID". For supported identifier types, this may be given as an alternative to using the `system` property to provide a URI for the identifier system.
           system:
             type: string
             format: uri
@@ -408,13 +540,13 @@ components:
     MinimalChild:
       type: object
       description: |
-        A subset of the properties of a child, including at least 1 identifier (CYPID, SUI or PNCID) and, optionally, some combination of name, date of birth and address.
+        A subset of the properties of a child, including at least 1 identifier (OYPID, SUI or PNCID) and, optionally, some combination of name, date of birth and address.
 
         These properties are aligned to the [Person Standard](https://github.com/SocialCareData/person-standard) from [Data Standards for Social Care](https://github.com/SocialCareData/person-standard), sponsored by the Department for Education and the Department of Health and Social Care.
       properties:
         Identifier:
           $ref: "#/components/schemas/IdentifierArray"
-          description: "An array of identifiers for the child. At least one identifier must be provided: either a CYPID, a SUI or a PNCID."
+          description: "An array of identifiers for the child. At least one identifier must be provided: either an OYPID, a SUI or a PNCID."
         Name:
           $ref: "#/components/schemas/Name"
         DateOfBirth:
