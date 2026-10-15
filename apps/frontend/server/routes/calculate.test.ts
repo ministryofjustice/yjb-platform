@@ -63,9 +63,19 @@ describe('GET /calculate', () => {
         })
     })
 
+    it('a remand start date of 20/10/2026 when queryString remandStartDate=20/10/2026 is passed', () => {
+      return request(app)
+        .get('/calculate?remandStartDate=20/10/2026')
+        .expect(res => {
+          const $ = cheerio.load(res.text)
+          expect($('#remand-start-date-day').attr('value')).toContain('20')
+          expect($('#remand-start-date-month').attr('value')).toContain('10')
+          expect($('#remand-start-date-year').attr('value')).toContain('2026')
+        })
+    })
+
     const fieldTestCases = [
       ['11', '#sentence-length-months', 'sentenceLengthMonths'],
-      ['73', '#remand-days', 'remandDays'],
       ['654', '#tagged-bail-days', 'taggedBailDays'],
     ]
     it.each(fieldTestCases)('%s in field %s when queryString %s is passed', (value, elementId, queryString) => {
@@ -248,7 +258,8 @@ describe('POST /calculate', () => {
     const validResult: ValidationResult = {
       isValid: true,
       parsedInput: {
-        remandDays: 33,
+        remandStartDate: new Date(Date.UTC(2032, 11, 20)),
+        remandStartDateString: '20/12/2032',
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
         sentenceDate: new Date('01/22/2033'),
@@ -268,7 +279,9 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('.govuk-back-link').prop('href')).toContain(`remandDays=${validResult.parsedInput.remandDays}`)
+        expect($('.govuk-back-link').prop('href')).toContain(
+          `remandStartDate=${validResult.parsedInput.remandStartDateString}`,
+        )
       })
   })
 

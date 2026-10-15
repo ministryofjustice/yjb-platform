@@ -8,7 +8,7 @@ import {
   buildfinalDatesObj,
   AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
-import { getLTDDate, getETDDate, adjustCalculation, calculateTerm } from './lib'
+import { getLTDDate, getETDDate, adjustCalculation, calculateTerm, calculateRemandDays } from './lib'
 
 export default function calculateDTOSentence(inputSentence: InputSentences): OutputCalculation {
   const outputCalculation: OutputCalculation = {
@@ -18,6 +18,7 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
     ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, new Date(0)),
     etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, new Date(0)),
     unusedAdjustmentDays: 0,
+    remandPeriodDays: 0,
   }
 
   // get all term dates, for now it will always be one
@@ -35,15 +36,26 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
   }
 
   // apply adjustments
-  if (inputSentence.remandAdjustment && inputSentence.remandAdjustment.days > 0) {
-    const adjustmentResult: AdjustmentResult = adjustCalculation(outputCalculation, inputSentence.remandAdjustment)
+  // remand arrives as a start date only, so its days are worked out from the sentence start
+  const { remandAdjustment, taggedBailAdjustment } = inputSentence
+  const remandDays = remandAdjustment
+    ? calculateRemandDays(inputSentence.inputIndividualSentences[0].from, remandAdjustment.startDate)
+    : 0
+
+  if (remandAdjustment && remandDays > 0) {
+    const adjustmentResult: AdjustmentResult = adjustCalculation(outputCalculation, remandAdjustment, remandDays)
     outputCalculation.effectiveDates = adjustmentResult.newEffectiveDates
     outputCalculation.effectiveDatesPastAdjustments.push(adjustmentResult.newRecordOfAdjustment)
     outputCalculation.unusedAdjustmentDays = adjustmentResult.unusedAdjustmentDays
+    outputCalculation.remandPeriodDays = remandDays
   }
 
-  if (inputSentence.taggedBailAdjustment && inputSentence.taggedBailAdjustment.days > 0) {
-    const adjustmentResult: AdjustmentResult = adjustCalculation(outputCalculation, inputSentence.taggedBailAdjustment)
+  if (taggedBailAdjustment && taggedBailAdjustment.days > 0) {
+    const adjustmentResult: AdjustmentResult = adjustCalculation(
+      outputCalculation,
+      taggedBailAdjustment,
+      taggedBailAdjustment.days,
+    )
     outputCalculation.effectiveDates = adjustmentResult.newEffectiveDates
     outputCalculation.effectiveDatesPastAdjustments.push(adjustmentResult.newRecordOfAdjustment)
     outputCalculation.unusedAdjustmentDays = adjustmentResult.unusedAdjustmentDays

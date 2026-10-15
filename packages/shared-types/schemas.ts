@@ -15,8 +15,7 @@ export enum ValidationErrorMessages {
 }
 
 //indivudual schemas for reuse from front and backend
-export const remandStartDateSchema = z.coerce.date().optional()
-export const remandDaysSchema = z.number().int().nonnegative()
+export const remandStartDateSchema = z.coerce.date()
 export const taggedBailDaysSchema = z.number().int().nonnegative()
 export const sentenceFrom = z.coerce.date()
 export const sentanceDurationMonths = z.number().int().positive()
@@ -64,7 +63,6 @@ export const inputIndividualSentenceSchema = z.object({
 
 export const remandAdjustmentSchema = z.object({
   name: z.literal(AdjustmentTypes.remand),
-  days: remandDaysSchema,
   startDate: remandStartDateSchema,
 })
 
