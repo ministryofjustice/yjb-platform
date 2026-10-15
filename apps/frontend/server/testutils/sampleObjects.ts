@@ -32,7 +32,6 @@ export const sampleCalculationResult: OutputCalculation = {
       adjustmentParameters: {
         name: 'remand',
         startDate: new Date('2026-06-14'),
-        days: 15,
       },
       pastEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
@@ -57,6 +56,7 @@ export const sampleCalculationResult: OutputCalculation = {
     },
   },
   unusedAdjustmentDays: 0,
+  remandPeriodDays: 15,
 }
 
 export const breakdownObj: calcBreakdown = {
@@ -90,7 +90,6 @@ export const sampleCalculationResult2: OutputCalculation = {
       adjustmentParameters: {
         name: 'remand',
         startDate: new Date('2026-06-14'),
-        days: 15,
       },
       pastEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
@@ -115,6 +114,7 @@ export const sampleCalculationResult2: OutputCalculation = {
     },
   },
   unusedAdjustmentDays: 0,
+  remandPeriodDays: 15,
 }
 
 export const breakdownObj2: Record<string, string> = {

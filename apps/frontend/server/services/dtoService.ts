@@ -2,7 +2,7 @@ import {
   InputIndividualSentence,
   InputSentences,
   OutputCalculation,
-  InputRemandAdjustment,
+  RemandAdjustment,
   dtoDurationMonthsSchema,
   dtoTaggedBailDaysSchema,
   sentenceDateStringSchema,
@@ -42,7 +42,7 @@ function toDateString(date: Date): string {
     .parse(date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }))
 }
 
-//this method is processing both sentence date and remand date in the same fashion
+// this method is processing both sentence date and remand date in the same fashion
 function parseDate(fieldPrefix: string, day: unknown, month: unknown, year: unknown, isOptional = false): ParsedDate {
   const parsedDateResult: ParsedDate = { errors: [] }
 
@@ -140,7 +140,7 @@ function parseDtoForm(formData: Record<string, unknown>): DtoParseResult {
 
 function constructInputSentences(parsed: ParsedDtoForm): InputSentences {
   // the API works out the days on remand from the remand start date and the sentence date
-  const remandAdjustment: InputRemandAdjustment = parsed.remandStartDate
+  const remandAdjustment: RemandAdjustment = parsed.remandStartDate
     ? { name: 'remand', startDate: parsed.remandStartDate }
     : undefined
 

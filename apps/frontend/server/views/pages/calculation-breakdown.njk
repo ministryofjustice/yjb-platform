@@ -8,7 +8,7 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/tabs/macro.njk" import govukTabs %}
 
-{% set backHref = "/calculate?remandDays=" + inputData.remandDays
+{% set backHref = "/calculate?remandStartDate=" + (inputData.remandStartDateString or "")
   + "&taggedBailDays=" + inputData.taggedBailDays
   + "&sentenceLengthMonths=" + inputData.sentenceLengthMonths
   + "&sentenceDate=" + inputData.sentenceDateString
@@ -62,7 +62,7 @@
         rows: [
           { key: { text: "Sentence date" }, value: { text: inputData.sentenceDateString } },
           { key: { text: "Sentence length" }, value: { text: inputData.sentenceLengthMonths + " months" } },
-          { key: { text: "Days spent on remand" }, value: { text: inputData.remandDays } },
+          { key: { text: "Remand start date" }, value: { text: inputData.remandStartDateString } },
           { key: { text: "Days spent on tagged bail" }, value: { text: inputData.taggedBailDays } }
         ]
       }) }}
