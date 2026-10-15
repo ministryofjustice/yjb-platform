@@ -67,15 +67,13 @@ describe('New calculation page', () => {
       expect(cheerioPage('#sentence-date').closest('fieldset').find('legend').text()).toContain('Sentence date')
     })
 
-    it('includes a remand periods fieldset containing remand and tagged bail inputs', () => {
+    it('includes a remand start date input and a tagged bail input', () => {
       const cheerioPage = renderWithCheerio()
 
-      const remandFieldset = cheerioPage('fieldset').filter((_, el) =>
-        cheerioPage(el).find('legend').text().includes('Remand periods'),
-      )
-      expect(remandFieldset.length).toBe(1)
-      expect(remandFieldset.find('#remand-days').attr('name')).toEqual('remand-days')
-      expect(remandFieldset.find('#tagged-bail-days').attr('name')).toEqual('tagged-bail-days')
+      const remandStartDate = cheerioPage('#remand-start-date')
+      expect(remandStartDate.length).toBe(1)
+      expect(remandStartDate.closest('fieldset').find('legend').text()).toContain('Remand start date (optional)')
+      expect(cheerioPage('#tagged-bail-days').attr('name')).toEqual('tagged-bail-days')
     })
 
     it('includes a length of sentence fieldset with a months input', () => {

@@ -6,9 +6,16 @@ export type FormPageObject = {
   errorSummary: { text: string; href: string }[]
   errorsByField: Record<string, string>
   sentenceDateError?: string
+  remandStartDateError?: string
 }
 
 const sentenceDateFields = ['sentence-date-day', 'sentence-date-month', 'sentence-date-year']
+const remandStartDateFields = [
+  'remand-start-date',
+  'remand-start-date-day',
+  'remand-start-date-month',
+  'remand-start-date-year',
+]
 
 export default class DtoFormPresenter {
   constructor(private readonly validationResult: ValidationResult) {}
@@ -26,6 +33,7 @@ export default class DtoFormPresenter {
       })),
       errorsByField,
       sentenceDateError: sentenceDateFields.map(field => errorsByField[field]).find(Boolean),
+      remandStartDateError: remandStartDateFields.map(field => errorsByField[field]).find(Boolean),
     }
   }
 }
