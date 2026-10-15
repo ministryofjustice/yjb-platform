@@ -131,7 +131,7 @@ describe('DtoService', () => {
         field: 'remand-start-date',
         message: ValidationErrorMessages.RemandStartDateNotBeforeSentenceDate,
       })
-      expect(result.parsedInput.remandDays).toBeUndefined()
+      expect(result.payload).toBeUndefined()
     })
 
     it('should return only correctly parsed fields', () => {
@@ -154,8 +154,6 @@ describe('DtoService', () => {
         remandStartDateYear: 1990,
         remandStartDate: new Date(Date.UTC(1990, 4, 9)),
         remandStartDateString: '09/05/1990',
-        // remand from 9 to 13 May, the day before the sentence starts
-        remandDays: 5,
       }
       expect(dtoService.validatePayload(inputData).parsedInput).toEqual(expectedParsedInput)
     })
@@ -237,12 +235,11 @@ describe('DtoService', () => {
       )
     })
 
-    it('should include remandAdjustment with the days and start date in the payload when a remand start date is provided', () => {
+    it('should send only the remand start date in the payload, for the API to work out the days', () => {
       const { payload } = dtoService.validatePayload({ ...exampleValidPayload, ...exampleRemandStartDate })
 
       expect(payload.remandAdjustment).toEqual({
         name: 'remand',
-        days: 5,
         startDate: new Date(Date.UTC(1990, 4, 9)),
       })
     })

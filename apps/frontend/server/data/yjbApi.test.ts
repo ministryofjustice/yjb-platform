@@ -37,7 +37,6 @@ describe('ExampleApiClient', () => {
         remandAdjustment: {
           name: 'remand',
           startDate: new Date('2026-06-14'),
-          days: 15,
         },
         inputIndividualSentences: [
           {
@@ -51,15 +50,12 @@ describe('ExampleApiClient', () => {
       expect(response.effectiveDates.totalNumberOfRemandAndTaggedBailDays).toEqual(0)
     })
 
-    it('should pass the remand days to the /calculations endpoint', async () => {
-      const remandDaysInput: number = 7
-
+    it('should pass the remand start date to the /calculations endpoint', async () => {
       const input: InputSentences = {
         offenderName: 'Place Holder',
         remandAdjustment: {
           name: 'remand',
-          startDate: new Date(),
-          days: remandDaysInput,
+          startDate: new Date('2026-06-14'),
         },
         inputIndividualSentences: [],
       }
@@ -67,7 +63,7 @@ describe('ExampleApiClient', () => {
       nock(config.apis.yjbApi.url)
         .post('/calculations', body => {
           expect(body).toMatchObject({
-            remandAdjustment: { days: remandDaysInput },
+            remandAdjustment: { name: 'remand', startDate: '2026-06-14T00:00:00.000Z' },
           })
           return true
         })

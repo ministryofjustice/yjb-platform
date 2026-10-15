@@ -7,8 +7,6 @@ export type ParsedDtoForm = {
   remandStartDateYear?: number
   remandStartDate?: Date
   remandStartDateString?: string
-  // derived from the remand start date and sentence date
-  remandDays?: number
   taggedBailDays?: number
   sentenceLengthMonths?: number
   sentenceDateDay?: number

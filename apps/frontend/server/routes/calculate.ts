@@ -14,9 +14,12 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
   const router = Router()
 
   router.get('/', async (req, res, _next) => {
-    const { sentenceLengthMonths, remandDays, taggedBailDays, sentenceDate } = req.query
+    const { sentenceLengthMonths, taggedBailDays, sentenceDate, remandStartDate } = req.query
     const [sentenceDateDay, sentenceDateMonth, sentenceDateYear] = sentenceDate
       ? (sentenceDate as string).split('/')
+      : []
+    const [remandStartDateDay, remandStartDateMonth, remandStartDateYear] = remandStartDate
+      ? (remandStartDate as string).split('/')
       : []
 
     const formPageObject: FormPageObject = {
@@ -25,11 +28,13 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       isValid: true,
       formData: {
         sentenceLengthMonths,
-        remandDays,
         taggedBailDays,
         sentenceDateDay,
         sentenceDateMonth,
         sentenceDateYear,
+        remandStartDateDay,
+        remandStartDateMonth,
+        remandStartDateYear,
       },
       errorSummary: [],
       errorsByField: {},
