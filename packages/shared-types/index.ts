@@ -52,13 +52,21 @@ export type EffectiveDates = {
   TUSED: Date
 }
 
+export type termDatesObj = {
+  data: Date
+  metadata: {
+    dayOfWeek: string
+    message: string
+  }
+}
+
 // each term corresponds to one line on the sheet or one sentence
 export type CalculatedTerm = {
   inputSentence: InputIndividualSentence
   totalDaysInTerm: number
   totalDaysMTD: number
-  sled: Date
-  mtd: Date
+  sled: termDatesObj
+  mtd: termDatesObj
 }
 
 export type RecordOfAdjustment = {
@@ -84,8 +92,12 @@ export type AppendOnlyArray<T> = {
 
 export type calcBreakdown = {
   custodialPeriodBreakdown: string,
-  mtdBreadown: string,
-  remandPeriodBreakdown: string
+  remandPeriodBreakdown: string,
+  mtdBreakdown: string,
+  finalSledBreakdown: string,
+  finalMtdBreakdown: string,
+  etdBreakdown: string,
+  ltdBreakdown: string
 }
 
 // zod schemas mirroring the input types above, for validating untrusted request

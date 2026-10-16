@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio'
 import { OutputCalculation } from '@yjb-platform/shared-types'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
-import { sampleCalculationResult, breakdownObj } from '../../testutils/sampleObjects'
+import { sampleCalculationResult, breakdownObj, termDates, resultDates } from '../../testutils/sampleObjects'
 import { ParsedDtoForm } from '../../services/dtoService'
 
 const env = createNunjucksTestSetup()
@@ -47,7 +47,7 @@ describe('Calculation breakdown page', () => {
 
     it('includes a Start a new calculation button', () => {
       const cheerioPage = renderWithCheerio()
-      const link = cheerioPage('#new-calculation-link-a')
+      const link = cheerioPage('#new-calculation-link-b')
       expect(link.text()).toBe('Start a new DTO calculation')
       expect(link.prop('href')).toBe('/calculate')
     })
@@ -57,23 +57,23 @@ describe('Calculation breakdown page', () => {
     const expectedCalcValues: string[][] = [
       ['Term length', '11 months (334 days)'],
       ['Custodial period', '167 days'],
-      ['MTD', 'Sat Dec 12 2026'],
+      ['MTD', 'Saturday 2026-12-12'],
       ['Remand period', '15 days'],
-      ['SLED', 'Thu May 13 2027'],
-      ['Final MTD', 'Fri Nov 27 2026'],
-      ['LTD', 'Sun Dec 27 2026'],
-      ['ETD', 'Tue Oct 27 2026'],
+      ['SLED', 'Thursday 2027-05-13'],
+      ['Final MTD', 'Friday 2026-11-27'],
+      ['LTD', 'Sunday 2026-12-27'],
+      ['ETD', 'Tuesday 2026-10-27'],
     ]
 
     const expectedExplanationValues: string[][] = [
       ['Term length', ', from 2026-06-29 to 2027-05-13'],
       ['Custodial period', '(334 divided by 2)'],
-      ['MTD', '167 days from the beginning of the sentence (29 June 2026)'],
+      ['MTD', 'Saturday, 12 December 2026, 167 days from the beginning of the sentence (2026-06-29)'],
       ['Remand period', '(14 June 2026 to 28 June 2026)'],
-      ['SLED', '(2027-05-28 minus 15 days)'],
-      ['Final MTD', '(2026-12-12 minus 15 days)'],
-      ['LTD', '(1 month away from the MTD for DTOs with terms from 8 to 18 months)'],
-      ['ETD', '(1 month away from the MTD for DTOs with terms from 8 to 18 months)'],
+      ['SLED', 'Thursday, 13 May 2027, 2027-05-28 minus 15 days'],
+      ['Final MTD', 'Friday, 27 November 2026, 2026-12-12 minus 15 days'],
+      ['LTD', 'Sunday, 27 December 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
+      ['ETD', 'Tuesday, 27 October 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
     ]
 
     describe('your answers section', () => {
@@ -125,61 +125,9 @@ describe('Calculation breakdown page', () => {
       })
     })
 
-    describe('Calculation outputs A', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj })
-
-      it('correctly renders the Calculation Summary panel values', () => {
-        const summaryData: Record<string, string> = {}
-        cheerioPage('#release-dates .govuk-summary-list__row').each((_, el) => {
-          const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
-          summaryData[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
-        })
-
-        expect(summaryData).toMatchObject({
-          ETD: expect.stringContaining('Tue Oct 27 2026'),
-          MTD: expect.stringContaining('Fri Nov 27 2026'),
-          LTD: expect.stringContaining('Sun Dec 27 2026'),
-          SLED: expect.stringContaining('Thu May 13 2027'),
-        })
-      })
-
-      it.each(expectedCalcValues)('correctly renders the calculation values for %s', (_key: string, value: string) => {
-        expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
-      })
-
-      it.each(expectedExplanationValues)(
-        'correctly renders the calculation explanations for %s',
-        (_key: string, value: string) => {
-          expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
-        },
-      )
-
-      // TODO: it(renders the explanation for collapsed sentences correctly)
-      // it('renders the explanation for collapsed sentences correctly', () => {
-      //   const collapsedDates: EffectiveDates = {
-      //     totalNumberOfRemandAndTaggedBailDays: 4000,
-      //       sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-03-24'), new Date('2027-05-28'), 4000),
-      //       mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2025-11-27'), new Date('2026-12-12'), 4000),
-      //       TUSED: new Date('1970-01-01'),
-      //   }
-      //
-      //   const collapsedCalculationResult: OutputCalculation = {
-      //     ...sampleCalculationResult,
-      //     effectiveDates: collapsedDates
-      //   }
-      //   const cheerioPage = renderWithCheerio({ collapsedCalculationResult, breakdownObj })
-      //   const expectedExplanation: string = "(Date was collapsed to sentence day, with 64 unused days )"
-      //   const foundText = cheerioPage('#detailed-breakdown').text()
-      //   // expect(cheerioPage('#detailed-breakdown').text()).toContain(expectedExplanation)
-      //   expect(foundText).toContain(expectedExplanation)
-      //
-      // })
-    })
-
     describe('Calculation outputs B', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj })
+      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj, termDates, resultDates })
 
       const calculationDataRows: Record<string, string> = {}
       cheerioPage('#calculation-results-tab .govuk-summary-list__row').each((_, el) => {
