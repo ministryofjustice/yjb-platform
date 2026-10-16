@@ -6,16 +6,17 @@ import {
   AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
 import { buildTransferDatesObj, buildfinalDatesObj } from '../services/sentenceCalculator/helpers/dateObjects'
-import { parseInputSentences, formatOutputCalculation } from './sentenceCalculatorMapper'
+import { formatOutputCalculation } from './sentenceCalculatorMapper'
+import { inputSentencesSchema } from '@yjb-platform/shared-types'
 
-describe('parseInputSentences', () => {
+describe('inputSentencesSchema', () => {
   it('deserializes date strings into Date objects', () => {
     const body = {
       offenderName: 'Test Offender',
       inputIndividualSentences: [{ from: '2026-06-29', durationMonths: 11 }],
     }
 
-    const result = parseInputSentences(body)
+    const result =  inputSentencesSchema.parse(body)
 
     expect(result.inputIndividualSentences[0].from).toEqual(new Date('2026-06-29'))
   })
@@ -27,7 +28,7 @@ describe('parseInputSentences', () => {
       inputIndividualSentences: [{ from: '2026-06-29', durationMonths: 11 }],
     }
 
-    const result = parseInputSentences(body)
+    const result = inputSentencesSchema.parse(body)
 
     expect(result.remandAdjustment).toEqual({
       name: AdjustmentTypes.remand,
@@ -42,7 +43,7 @@ describe('parseInputSentences', () => {
       inputIndividualSentences: [{ from: '2026-06-29', durationMonths: 11 }],
     }
 
-    expect(() => parseInputSentences(body)).toThrow(ZodError)
+    expect(() => inputSentencesSchema.parse(body)).toThrow(ZodError)
   })
 
   it('throws a ZodError when a required field is missing', () => {
@@ -50,7 +51,7 @@ describe('parseInputSentences', () => {
       inputIndividualSentences: [{ from: '2026-06-29', durationMonths: 11 }],
     }
 
-    expect(() => parseInputSentences(body)).toThrow(ZodError)
+    expect(() => inputSentencesSchema.parse(body)).toThrow(ZodError)
   })
 
   it('throws a ZodError when inputIndividualSentences is empty', () => {
@@ -59,7 +60,7 @@ describe('parseInputSentences', () => {
       inputIndividualSentences: [],
     }
 
-    expect(() => parseInputSentences(body)).toThrow(ZodError)
+    expect(() => inputSentencesSchema.parse(body)).toThrow(ZodError)
   })
 })
 

@@ -1,8 +1,4 @@
-import { inputSentencesSchema, InputSentences, OutputCalculation } from '@yjb-platform/shared-types'
-
-export function parseInputSentences(body: unknown): InputSentences {
-  return inputSentencesSchema.parse(body)
-}
+import { OutputCalculation } from '@yjb-platform/shared-types'
 
 function dateOnlyReplacer(this: Record<string, unknown>, key: string, value: unknown): unknown {
   const raw = this[key]
