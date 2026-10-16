@@ -57,6 +57,7 @@ describe('SentenceController', () => {
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
     }
     const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
@@ -67,7 +68,6 @@ describe('SentenceController', () => {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: AdjustmentTypes.remand,
-        days: 15,
         startDate: new Date('2026-06-14'),
       },
       inputIndividualSentences: [
@@ -121,6 +121,7 @@ describe('SentenceController', () => {
         },
       ],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 15,
     }
     const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
@@ -184,6 +185,7 @@ describe('SentenceController', () => {
         },
       ],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
     }
     const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
@@ -194,8 +196,7 @@ describe('SentenceController', () => {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: AdjustmentTypes.remand,
-        days: 10,
-        startDate: new Date('2026-06-14'),
+        startDate: new Date('2026-06-19'),
       },
       taggedBailAdjustment: {
         name: AdjustmentTypes.taggedBail,
@@ -272,6 +273,7 @@ describe('SentenceController', () => {
         },
       ],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 10,
     }
     const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)

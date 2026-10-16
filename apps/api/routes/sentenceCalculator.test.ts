@@ -83,6 +83,7 @@ describe('POST /calculations', () => {
       },
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
     }
 
     return request(app).post('/calculations').send(input).expect(200, output)
@@ -93,7 +94,6 @@ describe('POST /calculations', () => {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: 'remand',
-        days: 15,
         startDate: new Date('2026-06-14'),
       },
       inputIndividualSentences: [
@@ -162,12 +162,12 @@ describe('POST /calculations', () => {
         },
       },
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 15,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
           adjustmentParameters: {
             name: 'remand',
-            days: 15,
             startDate: '2026-06-14',
           },
           pastEffectiveDates: {
@@ -197,12 +197,12 @@ describe('POST /calculations', () => {
     return request(app).post('/calculations').send(input).expect(200, output)
   })
 
-  it('returns 2026-06-19 remand start date for sentence starting on 2026-06-29 with 10 days of remand, which has no initial start date', () => {
+  it('returns 10 days of remand for a remand start date of 2026-06-19 and a sentence starting on 2026-06-29', () => {
     const inputSentence = {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: 'remand',
-        days: 10,
+        startDate: '2026-06-19',
       },
       taggedBailAdjustment: {
         name: 'taggedBail',
@@ -279,7 +279,6 @@ describe('POST /calculations', () => {
           adjustmentReason: 'remand',
           adjustmentParameters: {
             name: 'remand',
-            days: 10,
             startDate: '2026-06-19',
           },
           pastEffectiveDates: {
@@ -332,6 +331,7 @@ describe('POST /calculations', () => {
         },
       ],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 10,
     }
 
     return request(app).post('/calculations').send(inputSentence).expect(200, expectedOutputCalculation)

@@ -12,7 +12,6 @@ const remandInput: InputSentences = {
   offenderName: 'Test Offender',
   remandAdjustment: {
     name: AdjustmentTypes.remand,
-    days: 15,
     startDate: new Date('2026-06-14'),
   },
   inputIndividualSentences: [
@@ -41,7 +40,6 @@ const remandAndTaggedBailInput: InputSentences = {
   offenderName: 'Test Offender',
   remandAdjustment: {
     name: AdjustmentTypes.remand,
-    days: 15,
     startDate: new Date('2026-06-14'),
   },
   taggedBailAdjustment: {
@@ -72,8 +70,8 @@ describe('calculateDTOSentence', () => {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: AdjustmentTypes.remand,
-        days: 0,
-        startDate: new Date(),
+        // remand starting on the sentence date is 0 days, so no adjustment is applied
+        startDate: new Date('2026-06-29'),
       },
       taggedBailAdjustment: {
         name: AdjustmentTypes.taggedBail,
@@ -119,6 +117,7 @@ describe('calculateDTOSentence', () => {
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
     }
 
     const noRemandOutput: OutputCalculation = calculateDTOSentence(noRemandInput)
@@ -157,6 +156,7 @@ describe('calculateDTOSentence', () => {
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 15,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -207,6 +207,7 @@ describe('calculateDTOSentence', () => {
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'taggedBail',
@@ -257,6 +258,7 @@ describe('calculateDTOSentence', () => {
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-23')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-23')),
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 15,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -300,7 +302,6 @@ describe('calculateDTOSentence', () => {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: AdjustmentTypes.remand,
-        days: 50, // smaller then mtd
         startDate: new Date('2026-04-12'), // 50 days prior sentence beginning
       },
       inputIndividualSentences: [
@@ -342,6 +343,7 @@ describe('calculateDTOSentence', () => {
       ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 50,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -366,7 +368,6 @@ describe('calculateDTOSentence', () => {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: AdjustmentTypes.remand,
-        days: 70, // bigger than mtd but less than sled
         startDate: new Date('2026-03-23'), // 70 days prior to sentence beginning
       },
       inputIndividualSentences: [
@@ -414,6 +415,7 @@ describe('calculateDTOSentence', () => {
       ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       unusedAdjustmentDays: 9,
+      remandPeriodDays: 70,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -438,7 +440,6 @@ describe('calculateDTOSentence', () => {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: AdjustmentTypes.remand,
-        days: 125, // bigger then mtd and seld
         startDate: new Date('2026-01-27'), // 125 days prior sentence beginning
       },
       inputIndividualSentences: [
@@ -492,6 +493,7 @@ describe('calculateDTOSentence', () => {
       ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       unusedAdjustmentDays: 64,
+      remandPeriodDays: 125,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -515,7 +517,6 @@ describe('calculateDTOSentence', () => {
       offenderName: 'Test Offender',
       remandAdjustment: {
         name: AdjustmentTypes.remand,
-        days: 50, // smaller then mtd
         startDate: new Date('2026-04-12'), // 50 days prior sentence beginning
       },
       taggedBailAdjustment: {
@@ -567,6 +568,7 @@ describe('calculateDTOSentence', () => {
       ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       unusedAdjustmentDays: 9,
+      remandPeriodDays: 50,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',

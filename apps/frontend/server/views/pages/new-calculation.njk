@@ -63,8 +63,7 @@
             errorMessage: errorsByField['sentence-length-months'] and { text: errorsByField['sentence-length-months'] }
           }) }}
         {% endcall %}
-      </div>
-      <div class="govuk-grid-column-one-third">
+
         {{ govukDateInput({
           id: 'sentence-date',
           namePrefix: "sentence-date",
@@ -85,40 +84,48 @@
           ]
         }) }}
 
-        {% call govukFieldset({
-          legend: {
-            text: "Remand periods (days)",
-            classes: "govuk-fieldset__legend--s"
-          }
-        }) %}
 
-          <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-half">
-              {{ govukInput({
-                label: {
-                  text: "Remand"
-                },
-                id: "remand-days",
-                name: "remand-days",
-                value: formData.remandDays,
-                errorMessage: errorsByField['remand-days'] and { text: errorsByField['remand-days'] }
-              }) }}
-            </div>
+        {# Commention out for now
+        {{ govukInput({
+          label: {
+            text: "Remand"
+          },
+          id: "remand-days",
+          name: "remand-days",
+          value: formData.remandDays,
+          errorMessage: errorsByField['remand-days'] and { text: errorsByField['remand-days'] }
+        }) }} #}
 
-            <div class="govuk-grid-column-one-half">
-              {{ govukInput({
-                label: {
-                  text: "Tagged bail"
-                },
-                id: "tagged-bail-days",
-                name: "tagged-bail-days",
-                value: formData.taggedBailDays,
-                errorMessage: errorsByField['tagged-bail-days'] and { text: errorsByField['tagged-bail-days'] }
-              }) }}
-            </div>
-          </div>
+         {{ govukDateInput({
+          id: 'remand-start-date',
+          namePrefix: "remand-start-date",
+          fieldset: {
+            legend: {
+              text: "Remand start date (optional)",
+              classes: "govuk-fieldset__legend--s"
+            }
+          },
+          hint: {
+            text: "Leave blank if no time spent on remand"
+          },
+          errorMessage: remandStartDateError and { text: remandStartDateError },
+          items: [
+            { name: 'day', value: formData.remandStartDateDay, error: errorsByField['remand-start-date-day'] or false },
+            { name: 'month', value: formData.remandStartDateMonth, error: errorsByField['remand-start-date-month'] or false },
+            { name: 'year', value: formData.remandStartDateYear, error: errorsByField['remand-start-date-year'] or false }
+          ]
+        }) }}
 
-        {% endcall %}
+
+      {{ govukInput({
+        label: {
+          text: "Tagged bail"
+        },
+        id: "tagged-bail-days",
+        name: "tagged-bail-days",
+        value: formData.taggedBailDays,
+        errorMessage: errorsByField['tagged-bail-days'] and { text: errorsByField['tagged-bail-days'] }
+      }) }}
       </div>
     </div>
 

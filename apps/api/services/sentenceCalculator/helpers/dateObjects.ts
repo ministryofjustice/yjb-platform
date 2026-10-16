@@ -31,7 +31,7 @@ function getDayOfWeek(date: Date): string {
   return date.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' })
 }
 
-function toIsoDateString(date: Date): string {
+export function toIsoDateString(date: Date): string {
   return formatDate(new UTCDate(date), 'yyyy-MM-dd')
 }
 

@@ -56,7 +56,6 @@ export const sampleCalculationResult: OutputCalculation = {
       adjustmentParameters: {
         name: 'remand',
         startDate: new Date('2026-06-14'),
-        days: 15,
       },
       pastEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
@@ -97,6 +96,7 @@ export const sampleCalculationResult: OutputCalculation = {
     },
   },
   unusedAdjustmentDays: 0,
+  remandPeriodDays: 15,
 }
 
 export const termDates = {
@@ -112,6 +112,7 @@ export const resultDates = {
 }
 
 export const breakdownObj: calcBreakdown = {
+  termLengthBreakdown: '11 months (334 days), from 29 June 2026 to 13 May 2027',
   custodialPeriodBreakdown: '(334 divided by 2)',
   remandPeriodBreakdown: '(14 June 2026 to 28 June 2026)',
   mtdBreakdown: 'Saturday, 12 December 2026, 167 days from the beginning of the sentence (2026-06-29)',
@@ -172,7 +173,6 @@ export const sampleCalculationResult2: OutputCalculation = {
       adjustmentParameters: {
         name: 'remand',
         startDate: new Date('2026-06-14'),
-        days: 15,
       },
       pastEffectiveDates: {
         totalNumberOfRemandAndTaggedBailDays: 0,
@@ -213,6 +213,7 @@ export const sampleCalculationResult2: OutputCalculation = {
     },
   },
   unusedAdjustmentDays: 0,
+  remandPeriodDays: 15,
 }
 
 export const breakdownObj2: Record<string, string> = {

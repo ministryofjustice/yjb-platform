@@ -30,15 +30,16 @@ describe('Calculation breakdown page', () => {
 
     it('passes the submitted form data to the back button', () => {
       const parsedInput: ParsedDtoForm = {
-        remandDays: 33,
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
         sentenceDate: new Date('01/22/2033'),
         sentenceDateString: '01/22/2033',
+        remandStartDate: new Date('12/20/2032'),
+        remandStartDateString: '12/20/2032',
       }
       const cheerioPage = renderWithCheerio({ inputData: parsedInput })
       const button = cheerioPage('.govuk-back-link')
-      expect(button.prop('href')).toContain(`remandDays=${parsedInput.remandDays}`)
+      expect(button.prop('href')).toContain(`remandStartDate=12/20/2032`)
       expect(button.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
       expect(button.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
       expect(button.prop('href')).toContain(`sentenceDate=01/22/2033`)
@@ -65,7 +66,7 @@ describe('Calculation breakdown page', () => {
     ]
 
     const expectedExplanationValues: string[][] = [
-      ['Term length', ', from 2026-06-29 to 2027-05-13'],
+      ['Term length', ', from 29 June 2026 to 13 May 2027'],
       ['Custodial period', '(334 divided by 2)'],
       ['MTD', 'Saturday, 12 December 2026, 167 days from the beginning of the sentence (2026-06-29)'],
       ['Remand period', '(14 June 2026 to 28 June 2026)'],
@@ -77,11 +78,12 @@ describe('Calculation breakdown page', () => {
 
     describe('your answers section', () => {
       const parsedInput: ParsedDtoForm = {
-        remandDays: 33,
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
         sentenceDate: new Date('01/22/2033'),
         sentenceDateString: '01/22/2033',
+        remandStartDate: new Date('12/20/2032'),
+        remandStartDateString: '12/20/2032',
       }
 
       it('renders the panel', () => {
@@ -101,10 +103,10 @@ describe('Calculation breakdown page', () => {
         expect(cheerioPage('.govuk-summary-card').text()).toContain(`${parsedInput.sentenceLengthMonths} months`)
       })
 
-      it('renders the remand days', () => {
+      it('renders the remand date', () => {
         const cheerioPage = renderWithCheerio({ inputData: parsedInput })
-        expect(cheerioPage('.govuk-summary-card').text()).toContain('Days spent on remand')
-        expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.remandDays.toString())
+        expect(cheerioPage('.govuk-summary-card').text()).toContain('Remand start date')
+        expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.remandStartDateString)
       })
 
       it('renders the tagged bail days', () => {
@@ -116,7 +118,7 @@ describe('Calculation breakdown page', () => {
       it('renders appropriate change answers link', () => {
         const cheerioPage = renderWithCheerio({ inputData: parsedInput })
         const changeAnswersLink = cheerioPage('.govuk-summary-card .govuk-summary-card__actions .govuk-link')
-        expect(changeAnswersLink.prop('href')).toContain(`remandDays=${parsedInput.remandDays}`)
+        expect(changeAnswersLink.prop('href')).toContain(`remandStartDate=12/20/2032`)
         expect(changeAnswersLink.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
         expect(changeAnswersLink.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
         expect(changeAnswersLink.prop('href')).toContain(`sentenceDate=01/22/2033`)

@@ -19,6 +19,10 @@ describe('calculationResultPresenter', () => {
     })
   })
 
+  it('formats the term length breakdown with the sentence start and SLED dates', () => {
+    expect(breakdownObj.termLengthBreakdown).toBe('11 months (334 days), from 29 June 2026 to 13 May 2027')
+  })
+
   it('formats the SLED and final MTD breakdowns from their metadata', () => {
     expect(breakdownObj.finalSledBreakdown).toBe('Thursday, 13 May 2027, 2027-05-28 minus 15 days')
     expect(breakdownObj.finalMtdBreakdown).toBe('Friday, 27 November 2026, 2026-12-12 minus 15 days')

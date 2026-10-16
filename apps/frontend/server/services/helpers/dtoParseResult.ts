@@ -2,7 +2,11 @@ import type { ZodType } from 'zod'
 
 // every field is optional as not all fields might parse correctly
 export type ParsedDtoForm = {
-  remandDays?: number
+  remandStartDateDay?: number
+  remandStartDateMonth?: number
+  remandStartDateYear?: number
+  remandStartDate?: Date
+  remandStartDateString?: string
   taggedBailDays?: number
   sentenceLengthMonths?: number
   sentenceDateDay?: number

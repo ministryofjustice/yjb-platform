@@ -97,6 +97,7 @@ function buildFieldFinalDatesObj(
 export function adjustCalculation(
   srcCal: Readonly<OutputCalculation>,
   inputAdjustment: Readonly<InputAdjustment>,
+  adjustmentDays: number,
 ): AdjustmentResult {
   // save existing effective dates and adjustment parameters prior to the adjustment
   const outputAdjustmentRecord: RecordOfAdjustment = {
@@ -113,20 +114,20 @@ export function adjustCalculation(
   // MTD and SLED each track their own remaining budget independently: every adjustment
   // subtracts its full day count from both, and each collapses to the sentence start
   // once its own budget is exhausted - there's no carryover from one to the other
-  const isMtdCollapsed = inputAdjustment.days >= initialMtdBudget
-  const isSledCollapsed = inputAdjustment.days >= initialSledBudget
+  const isMtdCollapsed = adjustmentDays >= initialMtdBudget
+  const isSledCollapsed = adjustmentDays >= initialSledBudget
 
   const outputEffectiveDatesMTD = isMtdCollapsed
     ? sentenceStartDate
-    : subDays(srcCal.effectiveDates.mtd.data, inputAdjustment.days)
+    : subDays(srcCal.effectiveDates.mtd.data, adjustmentDays)
 
   const outputEffectiveDatesSled = isSledCollapsed
     ? sentenceStartDate
-    : subDays(srcCal.effectiveDates.sled.data, inputAdjustment.days)
+    : subDays(srcCal.effectiveDates.sled.data, adjustmentDays)
 
   if (isMtdCollapsed) {
     // record how far past the MTD budget this adjustment went, for the audit trail
-    unusedAdjustmentDays = Math.max(0, inputAdjustment.days - initialMtdBudget)
+    unusedAdjustmentDays = Math.max(0, adjustmentDays - initialMtdBudget)
   }
 
   // the "applied" message always describes the net shift from the originally
@@ -134,7 +135,7 @@ export function adjustCalculation(
   // subDays chaining is additive, so this stays accurate across multiple adjustments
   const cumulativeAdjustmentDays = increaseTotalNumRTBDays(
     srcCal.effectiveDates.totalNumberOfRemandAndTaggedBailDays,
-    inputAdjustment.days,
+    adjustmentDays,
   )
 
   const outputNewEffectiveDates: EffectiveDates = {
@@ -163,6 +164,8 @@ export function adjustCalculation(
   }
 }
 
-export function calculateAdjustmentStart(sentenceStart: Date, adjustmentLenth: number): Date {
-  return subDays(sentenceStart, adjustmentLenth)
+// remand runs up to the day before the sentence starts, so the days on remand are
+// the calendar days between the remand start date and the sentence start date
+export function calculateRemandDays(sentenceStart: Date, remandStart: Date): number {
+  return differenceInCalendarDays(new UTCDate(sentenceStart), new UTCDate(remandStart))
 }

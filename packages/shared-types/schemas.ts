@@ -11,11 +11,11 @@ export enum ValidationErrorMessages {
   InvalidTaggedBailDays = 'Please provide a valid number of tagged bail days',
   SentenceDurationOutOfRange = 'Sentence length must be between 4 and 24 months',
   ZeroSentenceDuration = 'Sentence duration cannot be 0',
+  RemandStartDateNotBeforeSentenceDate = 'Remand start date must be before the sentence date',
 }
 
 //indivudual schemas for reuse from front and backend
-export const remandStartDateSchema = z.coerce.date().optional()
-export const remandDaysSchema = z.number().int().nonnegative()
+export const remandStartDateSchema = z.coerce.date()
 export const taggedBailDaysSchema = z.number().int().nonnegative()
 export const sentenceFrom = z.coerce.date()
 export const sentanceDurationMonths = z.number().int().positive()
@@ -49,11 +49,6 @@ export const dtoDurationMonthsSchema = z.coerce
   .refine((n) => n !== 0, { error: ValidationErrorMessages.ZeroSentenceDuration })
   .positive({ error: ValidationErrorMessages.InvalidSentenceDuration })
   .pipe(sentanceDurationMonths)
-export const dtoRemandDaysSchema = z.coerce
-  .number({ error: ValidationErrorMessages.InvalidRemandDays })
-  .int({ error: ValidationErrorMessages.InvalidRemandDays })
-  .nonnegative({ error: ValidationErrorMessages.InvalidRemandDays })
-  .pipe(remandDaysSchema)
 export const dtoTaggedBailDaysSchema = z.coerce
   .number({ error: ValidationErrorMessages.InvalidTaggedBailDays })
   .int({ error: ValidationErrorMessages.InvalidTaggedBailDays })
@@ -68,7 +63,6 @@ export const inputIndividualSentenceSchema = z.object({
 
 export const remandAdjustmentSchema = z.object({
   name: z.literal(AdjustmentTypes.remand),
-  days: remandDaysSchema,
   startDate: remandStartDateSchema,
 })
 

@@ -20,20 +20,15 @@ export type InputSentences = {
   inputIndividualSentences: InputIndividualSentence[]
 }
 
-// common shape every adjustment shares
-interface BaseAdjustment {
-  name: AdjustmentTypes
-  days: number
-}
-
-export interface RemandAdjustment extends BaseAdjustment {
+// remand is sent as its start date only - the API works out the days on remand from the sentence date
+export interface RemandAdjustment {
   name: typeof AdjustmentTypes.remand
-  startDate?: Date
+  startDate: Date
 }
 
-export interface TaggedBailAdjustment extends BaseAdjustment {
+export interface TaggedBailAdjustment {
   name: typeof AdjustmentTypes.taggedBail
-  // no startDate — and TS will error if you try to read one
+  days: number
 }
 
 export type InputAdjustment = RemandAdjustment | TaggedBailAdjustment
@@ -46,6 +41,8 @@ export interface OutputCalculation {
   ltd: transferDatesObj
   etd: transferDatesObj
   unusedAdjustmentDays: number
+  // days on remand, worked out from the remand start date (in effectiveDatesPastAdjustments) and the sentence date
+  remandPeriodDays: number
 }
 
 export type EffectiveDates = {
@@ -94,6 +91,7 @@ export type AppendOnlyArray<T> = {
 }
 
 export type calcBreakdown = {
+  termLengthBreakdown: string,
   custodialPeriodBreakdown: string,
   remandPeriodBreakdown: string,
   mtdBreakdown: string,
