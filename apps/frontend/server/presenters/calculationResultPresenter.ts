@@ -1,3 +1,5 @@
+import { UTCDate } from '@date-fns/utc'
+import { format, subDays } from 'date-fns'
 import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform/shared-types'
 
 export type CalculationResultObj = {
@@ -19,8 +21,9 @@ export default class CalculationResultPresenter {
     const remandAdjustmentRecord = effectiveDatesPastAdjustments[0]
     const remandBreakdown =
       remandAdjustmentRecord?.adjustmentParameters.name === AdjustmentTypes.remand
-        ? `(${this.formatUkDate(remandAdjustmentRecord.adjustmentParameters.startDate)} to ${this.formatUkDate(
-            new Date(new Date(term.inputSentence.from).getTime() - 24 * 60 * 60 * 1000),
+        ? // remand ends the day before the sentence starts
+          `(${this.formatUkDate(remandAdjustmentRecord.adjustmentParameters.startDate)} to ${this.formatUkDate(
+            subDays(new UTCDate(term.inputSentence.from), 1),
           )})`
         : ''
 
@@ -56,7 +59,7 @@ export default class CalculationResultPresenter {
   // e.g. "Thursday 2027-05-13" - a transfer date that wasn't calculated has data 0, so its message is shown instead
   formatDayAndDate(date: Date | string | 0, metadata: DateMetadata): string {
     if (!date) return metadata.message
-    return [metadata.dayOfWeek, new Date(date).toISOString().slice(0, 10)].filter(Boolean).join(', ')
+    return [metadata.dayOfWeek, format(new UTCDate(date), 'yyyy-MM-dd')].filter(Boolean).join(', ')
   }
 
   formatUkDate(date: Date | string): string {
