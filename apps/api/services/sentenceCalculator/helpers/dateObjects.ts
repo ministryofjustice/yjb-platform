@@ -70,7 +70,7 @@ export function buildfinalDatesObj(
 }
 
 export function buildTermDatesObj(data: Date, daysFromSentenceStart: number, sentenceStart: Date): termDatesObj {
-  const sentenceStartStr = new Date(sentenceStart).toISOString().slice(0, 10)
+  const sentenceStartStr = new Date(sentenceStart).toLocaleDateString('en-GB', { timeZone: 'UTC' })
 
   return {
     data,

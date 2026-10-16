@@ -1,9 +1,9 @@
 import { DtoEligibilityStatus, OutputCalculation } from '@yjb-platform/shared-types'
-import CalculationResultPresentent from './calculationResultPresentent'
+import CalculationResultPresenter from './calculationResultPresenter'
 import { sampleCalculationResult } from '../testutils/sampleObjects'
 
 describe('calculationResultPresentent', () => {
-  const { breakdownObj, termDates, resultDates } = new CalculationResultPresentent(sampleCalculationResult).prensent()
+  const { breakdownObj, termDates, resultDates } = new CalculationResultPresenter(sampleCalculationResult).present()
 
   it('formats the term SLED and MTD from their metadata', () => {
     expect(termDates.sled).toBe('Friday, 2027-05-28')
@@ -43,12 +43,12 @@ describe('calculationResultPresentent', () => {
     }
     const result: OutputCalculation = { ...sampleCalculationResult, etd: notCalculated, ltd: notCalculated }
 
-    const { breakdownObj: notCalculatedBreakdown } = new CalculationResultPresentent(result).prensent()
+    const { breakdownObj: notCalculatedBreakdown } = new CalculationResultPresenter(result).present()
 
     expect(notCalculatedBreakdown.etdBreakdown).toBe('Not applicable for DTOs with terms less than 8 months')
     expect(notCalculatedBreakdown.ltdBreakdown).toBe('Not applicable for DTOs with terms less than 8 months')
 
-    const { resultDates: notCalculatedDates } = new CalculationResultPresentent(result).prensent()
+    const { resultDates: notCalculatedDates } = new CalculationResultPresenter(result).present()
     expect(notCalculatedDates.etd).toBe('Not applicable for DTOs with terms less than 8 months')
     expect(notCalculatedDates.ltd).toBe('Not applicable for DTOs with terms less than 8 months')
   })
@@ -60,7 +60,7 @@ describe('calculationResultPresentent', () => {
       breakdownObj: apiBreakdown,
       termDates: apiTermDates,
       resultDates: apiResultDates,
-    } = new CalculationResultPresentent(fromApi).prensent()
+    } = new CalculationResultPresenter(fromApi).present()
 
     expect(apiBreakdown).toEqual(breakdownObj)
     expect(apiTermDates).toEqual(termDates)

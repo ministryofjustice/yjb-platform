@@ -9,10 +9,10 @@ export type CalculationResutlObj = {
 
 type DateMetadata = { dayOfWeek?: string; message: string }
 
-export default class CalculationResultPresentent {
+export default class CalculationResultPresenter {
   constructor(private readonly calculationResult: OutputCalculation) {}
 
-  prensent(): CalculationResutlObj {
+  present(): CalculationResutlObj {
     const { calculatedTerms, effectiveDates, effectiveDatesPastAdjustments, etd, ltd } = this.calculationResult
     const term = calculatedTerms[0]
 

@@ -3,7 +3,7 @@ import { OutputCalculation } from '@yjb-platform/shared-types'
 import type { Services } from '../services'
 import { ValidationResult } from '../services/dtoService'
 import DtoFormPresenter, { FormPageObject } from '../presenters/dtoFormPresenter'
-import CalculationResultPresentent, { CalculationResutlObj } from '../presenters/calculationResultPresentent'
+import CalculationResultPresenter, { CalculationResutlObj } from '../presenters/calculationResultPresenter'
 
 export default function calculateRoutes({ dtoService }: Partial<Services>): Router {
   const router = Router()
@@ -41,13 +41,13 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
 
     if (validationResult.isValid) {
       const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult.payload)
-      const formatedCalculation: CalculationResutlObj = new CalculationResultPresentent(calculationResult).prensent()
+      const formattedCalculation: CalculationResutlObj = new CalculationResultPresenter(calculationResult).present()
 
       return res.render('pages/calculation-breakdown', {
         calculationResult,
         inputData: validationResult.parsedInput,
         payloadString,
-        ...formatedCalculation,
+        ...formattedCalculation,
       })
     }
 
