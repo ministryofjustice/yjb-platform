@@ -30,6 +30,7 @@ export default class CalculationResultPresenter {
     const breakdownObj: calcBreakdown = {
       custodialPeriodBreakdown: `${term.totalDaysInTerm} divided by 2${term.totalDaysInTerm % 2 ? ', rounded up' : ''}`,
       remandPeriodBreakdown: remandBreakdown,
+      mtdBreakdown: this.formatDateBreakdown(term.mtd.data, term.mtd.metadata),
       finalSledBreakdown: this.formatDateBreakdown(effectiveDates.sled.data, effectiveDates.sled.metadata),
       finalMtdBreakdown: this.formatDateBreakdown(effectiveDates.mtd.data, effectiveDates.mtd.metadata),
       etdBreakdown: this.formatDateBreakdown(etd.data, etd.metadata),

@@ -192,6 +192,7 @@ describe('POST /calculate', () => {
       .expect(res => {
         const $ = cheerio.load(res.text)
         const detailedBreakdown = $('#results-breakdown-tab').text()
+        expect(detailedBreakdown).toContain(breakdownObj.mtdBreakdown)
         expect(detailedBreakdown).toContain(breakdownObj.finalSledBreakdown)
         expect(detailedBreakdown).toContain(breakdownObj.finalMtdBreakdown)
         expect(detailedBreakdown).toContain(breakdownObj.etdBreakdown)
