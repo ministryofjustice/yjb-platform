@@ -112,7 +112,7 @@ export const resultDates = {
 }
 
 export const breakdownObj: calcBreakdown = {
-  termLengthBreakdown: '11 months (334 days), from 2026-06-29 to 2027-05-13',
+  termLengthBreakdown: '11 months (334 days), from 29 June 2026 to 13 May 2027',
   custodialPeriodBreakdown: '(334 divided by 2)',
   remandPeriodBreakdown: '(14 June 2026 to 28 June 2026)',
   mtdBreakdown: 'Saturday, 12 December 2026, 167 days from the beginning of the sentence (2026-06-29)',

@@ -215,7 +215,7 @@ describe('DtoService', () => {
 
       expect(payload).toEqual(
         expect.objectContaining({
-          inputIndividualSentences: [{ from: new Date(2054, 1, 11), durationMonths: 4 }],
+          inputIndividualSentences: [{ from: new Date(Date.UTC(2054, 1, 11)), durationMonths: 4 }],
         }),
       )
     })

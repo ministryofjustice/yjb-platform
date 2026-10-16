@@ -5,13 +5,13 @@ import {
   RemandAdjustment,
   dtoDurationMonthsSchema,
   dtoTaggedBailDaysSchema,
-  sentenceDateStringSchema,
   sentenceDateDaySchema,
   sentenceDateMonthSchema,
   sentenceDateYearSchema,
   ValidationErrorMessages,
 } from '@yjb-platform/shared-types'
 import YjbApiClient from '../data/yjbApi'
+import { toDateString } from '../utils/dateUtils'
 import DtoParseResult, { FieldError, ParsedDtoForm } from './helpers/dtoParseResult'
 
 export type { FieldError, ParsedDtoForm }
@@ -34,12 +34,6 @@ type ParsedDate = {
 
 function isEmpty(value: unknown): boolean {
   return value === undefined || value === ''
-}
-
-function toDateString(date: Date): string {
-  return sentenceDateStringSchema
-    .catch('Invalid Date')
-    .parse(date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }))
 }
 
 // this method is processing both sentence date and remand date in the same fashion

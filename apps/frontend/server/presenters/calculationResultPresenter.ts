@@ -1,7 +1,7 @@
 import { UTCDate } from '@date-fns/utc'
 import { subDays } from 'date-fns'
 import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform/shared-types'
-import { formatUkDate, toIsoDateString } from '../utils/dateUtils'
+import { formatUkDate } from '../utils/dateUtils'
 
 export type CalculationResultObj = {
   breakdownObj: calcBreakdown
@@ -27,9 +27,9 @@ export default class CalculationResultPresenter {
         : ''
 
     const breakdownObj: calcBreakdown = {
-      termLengthBreakdown: `${term.inputSentence.durationMonths} months (${term.totalDaysInTerm} days), from ${toIsoDateString(
+      termLengthBreakdown: `${term.inputSentence.durationMonths} months (${term.totalDaysInTerm} days), from ${formatUkDate(
         term.inputSentence.from,
-      )} to ${toIsoDateString(effectiveDates.sled.data)}`,
+      )} to ${formatUkDate(effectiveDates.sled.data)}`,
       custodialPeriodBreakdown: `${term.totalDaysInTerm} divided by 2${term.totalDaysInTerm % 2 ? ', rounded up' : ''}`,
       remandPeriodBreakdown: remandBreakdown,
       mtdBreakdown: this.formatDateBreakdown(term.mtd.data, term.mtd.metadata),
