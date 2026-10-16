@@ -105,7 +105,7 @@ export const termDates = {
 }
 
 export const resultDates = {
-  sled: 'Thursday 2027-05-13',
+  finalSled: 'Thursday 2027-05-13',
   finalMtd: 'Friday 2026-11-27',
   etd: 'Tuesday 2026-10-27',
   ltd: 'Sunday 2026-12-27',

@@ -1,9 +1,9 @@
 import { Router } from 'express'
-import { OutputCalculation } from '@yjb-platform/shared-types'
+import {calcBreakdown, OutputCalculation} from '@yjb-platform/shared-types'
 import type { Services } from '../services'
-import { ValidationResult } from '../services/dtoService'
+import {ParsedDtoForm, ValidationResult} from '../services/dtoService'
 import DtoFormPresenter, { FormPageObject } from '../presenters/dtoFormPresenter'
-import CalculationResultPresenter, { CalculationResutlObj } from '../presenters/calculationResultPresenter'
+import CalculationResultPresenter, { CalculationResultObj } from '../presenters/calculationResultPresenter'
 
 export default function calculateRoutes({ dtoService }: Partial<Services>): Router {
   const router = Router()
@@ -41,14 +41,16 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
 
     if (validationResult.isValid) {
       const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult.payload)
-      const formattedCalculation: CalculationResutlObj = new CalculationResultPresenter(calculationResult).present()
+      const formattedCalculation: CalculationResultObj = new CalculationResultPresenter(calculationResult).present()
 
-      return res.render('pages/calculation-breakdown', {
+      const pageData: CalculationResultPageObject = {
         calculationResult,
         inputData: validationResult.parsedInput,
         payloadString,
         ...formattedCalculation,
-      })
+      }
+
+      return res.render('pages/calculation-breakdown', pageData)
     }
 
     const pageData: FormPageObject = new DtoFormPresenter(validationResult).present()
@@ -57,4 +59,10 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
   })
 
   return router
+}
+
+type CalculationResultPageObject = CalculationResultObj & {
+  calculationResult: OutputCalculation,
+  inputData: ParsedDtoForm,
+  payloadString: string
 }

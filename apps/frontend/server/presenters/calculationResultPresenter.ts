@@ -1,6 +1,6 @@
 import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform/shared-types'
 
-export type CalculationResutlObj = {
+export type CalculationResultObj = {
   breakdownObj: calcBreakdown
   termDates: { sled: string; mtd: string }
   resultDates: { finalSled: string; finalMtd: string; etd: string; ltd: string }
@@ -12,7 +12,7 @@ type DateMetadata = { dayOfWeek?: string; message: string }
 export default class CalculationResultPresenter {
   constructor(private readonly calculationResult: OutputCalculation) {}
 
-  present(): CalculationResutlObj {
+  present(): CalculationResultObj {
     const { calculatedTerms, effectiveDates, effectiveDatesPastAdjustments, etd, ltd } = this.calculationResult
     const term = calculatedTerms[0]
 
@@ -28,8 +28,6 @@ export default class CalculationResultPresenter {
       custodialPeriodBreakdown: `${term.totalDaysInTerm} divided by 2${term.totalDaysInTerm % 2 ? ', rounded up' : ''}`,
       remandPeriodBreakdown: remandBreakdown,
       finalSledBreakdown: this.formatDateBreakdown(effectiveDates.sled.data, effectiveDates.sled.metadata),
-      // TODO: Add the mtdBreakdown
-      // mtdBreakdown: this.formatDateBreakdown()
       finalMtdBreakdown: this.formatDateBreakdown(effectiveDates.mtd.data, effectiveDates.mtd.metadata),
       etdBreakdown: this.formatDateBreakdown(etd.data, etd.metadata),
       ltdBreakdown: this.formatDateBreakdown(ltd.data, ltd.metadata),

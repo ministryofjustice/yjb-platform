@@ -2,7 +2,7 @@ import { DtoEligibilityStatus, OutputCalculation } from '@yjb-platform/shared-ty
 import CalculationResultPresenter from './calculationResultPresenter'
 import { sampleCalculationResult } from '../testutils/sampleObjects'
 
-describe('calculationResultPresentent', () => {
+describe('calculationResultPresenter', () => {
   const { breakdownObj, termDates, resultDates } = new CalculationResultPresenter(sampleCalculationResult).present()
 
   it('formats the term SLED and MTD from their metadata', () => {
@@ -12,7 +12,7 @@ describe('calculationResultPresentent', () => {
 
   it('formats the result dates as day of the week and date', () => {
     expect(resultDates).toEqual({
-      sled: 'Thursday, 2027-05-13',
+      finalSled: 'Thursday, 2027-05-13',
       finalMtd: 'Friday, 2026-11-27',
       etd: 'Tuesday, 2026-10-27',
       ltd: 'Sunday, 2026-12-27',
