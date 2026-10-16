@@ -12,10 +12,8 @@ export type CalculationResultObj = {
 type DateMetadata = { dayOfWeek?: string; message: string }
 
 export default class CalculationResultPresenter {
-  constructor(private readonly calculationResult: OutputCalculation) {}
-
-  present(): CalculationResultObj {
-    const { calculatedTerms, effectiveDates, effectiveDatesPastAdjustments, etd, ltd } = this.calculationResult
+  present(calculationResult: OutputCalculation): CalculationResultObj {
+    const { calculatedTerms, effectiveDates, effectiveDatesPastAdjustments, etd, ltd } = calculationResult
     const term = calculatedTerms[0]
 
     const remandAdjustmentRecord = effectiveDatesPastAdjustments[0]
@@ -49,7 +47,7 @@ export default class CalculationResultPresenter {
         etd: this.formatDayAndDate(etd.data, etd.metadata),
         ltd: this.formatDayAndDate(ltd.data, ltd.metadata),
       },
-      calculationResultString: JSON.stringify(this.calculationResult),
+      calculationResultString: JSON.stringify(calculationResult),
     }
   }
 

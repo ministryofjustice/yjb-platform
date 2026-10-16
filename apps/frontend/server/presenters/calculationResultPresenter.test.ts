@@ -3,7 +3,7 @@ import CalculationResultPresenter from './calculationResultPresenter'
 import { sampleCalculationResult } from '../testutils/sampleObjects'
 
 describe('calculationResultPresenter', () => {
-  const { breakdownObj, termDates, resultDates } = new CalculationResultPresenter(sampleCalculationResult).present()
+  const { breakdownObj, termDates, resultDates } = new CalculationResultPresenter().present(sampleCalculationResult)
 
   it('formats the term SLED and MTD from their metadata', () => {
     expect(termDates.sled).toBe('Friday, 28 May 2027')
@@ -46,24 +46,24 @@ describe('calculationResultPresenter', () => {
     }
     const result: OutputCalculation = { ...sampleCalculationResult, etd: notCalculated, ltd: notCalculated }
 
-    const { breakdownObj: notCalculatedBreakdown } = new CalculationResultPresenter(result).present()
+    const { breakdownObj: notCalculatedBreakdown } = new CalculationResultPresenter().present(result)
 
     expect(notCalculatedBreakdown.etdBreakdown).toBe('Not applicable for DTOs with terms less than 8 months')
     expect(notCalculatedBreakdown.ltdBreakdown).toBe('Not applicable for DTOs with terms less than 8 months')
 
-    const { resultDates: notCalculatedDates } = new CalculationResultPresenter(result).present()
+    const { resultDates: notCalculatedDates } = new CalculationResultPresenter().present(result)
     expect(notCalculatedDates.etd).toBe('Not applicable for DTOs with terms less than 8 months')
     expect(notCalculatedDates.ltd).toBe('Not applicable for DTOs with terms less than 8 months')
   })
 
-  it('formats dates that arrive as JSON-serialized strings (real API shape)', () => {
+  it('formats dates that arrive as JSON-serialized strings', () => {
     const fromApi = JSON.parse(JSON.stringify(sampleCalculationResult)) as OutputCalculation
 
     const {
       breakdownObj: apiBreakdown,
       termDates: apiTermDates,
       resultDates: apiResultDates,
-    } = new CalculationResultPresenter(fromApi).present()
+    } = new CalculationResultPresenter().present(fromApi)
 
     expect(apiBreakdown).toEqual(breakdownObj)
     expect(apiTermDates).toEqual(termDates)

@@ -41,7 +41,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
 
     if (validationResult.isValid) {
       const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult.payload)
-      const formattedCalculation: CalculationResultObj = new CalculationResultPresenter(calculationResult).present()
+      const formattedCalculation: CalculationResultObj = new CalculationResultPresenter().present(calculationResult)
 
       const pageData: CalculationResultPageObject = {
         calculationResult,
