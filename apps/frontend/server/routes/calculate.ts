@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import {calcBreakdown, OutputCalculation} from '@yjb-platform/shared-types'
+import { OutputCalculation } from '@yjb-platform/shared-types'
 import type { Services } from '../services'
-import {ParsedDtoForm, ValidationResult} from '../services/dtoService'
+import { ParsedDtoForm, ValidationResult } from '../services/dtoService'
 import DtoFormPresenter, { FormPageObject } from '../presenters/dtoFormPresenter'
 import CalculationResultPresenter, { CalculationResultObj } from '../presenters/calculationResultPresenter'
 
@@ -62,7 +62,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
 }
 
 type CalculationResultPageObject = CalculationResultObj & {
-  calculationResult: OutputCalculation,
-  inputData: ParsedDtoForm,
+  calculationResult: OutputCalculation
+  inputData: ParsedDtoForm
   payloadString: string
 }

@@ -1,5 +1,5 @@
 import { UTCDate } from '@date-fns/utc'
-import { format, subDays } from 'date-fns'
+import { subDays } from 'date-fns'
 import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform/shared-types'
 
 export type CalculationResultObj = {
@@ -60,7 +60,7 @@ export default class CalculationResultPresenter {
 
   formatDayAndDate(date: Date | string | 0, metadata: DateMetadata): string {
     if (!date) return metadata.message
-    return [metadata.dayOfWeek,  date ? this.formatUkDate(date) : undefined].filter(Boolean).join(', ')
+    return [metadata.dayOfWeek, date ? this.formatUkDate(date) : undefined].filter(Boolean).join(', ')
   }
 
   formatUkDate(date: Date | string): string {
