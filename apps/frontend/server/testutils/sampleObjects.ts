@@ -114,7 +114,7 @@ export const resultDates = {
 export const breakdownObj: calcBreakdown = {
   custodialPeriodBreakdown: '(334 divided by 2)',
   remandPeriodBreakdown: '(14 June 2026 to 28 June 2026)',
-  sledBreakdown: 'Thursday, 13 May 2027, 2027-05-28 minus 15 days',
+  finalSledBreakdown: 'Thursday, 13 May 2027, 2027-05-28 minus 15 days',
   finalMtdBreakdown: 'Friday, 27 November 2026, 2026-12-12 minus 15 days',
   etdBreakdown: 'Tuesday, 27 October 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months',
   ltdBreakdown: 'Sunday, 27 December 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months',

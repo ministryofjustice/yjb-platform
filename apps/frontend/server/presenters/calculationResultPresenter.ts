@@ -3,7 +3,7 @@ import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform
 export type CalculationResutlObj = {
   breakdownObj: calcBreakdown
   termDates: { sled: string; mtd: string }
-  resultDates: { sled: string; finalMtd: string; etd: string; ltd: string }
+  resultDates: { finalSled: string; finalMtd: string; etd: string; ltd: string }
   calculationResultString: string
 }
 
@@ -27,7 +27,9 @@ export default class CalculationResultPresenter {
     const breakdownObj: calcBreakdown = {
       custodialPeriodBreakdown: `${term.totalDaysInTerm} divided by 2${term.totalDaysInTerm % 2 ? ', rounded up' : ''}`,
       remandPeriodBreakdown: remandBreakdown,
-      sledBreakdown: this.formatDateBreakdown(effectiveDates.sled.data, effectiveDates.sled.metadata),
+      finalSledBreakdown: this.formatDateBreakdown(effectiveDates.sled.data, effectiveDates.sled.metadata),
+      // TODO: Add the mtdBreakdown
+      // mtdBreakdown: this.formatDateBreakdown()
       finalMtdBreakdown: this.formatDateBreakdown(effectiveDates.mtd.data, effectiveDates.mtd.metadata),
       etdBreakdown: this.formatDateBreakdown(etd.data, etd.metadata),
       ltdBreakdown: this.formatDateBreakdown(ltd.data, ltd.metadata),
@@ -40,7 +42,7 @@ export default class CalculationResultPresenter {
         mtd: this.formatDayAndDate(term.mtd.data, term.mtd.metadata),
       },
       resultDates: {
-        sled: this.formatDayAndDate(effectiveDates.sled.data, effectiveDates.sled.metadata),
+        finalSled: this.formatDayAndDate(effectiveDates.sled.data, effectiveDates.sled.metadata),
         finalMtd: this.formatDayAndDate(effectiveDates.mtd.data, effectiveDates.mtd.metadata),
         etd: this.formatDayAndDate(etd.data, etd.metadata),
         ltd: this.formatDayAndDate(ltd.data, ltd.metadata),

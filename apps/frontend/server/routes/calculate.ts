@@ -51,7 +51,9 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       })
     }
 
-    return res.render('pages/new-calculation', new DtoFormPresenter(validationResult).present())
+    const pageData: FormPageObject = new DtoFormPresenter(validationResult).present()
+
+    return res.render('pages/new-calculation', pageData)
   })
 
   return router
