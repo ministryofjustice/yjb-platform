@@ -1,6 +1,7 @@
 import { UTCDate } from '@date-fns/utc'
 import { subDays } from 'date-fns'
 import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform/shared-types'
+import { formatUkDate, toIsoDateString } from '../utils/dateUtils'
 
 export type CalculationResultObj = {
   breakdownObj: calcBreakdown
@@ -20,12 +21,15 @@ export default class CalculationResultPresenter {
     const remandBreakdown =
       remandAdjustmentRecord?.adjustmentParameters.name === AdjustmentTypes.remand
         ? // remand ends the day before the sentence starts
-          `(${this.formatUkDate(remandAdjustmentRecord.adjustmentParameters.startDate)} to ${this.formatUkDate(
+          `(${formatUkDate(remandAdjustmentRecord.adjustmentParameters.startDate)} to ${formatUkDate(
             subDays(new UTCDate(term.inputSentence.from), 1),
           )})`
         : ''
 
     const breakdownObj: calcBreakdown = {
+      termLengthBreakdown: `${term.inputSentence.durationMonths} months (${term.totalDaysInTerm} days), from ${toIsoDateString(
+        term.inputSentence.from,
+      )} to ${toIsoDateString(effectiveDates.sled.data)}`,
       custodialPeriodBreakdown: `${term.totalDaysInTerm} divided by 2${term.totalDaysInTerm % 2 ? ', rounded up' : ''}`,
       remandPeriodBreakdown: remandBreakdown,
       mtdBreakdown: this.formatDateBreakdown(term.mtd.data, term.mtd.metadata),
@@ -53,17 +57,11 @@ export default class CalculationResultPresenter {
 
   // TODO: check what we need to see if no date (probably show a message?) and if we can combine with formatDayAndDate
   formatDateBreakdown(date: Date | string | 0, metadata: DateMetadata): string {
-    return [metadata.dayOfWeek, date ? this.formatUkDate(date) : undefined, metadata.message].filter(Boolean).join(', ')
+    return [metadata.dayOfWeek, date ? formatUkDate(date) : undefined, metadata.message].filter(Boolean).join(', ')
   }
 
   formatDayAndDate(date: Date | string | 0, metadata: DateMetadata): string {
     if (!date) return metadata.message
-    return [metadata.dayOfWeek, date ? this.formatUkDate(date) : undefined].filter(Boolean).join(', ')
-  }
-
-  formatUkDate(date: Date | string): string {
-    return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
-      new Date(date),
-    )
+    return [metadata.dayOfWeek, date ? formatUkDate(date) : undefined].filter(Boolean).join(', ')
   }
 }

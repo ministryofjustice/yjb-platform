@@ -24,7 +24,7 @@
   {{ govukSummaryList({
     rows: [
       { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" } },
-      { key: { text: "Term length" }, value: { text: calculationResult.calculatedTerms[0].inputSentence.durationMonths + " months (" + calculationResult.calculatedTerms[0].totalDaysInTerm + " days)" + ", from " + (calculationResult.calculatedTerms[0].inputSentence.from.toISOString().slice(0, 10) if calculationResult.calculatedTerms[0].inputSentence.from.toISOString else calculationResult.calculatedTerms[0].inputSentence.from) + " to " + (calculationResult.effectiveDates.sled.data.toISOString().slice(0, 10) if calculationResult.effectiveDates.sled.data.toISOString else calculationResult.effectiveDates.sled.data) } },
+      { key: { text: "Term length" }, value: { text: breakdownObj.termLengthBreakdown } },
       { key: { text: "Custodial period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days (" + breakdownObj.custodialPeriodBreakdown + ")" } },
       { key: { text: "MTD" }, value: { text: breakdownObj.mtdBreakdown } },
       { key: { text: "Remand period" }, value: { text: calculationResult.remandPeriodDays + " days " + breakdownObj.remandPeriodBreakdown } },
