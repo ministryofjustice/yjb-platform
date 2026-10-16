@@ -25,83 +25,161 @@ info:
 
 servers: []
 
-tags: []
+tags:
+- name: Reviewed
+  description: New API methods that should be correct for v0.0.2
+- name: Not yet reviewed
+  description: New API methods with WIP details, containing leftovers from v0.0.1
+- name: Existing workflows
+  description: Stub methods representing workflows that exist in the current AssetPlus processes
 
 paths:
   /children:
     get:
       summary: Retrieve a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address)
+      tags:
+        - Reviewed
       description: |
         This endpoint retrieves a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address). The response will be an array of `MinimalChild` objects, which may be empty if no matching records are found.
 
-         **Note:** Several parameters here contain personally-identifiable information and should not be sent in the querystring. If passing any of the following parameters, use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body. This applies to `family_name`, `given_names`, `date_of_birth` and `postcode`. If any of these parameters is sent in the querystring, a `400 Bad Request` response will be returned.
+         **Note:** Several parameters here contain personally-identifiable information and should not be sent in the querystring. If passing any of the following parameters, use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body. This applies to `family_name`, `given_names`, `date_of_birth` and `postcode`. If any of these parameters is sent in the querystring, a `405 Method Not Allowed` response will be returned.
+         
+         The `X-Parameters` header should accept either key/value pairs or JSON, for example:
+         
+         ```text
+         X-Parameters: family_name=Smith, given_names=Michael Talal, date_of_birth=2012-11-24, postcode=SW1A 0AA
+         ```
+         
+         or
+         
+         ```json
+         X-Parameters: { "family_name": "Smith", "given_names": [ "Michael", "Talal" ], "date_of_birth": "2012-11-24", "postcode": "SW1A 0AA" }
+         ```
+         
+         Optional whitespace between or within values will be ignored. `family_name =   Smith,     given_names  =Michael   Talal` will be treated exactly the same as `family_name=Smith,given_names=Michael Talal`.
       parameters:
-        - in: query
-          name: oypid
+        - name: oypid
+          in: query
           schema:
             type: string
           description: An Original Young Person Identifier (OYPID) of the child.
-        - in: query
-          name: sui
+        - name: sui
+          in: query
           schema:
             type: string
           description: The Single Unique Identifier (SUI) of the child.
-        - in: query
-          name: pncid
+        - name: pncid
+          in: query
           schema:
             type: string
           description: The Police National Computer identifier (PNCID) of the child.
-        - in: header
-          name: family_name
-          schema:
-            type: string
-          description: The family name (surname) of the child. **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body.
-        - in: header
-          name: given_names
-          schema:
-            type: string
-          description: The given names (first and middle names) of the child. **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body.
-        - in: header
-          name: date_of_birth
-          schema:
-            type: string
-            format: date
-          description: The date of birth of the child, provided as an [ISO 8601](https://www.w3.org/QA/Tips/iso-date) formatted date of birth (`YYYY-MM-DD`). **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body.
-        - in: header
-          name: date_of_birth_accuracy
-          schema:
-            type: string
-            enum: [
-              "AAA", "AAE", "AAU", "AEA", "AEE", "AEU", "AUA", "AUE", "AUU",
-              "EAA", "EAE", "EAU", "EEA", "EEE", "EEU", "EUA", "EUE", "EUU",
-              "UAA", "UAE", "UAU", "UEA", "UEE", "UEU", "UUA", "UUE", "UUU" ]
-          description: |
-            Optionally indicates which parts of the date are known to be accurate (`A`), estimated (`E`) or unknown (`U`).
-
-            This should be provided as a string of three characters, where the first character indicates the accuracy of the day, the second character indicates the accuracy of the month, and the third character indicates the accuracy of the year. For example, `AAU` indicates that the day and month are known to be accurate, but the year is unknown.
-
-            This aligns with the FHIR Extension [“Date Accuracy Indicator”](https://hl7.org/fhir/extension-datetime-accuracy.html), which is used in the FHIR UK Core [Person.dateOfBirth](https://www.datadictionary.nhs.uk/data_elements/person_date_of_birth.html) data element.
-        - in: header
-          name: postcode
+        - $ref: "#/components/parameters/familyNameHeaderParameter"
+        - $ref: "#/components/parameters/givenNamesHeaderParameter"
+        - $ref: "#/components/parameters/dobHeaderParameter"
+        - $ref: "#/components/parameters/dobAccuracyHeaderParameter"
+        - $ref: "#/components/parameters/postcodeHeaderParameter"
+          in: header
           schema:
             type: string
           description: The postal code of the child's address. **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body.
       responses:
         '200':
-          description: Success response
+          description: |
+            Success response (existing child)
+
+            For a child who is already known to the system, this will return a complete `CompleteChild` object, with as many or as few properties as are known to the server.
+
+            Note that a _new_ child will give a different response, with only a `MinimalChild`, which is expected to be the more common response.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/MinimalChild"
+                $ref: "#/components/schemas/CompleteChild"
+        '201':
+          description: |
+            Success response (new child)
+
+            For a new child, this will return the same `MinimalChild` object, with as many or as few properties as was supplied in the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MinimalChild"
         '400':
           description: |
             Bad request
 
+            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (OYPID, SUI or PNCID).
+
+            Alternatively, some other unexpected error was found in the request data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '405':
+          description: |
+            Method Not Allowed
+
+            The request included personally-identifying information fields (one or more of `family_name`, `given_names`, `date_of_birth` and `postcode`) in the querystring.
+
+            Either reissue the request using the HTTP header `X-Parameters` for those fields or instead `POST` the request to /children/search
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '409':
+          description: |
+            Conflict
+
+            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same OYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+
+            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: |
+            Internal server error
+
+            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      summary: |
+        Create a new child in AssetPlus, in order to subsequently create Stages
+
+        The `ypid` in the `MinimalChild` object in the request body must be null or zero. Any other value will be disregarded.
+
+        TODO: Needs review and other responses
+      tags:
+        - Not yet reviewed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref:  "#/components/schemas/MinimalChild"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ypid:
+                    type: integer
+                    minimum: 1
+                    maximum: 999999999
+                    # NHS numbers are 10 digits, so YPIDs must not collide — and are unlikely to, given that this is over 10✕ the population of the UK
+
   /children/search:
     post:
       summary: Search for a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address)
+      tags:
+        - Reviewed
       description: |
         This endpoint searches for a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address). The response will be an array of `MinimalChild` objects, which may be empty if no matching records are found.
       requestBody:
@@ -147,52 +225,21 @@ paths:
                   description: The postal code of the child's address.
       responses:
         '200':
-          description: Success response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/MinimalChild"
-        '400':
           description: |
-            Bad request
+            OK: Success response (existing child)
 
-  /children/{ypid}/stages/:
-    put:
-      summary: Create a new AssetPlus record-stub
-      description: |
-        This endpoint creates a new AssetPlus record-stub. The request body must include the base demographic information to be able to disambiguate a child — either a CYPID or a SUI. The response will include a unique AssetPlus record identifier, which can be used to retrieve or update the record in subsequent API calls.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                child:
-                  $ref: "#/components/schemas/MinimalChild"
-      responses:
-        '200':
-          description: |
-            Success response (existing child)
+            For a child who is already known to the system, this will return a complete `CompleteChild` object, with as many or as few properties as are known to the server.
 
-            For a child who is already known to the system, this will return a complete `FullChild` object, with as many or as few properties as are known to the server.
-
-            Note that a _new_ child will give a different response, with only a `CompleteChild`, which is expected to be the more common response.
-
-            As clients might struggle to accept a `201 Created` response, clients should validate whether a `200 OK` response contains only the `MinimalChild` submitted in the request or a more complete `CompleteChild`.
+            Note that a _new_ child will give a different response, with a 201 Created header and only a `MinimalChild`, which is expected to be the more common response.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompleteChild"
         '201':
           description: |
-            Success response (new child)
+            Created: Success response (new child)
 
             For a new child, this will return the same `MinimalChild` object, with as many or as few properties as was supplied in the request.
-
-            *Note:* We might send a `200 OK` header for this response in future, if clients struggle to accept a `201 Created`.
           content:
             application/json:
               schema:
@@ -229,13 +276,53 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /flow1/partial-save:
-    post:
+  /children/{ypid}/:
+    get:
+      summary: |
+        Fetch the full AssetPlus data packet for the given child
+
+        TODO: Needs other response types
       tags:
-        - Flow1
-      summary: Save a partial update to an existing AssetPlus record
+        - Existing workflows
+      parameters:
+        - $ref: "#/components/parameters/ypidParameter"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Stage"
+
+  /children/{ypid}/stages/:
+    get:
+      summary: |
+        Fetch all Stages for the given child
+
+        TODO: Needs other response types; check the 200 response makes sense
+      tags:
+        - Existing workflows
+      parameters:
+        - $ref: "#/components/parameters/ypidParameter"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Stage"
+    post:
+      summary: Create a new AssetPlus Stage
+      tags:
+        - Not yet reviewed
       description: |
-        This endpoint saves a partial update to an existing AssetPlus record. The request body must include the unique AssetPlus record identifier, and at least one property to update. The response will just be an acknowledgement of the update, with no content, or an error response.
+        This endpoint creates a new AssetPlus record-stub. The request body must include the base demographic information to be able to disambiguate a child — either a OYPID or a SUI. The response will include a unique AssetPlus record identifier, which can be used to retrieve or update the record in subsequent API calls.
+      parameters:
+        - $ref: "#/components/parameters/ypidParameter"
       requestBody:
         required: true
         content:
@@ -245,9 +332,135 @@ paths:
               properties:
                 child:
                   $ref: "#/components/schemas/MinimalChild"
+      responses:
+        '200':
+          description: |
+            Success response (existing child)
+
+            For a child who is already known to the system, this will return a complete `FullChild` object, with as many or as few properties as are known to the server.
+
+            Note that a _new_ child will give a different response, with only a `CompleteChild`, which is expected to be the more common response.
+
+            As clients might struggle to accept a `201 Created` response, clients should validate whether a `200 OK` response contains only the `MinimalChild` submitted in the request or a more complete `CompleteChild`.
+          content:
+            application/json:
+              schema:
+                type: integer
+                minimum: 1
+                description: The internal identifier for an AssetPlus Stage
+        '201':
+          description: |
+            Success response (new child)
+
+            For a new child, this will return the same `MinimalChild` object, with as many or as few properties as was supplied in the request.
+
+            *Note:* We might send a `200 OK` header for this response in future, if clients struggle to accept a `201 Created`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MinimalChild"
+        '400':
+          description: |
+            Bad request
+
+            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (OYPID, SUI or PNCID).
+
+            Alternatively, some other unexpected error was found in the request data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '405':
+          description: |
+            Method Not Allowed
+
+            The request included personally-identifying information fields (one or more of `family_name`, `given_names`, `date_of_birth` and `postcode`) in the querystring.
+
+            Either reissue the request using the HTTP header `X-Parameters` for those fields
+        '409':
+          description: |
+            Conflict
+
+            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same CYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+
+            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: |
+            Internal server error
+
+            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /children/{ypid}/stages/{stageid}:
+    parameters:
+      - $ref: "#/components/parameters/ypidParameter"
+      - $ref: "#/components/parameters/stageidParameter"
+    get:
+      tags:
+        - Not yet reviewed
+      summary: Fetch an AssetPlus Stage (or partial Stage)
+      description: This endpoint retrieves an existing AssetPlus Stage, which may be a full Stage or a partial Stage.
+      responses:
+        '200':
+          description: Success response, including the requested Stage, including a `MinimalChild` object, which must be used to confirm that the response relates to the expected child.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stage"
+                minimumItems: 1
+                maximumItems: 1
+        '400':
+          description: |
+            Bad Request
+            
+            Some unexpected error occurred with the request data, unrelated to any mismatch between the child and the `stageid`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: |
+            Not Found
+
+            The provided `stageid` does not exist or is not associated with the child corresponding to the given `ypid`. Alternatively, if a `X-Parameters` header was provided, either the details therewithin did not correspond to the provided `ypid`.
+
+            For the sake of security, the server will not specify which of these conditions is the case in the error response.
+          # Or maybe we want to send a 409 Conflict for mismatches?
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: |
+            Internal server error
+
+            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      tags:
+        - Not yet reviewed
+      summary: Save a partial update to an existing AssetPlus Stage
+      description: |
+        This endpoint saves a partial update to an existing AssetPlus record. The request body must include at least one property to update. The response will just be an acknowledgement of the update, with no content, or an error response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
                 stage:
-                  type: object
-                  description: "The stage of the child in the system. TODO: To be defined."
+                  $ref: "#/components/schemas/Stage"
       responses:
         '200':
           description: Success response, optionally containing a notification message saying that someone else also has a partial Stage open for this child.
@@ -272,7 +485,7 @@ paths:
           description: |
             Conflict
 
-            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same CYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+            The request format was valid, but identifiers in the request conflicted with existing records in the system. For example, if a child with the same OYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
 
             An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
           content:
@@ -288,12 +501,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
-  /save:
-    post:
+    put:
       tags:
-        - Flow1
-        - Flow2
+        - Not yet reviewed
       summary: Save a complete update to an existing AssetPlus record
       description: |
         This endpoint saves a complete update to an existing AssetPlus record. The request body must include the unique AssetPlus record identifier, and all properties to update.
@@ -304,8 +514,8 @@ paths:
             schema:
               type: object
               properties:
-                child:
-                  $ref: "#/components/schemas/CompleteChild"
+                stage:
+                  $ref: "#/components/schemas/Stage"
       responses:
         '200':
           description: Success response
@@ -341,84 +551,78 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /flow2/register-stage:
-    post:
-      tags:
-        - Flow2
-      summary: Register the creation of a new Stage for an AssetPlus record (which may or may not already exist)
-      description: |
-        This endpoint registers the creation of a new Stage for an AssetPlus record. The request body must include the base demographic information to be able to disambiguate a child — either a CYPID or a SUI — and the fields that are being edited.
-
-        The response will include a unique AssetPlus record identifier, which can be used to retrieve or update the record in subsequent API calls.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/MinimalChildWithFieldNames"
-      responses:
-        '200':
-          description: |
-            Success response (existing child)
-
-            For a child who is already known to the system, this will return a complete `FullChild` object, with as many or as few properties as are known to the server.
-
-            Note that a _new_ child will give a different response, with only a `CompleteChild`, which is expected to be the more common response.
-
-            As clients might struggle to accept a `201 Created` response, clients should validate whether a `200 OK` response contains only the `MinimalChild` submitted in the request or a more complete `CompleteChild`.
-          content:
-            application/json:
-              schema:
-                properties:
-                  child:
-                    $ref: "#/components/schemas/CompleteChild"
-                  notification:
-                    $ref: "#/components/schemas/Notification"
-        '201':
-          description: |
-            Success response (new child)
-
-            For a new child, this will return the `MinimalChild` object from the `MinimalChildWithFieldNames` in the request, with as many or as few properties as was supplied in the request.
-
-            *Note:* We might send a `200 OK` header for this response in future, if clients struggle to accept a `201 Created`.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MinimalChild"
-        '400':
-          description: |
-            Bad request
-
-            The request body was invalid, for example if it did not include a `MinimalChildWithFieldNames` object, or if the `MinimalChildWithFieldNames` object did not include at least one identifier (CYPID, SUI or PNCID).
-
-            Alternatively, some other unexpected error was found in the request data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        '409':
-          description: |
-            Conflict
-
-            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same CYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
-
-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        '500':
-          description: |
-            Internal server error
-
-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-
 components:
+  parameters:
+    ypidParameter:
+      name: ypid
+      in: path
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 999999999
+        # NHS numbers are 10 digits, so YPIDs must not collide — and are unlikely to, given that this is over 10✕ the population of the UK
+      required: true
+      description: The internal AssetPlus identifier for a child.
+    stageidParameter:
+      name: stageid
+      in: path
+      schema:
+        type: string
+        format: guid
+      required: true
+      description: The internal identifier for an AssetPlus Stage
+    familyNameHeaderParameter:
+        name: family_name
+        in: header
+        schema:
+          type: string
+        description: |
+          The family name (surname) of the child.
+          
+          **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead.
+    givenNamesHeaderParameter:
+      name: given_names
+      in: header
+      schema:
+        type: string
+      description: |
+          The given names (first and middle names) of the child.
+          
+          **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead.
+    dobHeaderParameter:
+      name: date_of_birth
+      in: header
+      schema:
+        type: string
+        format: date
+      description: |
+          The date of birth of the child, provided as an [ISO 8601](https://www.w3.org/QA/Tips/iso-date) formatted date of birth (`YYYY-MM-DD`).
+          
+          **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead.
+    dobAccuracyHeaderParameter:
+      name: date_of_birth_accuracy
+      in: header
+      schema:
+        type: string
+        enum: [
+          "AAA", "AAE", "AAU", "AEA", "AEE", "AEU", "AUA", "AUE", "AUU",
+          "EAA", "EAE", "EAU", "EEA", "EEE", "EEU", "EUA", "EUE", "EUU",
+          "UAA", "UAE", "UAU", "UEA", "UEE", "UEU", "UUA", "UUE", "UUU" ]
+      description: |
+          Optionally indicates which parts of the date are known to be accurate (`A`), estimated (`E`) or unknown (`U`).
+
+          This should be provided as a string of three characters, where the first character indicates the accuracy of the day, the second character indicates the accuracy of the month, and the third character indicates the accuracy of the year. For example, `AAU` indicates that the day and month are known to be accurate, but the year is unknown.
+
+          This aligns with the FHIR Extension [“Date Accuracy Indicator”](https://hl7.org/fhir/extension-datetime-accuracy.html), which is used in the FHIR UK Core [Person.dateOfBirth](https://www.datadictionary.nhs.uk/data_elements/person_date_of_birth.html) data element.
+    postcodeHeaderParameter:
+      name: postcode
+      in: header
+      schema:
+        type: string
+      description: |
+          The postal code of the child's address.
+          
+          **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead.
   schemas:
     Address:
       type: object
@@ -544,6 +748,10 @@ components:
 
         These properties are aligned to the [Person Standard](https://github.com/SocialCareData/person-standard) from [Data Standards for Social Care](https://github.com/SocialCareData/person-standard), sponsored by the Department for Education and the Department of Health and Social Care.
       properties:
+        ypid:
+          type: number
+          format: integer
+          description: The internal AssetPlus identifer for a child
         Identifier:
           $ref: "#/components/schemas/IdentifierArray"
           description: "An array of identifiers for the child. At least one identifier must be provided: either an OYPID, a SUI or a PNCID."
@@ -596,3 +804,11 @@ components:
           type: string
           format: email
           description: A contact email address for the notification.
+    Stage:
+      type: object
+      properties:
+        child:
+          $ref: "#/components/schemas/MinimalChild"
+        data:
+          type: object
+          description: The rest of the Stage, structure TBC
