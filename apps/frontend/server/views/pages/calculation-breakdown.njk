@@ -2,7 +2,6 @@
 
 {% set pageTitle = applicationName + " - Calculation breakdown" %}
 {% set mainClasses = "govuk-body" %}
-{% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
@@ -22,17 +21,6 @@
   }) }}
 
   <h1 class="govuk-heading-l">Calculation breakdown</h1>
-
-  <div class="govuk-grid-row govuk-!-padding-left-3">
-    {{ govukButton({
-      text: "Option A",
-      attributes: { "data-action": "show-view-1" }
-    }) }}
-    {{ govukButton({
-      text: "Option B",
-      attributes: { "data-action": "show-view-2" }
-    }) }}
-  </div>
 
   <div class="govuk-grid-row" hidden>
       {% call govukDetails({
@@ -69,29 +57,6 @@
     </div>
   </div>
 
-  {% include "../partials/calculation-breakdown/view-A.njk" %}
   {% include "../partials/calculation-breakdown/view-B.njk" %}
 
-{% endblock %}
-
-{% block bodyEnd %}
-  {{ super() }}
-  <script nonce="{{ cspNonce }}">
-    document.addEventListener('DOMContentLoaded', () => {
-      const btnView1 = document.querySelector('[data-action="show-view-1"]')
-      const btnView2 = document.querySelector('[data-action="show-view-2"]')
-      const view1 = document.getElementById('view-1')
-      const view2 = document.getElementById('view-2')
-
-      btnView1?.addEventListener('click', () => {
-        view1.hidden = false;
-        view2.hidden = true;
-      });
-
-      btnView2?.addEventListener('click', () => {
-        view1.hidden = true;
-        view2.hidden = false;
-      });
-    });
-  </script>
 {% endblock %}

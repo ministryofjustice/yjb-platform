@@ -46,7 +46,7 @@ describe('Calculation breakdown page', () => {
 
     it('includes a Start a new calculation button', () => {
       const cheerioPage = renderWithCheerio()
-      const link = cheerioPage('#new-calculation-link-a')
+      const link = cheerioPage('#new-calculation-link-b')
       expect(link.text()).toBe('Start a new DTO calculation')
       expect(link.prop('href')).toBe('/calculate')
     })
@@ -74,12 +74,6 @@ describe('Calculation breakdown page', () => {
       ['LTD', 'Sunday, 27 December 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
       ['ETD', 'Tuesday, 27 October 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
     ]
-
-    // the breakdowns show dates as part of their explanation (see
-    // expectedExplanationValues) - the breakdown MTD is the final MTD - so only
-    // the non-date values are rendered on their own
-    const dateKeys = ['MTD', 'SLED', 'Final MTD', 'LTD', 'ETD']
-    const expectedDetailedBreakdownValues = expectedCalcValues.filter(([key]) => !dateKeys.includes(key))
 
     describe('your answers section', () => {
       const parsedInput: ParsedDtoForm = {
@@ -127,61 +121,6 @@ describe('Calculation breakdown page', () => {
         expect(changeAnswersLink.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
         expect(changeAnswersLink.prop('href')).toContain(`sentenceDate=01/22/2033`)
       })
-    })
-
-    describe('Calculation outputs A', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj, termDates, resultDates })
-
-      it('correctly renders the Calculation Summary panel values', () => {
-        const summaryData: Record<string, string> = {}
-        cheerioPage('#release-dates .govuk-summary-list__row').each((_, el) => {
-          const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
-          summaryData[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
-        })
-
-        expect(summaryData).toMatchObject({
-          ETD: 'Tuesday 2026-10-27',
-          MTD: 'Friday 2026-11-27',
-          LTD: 'Sunday 2026-12-27',
-          SLED: 'Thursday 2027-05-13',
-        })
-      })
-
-      it.each(expectedDetailedBreakdownValues)(
-        'correctly renders the calculation values for %s',
-        (_key: string, value: string) => {
-          expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
-        },
-      )
-
-      it.each(expectedExplanationValues)(
-        'correctly renders the calculation explanations for %s',
-        (_key: string, value: string) => {
-          expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
-        },
-      )
-
-      // TODO: it(renders the explanation for collapsed sentences correctly)
-      // it('renders the explanation for collapsed sentences correctly', () => {
-      //   const collapsedDates: EffectiveDates = {
-      //     totalNumberOfRemandAndTaggedBailDays: 4000,
-      //       sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-03-24'), new Date('2027-05-28'), 4000),
-      //       mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2025-11-27'), new Date('2026-12-12'), 4000),
-      //       TUSED: new Date('1970-01-01'),
-      //   }
-      //
-      //   const collapsedCalculationResult: OutputCalculation = {
-      //     ...sampleCalculationResult,
-      //     effectiveDates: collapsedDates
-      //   }
-      //   const cheerioPage = renderWithCheerio({ collapsedCalculationResult, breakdownObj })
-      //   const expectedExplanation: string = "(Date was collapsed to sentence day, with 64 unused days )"
-      //   const foundText = cheerioPage('#detailed-breakdown').text()
-      //   // expect(cheerioPage('#detailed-breakdown').text()).toContain(expectedExplanation)
-      //   expect(foundText).toContain(expectedExplanation)
-      //
-      // })
     })
 
     describe('Calculation outputs B', () => {
