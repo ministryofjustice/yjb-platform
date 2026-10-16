@@ -53,14 +53,14 @@ export default class CalculationResultPresenter {
     }
   }
 
+  // TODO: check what we need to see if no date (probably show a message?) and if we can combine with formatDayAndDate
   formatDateBreakdown(date: Date | string | 0, metadata: DateMetadata): string {
     return [metadata.dayOfWeek, date ? this.formatUkDate(date) : undefined, metadata.message].filter(Boolean).join(', ')
   }
 
-  // e.g. "Thursday 2027-05-13" - a transfer date that wasn't calculated has data 0, so its message is shown instead
   formatDayAndDate(date: Date | string | 0, metadata: DateMetadata): string {
     if (!date) return metadata.message
-    return [metadata.dayOfWeek, format(new UTCDate(date), 'yyyy-MM-dd')].filter(Boolean).join(', ')
+    return [metadata.dayOfWeek,  date ? this.formatUkDate(date) : undefined].filter(Boolean).join(', ')
   }
 
   formatUkDate(date: Date | string): string {

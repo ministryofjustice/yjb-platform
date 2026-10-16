@@ -122,7 +122,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#calculation-results-tab').text()).toContain('Sunday, 3093-01-01')
+        expect($('#calculation-results-tab').text()).toContain('Sunday, 1 January 3093')
       })
   })
 
