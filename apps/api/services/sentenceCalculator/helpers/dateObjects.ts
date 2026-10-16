@@ -1,3 +1,5 @@
+import { UTCDate } from '@date-fns/utc'
+import { format as formatDate } from 'date-fns'
 import {
   AppliedAdjustmentStatus,
   DtoEligibilityStatus,
@@ -29,6 +31,10 @@ function getDayOfWeek(date: Date): string {
   return date.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' })
 }
 
+function toIsoDateString(date: Date): string {
+  return formatDate(new UTCDate(date), 'yyyy-MM-dd')
+}
+
 export function buildTransferDatesObj(status: DtoEligibilityStatus, data: Date | 0): transferDatesObj {
   const res: transferDatesObj = {
     data,
@@ -53,7 +59,7 @@ export function buildfinalDatesObj(
   let message = FINAL_SLED_BREAKDOWN_MESSAGE[status]
 
   if (status === AppliedAdjustmentStatus.applied && initialDate && adjustmentDuration) {
-    const sentenceStartStr = initialDate.toISOString().slice(0, 10)
+    const sentenceStartStr = toIsoDateString(initialDate)
     message = format(FINAL_SLED_BREAKDOWN_MESSAGE[status], sentenceStartStr, adjustmentDuration)
   } else if (status === AppliedAdjustmentStatus.collapsedUnused && unusedDays) {
     message = format(FINAL_SLED_BREAKDOWN_MESSAGE[status], unusedDays)
@@ -70,7 +76,7 @@ export function buildfinalDatesObj(
 }
 
 export function buildTermDatesObj(data: Date, daysFromSentenceStart: number, sentenceStart: Date): termDatesObj {
-  const sentenceStartStr = new Date(sentenceStart).toLocaleDateString('en-GB', { timeZone: 'UTC' })
+  const sentenceStartStr = toIsoDateString(new Date(sentenceStart))
 
   return {
     data,
