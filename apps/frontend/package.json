@@ -44,7 +44,7 @@
     "@types/nunjucks": "^3.2.6",
     "@types/supertest": "^7.2.0",
     "cheerio": "^1.2.0",
-    "concurrently": "^10.0.3",
+    "concurrently": "^10.0.6",
     "del": "^8.0.1",
     "esbuild": "^0.28.1",
     "esbuild-plugin-copy": "^2.1.1",
