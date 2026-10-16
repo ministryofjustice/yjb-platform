@@ -91,6 +91,7 @@ export type AppendOnlyArray<T> = {
 }
 
 export type calcBreakdown = {
+  termLengthBreakdown: string,
   custodialPeriodBreakdown: string,
   remandPeriodBreakdown: string,
   mtdBreakdown: string,

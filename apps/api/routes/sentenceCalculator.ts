@@ -1,8 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { ZodError } from 'zod'
-import SentenceCalculatorController from '../controllers/sentenceCalculatorController'
-import { formatOutputCalculation } from '../controllers/sentenceCalculatorMapper'
 import { inputSentencesSchema } from '@yjb-platform/shared-types'
+import SentenceCalculatorController from '../controllers/sentenceCalculatorController'
+import formatOutputCalculation from '../controllers/sentenceCalculatorMapper'
 
 export default function sentenceCalculatorRoutes(): Router {
   const router = Router()

@@ -1,10 +1,11 @@
 import { OutputCalculation } from '@yjb-platform/shared-types'
+import { toIsoDateString } from '../services/sentenceCalculator/helpers/dateObjects'
 
 function dateOnlyReplacer(this: Record<string, unknown>, key: string, value: unknown): unknown {
   const raw = this[key]
-  return raw instanceof Date ? raw.toISOString().slice(0, 10) : value
+  return raw instanceof Date ? toIsoDateString(raw) : value
 }
 
-export function formatOutputCalculation(outputCalc: OutputCalculation): string {
+export default function formatOutputCalculation(outputCalc: OutputCalculation): string {
   return JSON.stringify(outputCalc, dateOnlyReplacer)
 }

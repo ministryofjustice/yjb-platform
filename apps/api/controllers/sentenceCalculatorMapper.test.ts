@@ -4,10 +4,10 @@ import {
   OutputCalculation,
   DtoEligibilityStatus,
   AppliedAdjustmentStatus,
+  inputSentencesSchema,
 } from '@yjb-platform/shared-types'
 import { buildTransferDatesObj, buildfinalDatesObj } from '../services/sentenceCalculator/helpers/dateObjects'
-import { formatOutputCalculation } from './sentenceCalculatorMapper'
-import { inputSentencesSchema } from '@yjb-platform/shared-types'
+import formatOutputCalculation from './sentenceCalculatorMapper'
 
 describe('inputSentencesSchema', () => {
   it('deserializes date strings into Date objects', () => {
@@ -16,7 +16,7 @@ describe('inputSentencesSchema', () => {
       inputIndividualSentences: [{ from: '2026-06-29', durationMonths: 11 }],
     }
 
-    const result =  inputSentencesSchema.parse(body)
+    const result = inputSentencesSchema.parse(body)
 
     expect(result.inputIndividualSentences[0].from).toEqual(new Date('2026-06-29'))
   })
