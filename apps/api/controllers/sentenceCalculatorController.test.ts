@@ -3,10 +3,9 @@ import {
   OutputCalculation,
   AdjustmentTypes,
   DtoEligibilityStatus,
-  buildTransferDatesObj,
-  buildfinalDatesObj,
   AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
+import { buildTransferDatesObj, buildfinalDatesObj } from '../services/sentenceCalculator/helpers/dateObjects'
 import SentenceCalculatorController from './sentenceCalculatorController'
 
 let controller: SentenceCalculatorController
@@ -32,8 +31,20 @@ describe('SentenceController', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -73,8 +84,20 @@ describe('SentenceController', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -124,8 +147,20 @@ describe('SentenceController', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -180,8 +215,20 @@ describe('SentenceController', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {

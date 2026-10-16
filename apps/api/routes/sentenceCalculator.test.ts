@@ -1,11 +1,10 @@
 import request from 'supertest'
 import express from 'express'
+import { DtoEligibilityStatus, AppliedAdjustmentStatus } from '@yjb-platform/shared-types'
 import {
-  DtoEligibilityStatus,
   DTO_ELIGIBILITY_MESSAGES,
-  AppliedAdjustmentStatus,
   FINAL_SLED_BREAKDOWN_MESSAGE,
-} from '@yjb-platform/shared-types'
+} from '../services/sentenceCalculator/helpers/dateObjects'
 import sentenceCalculatorRoutes from './sentenceCalculator'
 
 const app = express()
@@ -30,8 +29,20 @@ describe('POST /calculations', () => {
           inputSentence: { from: '2026-06-29', durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: '2027-05-28',
-          mtd: '2026-12-12',
+          sled: {
+            data: '2027-05-28',
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: '2026-12-12',
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -41,6 +52,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.not_applied,
             message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+            dayOfWeek: 'Friday',
           },
         },
         mtd: {
@@ -48,6 +60,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.not_applied,
             message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+            dayOfWeek: 'Saturday',
           },
         },
         TUSED: '1970-01-01',
@@ -57,6 +70,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
         },
       },
       etd: {
@@ -64,6 +78,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Thursday',
         },
       },
       effectiveDatesPastAdjustments: [],
@@ -94,8 +109,20 @@ describe('POST /calculations', () => {
           inputSentence: { from: '2026-06-29', durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: '2027-05-28',
-          mtd: '2026-12-12',
+          sled: {
+            data: '2027-05-28',
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: '2026-12-12',
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -105,6 +132,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.applied,
             message: '2027-05-28 minus 15 days',
+            dayOfWeek: 'Thursday',
           },
         },
         mtd: {
@@ -112,6 +140,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.applied,
             message: '2026-12-12 minus 15 days',
+            dayOfWeek: 'Friday',
           },
         },
         TUSED: '1970-01-01',
@@ -121,6 +150,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Sunday',
         },
       },
       etd: {
@@ -128,6 +158,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
         },
       },
       unusedAdjustmentDays: 0,
@@ -146,6 +177,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.not_applied,
                 message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+                dayOfWeek: 'Friday',
               },
             },
             mtd: {
@@ -153,6 +185,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.not_applied,
                 message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+                dayOfWeek: 'Saturday',
               },
             },
             TUSED: '1970-01-01',
@@ -189,8 +222,20 @@ describe('POST /calculations', () => {
           inputSentence: { from: '2026-06-29', durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: '2027-05-28',
-          mtd: '2026-12-12',
+          sled: {
+            data: '2027-05-28',
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
+          mtd: {
+            data: '2026-12-12',
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days from the beginning of the sentence (2026-06-29)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -200,6 +245,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.applied,
             message: '2027-05-28 minus 15 days',
+            dayOfWeek: 'Thursday',
           },
         },
         mtd: {
@@ -207,6 +253,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.applied,
             message: '2026-12-12 minus 15 days',
+            dayOfWeek: 'Friday',
           },
         },
         TUSED: '1970-01-01',
@@ -216,6 +263,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Sunday',
         },
       },
       etd: {
@@ -223,6 +271,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
         },
       },
       effectiveDatesPastAdjustments: [
@@ -240,6 +289,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.not_applied,
                 message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+                dayOfWeek: 'Friday',
               },
             },
             mtd: {
@@ -247,6 +297,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.not_applied,
                 message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+                dayOfWeek: 'Saturday',
               },
             },
             TUSED: '1970-01-01',
@@ -265,6 +316,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.applied,
                 message: '2027-05-28 minus 10 days',
+                dayOfWeek: 'Tuesday',
               },
             },
             mtd: {
@@ -272,6 +324,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.applied,
                 message: '2026-12-12 minus 10 days',
+                dayOfWeek: 'Wednesday',
               },
             },
             TUSED: '1970-01-01',

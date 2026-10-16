@@ -2,12 +2,7 @@ import type { Express } from 'express'
 import request from 'supertest'
 import { isDeepStrictEqual } from 'util'
 import * as cheerio from 'cheerio'
-import {
-  InputSentences,
-  OutputCalculation,
-  DtoEligibilityStatus,
-  buildTransferDatesObj,
-} from '@yjb-platform/shared-types'
+import { InputSentences, OutputCalculation, DtoEligibilityStatus } from '@yjb-platform/shared-types'
 import { appWithAllRoutes } from '../testutils/appSetup'
 import YjbApiClient from '../data/yjbApi'
 import DtoService, { ValidationResult } from '../services/dtoService'
@@ -109,7 +104,14 @@ describe('POST /calculate', () => {
     }
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
-      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('01/01/3093')),
+      etd: {
+        data: new Date('3093-01-01'),
+        metadata: {
+          dayOfWeek: 'Sunday',
+          status: DtoEligibilityStatus.oneMonth,
+          message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        },
+      },
     }
     dtoService.validatePayload.mockReturnValue(validResult)
     dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
@@ -120,7 +122,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#release-dates').text()).toContain('Sun Jan 01 3093')
+        expect($('#calculation-results-tab').text()).toContain('Sunday, 1 January 3093')
       })
   })
 
@@ -143,7 +145,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#detailed-breakdown').text()).toContain(breakdownObj.custodialPeriodBreakdown)
+        expect($('#results-breakdown-tab').text()).toContain(breakdownObj.custodialPeriodBreakdown)
       })
   })
 
@@ -166,11 +168,11 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#detailed-breakdown').text()).toContain(breakdownObj2.custodialPeriodBreakdown)
+        expect($('#results-breakdown-tab').text()).toContain(breakdownObj2.custodialPeriodBreakdown)
       })
   })
 
-  it('should pass the breakdownObj into the template for MTD breakdown', () => {
+  it('should pass the date breakdowns into the template', () => {
     const validResult: ValidationResult = {
       isValid: true,
       parsedInput: {},
@@ -189,7 +191,12 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#detailed-breakdown').text()).toContain(breakdownObj.mtdBreadown)
+        const detailedBreakdown = $('#results-breakdown-tab').text()
+        expect(detailedBreakdown).toContain(breakdownObj.mtdBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.finalSledBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.finalMtdBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.etdBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.ltdBreakdown)
       })
   })
 
@@ -212,7 +219,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#detailed-breakdown').text()).toContain(breakdownObj.remandPeriodBreakdown)
+        expect($('#results-breakdown-tab').text()).toContain(breakdownObj.remandPeriodBreakdown)
         expect(breakdownObj.remandPeriodBreakdown).toBe('(14 June 2026 to 28 June 2026)')
       })
   })
@@ -236,7 +243,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#detailed-breakdown').text()).toContain('(14 June 2026 to 28 June 2026)')
+        expect($('#results-breakdown-tab').text()).toContain('(14 June 2026 to 28 June 2026)')
       })
   })
 
