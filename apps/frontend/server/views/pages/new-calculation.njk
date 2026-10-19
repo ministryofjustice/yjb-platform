@@ -119,17 +119,19 @@
             { name: 'year', value: formData.remandStartDateYear, error: errorsByField['remand-start-date-year'] or false }
           ]
         }) }}
-
-
-      {{ govukInput({
-        label: {
-          text: "Tagged bail"
-        },
-        id: "tagged-bail-days",
-        name: "tagged-bail-days",
-        value: formData.taggedBailDays,
-        errorMessage: errorsByField['tagged-bail-days'] and { text: errorsByField['tagged-bail-days'] }
-      }) }}
+        {{ govukInput({
+          label: {
+            text: "Tagged bail"
+          },
+          classes: "govuk-input--width-2",
+          id: "tagged-bail-days",
+          name: "tagged-bail-days",
+          suffix: {
+            text: "Days"
+          },
+          value: formData.taggedBailDays,
+          errorMessage: errorsByField['tagged-bail-days'] and { text: errorsByField['tagged-bail-days'] }
+        }) }}
       </div>
     </div>
 
