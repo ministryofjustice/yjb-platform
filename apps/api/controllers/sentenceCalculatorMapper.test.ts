@@ -76,14 +76,14 @@ describe('formatOutputCalculation', () => {
             data: new Date('2027-05-28'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '334 days from the beginning of the sentence (2026-06-29)',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
             },
           },
           mtd: {
             data: new Date('2026-12-12'),
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (2026-06-29)',
+              message: '167 days from the beginning of the sentence (29 June 2026)',
             },
           },
         },

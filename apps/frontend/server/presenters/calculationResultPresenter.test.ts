@@ -24,10 +24,10 @@ describe('calculationResultPresenter', () => {
   })
 
   it('formats the SLED and final MTD breakdowns from their metadata', () => {
-    expect(breakdownObj.finalSledBreakdown).toBe('Thursday, 13 May 2027, 2027-05-28 minus 15 days')
-    expect(breakdownObj.finalMtdBreakdown).toBe('Friday, 27 November 2026, 2026-12-12 minus 15 days')
+    expect(breakdownObj.finalSledBreakdown).toBe('Thursday, 13 May 2027, 28 May 2027 minus 15 days')
+    expect(breakdownObj.finalMtdBreakdown).toBe('Friday, 27 November 2026, 12 December 2026 minus 15 days')
     expect(breakdownObj.mtdBreakdown).toBe(
-      'Saturday, 12 December 2026, 167 days from the beginning of the sentence (2026-06-29)',
+      'Saturday, 12 December 2026, 167 days from the beginning of the sentence (29 June 2026)',
     )
   })
 

@@ -13,7 +13,7 @@ export function formatUkDate(date: Date | string): string {
   return formatDateInUtc(date, 'd MMMM yyyy')
 }
 
-// machine readable dates, e.g. 2026-06-29 - used in the API response and the back link query string
+// backend readable dates, e.g. 2026-06-29 - used in the API response and the back link query string
 export function toDateString(date: Date | string): string {
   return formatDateInUtc(date, 'yyyy-MM-dd')
 }

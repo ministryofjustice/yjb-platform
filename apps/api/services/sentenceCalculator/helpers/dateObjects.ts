@@ -4,7 +4,7 @@ import {
   finalDatesObj,
   termDatesObj,
   transferDatesObj,
-  toDateString,
+  formatUkDate,
 } from '@yjb-platform/shared-types'
 
 export const DTO_ELIGIBILITY_MESSAGES: Record<DtoEligibilityStatus, string> = {
@@ -54,7 +54,7 @@ export function buildfinalDatesObj(
   let message = FINAL_SLED_BREAKDOWN_MESSAGE[status]
 
   if (status === AppliedAdjustmentStatus.applied && initialDate && adjustmentDuration) {
-    const sentenceStartStr = toDateString(initialDate)
+    const sentenceStartStr = formatUkDate(initialDate)
     message = format(FINAL_SLED_BREAKDOWN_MESSAGE[status], sentenceStartStr, adjustmentDuration)
   } else if (status === AppliedAdjustmentStatus.collapsedUnused && unusedDays) {
     message = format(FINAL_SLED_BREAKDOWN_MESSAGE[status], unusedDays)
@@ -71,7 +71,7 @@ export function buildfinalDatesObj(
 }
 
 export function buildTermDatesObj(data: Date, daysFromSentenceStart: number, sentenceStart: Date): termDatesObj {
-  const sentenceStartStr = toDateString(new Date(sentenceStart))
+  const sentenceStartStr = formatUkDate(new Date(sentenceStart))
 
   return {
     data,
