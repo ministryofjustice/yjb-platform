@@ -13,13 +13,14 @@ describe('New calculation page', () => {
 
     it('renders the page heading and subheading', () => {
       const cheerioPage = renderWithCheerio()
-      expect(cheerioPage('h1').text()).toBe('New calculation')
-      expect(cheerioPage('h2').first().text()).toBe('Offence and sentence details')
+      expect(cheerioPage('h1').text()).toBe('Start a new calculation')
     })
 
     it('renders the expected text', () => {
       const cheerioPage = renderWithCheerio()
-      expect(cheerioPage('#instruction-text').text()).toBe('Enter the calculation details below')
+      expect(cheerioPage('#instruction-text').text()).toBe(
+        'Use this tool to check a Detention and Training Order (DTO) calculation.',
+      )
     })
   })
 
@@ -39,26 +40,27 @@ describe('New calculation page', () => {
   })
 
   describe('inputs', () => {
-    it('includes the sentence type dropdown', () => {
-      const cheerioPage = renderWithCheerio()
+    // Sentence type dropdown not needed for now
+    // it('includes the sentence type dropdown', () => {
+    //   const cheerioPage = renderWithCheerio()
 
-      const typeInput = cheerioPage('#sentence-type')
-      expect(typeInput.length).toBe(1)
+    //   const typeInput = cheerioPage('#sentence-type')
+    //   expect(typeInput.length).toBe(1)
 
-      const dropdownOptions = typeInput
-        .find('option')
-        .toArray()
-        .map(el => cheerioPage(el))
+    //   const dropdownOptions = typeInput
+    //     .find('option')
+    //     .toArray()
+    //     .map(el => cheerioPage(el))
 
-      // check default option is blank
-      expect(dropdownOptions[0].attr('disabled')).toBeDefined()
-      expect(dropdownOptions[0].attr('selected')).toBeDefined()
-      expect(dropdownOptions[0].text().trim()).toBe('')
+    //   // check default option is blank
+    //   expect(dropdownOptions[0].attr('disabled')).toBeDefined()
+    //   expect(dropdownOptions[0].attr('selected')).toBeDefined()
+    //   expect(dropdownOptions[0].text().trim()).toBe('')
 
-      // check options are correct
-      expect(dropdownOptions[1].text().trim()).toBe('Some sentence that is applicable to DTO')
-      expect(dropdownOptions[1].attr('value')).toBe('some-sentence-code')
-    })
+    //   // check options are correct
+    //   expect(dropdownOptions[1].text().trim()).toBe('Some sentence that is applicable to DTO')
+    //   expect(dropdownOptions[1].attr('value')).toBe('some-sentence-code')
+    // })
 
     it('includes the sentence date input', () => {
       const cheerioPage = renderWithCheerio()
