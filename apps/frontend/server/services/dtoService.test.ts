@@ -148,12 +148,12 @@ describe('DtoService', () => {
         sentenceDateMonth: 5,
         sentenceDateYear: 1990,
         sentenceDate: new Date(Date.UTC(1990, 4, 14)),
-        sentenceDateString: '14/05/1990',
+        sentenceDateString: '14 May 1990',
         remandStartDateDay: 9,
         remandStartDateMonth: 5,
         remandStartDateYear: 1990,
         remandStartDate: new Date(Date.UTC(1990, 4, 9)),
-        remandStartDateString: '09/05/1990',
+        remandStartDateString: '9 May 1990',
       }
       expect(dtoService.validatePayload(inputData).parsedInput).toEqual(expectedParsedInput)
     })
@@ -176,7 +176,7 @@ describe('DtoService', () => {
         sentenceDateMonth: 5,
         sentenceDateYear: 1990,
         sentenceDate: new Date(Date.UTC(1990, 4, 14)),
-        sentenceDateString: '14/05/1990',
+        sentenceDateString: '14 May 1990',
       }
       expect(dtoService.validatePayload(payload).parsedInput).toEqual(expectedParsedInput)
       // nothing submitted, parsedInput is still returned, just empty
@@ -195,7 +195,7 @@ describe('DtoService', () => {
         sentenceDateMonth: 5,
         sentenceDateYear: 1990,
         sentenceDate: new Date(Date.UTC(1990, 4, 14)),
-        sentenceDateString: '14/05/1990',
+        sentenceDateString: '14 May 1990',
         taggedBailDays: 0,
       }
 
