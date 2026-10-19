@@ -7,10 +7,10 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/tabs/macro.njk" import govukTabs %}
 
-{% set backHref = "/calculate?remandStartDate=" + (inputData.remandStartDateString or "")
+{% set backHref = "/calculate?remandStartDate=" + (inputData.remandStartDate | toDateString)
   + "&taggedBailDays=" + inputData.taggedBailDays
   + "&sentenceLengthMonths=" + inputData.sentenceLengthMonths
-  + "&sentenceDate=" + inputData.sentenceDateString
+  + "&sentenceDate=" + (inputData.sentenceDate | toDateString)
 %}
 
 {% block content %}

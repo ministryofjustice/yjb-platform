@@ -69,6 +69,30 @@ describe('GET /calculate', () => {
         })
     })
 
+    it.each([
+      ['missing', ''],
+      ['not a date', '?sentenceDate=abc&remandStartDate=abc'],
+      ['impossible (31 February)', '?sentenceDate=31/02/2026&remandStartDate=31/02/2026'],
+    ])('empty date boxes when the dates in the queryString are %s', (_description, queryString) => {
+      return request(app)
+        .get(`/calculate${queryString}`)
+        .expect(200)
+        .expect(res => {
+          const $ = cheerio.load(res.text)
+          const dateBoxIds = [
+            '#sentence-date-day',
+            '#sentence-date-month',
+            '#sentence-date-year',
+            '#remand-start-date-day',
+            '#remand-start-date-month',
+            '#remand-start-date-year',
+          ]
+          dateBoxIds.forEach(id => {
+            expect($(id).attr('value')).toBeUndefined()
+          })
+        })
+    })
+
     const fieldTestCases = [
       ['11', '#sentence-length-months', 'sentenceLengthMonths'],
       ['654', '#tagged-bail-days', 'taggedBailDays'],
@@ -269,8 +293,8 @@ describe('POST /calculate', () => {
         remandStartDateString: '20/12/2032',
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
-        sentenceDate: new Date('01/22/2033'),
-        sentenceDateString: '01/22/2033',
+        sentenceDate: new Date(Date.UTC(2033, 0, 22)),
+        sentenceDateString: '22/01/2033',
       },
       errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },

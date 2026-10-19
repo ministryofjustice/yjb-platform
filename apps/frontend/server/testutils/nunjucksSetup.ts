@@ -1,6 +1,7 @@
 import nunjucks from 'nunjucks'
 import path from 'path'
 import { initialiseName } from '../utils/utils'
+import { toDateString } from '../utils/dateUtils'
 
 export default function createNunjucksTestSetup(): nunjucks.Environment {
   const env = new nunjucks.Environment(
@@ -14,6 +15,7 @@ export default function createNunjucksTestSetup(): nunjucks.Environment {
   env.addGlobal('applicationName', 'Youth Justice Platform')
   env.addFilter('assetMap', (url: string) => url)
   env.addFilter('initialiseName', initialiseName)
+  env.addFilter('toDateString', (date?: Date | string) => (date ? toDateString(date) : ''))
 
   return env
 }

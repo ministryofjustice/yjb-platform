@@ -3,7 +3,6 @@ import { formatUkDate } from './dateUtils'
 describe('dateUtils', () => {
   const date = new Date(Date.UTC(2026, 5, 9))
 
-
   it('formatUkDate formats as day, month name and year', () => {
     expect(formatUkDate(date)).toBe('9 June 2026')
   })
