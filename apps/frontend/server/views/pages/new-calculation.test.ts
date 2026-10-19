@@ -14,12 +14,13 @@ describe('New calculation page', () => {
     it('renders the page heading and subheading', () => {
       const cheerioPage = renderWithCheerio()
       expect(cheerioPage('h1').text()).toBe('Start a new calculation')
-      expect(cheerioPage('h2').first().text()).toBe('Offence and sentence details')
     })
 
     it('renders the expected text', () => {
       const cheerioPage = renderWithCheerio()
-      expect(cheerioPage('#instruction-text').text()).toBe('Use this tool to check a Detention and Training Order (DTO) calculation.')
+      expect(cheerioPage('#instruction-text').text()).toBe(
+        'Use this tool to check a Detention and Training Order (DTO) calculation.',
+      )
     })
   })
 

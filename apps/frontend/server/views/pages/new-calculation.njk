@@ -21,8 +21,6 @@
   <h1>Start a new calculation</h1>
   <p id="instruction-text">Use this tool to check a Detention and Training Order (DTO) calculation.</p>
 
-  <h2>Offence and sentence details</h2>
-
   <form id="calculation-form" action="/calculate" method="post">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-one-third">
@@ -73,17 +71,22 @@
             classes: "govuk-fieldset__legend--s"
           }
         }) %}
-          {{ govukInput({
-            label: {
-              text: "Months"
-            },
-            classes: "govuk-!-width-one-quarter",
-            id: "sentence-length-months",
-            name: "sentence-length-months",
-            value: formData.sentenceLengthMonths,
-            errorMessage: errorsByField['sentence-length-months'] and { text: errorsByField['sentence-length-months'] }
-          }) }}
+        {{ govukInput({
+          label: {
+            text: "Months"
+          },
+          classes: "govuk-input--width-2",
+          id: "sentence-length-months",
+          name: "sentence-length-months",
+          suffix: {
+            text: "Months"
+          },
+          value: formData.sentenceLengthMonths,
+          errorMessage: errorsByField['sentence-length-months'] and { text: errorsByField['sentence-length-months'] }
+        }) }}
         {% endcall %}
+
+      
 
 
         {# Commention out for now
