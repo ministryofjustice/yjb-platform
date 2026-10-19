@@ -1,12 +1,11 @@
 import { Router } from 'express'
 import { UTCDate } from '@date-fns/utc'
 import { isValid, parse } from 'date-fns'
-import { OutputCalculation } from '@yjb-platform/shared-types'
+import { OutputCalculation, toDateString } from '@yjb-platform/shared-types'
 import type { Services } from '../services'
 import { ParsedDtoForm, ValidationResult } from '../services/dtoService'
 import DtoFormPresenter, { FormPageObject } from '../presenters/dtoFormPresenter'
 import CalculationResultPresenter, { CalculationResultObj } from '../presenters/calculationResultPresenter'
-import { toDateString } from '../utils/dateUtils'
 
 type DateParts = {
   day?: number
