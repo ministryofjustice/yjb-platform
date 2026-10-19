@@ -156,7 +156,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#calculation-results-tab').text()).toContain('Sunday, 1 January 3093')
+        expect($('#calculation-results').text()).toContain('Sunday, 1 January 3093')
       })
   })
 
@@ -179,7 +179,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#results-breakdown-tab').text()).toContain(breakdownObj.custodialPeriodBreakdown)
+        expect($('#results-breakdown').text()).toContain(breakdownObj.custodialPeriodBreakdown)
       })
   })
 
@@ -202,7 +202,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#results-breakdown-tab').text()).toContain(breakdownObj2.custodialPeriodBreakdown)
+        expect($('#results-breakdown').text()).toContain(breakdownObj2.custodialPeriodBreakdown)
       })
   })
 
@@ -225,7 +225,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        const detailedBreakdown = $('#results-breakdown-tab').text()
+        const detailedBreakdown = $('#results-breakdown').text()
         expect(detailedBreakdown).toContain(breakdownObj.mtdBreakdown)
         expect(detailedBreakdown).toContain(breakdownObj.finalSledBreakdown)
         expect(detailedBreakdown).toContain(breakdownObj.finalMtdBreakdown)
@@ -253,7 +253,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#results-breakdown-tab').text()).toContain(breakdownObj.remandPeriodBreakdown)
+        expect($('#results-breakdown').text()).toContain(breakdownObj.remandPeriodBreakdown)
         expect(breakdownObj.remandPeriodBreakdown).toBe('(14 June 2026 to 28 June 2026)')
       })
   })
@@ -277,7 +277,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#results-breakdown-tab').text()).toContain('(14 June 2026 to 28 June 2026)')
+        expect($('#results-breakdown').text()).toContain('(14 June 2026 to 28 June 2026)')
       })
   })
 

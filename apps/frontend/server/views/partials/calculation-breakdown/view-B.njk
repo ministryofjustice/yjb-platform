@@ -1,65 +1,55 @@
+{%- from "moj/components/side-navigation/macro.njk" import mojSideNavigation -%}
+
 <div id="view-2" class="govuk-grid-row">
-
-  {% set calculationResultsHtml %}
-  <h2>Calculation results</h2>
-
-  {{ govukSummaryList({
-        rows: [
-          { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" } },
-          { key: { text: "Term length" }, value: { text: calculationResult.calculatedTerms[0].inputSentence.durationMonths + " months (" + calculationResult.calculatedTerms[0].totalDaysInTerm + " days)" } },
-          { key: { text: "Custodial period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days" } },
-          { key: { text: "MTD" }, value: { text: termDates.mtd } },
-          { key: { text: "Remand period" }, value: { text: calculationResult.remandPeriodDays + " days" } },
-          { key: { text: "SLED" }, value: { text: resultDates.finalSled } },
-          { key: { text: "Final MTD" }, value: { text: resultDates.finalMtd } },
-          { key: { text: "ETD" }, value: { text: resultDates.etd } },
-          { key: { text: "LTD" }, value: { text: resultDates.ltd } }
-        ]
-      }) }}
-  {% endset -%}
-
-  {% set resultsBreakdownHtml %}
-  <h2>Results breakdown</h2>
-
-  {{ govukSummaryList({
-    rows: [
-      { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" } },
-      { key: { text: "Term length" }, value: { text: breakdownObj.termLengthBreakdown } },
-      { key: { text: "Custodial period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days (" + breakdownObj.custodialPeriodBreakdown + ")" } },
-      { key: { text: "MTD" }, value: { text: breakdownObj.mtdBreakdown } },
-      { key: { text: "Remand period" }, value: { text: calculationResult.remandPeriodDays + " days " + breakdownObj.remandPeriodBreakdown } },
-      { key: { text: "SLED" }, value: { text: breakdownObj.finalSledBreakdown } },
-      { key: { text: "Final MTD" }, value: { text: breakdownObj.finalMtdBreakdown } },
-      { key: { text: "ETD" }, value: { text: breakdownObj.etdBreakdown } },
-      { key: { text: "LTD" }, value: { text: breakdownObj.ltdBreakdown } }
-    ]
-  }) }}
-  {% endset -%}
-
-  <div class="govuk-grid-column-two-thirds">
-    {{ govukTabs({
+  <div class="govuk-grid-column-one-quarter">
+    {{ mojSideNavigation({
+      label: "Side navigation",
       items: [
-        {
-          label: "Calculation results",
-          id: "calculation-results-tab",
-          panel: {
-            html: calculationResultsHtml
-          }
-        },
-        {
-          label: "Results breakdown",
-          id: "results-breakdown-tab",
-          panel: {
-            html: resultsBreakdownHtml
-          }
-        }
+        { text: "Sentence calculation", href: "#calculation-results", active: true },
+        { text: "Detailed breakdown", href: "#results-breakdown" }
       ]
     }) }}
+  </div>
 
-    <div class="govuk-grid-row govuk-!-padding-left-3 govuk-!-padding-top-4">
+  <div class="govuk-grid-column-three-quarters">
+    <div id="calculation-results" class="js-side-nav-panel">
+      <h2>Calculation results</h2>
+
+      {{ govukSummaryList({
+            rows: [
+              { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" } },
+              { key: { text: "Term length" }, value: { text: calculationResult.calculatedTerms[0].inputSentence.durationMonths + " months (" + calculationResult.calculatedTerms[0].totalDaysInTerm + " days)" } },
+              { key: { text: "Custodial period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days" } },
+              { key: { text: "MTD" }, value: { text: termDates.mtd } },
+              { key: { text: "Remand period" }, value: { text: calculationResult.remandPeriodDays + " days" } },
+              { key: { text: "SLED" }, value: { text: resultDates.finalSled } },
+              { key: { text: "Final MTD" }, value: { text: resultDates.finalMtd } },
+              { key: { text: "ETD" }, value: { text: resultDates.etd } },
+              { key: { text: "LTD" }, value: { text: resultDates.ltd } }
+            ]
+          }) }}
+    </div>
+
+    <div id="results-breakdown" class="js-side-nav-panel">
+      <h2>Results breakdown</h2>
+
+      {{ govukSummaryList({
+        rows: [
+          { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" } },
+          { key: { text: "Term length" }, value: { text: breakdownObj.termLengthBreakdown } },
+          { key: { text: "Custodial period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days (" + breakdownObj.custodialPeriodBreakdown + ")" } },
+          { key: { text: "MTD" }, value: { text: breakdownObj.mtdBreakdown } },
+          { key: { text: "Remand period" }, value: { text: calculationResult.remandPeriodDays + " days " + breakdownObj.remandPeriodBreakdown } },
+          { key: { text: "SLED" }, value: { text: breakdownObj.finalSledBreakdown } },
+          { key: { text: "Final MTD" }, value: { text: breakdownObj.finalMtdBreakdown } },
+          { key: { text: "ETD" }, value: { text: breakdownObj.etdBreakdown } },
+          { key: { text: "LTD" }, value: { text: breakdownObj.ltdBreakdown } }
+        ]
+      }) }}
+    </div>
+
+    <div class="govuk-!-padding-top-4">
       <a id="new-calculation-link-b" href="/calculate">Start a new DTO calculation</a>
     </div>
   </div>
-
-
 </div>

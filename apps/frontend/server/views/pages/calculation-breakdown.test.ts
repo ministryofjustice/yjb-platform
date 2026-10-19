@@ -134,13 +134,13 @@ describe('Calculation breakdown page', () => {
       const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj, termDates, resultDates })
 
       const calculationDataRows: Record<string, string> = {}
-      cheerioPage('#calculation-results-tab .govuk-summary-list__row').each((_, el) => {
+      cheerioPage('#calculation-results .govuk-summary-list__row').each((_, el) => {
         const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
         calculationDataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
       })
 
       const explanationDataRows: Record<string, string> = {}
-      cheerioPage('#results-breakdown-tab .govuk-summary-list__row').each((_, el) => {
+      cheerioPage('#results-breakdown .govuk-summary-list__row').each((_, el) => {
         const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
         explanationDataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
       })

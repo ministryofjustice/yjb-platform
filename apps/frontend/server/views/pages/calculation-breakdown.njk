@@ -60,3 +60,41 @@
   {% include "../partials/calculation-breakdown/view-B.njk" %}
 
 {% endblock %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  <script nonce="{{ cspNonce }}">
+    // the side navigation shows one section of the results at a time
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = document.querySelectorAll('.moj-side-navigation__item a')
+      const panels = document.querySelectorAll('.js-side-nav-panel')
+
+      function showPanel(panelId) {
+        panels.forEach(panel => {
+          panel.hidden = panel.id !== panelId
+        })
+
+        links.forEach(link => {
+          const isActive = link.getAttribute('href') === `#${panelId}`
+          link.parentElement.classList.toggle('moj-side-navigation__item--active', isActive)
+          if (isActive) {
+            link.setAttribute('aria-current', 'location')
+          } else {
+            link.removeAttribute('aria-current')
+          }
+        })
+      }
+
+      links.forEach(link => {
+        link.addEventListener('click', event => {
+          event.preventDefault()
+          showPanel(link.getAttribute('href').slice(1))
+        })
+      })
+
+      if (panels.length > 0) {
+        showPanel(panels[0].id)
+      }
+    })
+  </script>
+{% endblock %}
