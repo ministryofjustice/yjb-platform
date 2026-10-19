@@ -19,7 +19,7 @@ describe('New calculation page', () => {
 
     it('renders the expected text', () => {
       const cheerioPage = renderWithCheerio()
-      expect(cheerioPage('#instruction-text').text()).toBe('Enter the calculation details below')
+      expect(cheerioPage('#instruction-text').text()).toBe('Use this tool to check a Detention and Training Order (DTO) calculation.')
     })
   })
 
