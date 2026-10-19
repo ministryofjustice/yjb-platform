@@ -33,14 +33,14 @@ describe('POST /calculations', () => {
             data: '2027-05-28',
             metadata: {
               dayOfWeek: 'Friday',
-              message: '334 days from the beginning of the sentence (2026-06-29)',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
             },
           },
           mtd: {
             data: '2026-12-12',
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (2026-06-29)',
+              message: '167 days from the beginning of the sentence (29 June 2026)',
             },
           },
         },
@@ -113,14 +113,14 @@ describe('POST /calculations', () => {
             data: '2027-05-28',
             metadata: {
               dayOfWeek: 'Friday',
-              message: '334 days from the beginning of the sentence (2026-06-29)',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
             },
           },
           mtd: {
             data: '2026-12-12',
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (2026-06-29)',
+              message: '167 days from the beginning of the sentence (29 June 2026)',
             },
           },
         },
@@ -131,7 +131,7 @@ describe('POST /calculations', () => {
           data: '2027-05-13',
           metadata: {
             status: AppliedAdjustmentStatus.applied,
-            message: '2027-05-28 minus 15 days',
+            message: '28 May 2027 minus 15 days',
             dayOfWeek: 'Thursday',
           },
         },
@@ -139,7 +139,7 @@ describe('POST /calculations', () => {
           data: '2026-11-27',
           metadata: {
             status: AppliedAdjustmentStatus.applied,
-            message: '2026-12-12 minus 15 days',
+            message: '12 December 2026 minus 15 days',
             dayOfWeek: 'Friday',
           },
         },
@@ -226,14 +226,14 @@ describe('POST /calculations', () => {
             data: '2027-05-28',
             metadata: {
               dayOfWeek: 'Friday',
-              message: '334 days from the beginning of the sentence (2026-06-29)',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
             },
           },
           mtd: {
             data: '2026-12-12',
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (2026-06-29)',
+              message: '167 days from the beginning of the sentence (29 June 2026)',
             },
           },
         },
@@ -244,7 +244,7 @@ describe('POST /calculations', () => {
           data: '2027-05-13',
           metadata: {
             status: AppliedAdjustmentStatus.applied,
-            message: '2027-05-28 minus 15 days',
+            message: '28 May 2027 minus 15 days',
             dayOfWeek: 'Thursday',
           },
         },
@@ -252,7 +252,7 @@ describe('POST /calculations', () => {
           data: '2026-11-27',
           metadata: {
             status: AppliedAdjustmentStatus.applied,
-            message: '2026-12-12 minus 15 days',
+            message: '12 December 2026 minus 15 days',
             dayOfWeek: 'Friday',
           },
         },
@@ -314,7 +314,7 @@ describe('POST /calculations', () => {
               data: '2027-05-18',
               metadata: {
                 status: AppliedAdjustmentStatus.applied,
-                message: '2027-05-28 minus 10 days',
+                message: '28 May 2027 minus 10 days',
                 dayOfWeek: 'Tuesday',
               },
             },
@@ -322,7 +322,7 @@ describe('POST /calculations', () => {
               data: '2026-12-02',
               metadata: {
                 status: AppliedAdjustmentStatus.applied,
-                message: '2026-12-12 minus 10 days',
+                message: '12 December 2026 minus 10 days',
                 dayOfWeek: 'Wednesday',
               },
             },

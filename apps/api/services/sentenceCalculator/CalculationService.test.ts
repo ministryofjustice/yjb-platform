@@ -95,14 +95,14 @@ describe('calculateDTOSentence', () => {
             data: new Date('2027-05-28'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '334 days from the beginning of the sentence (2026-06-29)',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
             },
           },
           mtd: {
             data: new Date('2026-12-12'),
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (2026-06-29)',
+              message: '167 days from the beginning of the sentence (29 June 2026)',
             },
           },
         },
@@ -135,14 +135,14 @@ describe('calculateDTOSentence', () => {
             data: new Date('2027-05-28'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '334 days from the beginning of the sentence (2026-06-29)',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
             },
           },
           mtd: {
             data: new Date('2026-12-12'),
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (2026-06-29)',
+              message: '167 days from the beginning of the sentence (29 June 2026)',
             },
           },
         },
@@ -186,14 +186,14 @@ describe('calculateDTOSentence', () => {
             data: new Date('2027-05-28'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '334 days from the beginning of the sentence (2026-06-29)',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
             },
           },
           mtd: {
             data: new Date('2026-12-12'),
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (2026-06-29)',
+              message: '167 days from the beginning of the sentence (29 June 2026)',
             },
           },
         },
@@ -237,14 +237,14 @@ describe('calculateDTOSentence', () => {
             data: new Date('2027-05-28'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '334 days from the beginning of the sentence (2026-06-29)',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
             },
           },
           mtd: {
             data: new Date('2026-12-12'),
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (2026-06-29)',
+              message: '167 days from the beginning of the sentence (29 June 2026)',
             },
           },
         },
@@ -322,14 +322,14 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-09-30'),
             metadata: {
               dayOfWeek: 'Wednesday',
-              message: '122 days from the beginning of the sentence (2026-06-01)',
+              message: '122 days from the beginning of the sentence (1 June 2026)',
             },
           },
           mtd: {
             data: new Date('2026-07-31'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '61 days from the beginning of the sentence (2026-06-01)',
+              message: '61 days from the beginning of the sentence (1 June 2026)',
             },
           },
         },
@@ -388,14 +388,14 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-09-30'),
             metadata: {
               dayOfWeek: 'Wednesday',
-              message: '122 days from the beginning of the sentence (2026-06-01)',
+              message: '122 days from the beginning of the sentence (1 June 2026)',
             },
           },
           mtd: {
             data: new Date('2026-07-31'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '61 days from the beginning of the sentence (2026-06-01)',
+              message: '61 days from the beginning of the sentence (1 June 2026)',
             },
           },
         },
@@ -460,14 +460,14 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-09-30'),
             metadata: {
               dayOfWeek: 'Wednesday',
-              message: '122 days from the beginning of the sentence (2026-06-01)',
+              message: '122 days from the beginning of the sentence (1 June 2026)',
             },
           },
           mtd: {
             data: new Date('2026-07-31'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '61 days from the beginning of the sentence (2026-06-01)',
+              message: '61 days from the beginning of the sentence (1 June 2026)',
             },
           },
         },
@@ -541,14 +541,14 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-09-30'),
             metadata: {
               dayOfWeek: 'Wednesday',
-              message: '122 days from the beginning of the sentence (2026-06-01)',
+              message: '122 days from the beginning of the sentence (1 June 2026)',
             },
           },
           mtd: {
             data: new Date('2026-07-31'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '61 days from the beginning of the sentence (2026-06-01)',
+              message: '61 days from the beginning of the sentence (1 June 2026)',
             },
           },
         },

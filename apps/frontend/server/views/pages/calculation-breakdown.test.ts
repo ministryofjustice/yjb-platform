@@ -34,17 +34,17 @@ describe('Calculation breakdown page', () => {
         sentenceLengthMonths: 22,
         sentenceDate: new Date(Date.UTC(2033, 0, 22)),
         sentenceDateString: '22 January 2033',
-        sentenceDateBtnStr: '22/01/2033',
+        sentenceDateBtnStr: '2033-01-22',
         remandStartDate: new Date(Date.UTC(2032, 11, 20)),
         remandStartDateString: '20 December 2032',
-        remandStartDateBtnStr: '20/12/2032',
+        remandStartDateBtnStr: '2032-12-20',
       }
       const cheerioPage = renderWithCheerio({ inputData: parsedInput })
       const button = cheerioPage('.govuk-back-link')
-      expect(button.prop('href')).toContain(`remandStartDate=20/12/2032`)
+      expect(button.prop('href')).toContain(`remandStartDate=2032-12-20`)
       expect(button.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
       expect(button.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
-      expect(button.prop('href')).toContain(`sentenceDate=22/01/2033`)
+      expect(button.prop('href')).toContain(`sentenceDate=2033-01-22`)
     })
 
     it('includes a Start a new calculation button', () => {
@@ -70,10 +70,10 @@ describe('Calculation breakdown page', () => {
     const expectedExplanationValues: string[][] = [
       ['Term length', ', from 29 June 2026 to 13 May 2027'],
       ['Custodial period', '(334 divided by 2)'],
-      ['MTD', 'Saturday, 12 December 2026, 167 days from the beginning of the sentence (2026-06-29)'],
+      ['MTD', 'Saturday, 12 December 2026, 167 days from the beginning of the sentence (29 June 2026)'],
       ['Remand period', '(14 June 2026 to 28 June 2026)'],
-      ['SLED', 'Thursday, 13 May 2027, 2027-05-28 minus 15 days'],
-      ['Final MTD', 'Friday, 27 November 2026, 2026-12-12 minus 15 days'],
+      ['SLED', 'Thursday, 13 May 2027, 28 May 2027 minus 15 days'],
+      ['Final MTD', 'Friday, 27 November 2026, 12 December 2026 minus 15 days'],
       ['LTD', 'Sunday, 27 December 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
       ['ETD', 'Tuesday, 27 October 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
     ]
@@ -84,10 +84,10 @@ describe('Calculation breakdown page', () => {
         sentenceLengthMonths: 22,
         sentenceDate: new Date(Date.UTC(2033, 0, 22)),
         sentenceDateString: '22 January 2033',
-        sentenceDateBtnStr: '22/01/2033',
+        sentenceDateBtnStr: '2033-01-22',
         remandStartDate: new Date(Date.UTC(2032, 11, 20)),
         remandStartDateString: '20 December 2032',
-        remandStartDateBtnStr: '20/12/2032',
+        remandStartDateBtnStr: '2032-12-20',
       }
 
       it('renders the panel', () => {
@@ -122,10 +122,10 @@ describe('Calculation breakdown page', () => {
       it('renders appropriate change answers link', () => {
         const cheerioPage = renderWithCheerio({ inputData: parsedInput })
         const changeAnswersLink = cheerioPage('.govuk-summary-card .govuk-summary-card__actions .govuk-link')
-        expect(changeAnswersLink.prop('href')).toContain(`remandStartDate=20/12/2032`)
+        expect(changeAnswersLink.prop('href')).toContain(`remandStartDate=2032-12-20`)
         expect(changeAnswersLink.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
         expect(changeAnswersLink.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
-        expect(changeAnswersLink.prop('href')).toContain(`sentenceDate=22/01/2033`)
+        expect(changeAnswersLink.prop('href')).toContain(`sentenceDate=2033-01-22`)
       })
     })
 

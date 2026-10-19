@@ -18,14 +18,14 @@ export const sampleCalculationResult: OutputCalculation = {
         data: new Date('2027-05-28'),
         metadata: {
           dayOfWeek: 'Friday',
-          message: '334 days from the beginning of the sentence (2026-06-29)',
+          message: '334 days from the beginning of the sentence (29 June 2026)',
         },
       },
       mtd: {
         data: new Date('2026-12-12'),
         metadata: {
           dayOfWeek: 'Saturday',
-          message: '167 days from the beginning of the sentence (2026-06-29)',
+          message: '167 days from the beginning of the sentence (29 June 2026)',
         },
       },
     },
@@ -37,7 +37,7 @@ export const sampleCalculationResult: OutputCalculation = {
       metadata: {
         dayOfWeek: 'Thursday',
         status: AppliedAdjustmentStatus.applied,
-        message: '2027-05-28 minus 15 days',
+        message: '28 May 2027 minus 15 days',
       },
     },
     mtd: {
@@ -45,7 +45,7 @@ export const sampleCalculationResult: OutputCalculation = {
       metadata: {
         dayOfWeek: 'Friday',
         status: AppliedAdjustmentStatus.applied,
-        message: '2026-12-12 minus 15 days',
+        message: '12 December 2026 minus 15 days',
       },
     },
     TUSED: new Date('1970-01-01'),
@@ -115,9 +115,9 @@ export const breakdownObj: calcBreakdown = {
   termLengthBreakdown: '11 months (334 days), from 29 June 2026 to 13 May 2027',
   custodialPeriodBreakdown: '(334 divided by 2)',
   remandPeriodBreakdown: '(14 June 2026 to 28 June 2026)',
-  mtdBreakdown: 'Saturday, 12 December 2026, 167 days from the beginning of the sentence (2026-06-29)',
-  finalSledBreakdown: 'Thursday, 13 May 2027, 2027-05-28 minus 15 days',
-  finalMtdBreakdown: 'Friday, 27 November 2026, 2026-12-12 minus 15 days',
+  mtdBreakdown: 'Saturday, 12 December 2026, 167 days from the beginning of the sentence (29 June 2026)',
+  finalSledBreakdown: 'Thursday, 13 May 2027, 28 May 2027 minus 15 days',
+  finalMtdBreakdown: 'Friday, 27 November 2026, 12 December 2026 minus 15 days',
   etdBreakdown: 'Tuesday, 27 October 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months',
   ltdBreakdown: 'Sunday, 27 December 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months',
 }
@@ -135,14 +135,14 @@ export const sampleCalculationResult2: OutputCalculation = {
         data: new Date('2027-05-27'),
         metadata: {
           dayOfWeek: 'Thursday',
-          message: '333 days from the beginning of the sentence (2026-06-28)',
+          message: '333 days from the beginning of the sentence (28 June 2026)',
         },
       },
       mtd: {
         data: new Date('2026-12-11'),
         metadata: {
           dayOfWeek: 'Friday',
-          message: '167 days from the beginning of the sentence (2026-06-28)',
+          message: '167 days from the beginning of the sentence (28 June 2026)',
         },
       },
     },
@@ -154,7 +154,7 @@ export const sampleCalculationResult2: OutputCalculation = {
       metadata: {
         dayOfWeek: 'Wednesday',
         status: AppliedAdjustmentStatus.applied,
-        message: '2027-05-27 minus 15 days',
+        message: '27 May 2027 minus 15 days',
       },
     },
     mtd: {
@@ -162,7 +162,7 @@ export const sampleCalculationResult2: OutputCalculation = {
       metadata: {
         dayOfWeek: 'Thursday',
         status: AppliedAdjustmentStatus.applied,
-        message: '2026-12-11 minus 15 days',
+        message: '11 December 2026 minus 15 days',
       },
     },
     TUSED: new Date('1970-01-01'),

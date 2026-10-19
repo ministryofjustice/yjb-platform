@@ -22,7 +22,7 @@ describe('buildfinalDatesObj', () => {
       metadata: {
         dayOfWeek: 'Thursday',
         status: AppliedAdjustmentStatus.applied,
-        message: '2027-05-28 minus 15 days',
+        message: '28 May 2027 minus 15 days',
       },
     })
   })
@@ -71,7 +71,7 @@ describe('buildTermDatesObj', () => {
       data: new Date('2026-12-12'),
       metadata: {
         dayOfWeek: 'Saturday',
-        message: '167 days from the beginning of the sentence (2026-06-29)',
+        message: '167 days from the beginning of the sentence (29 June 2026)',
       },
     })
   })
@@ -80,7 +80,7 @@ describe('buildTermDatesObj', () => {
     const sentenceStart = '2026-06-29' as unknown as Date
 
     expect(buildTermDatesObj(new Date('2027-05-28'), 334, sentenceStart).metadata.message).toBe(
-      '334 days from the beginning of the sentence (2026-06-29)',
+      '334 days from the beginning of the sentence (29 June 2026)',
     )
   })
 

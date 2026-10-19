@@ -1,12 +1,11 @@
 import { Router } from 'express'
 import { UTCDate } from '@date-fns/utc'
 import { isValid, parse } from 'date-fns'
-import { OutputCalculation } from '@yjb-platform/shared-types'
+import { OutputCalculation, toDateString } from '@yjb-platform/shared-types'
 import type { Services } from '../services'
 import { ParsedDtoForm, ValidationResult } from '../services/dtoService'
 import DtoFormPresenter, { FormPageObject } from '../presenters/dtoFormPresenter'
 import CalculationResultPresenter, { CalculationResultObj } from '../presenters/calculationResultPresenter'
-import { toDateString } from '../utils/dateUtils'
 
 type DateParts = {
   day?: number
@@ -14,14 +13,14 @@ type DateParts = {
   year?: number
 }
 
-// The back link sends dates in the query string as dd/mm/yyyy,
+// The back link sends dates in the query string as yyyy-mm-dd (in function toDateString),
 // but the form shows each date as three separate boxes
 function getDatePartsFromQuery(queryValue: unknown): DateParts {
   if (typeof queryValue !== 'string') {
     return {}
   }
 
-  const date = parse(queryValue, 'dd/MM/yyyy', new UTCDate())
+  const date = parse(queryValue, 'yyyy-MM-dd', new UTCDate())
   if (!isValid(date)) {
     return {}
   }
