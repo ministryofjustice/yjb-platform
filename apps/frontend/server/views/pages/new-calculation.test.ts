@@ -13,7 +13,7 @@ describe('New calculation page', () => {
 
     it('renders the page heading and subheading', () => {
       const cheerioPage = renderWithCheerio()
-      expect(cheerioPage('h1').text()).toBe('New calculation')
+      expect(cheerioPage('h1').text()).toBe('Start a new calculation')
       expect(cheerioPage('h2').first().text()).toBe('Offence and sentence details')
     })
 
