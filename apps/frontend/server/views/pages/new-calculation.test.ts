@@ -69,6 +69,30 @@ describe('New calculation page', () => {
       expect(cheerioPage('#sentence-date').closest('fieldset').find('legend').text()).toContain('Sentence date')
     })
 
+    it('includes the ERD eligibility input', () => {
+      const cheerioPage = renderWithCheerio()
+
+      const eligibilityOptions = cheerioPage('#erd-eligibility')
+        .closest('div.govuk-radios')
+        .find('input')
+        .toArray()
+        .map(input => ({
+          value: cheerioPage(input).attr('value'),
+          label: cheerioPage(input).next('label').text().trim(),
+        }))
+
+      expect(eligibilityOptions).toHaveLength(2)
+      expect(eligibilityOptions).toEqual(
+        expect.arrayContaining([
+          { value: 'true', label: 'Eligible' },
+          { value: 'false', label: 'Not eligible' },
+        ]),
+      )
+      expect(cheerioPage('#erd-eligibility').closest('fieldset').find('legend').text()).toContain(
+        'Eligibility for early release',
+      )
+    })
+
     it('includes a remand start date input and a tagged bail input', () => {
       const cheerioPage = renderWithCheerio()
 
