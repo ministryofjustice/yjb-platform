@@ -34,10 +34,10 @@ describe('Calculation breakdown page', () => {
         sentenceLengthMonths: 22,
         sentenceDate: new Date(Date.UTC(2033, 0, 22)),
         sentenceDateString: '22 January 2033',
-        sentenceDateBtnStr: '22/01/2033',
+        sentenceDateBtnStr: '2033-01-22',
         remandStartDate: new Date(Date.UTC(2032, 11, 20)),
         remandStartDateString: '20 December 2032',
-        remandStartDateBtnStr: '20/12/2032',
+        remandStartDateBtnStr: '2032-12-20',
       }
       const cheerioPage = renderWithCheerio({ inputData: parsedInput })
       const button = cheerioPage('.govuk-back-link')
@@ -84,10 +84,10 @@ describe('Calculation breakdown page', () => {
         sentenceLengthMonths: 22,
         sentenceDate: new Date(Date.UTC(2033, 0, 22)),
         sentenceDateString: '22 January 2033',
-        sentenceDateBtnStr: '22/01/2033',
+        sentenceDateBtnStr: '2033-01-22',
         remandStartDate: new Date(Date.UTC(2032, 11, 20)),
         remandStartDateString: '20 December 2032',
-        remandStartDateBtnStr: '20/12/2032',
+        remandStartDateBtnStr: '2032-12-20',
       }
 
       it('renders the panel', () => {
