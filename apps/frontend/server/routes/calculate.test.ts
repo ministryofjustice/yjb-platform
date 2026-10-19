@@ -381,3 +381,82 @@ describe('POST /calculate', () => {
       })
   })
 })
+
+describe('back link from the calculation breakdown page', () => {
+  // the rest of this file mocks DtoService - these tests need the real one, so the back link is
+  // built from what the form really produces. Only the API call is mocked
+  const RealDtoService: typeof DtoService = jest.requireActual('../services/dtoService').default
+
+  let appWithRealDtoService: Express
+
+  beforeEach(() => {
+    yjbApiClient.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
+    appWithRealDtoService = appWithAllRoutes({
+      services: { dtoService: new RealDtoService(yjbApiClient), yjbApiClient },
+    })
+  })
+
+  const completedForm = {
+    'sentence-date-day': '29',
+    'sentence-date-month': '6',
+    'sentence-date-year': '2026',
+    'sentence-length-months': '11',
+    'remand-start-date-day': '14',
+    'remand-start-date-month': '6',
+    'remand-start-date-year': '2026',
+    'tagged-bail-days': '5',
+  }
+
+  async function submitForm(form: Record<string, string>): Promise<cheerio.CheerioAPI> {
+    const response = await request(appWithRealDtoService).post('/calculate').type('form').send(form).expect(200)
+    return cheerio.load(response.text)
+  }
+
+  async function followLink(href: string): Promise<cheerio.CheerioAPI> {
+    const response = await request(appWithRealDtoService).get(href).expect(200)
+    return cheerio.load(response.text)
+  }
+
+  it('refills the form with everything that was submitted', async () => {
+    const breakdownPage = await submitForm(completedForm)
+    const backHref = breakdownPage('.govuk-back-link').attr('href')
+
+    const formPage = await followLink(backHref)
+
+    expect(formPage('#sentence-date-day').attr('value')).toBe('29')
+    expect(formPage('#sentence-date-month').attr('value')).toBe('6')
+    expect(formPage('#sentence-date-year').attr('value')).toBe('2026')
+    expect(formPage('#sentence-length-months').attr('value')).toBe('11')
+    expect(formPage('#remand-start-date-day').attr('value')).toBe('14')
+    expect(formPage('#remand-start-date-month').attr('value')).toBe('6')
+    expect(formPage('#remand-start-date-year').attr('value')).toBe('2026')
+    expect(formPage('#tagged-bail-days').attr('value')).toBe('5')
+  })
+
+  it('uses the same link for "Change answers"', async () => {
+    const breakdownPage = await submitForm(completedForm)
+
+    const backHref = breakdownPage('.govuk-back-link').attr('href')
+    const changeAnswersHref = breakdownPage('.govuk-summary-card__actions .govuk-link').attr('href')
+
+    expect(changeAnswersHref).toBe(backHref)
+  })
+
+  it('does not put "undefined" in the link when the optional remand and tagged bail are left blank', async () => {
+    const breakdownPage = await submitForm({
+      ...completedForm,
+      'remand-start-date-day': '',
+      'remand-start-date-month': '',
+      'remand-start-date-year': '',
+      'tagged-bail-days': '',
+    })
+    const backHref = breakdownPage('.govuk-back-link').attr('href')
+
+    expect(backHref).not.toContain('undefined')
+
+    const formPage = await followLink(backHref)
+    expect(formPage('#remand-start-date-day').attr('value')).toBeUndefined()
+    expect(formPage('#remand-start-date-month').attr('value')).toBeUndefined()
+    expect(formPage('#remand-start-date-year').attr('value')).toBeUndefined()
+  })
+})
