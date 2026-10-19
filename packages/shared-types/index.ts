@@ -6,6 +6,7 @@ import { finalDatesObj } from './final-dates-status'
 export { AdjustmentTypes }
 export * from './dto-eligibility-status'
 export * from './final-dates-status'
+export * from './dateUtils'
 
 // input types
 export type InputIndividualSentence = {

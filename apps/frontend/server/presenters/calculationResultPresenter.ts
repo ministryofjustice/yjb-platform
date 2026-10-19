@@ -1,7 +1,6 @@
 import { UTCDate } from '@date-fns/utc'
 import { subDays } from 'date-fns'
-import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform/shared-types'
-import { formatUkDate } from '../utils/dateUtils'
+import { OutputCalculation, calcBreakdown, AdjustmentTypes, formatUkDate } from '@yjb-platform/shared-types'
 
 export type CalculationResultObj = {
   breakdownObj: calcBreakdown

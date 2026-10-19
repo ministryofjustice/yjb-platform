@@ -9,9 +9,9 @@ import {
   sentenceDateMonthSchema,
   sentenceDateYearSchema,
   ValidationErrorMessages,
+  formatUkDate,
 } from '@yjb-platform/shared-types'
 import YjbApiClient from '../data/yjbApi'
-import { formatUkDate } from '../utils/dateUtils'
 import DtoParseResult, { FieldError, ParsedDtoForm } from './helpers/dtoParseResult'
 
 export type { FieldError, ParsedDtoForm }

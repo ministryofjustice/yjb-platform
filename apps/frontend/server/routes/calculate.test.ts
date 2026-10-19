@@ -47,9 +47,9 @@ describe('GET /calculate', () => {
   })
 
   describe('should render', () => {
-    it('a sentence date of 11/03/2044 when queryString sentenceDate=11/03/2044 is passed', () => {
+    it('a sentence date of 12/04/2045 when queryString sentenceDate=2045-04-12 is passed', () => {
       return request(app)
-        .get('/calculate?sentenceDate=12/04/2045')
+        .get('/calculate?sentenceDate=2045-04-12')
         .expect(res => {
           const $ = cheerio.load(res.text)
           expect($('#sentence-date-day').attr('value')).toContain('12')
@@ -58,9 +58,9 @@ describe('GET /calculate', () => {
         })
     })
 
-    it('a remand start date of 20/10/2026 when queryString remandStartDate=20/10/2026 is passed', () => {
+    it('a remand start date of 20/10/2026 when queryString remandStartDate=2026-10-20 is passed', () => {
       return request(app)
-        .get('/calculate?remandStartDate=20/10/2026')
+        .get('/calculate?remandStartDate=2026-10-20')
         .expect(res => {
           const $ = cheerio.load(res.text)
           expect($('#remand-start-date-day').attr('value')).toContain('20')
@@ -72,7 +72,7 @@ describe('GET /calculate', () => {
     it.each([
       ['missing', ''],
       ['not a date', '?sentenceDate=abc&remandStartDate=abc'],
-      ['impossible (31 February)', '?sentenceDate=31/02/2026&remandStartDate=31/02/2026'],
+      ['impossible (31 February)', '?sentenceDate=2026-02-31&remandStartDate=2026-02-31'],
     ])('empty date boxes when the dates in the queryString are %s', (_description, queryString) => {
       return request(app)
         .get(`/calculate${queryString}`)
@@ -290,11 +290,11 @@ describe('POST /calculate', () => {
       isValid: true,
       parsedInput: {
         remandStartDate: new Date(Date.UTC(2032, 11, 20)),
-        remandStartDateString: '20/12/2032',
+        remandStartDateString: '20 December 2032',
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
         sentenceDate: new Date(Date.UTC(2033, 0, 22)),
-        sentenceDateString: '22/01/2033',
+        sentenceDateString: '22 January 2033',
       },
       errors: [],
       payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
@@ -310,9 +310,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('.govuk-back-link').prop('href')).toContain(
-          `remandStartDate=${validResult.parsedInput.remandStartDateString}`,
-        )
+        expect($('.govuk-back-link').prop('href')).toContain('remandStartDate=2032-12-20')
       })
   })
 

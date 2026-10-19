@@ -1,11 +1,10 @@
-import { UTCDate } from '@date-fns/utc'
-import { format as formatDate } from 'date-fns'
 import {
   AppliedAdjustmentStatus,
   DtoEligibilityStatus,
   finalDatesObj,
   termDatesObj,
   transferDatesObj,
+  toDateString,
 } from '@yjb-platform/shared-types'
 
 export const DTO_ELIGIBILITY_MESSAGES: Record<DtoEligibilityStatus, string> = {
@@ -29,10 +28,6 @@ function format(template: string, ...args: Array<string | number>): string {
 // timeZone UTC as dates are built with Date.UTC, so local time can't shift the day
 function getDayOfWeek(date: Date): string {
   return date.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' })
-}
-
-export function toIsoDateString(date: Date): string {
-  return formatDate(new UTCDate(date), 'yyyy-MM-dd')
 }
 
 export function buildTransferDatesObj(status: DtoEligibilityStatus, data: Date | 0): transferDatesObj {
@@ -59,7 +54,7 @@ export function buildfinalDatesObj(
   let message = FINAL_SLED_BREAKDOWN_MESSAGE[status]
 
   if (status === AppliedAdjustmentStatus.applied && initialDate && adjustmentDuration) {
-    const sentenceStartStr = toIsoDateString(initialDate)
+    const sentenceStartStr = toDateString(initialDate)
     message = format(FINAL_SLED_BREAKDOWN_MESSAGE[status], sentenceStartStr, adjustmentDuration)
   } else if (status === AppliedAdjustmentStatus.collapsedUnused && unusedDays) {
     message = format(FINAL_SLED_BREAKDOWN_MESSAGE[status], unusedDays)
@@ -76,7 +71,7 @@ export function buildfinalDatesObj(
 }
 
 export function buildTermDatesObj(data: Date, daysFromSentenceStart: number, sentenceStart: Date): termDatesObj {
-  const sentenceStartStr = toIsoDateString(new Date(sentenceStart))
+  const sentenceStartStr = toDateString(new Date(sentenceStart))
 
   return {
     data,
