@@ -11,7 +11,7 @@ import {
   ValidationErrorMessages,
 } from '@yjb-platform/shared-types'
 import YjbApiClient from '../data/yjbApi'
-import { toDateString } from '../utils/dateUtils'
+import { formatUkDate } from '../utils/dateUtils'
 import DtoParseResult, { FieldError, ParsedDtoForm } from './helpers/dtoParseResult'
 
 export type { FieldError, ParsedDtoForm }
@@ -106,12 +106,12 @@ function parseDtoForm(formData: Record<string, unknown>): DtoParseResult {
 
   if (dateResult.constructedDate) {
     parseResult.data.sentenceDate = dateResult.constructedDate
-    parseResult.data.sentenceDateString = toDateString(dateResult.constructedDate)
+    parseResult.data.sentenceDateString = formatUkDate(dateResult.constructedDate)
   }
 
   if (remandStartDateResult.constructedDate) {
     parseResult.data.remandStartDate = remandStartDateResult.constructedDate
-    parseResult.data.remandStartDateString = toDateString(remandStartDateResult.constructedDate)
+    parseResult.data.remandStartDateString = formatUkDate(remandStartDateResult.constructedDate)
   }
 
   // evaluate all fields individually and either push err or parsed field

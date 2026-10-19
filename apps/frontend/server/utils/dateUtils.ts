@@ -6,10 +6,12 @@ function formatDateInUtc(date: Date | string, pattern: string): string {
   return format(dateInUtc, pattern)
 }
 
-export function toDateString(date: Date | string): string {
-  return formatDateInUtc(date, 'dd/MM/yyyy')
-}
-
+// user facing dates
 export function formatUkDate(date: Date | string): string {
   return formatDateInUtc(date, 'd MMMM yyyy')
+}
+
+// backend button dates
+export function toDateString(date: Date | string): string {
+  return formatDateInUtc(date, 'dd/MM/yyyy')
 }

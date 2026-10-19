@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio'
 import { OutputCalculation } from '@yjb-platform/shared-types'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
 import { sampleCalculationResult, breakdownObj, termDates, resultDates } from '../../testutils/sampleObjects'
-import { ParsedDtoForm } from '../../services/dtoService'
+import { CalculationBreakdownInputData } from '../../routes/calculate'
 
 const env = createNunjucksTestSetup()
 const renderWithCheerio = (context = {}) => cheerio.load(env.render('pages/calculation-breakdown.njk', context))
@@ -29,20 +29,22 @@ describe('Calculation breakdown page', () => {
     })
 
     it('passes the submitted form data to the back button', () => {
-      const parsedInput: ParsedDtoForm = {
+      const parsedInput: CalculationBreakdownInputData = {
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
-        sentenceDate: new Date('01/22/2033'),
-        sentenceDateString: '01/22/2033',
-        remandStartDate: new Date('12/20/2032'),
-        remandStartDateString: '12/20/2032',
+        sentenceDate: new Date(Date.UTC(2033, 0, 22)),
+        sentenceDateString: '22 January 2033',
+        sentenceDateBtnStr: '22/01/2033',
+        remandStartDate: new Date(Date.UTC(2032, 11, 20)),
+        remandStartDateString: '20 December 2032',
+        remandStartDateBtnStr: '20/12/2032',
       }
       const cheerioPage = renderWithCheerio({ inputData: parsedInput })
       const button = cheerioPage('.govuk-back-link')
-      expect(button.prop('href')).toContain(`remandStartDate=12/20/2032`)
+      expect(button.prop('href')).toContain(`remandStartDate=20/12/2032`)
       expect(button.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
       expect(button.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
-      expect(button.prop('href')).toContain(`sentenceDate=01/22/2033`)
+      expect(button.prop('href')).toContain(`sentenceDate=22/01/2033`)
     })
 
     it('includes a Start a new calculation button', () => {
@@ -77,13 +79,15 @@ describe('Calculation breakdown page', () => {
     ]
 
     describe('your answers section', () => {
-      const parsedInput: ParsedDtoForm = {
+      const parsedInput: CalculationBreakdownInputData = {
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
-        sentenceDate: new Date('01/22/2033'),
-        sentenceDateString: '01/22/2033',
-        remandStartDate: new Date('12/20/2032'),
-        remandStartDateString: '12/20/2032',
+        sentenceDate: new Date(Date.UTC(2033, 0, 22)),
+        sentenceDateString: '22 January 2033',
+        sentenceDateBtnStr: '22/01/2033',
+        remandStartDate: new Date(Date.UTC(2032, 11, 20)),
+        remandStartDateString: '20 December 2032',
+        remandStartDateBtnStr: '20/12/2032',
       }
 
       it('renders the panel', () => {
@@ -118,10 +122,10 @@ describe('Calculation breakdown page', () => {
       it('renders appropriate change answers link', () => {
         const cheerioPage = renderWithCheerio({ inputData: parsedInput })
         const changeAnswersLink = cheerioPage('.govuk-summary-card .govuk-summary-card__actions .govuk-link')
-        expect(changeAnswersLink.prop('href')).toContain(`remandStartDate=12/20/2032`)
+        expect(changeAnswersLink.prop('href')).toContain(`remandStartDate=20/12/2032`)
         expect(changeAnswersLink.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
         expect(changeAnswersLink.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
-        expect(changeAnswersLink.prop('href')).toContain(`sentenceDate=01/22/2033`)
+        expect(changeAnswersLink.prop('href')).toContain(`sentenceDate=22/01/2033`)
       })
     })
 
