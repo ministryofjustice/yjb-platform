@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio'
 import { OutputCalculation } from '@yjb-platform/shared-types'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
 import { sampleCalculationResult, breakdownObj, termDates, resultDates } from '../../testutils/sampleObjects'
-import { ParsedDtoForm } from '../../services/dtoService'
+import { CalculationBreakdownInputData } from '../../routes/calculate'
 
 const env = createNunjucksTestSetup()
 const renderWithCheerio = (context = {}) => cheerio.load(env.render('pages/calculation-breakdown.njk', context))
@@ -29,13 +29,15 @@ describe('Calculation breakdown page', () => {
     })
 
     it('passes the submitted form data to the back button', () => {
-      const parsedInput: ParsedDtoForm = {
+      const parsedInput: CalculationBreakdownInputData = {
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
         sentenceDate: new Date(Date.UTC(2033, 0, 22)),
-        sentenceDateString: '22/01/2033',
+        sentenceDateString: '22 January 2033',
+        sentenceDateBtnStr: '22/01/2033',
         remandStartDate: new Date(Date.UTC(2032, 11, 20)),
-        remandStartDateString: '20/12/2032',
+        remandStartDateString: '20 December 2032',
+        remandStartDateBtnStr: '20/12/2032',
       }
       const cheerioPage = renderWithCheerio({ inputData: parsedInput })
       const button = cheerioPage('.govuk-back-link')
@@ -77,13 +79,15 @@ describe('Calculation breakdown page', () => {
     ]
 
     describe('your answers section', () => {
-      const parsedInput: ParsedDtoForm = {
+      const parsedInput: CalculationBreakdownInputData = {
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
         sentenceDate: new Date(Date.UTC(2033, 0, 22)),
-        sentenceDateString: '22/01/2033',
+        sentenceDateString: '22 January 2033',
+        sentenceDateBtnStr: '22/01/2033',
         remandStartDate: new Date(Date.UTC(2032, 11, 20)),
-        remandStartDateString: '20/12/2032',
+        remandStartDateString: '20 December 2032',
+        remandStartDateBtnStr: '20/12/2032',
       }
 
       it('renders the panel', () => {

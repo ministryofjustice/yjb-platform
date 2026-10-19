@@ -4,7 +4,6 @@ import nunjucks from 'nunjucks'
 import express from 'express'
 import fs from 'fs'
 import { initialiseName } from './utils'
-import { toDateString } from './dateUtils'
 import config from '../config'
 import { WORKSPACE_ROOT, NODE_MODULES } from '../../workspace.config'
 
@@ -39,5 +38,4 @@ export default function nunjucksSetup(app: express.Express): void {
 
   njkEnv.addFilter('initialiseName', initialiseName)
   njkEnv.addFilter('assetMap', (url: string) => assetManifest[url] || url)
-  njkEnv.addFilter('toDateString', (date?: Date | string) => (date ? toDateString(date) : ''))
 }

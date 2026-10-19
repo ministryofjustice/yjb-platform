@@ -6,6 +6,7 @@ import type { Services } from '../services'
 import { ParsedDtoForm, ValidationResult } from '../services/dtoService'
 import DtoFormPresenter, { FormPageObject } from '../presenters/dtoFormPresenter'
 import CalculationResultPresenter, { CalculationResultObj } from '../presenters/calculationResultPresenter'
+import { toDateString } from '../utils/dateUtils'
 
 type DateParts = {
   day?: number
@@ -30,6 +31,19 @@ function getDatePartsFromQuery(queryValue: unknown): DateParts {
     month: date.getMonth() + 1,
     year: date.getFullYear(),
   }
+}
+
+export type CalculationBreakdownInputData = ParsedDtoForm & {
+  sentenceDateBtnStr: string
+  remandStartDateBtnStr: string
+}
+
+function toBackLinkDate(date: Date | undefined): string {
+  if (date === undefined) {
+    return ''
+  }
+
+  return toDateString(date)
 }
 
 export default function calculateRoutes({ dtoService }: Partial<Services>): Router {
@@ -71,9 +85,16 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult.payload)
       const formattedCalculation: CalculationResultObj = new CalculationResultPresenter().present(calculationResult)
 
+      const { parsedInput } = validationResult
+      const inputData: CalculationBreakdownInputData = {
+        ...parsedInput,
+        sentenceDateBtnStr: toBackLinkDate(parsedInput.sentenceDate),
+        remandStartDateBtnStr: toBackLinkDate(parsedInput.remandStartDate),
+      }
+
       const pageData: CalculationResultPageObject = {
         calculationResult,
-        inputData: validationResult.parsedInput,
+        inputData,
         payloadString,
         ...formattedCalculation,
       }
@@ -91,6 +112,6 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
 
 type CalculationResultPageObject = CalculationResultObj & {
   calculationResult: OutputCalculation
-  inputData: ParsedDtoForm
+  inputData: CalculationBreakdownInputData
   payloadString: string
 }
