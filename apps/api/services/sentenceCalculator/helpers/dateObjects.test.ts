@@ -76,6 +76,12 @@ describe('buildTermDatesObj', () => {
     })
   })
 
+  it('adds "(custodial period)" after the days when asked to, as for the MTD', () => {
+    expect(buildTermDatesObj(new Date('2026-12-12'), 167, new Date('2026-06-29'), true).metadata.message).toBe(
+      '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+    )
+  })
+
   it('accepts the sentence start as a date string, as it arrives in the request', () => {
     const sentenceStart = '2026-06-29' as unknown as Date
 

@@ -70,7 +70,10 @@ describe('Sentence calculation results page', () => {
     const expectedExplanationValues: string[][] = [
       ['Term length', ', from 29 June 2026 to 13 May 2027'],
       ['Custodial period', '(334 divided by 2)'],
-      ['MTD', 'Saturday, 12 December 2026, 167 days from the beginning of the sentence (29 June 2026)'],
+      [
+        'MTD',
+        'Saturday, 12 December 2026, 167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+      ],
       ['Remand period', '(14 June 2026 to 28 June 2026)'],
       ['SLED', 'Thursday, 13 May 2027, 28 May 2027 minus 15 days'],
       ['Final MTD', 'Friday, 27 November 2026, 12 December 2026 minus 15 days'],

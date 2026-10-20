@@ -25,7 +25,7 @@ export const sampleCalculationResult: OutputCalculation = {
         data: new Date('2026-12-12'),
         metadata: {
           dayOfWeek: 'Saturday',
-          message: '167 days from the beginning of the sentence (29 June 2026)',
+          message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
         },
       },
     },
@@ -115,7 +115,8 @@ export const breakdownObj: calcBreakdown = {
   termLengthBreakdown: '11 months (334 days), from 29 June 2026 to 13 May 2027',
   custodialPeriodBreakdown: '(334 divided by 2)',
   remandPeriodBreakdown: '(14 June 2026 to 28 June 2026)',
-  mtdBreakdown: 'Saturday, 12 December 2026, 167 days from the beginning of the sentence (29 June 2026)',
+  mtdBreakdown:
+    'Saturday, 12 December 2026, 167 days (custodial period) from the beginning of the sentence (29 June 2026)',
   finalSledBreakdown: 'Thursday, 13 May 2027, 28 May 2027 minus 15 days',
   finalMtdBreakdown: 'Friday, 27 November 2026, 12 December 2026 minus 15 days',
   etdBreakdown: 'Tuesday, 27 October 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months',
@@ -142,7 +143,7 @@ export const sampleCalculationResult2: OutputCalculation = {
         data: new Date('2026-12-11'),
         metadata: {
           dayOfWeek: 'Friday',
-          message: '167 days from the beginning of the sentence (28 June 2026)',
+          message: '167 days (custodial period) from the beginning of the sentence (28 June 2026)',
         },
       },
     },

@@ -70,14 +70,25 @@ export function buildfinalDatesObj(
   }
 }
 
-export function buildTermDatesObj(data: Date, daysFromSentenceStart: number, sentenceStart: Date): termDatesObj {
+export function buildTermDatesObj(
+  data: Date,
+  daysFromSentenceStart: number,
+  sentenceStart: Date,
+  addCustodialPeriod: boolean = false,
+): termDatesObj {
   const sentenceStartStr = formatUkDate(new Date(sentenceStart))
+
+  // the MTD is the end of the custodial period, so its message says so
+  let custodialPeriod = ''
+  if (addCustodialPeriod) {
+    custodialPeriod = ' (custodial period)'
+  }
 
   return {
     data,
     metadata: {
       dayOfWeek: getDayOfWeek(data),
-      message: `${daysFromSentenceStart} days from the beginning of the sentence (${sentenceStartStr})`,
+      message: `${daysFromSentenceStart} days${custodialPeriod} from the beginning of the sentence (${sentenceStartStr})`,
     },
   }
 }

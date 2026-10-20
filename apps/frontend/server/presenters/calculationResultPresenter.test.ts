@@ -27,7 +27,7 @@ describe('calculationResultPresenter', () => {
     expect(breakdownObj.finalSledBreakdown).toBe('Thursday, 13 May 2027, 28 May 2027 minus 15 days')
     expect(breakdownObj.finalMtdBreakdown).toBe('Friday, 27 November 2026, 12 December 2026 minus 15 days')
     expect(breakdownObj.mtdBreakdown).toBe(
-      'Saturday, 12 December 2026, 167 days from the beginning of the sentence (29 June 2026)',
+      'Saturday, 12 December 2026, 167 days (custodial period) from the beginning of the sentence (29 June 2026)',
     )
   })
 
