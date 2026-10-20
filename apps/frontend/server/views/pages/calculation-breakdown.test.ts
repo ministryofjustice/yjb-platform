@@ -67,18 +67,19 @@ describe('Sentence calculation results page', () => {
       ['ETD', 'Tuesday 2026-10-27'],
     ]
 
-    const expectedExplanationValues: string[][] = [
-      ['Term length', ', from 29 June 2026 to 13 May 2027'],
-      ['Custodial period', '(334 divided by 2)'],
+    // each breakdown row is shown on two lines: the date or period, then how it was worked out
+    const expectedBreakdownLines: [string, string[]][] = [
+      ['Term length', ['11 months (334 days)', 'from 29 June 2026 to 13 May 2027']],
+      ['Custodial period', ['167 days', 'Term length (334) / 2']],
+      ['Remand period', ['15 days', '14 June 2026 to 28 June 2026']],
       [
         'MTD',
-        'Saturday, 12 December 2026, 167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+        ['Saturday, 12 December 2026', '167 days (custodial period) from the beginning of the sentence (29 June 2026)'],
       ],
-      ['Remand period', '(14 June 2026 to 28 June 2026)'],
-      ['SLED', 'Thursday, 13 May 2027, 28 May 2027 minus 15 days'],
-      ['Final MTD', 'Friday, 27 November 2026, 12 December 2026 minus 15 days'],
-      ['LTD', 'Sunday, 27 December 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
-      ['ETD', 'Tuesday, 27 October 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
+      ['SLED', ['Thursday, 13 May 2027', '28 May 2027 minus 15 days']],
+      ['Final MTD', ['Friday, 27 November 2026', '12 December 2026 minus 15 days']],
+      ['ETD', ['Tuesday, 27 October 2026', '1 month away from the MTD for DTOs with terms from 8 to 18 months']],
+      ['LTD', ['Sunday, 27 December 2026', '1 month away from the MTD for DTOs with terms from 8 to 18 months']],
     ]
 
     describe('What you told us section', () => {
@@ -142,10 +143,14 @@ describe('Sentence calculation results page', () => {
         calculationDataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
       })
 
-      const explanationDataRows: Record<string, string> = {}
+      // the text of each line in each breakdown row, by the row's key
+      const breakdownLines: Record<string, string[]> = {}
       cheerioPage('#results-breakdown-tab .govuk-summary-list__row').each((_, el) => {
         const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
-        explanationDataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
+        breakdownLines[key] = cheerioPage(el)
+          .find('.govuk-summary-list__value .govuk-\\!-display-block')
+          .toArray()
+          .map(line => cheerioPage(line).text().trim())
       })
 
       it.each(expectedCalcValues)('correctly renders the calculation result for %s', (key: string, value: string) => {
@@ -154,14 +159,9 @@ describe('Sentence calculation results page', () => {
         })
       })
 
-      it.each(expectedExplanationValues)(
-        'correctly renders the calculation explanations for %s',
-        (key: string, value: string) => {
-          expect(explanationDataRows).toMatchObject({
-            [key]: expect.stringContaining(value),
-          })
-        },
-      )
+      it.each(expectedBreakdownLines)('renders the %s breakdown on two lines', (key: string, lines: string[]) => {
+        expect(breakdownLines[key]).toEqual(lines)
+      })
     })
   })
 })

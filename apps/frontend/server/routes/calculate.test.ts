@@ -254,7 +254,7 @@ describe('POST /calculate', () => {
       .expect(res => {
         const $ = cheerio.load(res.text)
         expect($('#results-breakdown-tab').text()).toContain(breakdownObj.remandPeriodBreakdown)
-        expect(breakdownObj.remandPeriodBreakdown).toBe('(14 June 2026 to 28 June 2026)')
+        expect(breakdownObj.remandPeriodBreakdown).toBe('14 June 2026 to 28 June 2026')
       })
   })
 
@@ -277,7 +277,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#results-breakdown-tab').text()).toContain('(14 June 2026 to 28 June 2026)')
+        expect($('#results-breakdown-tab').text()).toContain('14 June 2026 to 28 June 2026')
       })
   })
 
