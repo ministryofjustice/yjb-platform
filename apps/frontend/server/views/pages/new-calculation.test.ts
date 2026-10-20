@@ -114,11 +114,53 @@ describe('New calculation page', () => {
     })
   })
 
-  describe('ERD eligibility answer', () => {
+  describe('Field population from inputs', () => {
     const checkedEligibilityValue = (cheerioPage: cheerio.CheerioAPI) =>
       cheerioPage('input[name="erd-eligibility"]:checked').attr('value')
 
-    it('has nothing selected when there is no previous answer', () => {
+    const textInputs: [string, string, number][] = [
+      ['sentence-date-day', 'sentenceDateDay', 14],
+      ['sentence-date-month', 'sentenceDateMonth', 5],
+      ['sentence-date-year', 'sentenceDateYear', 2026],
+      ['sentence-length-months', 'sentenceLengthMonths', 11],
+      ['remand-start-date-day', 'remandStartDateDay', 9],
+      ['remand-start-date-month', 'remandStartDateMonth', 5],
+      ['remand-start-date-year', 'remandStartDateYear', 2026],
+      ['tagged-bail-days', 'taggedBailDays', 4],
+    ]
+
+    it.each(textInputs)('leaves the %s input empty when there is no previous input', field => {
+      const cheerioPage = renderWithCheerio({ formData: {} })
+      expect(cheerioPage(`#${field}`).attr('value')).toBeUndefined()
+    })
+
+    it.each(textInputs)('fills the %s input from formData.%s', (field, formDataKey, value) => {
+      const cheerioPage = renderWithCheerio({ formData: { [formDataKey]: value } })
+      expect(cheerioPage(`#${field}`).attr('value')).toBe(String(value))
+    })
+
+    it('fills the tagged bail input with 0 when 0 days were entered', () => {
+      const cheerioPage = renderWithCheerio({ formData: { taggedBailDays: 0 } })
+      expect(cheerioPage('#tagged-bail-days').attr('value')).toBe('0')
+    })
+
+    it('keeps the valid inputs filled in when the form is re-rendered with errors', () => {
+      const cheerioPage = renderWithCheerio({
+        isValid: false,
+        formData: { sentenceDateDay: 14, sentenceDateYear: 2026, sentenceLengthMonths: 11, taggedBailDays: 4 },
+        errorSummary: [{ text: ValidationErrorMessages.InvalidMonth, href: '#sentence-date-month' }],
+        errorsByField: { 'sentence-date-month': ValidationErrorMessages.InvalidMonth },
+        sentenceDateError: ValidationErrorMessages.InvalidMonth,
+      })
+
+      expect(cheerioPage('#sentence-date-day').attr('value')).toBe('14')
+      expect(cheerioPage('#sentence-date-month').attr('value')).toBeUndefined()
+      expect(cheerioPage('#sentence-date-year').attr('value')).toBe('2026')
+      expect(cheerioPage('#sentence-length-months').attr('value')).toBe('11')
+      expect(cheerioPage('#tagged-bail-days').attr('value')).toBe('4')
+    })
+
+    it('has no ERD eligibility answer selected when there is no previous answer', () => {
       const cheerioPage = renderWithCheerio({ formData: {} })
       expect(checkedEligibilityValue(cheerioPage)).toBeUndefined()
     })
@@ -126,12 +168,128 @@ describe('New calculation page', () => {
     it.each([
       [true, 'true'],
       [false, 'false'],
-    ])('re-selects the previous answer when erdEligible is %s', (erdEligible, expectedValue) => {
+    ])('re-selects the previous ERD eligibility answer when erdEligible is %s', (erdEligible, expectedValue) => {
       const cheerioPage = renderWithCheerio({ formData: { erdEligible } })
       expect(checkedEligibilityValue(cheerioPage)).toBe(expectedValue)
     })
 
-    it('shows an error summary link and an inline error when no answer is selected', () => {
+    it('keeps the selected ERD eligibility answer when the form is re-rendered with errors', () => {
+      const cheerioPage = renderWithCheerio({
+        isValid: false,
+        formData: { erdEligible: false },
+        errorSummary: [{ text: ValidationErrorMessages.InvalidDay, href: '#sentence-date-day' }],
+        errorsByField: { 'sentence-date-day': ValidationErrorMessages.InvalidDay },
+      })
+
+      expect(checkedEligibilityValue(cheerioPage)).toBe('false')
+    })
+  })
+
+  describe('validation errors', () => {
+    it('does not show an error summary or any inline errors when there are no errors', () => {
+      const cheerioPage = renderWithCheerio({ isValid: true, formData: {}, errorSummary: [], errorsByField: {} })
+
+      expect(cheerioPage('.govuk-error-summary').length).toBe(0)
+      expect(cheerioPage('.govuk-error-message').length).toBe(0)
+      expect(cheerioPage('.govuk-input--error').length).toBe(0)
+    })
+
+    it('shows every error in the summary, each linking to its field', () => {
+      const errorSummary = [
+        { text: ValidationErrorMessages.InvalidDay, href: '#sentence-date-day' },
+        { text: ValidationErrorMessages.SentenceDurationOutOfRange, href: '#sentence-length-months' },
+        { text: ValidationErrorMessages.InvalidTaggedBailDays, href: '#tagged-bail-days' },
+      ]
+
+      const cheerioPage = renderWithCheerio({ isValid: false, formData: {}, errorSummary, errorsByField: {} })
+
+      expect(cheerioPage('.govuk-error-summary__title').text()).toContain('There is a problem')
+      const summaryLinks = cheerioPage('.govuk-error-summary__list a')
+        .toArray()
+        .map(link => ({ text: cheerioPage(link).text().trim(), href: cheerioPage(link).attr('href') }))
+      expect(summaryLinks).toEqual(errorSummary)
+    })
+
+    // the presenter links each error to '#<field>', so every field that can have an error needs that id on the page
+    it.each([
+      'sentence-date-day',
+      'sentence-date-month',
+      'sentence-date-year',
+      'sentence-length-months',
+      'remand-start-date',
+      'remand-start-date-day',
+      'remand-start-date-month',
+      'remand-start-date-year',
+      'tagged-bail-days',
+      'erd-eligibility',
+    ])('has an element with id "%s" for the error summary to link to', field => {
+      const cheerioPage = renderWithCheerio({ formData: {} })
+      expect(cheerioPage(`#${field}`).length).toBe(1)
+    })
+
+    it.each([
+      ['sentence-length-months', ValidationErrorMessages.SentenceDurationOutOfRange],
+      ['tagged-bail-days', ValidationErrorMessages.InvalidTaggedBailDays],
+    ])('shows the inline error against the %s input and highlights it', (field, message) => {
+      const cheerioPage = renderWithCheerio({ isValid: false, formData: {}, errorsByField: { [field]: message } })
+
+      expect(cheerioPage(`#${field}-error`).text()).toContain(message)
+      expect(cheerioPage(`#${field}`).hasClass('govuk-input--error')).toBe(true)
+    })
+
+    it.each([
+      ['sentence-date', 'sentenceDateError'],
+      ['remand-start-date', 'remandStartDateError'],
+    ])('shows one inline error for the %s and highlights only the parts that are wrong', (dateId, dateErrorKey) => {
+      const cheerioPage = renderWithCheerio({
+        isValid: false,
+        formData: {},
+        errorsByField: {
+          [`${dateId}-month`]: ValidationErrorMessages.InvalidMonth,
+          [`${dateId}-year`]: ValidationErrorMessages.InvalidYear,
+        },
+        [dateErrorKey]: ValidationErrorMessages.InvalidMonth,
+      })
+
+      expect(cheerioPage(`#${dateId}-error`).text()).toContain(ValidationErrorMessages.InvalidMonth)
+      expect(cheerioPage(`#${dateId}-error`).text()).not.toContain(ValidationErrorMessages.InvalidYear)
+      expect(cheerioPage(`#${dateId}-day`).hasClass('govuk-input--error')).toBe(false)
+      expect(cheerioPage(`#${dateId}-month`).hasClass('govuk-input--error')).toBe(true)
+      expect(cheerioPage(`#${dateId}-year`).hasClass('govuk-input--error')).toBe(true)
+    })
+
+    it.each([
+      'sentence-date-day',
+      'sentence-date-month',
+      'sentence-date-year',
+      'remand-start-date-day',
+      'remand-start-date-month',
+      'remand-start-date-year',
+    ])('highlights the %s input when it has an error', field => {
+      const cheerioPage = renderWithCheerio({
+        isValid: false,
+        formData: {},
+        errorsByField: { [field]: ValidationErrorMessages.InvalidDay },
+      })
+
+      expect(cheerioPage(`#${field}`).hasClass('govuk-input--error')).toBe(true)
+    })
+
+    it('shows errors only against the fields that have them', () => {
+      const cheerioPage = renderWithCheerio({
+        isValid: false,
+        formData: {},
+        errorsByField: { 'tagged-bail-days': ValidationErrorMessages.InvalidTaggedBailDays },
+      })
+
+      expect(cheerioPage('.govuk-error-message').length).toBe(1)
+      expect(cheerioPage('#sentence-length-months').hasClass('govuk-input--error')).toBe(false)
+      expect(cheerioPage('#sentence-date-error').length).toBe(0)
+      expect(cheerioPage('#remand-start-date-error').length).toBe(0)
+      expect(cheerioPage('#erd-eligibility-error').length).toBe(0)
+    })
+
+    it('shows an error summary link and an inline error when no ERD eligibility answer is selected', () => {
       const cheerioPage = renderWithCheerio({
         isValid: false,
         formData: {},
@@ -141,20 +299,8 @@ describe('New calculation page', () => {
 
       const summaryLink = cheerioPage('.govuk-error-summary a[href="#erd-eligibility"]')
       expect(summaryLink.text()).toContain(ValidationErrorMessages.MissingErdEligibility)
-      // the summary link must land on a real input for it to move focus
       expect(cheerioPage('input#erd-eligibility').attr('name')).toBe('erd-eligibility')
       expect(cheerioPage('#erd-eligibility-error').text()).toContain(ValidationErrorMessages.MissingErdEligibility)
-    })
-
-    it('keeps the selected answer when the form is re-rendered with errors', () => {
-      const cheerioPage = renderWithCheerio({
-        isValid: false,
-        formData: { erdEligible: false },
-        errorSummary: [{ text: ValidationErrorMessages.InvalidDay, href: '#sentence-date-day' }],
-        errorsByField: { 'sentence-date-day': ValidationErrorMessages.InvalidDay },
-      })
-
-      expect(checkedEligibilityValue(cheerioPage)).toBe('false')
     })
   })
 })
