@@ -92,14 +92,20 @@ export type AppendOnlyArray<T> = {
   [Symbol.iterator](): IterableIterator<T>
 }
 
+// each row of the detailed breakdown is shown on two lines
 export type calcBreakdown = {
   termLengthBreakdown: string,
   custodialPeriodBreakdown: string,
   remandPeriodBreakdown: string,
+  mtdDate: string,
   mtdBreakdown: string,
+  finalSledDate: string,
   finalSledBreakdown: string,
+  finalMtdDate: string,
   finalMtdBreakdown: string,
+  etdDate: string,
   etdBreakdown: string,
+  ltdDate: string,
   ltdBreakdown: string
 }
 
