@@ -65,6 +65,22 @@ describe('buildfinalDatesObj', () => {
   })
 })
 
+describe('buildfinalDatesObj with a single day', () => {
+  it('says "minus 1 day" rather than "minus 1 days"', () => {
+    expect(
+      buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-27'), new Date('2027-05-28'), 1).metadata
+        .message,
+    ).toBe('28 May 2027 minus 1 day')
+  })
+
+  it('says "1 unused day" rather than "1 unused days"', () => {
+    expect(
+      buildfinalDatesObj(AppliedAdjustmentStatus.collapsedUnused, new Date('2026-06-29'), undefined, undefined, 1)
+        .metadata.message,
+    ).toBe('Date was collapsed to sentence date, with 1 unused day ')
+  })
+})
+
 describe('buildTermDatesObj', () => {
   it('adds dayOfWeek and the days from the beginning of the sentence', () => {
     expect(buildTermDatesObj(new Date('2026-12-12'), 167, new Date('2026-06-29'))).toEqual({
@@ -74,6 +90,12 @@ describe('buildTermDatesObj', () => {
         message: '167 days from the beginning of the sentence (29 June 2026)',
       },
     })
+  })
+
+  it('says "1 day" rather than "1 days"', () => {
+    expect(buildTermDatesObj(new Date('2026-06-30'), 1, new Date('2026-06-29')).metadata.message).toBe(
+      '1 day from the beginning of the sentence (29 June 2026)',
+    )
   })
 
   it('adds "(custodial period)" after the days when asked to, as for the MTD', () => {

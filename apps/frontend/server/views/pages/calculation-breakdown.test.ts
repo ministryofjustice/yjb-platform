@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio'
 import { OutputCalculation } from '@yjb-platform/shared-types'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
-import { sampleCalculationResult, breakdownObj, termDates, resultDates } from '../../testutils/sampleObjects'
+import { sampleCalculationResult, breakdownObj, termDates, resultDates, periods } from '../../testutils/sampleObjects'
 import { CalculationBreakdownInputData } from '../../routes/calculate'
 
 const env = createNunjucksTestSetup()
@@ -134,7 +134,7 @@ describe('Sentence calculation results page', () => {
 
     describe('Calculation outputs B', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj, termDates, resultDates })
+      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj, termDates, resultDates, periods })
 
       const calculationDataRows: Record<string, string> = {}
       cheerioPage('#calculation-results-tab .govuk-summary-list__row').each((_, el) => {

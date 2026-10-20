@@ -6,9 +6,9 @@
   {{ govukSummaryList({
         rows: [
           { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" } },
-          { key: { text: "Term length" }, value: { text: calculationResult.calculatedTerms[0].inputSentence.durationMonths + " months (" + calculationResult.calculatedTerms[0].totalDaysInTerm + " days)" } },
-          { key: { text: "Custodial period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days" } },
-          { key: { text: "Remand period" }, value: { text: calculationResult.remandPeriodDays + " days" } },
+          { key: { text: "Term length" }, value: { text: periods.termLength } },
+          { key: { text: "Custodial period" }, value: { text: periods.custodialPeriod } },
+          { key: { text: "Remand period" }, value: { text: periods.remandPeriod } },
           { key: { text: "MTD" }, value: { text: termDates.mtd } },
           { key: { text: "SLED" }, value: { text: resultDates.finalSled } },
           { key: { text: "Final MTD" }, value: { text: resultDates.finalMtd } },
@@ -25,8 +25,8 @@
     rows: [
       { key: { text: "Term type" }, value: { text: "Detention and Training Order (DTO)" } },
       { key: { text: "Term length" }, value: { text: breakdownObj.termLengthBreakdown } },
-      { key: { text: "Custodial period" }, value: { text: calculationResult.calculatedTerms[0].totalDaysMTD + " days (" + breakdownObj.custodialPeriodBreakdown + ")" } },
-      { key: { text: "Remand period" }, value: { text: calculationResult.remandPeriodDays + " days " + breakdownObj.remandPeriodBreakdown } },
+      { key: { text: "Custodial period" }, value: { text: periods.custodialPeriod + " (" + breakdownObj.custodialPeriodBreakdown + ")" } },
+      { key: { text: "Remand period" }, value: { text: periods.remandPeriod + " " + breakdownObj.remandPeriodBreakdown } },
       { key: { text: "MTD" }, value: { text: breakdownObj.mtdBreakdown } },
       { key: { text: "SLED" }, value: { text: breakdownObj.finalSledBreakdown } },
       { key: { text: "Final MTD" }, value: { text: breakdownObj.finalMtdBreakdown } },

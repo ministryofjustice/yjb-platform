@@ -3,7 +3,23 @@ import CalculationResultPresenter from './calculationResultPresenter'
 import { sampleCalculationResult } from '../testutils/sampleObjects'
 
 describe('calculationResultPresenter', () => {
-  const { breakdownObj, termDates, resultDates } = new CalculationResultPresenter().present(sampleCalculationResult)
+  const { breakdownObj, termDates, resultDates, periods } = new CalculationResultPresenter().present(
+    sampleCalculationResult,
+  )
+
+  it('formats the term length, custodial period and remand period', () => {
+    expect(periods).toEqual({
+      termLength: '11 months (334 days)',
+      custodialPeriod: '167 days',
+      remandPeriod: '15 days',
+    })
+  })
+
+  it('says "1 day" rather than "1 days" for a single day of remand', () => {
+    const oneDayOfRemand: OutputCalculation = { ...sampleCalculationResult, remandPeriodDays: 1 }
+
+    expect(new CalculationResultPresenter().present(oneDayOfRemand).periods.remandPeriod).toBe('1 day')
+  })
 
   it('formats the term SLED and MTD from their metadata', () => {
     expect(termDates.sled).toBe('Friday, 28 May 2027')

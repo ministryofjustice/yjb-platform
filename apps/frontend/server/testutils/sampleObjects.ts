@@ -104,6 +104,12 @@ export const termDates = {
   mtd: 'Saturday 2026-12-12',
 }
 
+export const periods = {
+  termLength: '11 months (334 days)',
+  custodialPeriod: '167 days',
+  remandPeriod: '15 days',
+}
+
 export const resultDates = {
   finalSled: 'Thursday 2027-05-13',
   finalMtd: 'Friday 2026-11-27',

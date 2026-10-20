@@ -1,11 +1,13 @@
 import { UTCDate } from '@date-fns/utc'
 import { subDays } from 'date-fns'
-import { OutputCalculation, calcBreakdown, AdjustmentTypes, formatUkDate } from '@yjb-platform/shared-types'
+import { OutputCalculation, calcBreakdown, AdjustmentTypes, formatUkDate, pluralise } from '@yjb-platform/shared-types'
 
 export type CalculationResultObj = {
   breakdownObj: calcBreakdown
   termDates: { sled: string; mtd: string }
   resultDates: { finalSled: string; finalMtd: string; etd: string; ltd: string }
+  // lengths of time as text
+  periods: { termLength: string; custodialPeriod: string; remandPeriod: string }
   calculationResultString: string
 }
 
@@ -26,7 +28,7 @@ export default class CalculationResultPresenter {
         : ''
 
     const breakdownObj: calcBreakdown = {
-      termLengthBreakdown: `${term.inputSentence.durationMonths} months (${term.totalDaysInTerm} days), from ${formatUkDate(
+      termLengthBreakdown: `${term.inputSentence.durationMonths} months (${pluralise(term.totalDaysInTerm, 'day')}), from ${formatUkDate(
         term.inputSentence.from,
       )} to ${formatUkDate(effectiveDates.sled.data)}`,
       custodialPeriodBreakdown: `${term.totalDaysInTerm} divided by 2${term.totalDaysInTerm % 2 ? ', rounded up' : ''}`,
@@ -49,6 +51,11 @@ export default class CalculationResultPresenter {
         finalMtd: this.formatDayAndDate(effectiveDates.mtd.data, effectiveDates.mtd.metadata),
         etd: this.formatDayAndDate(etd.data, etd.metadata),
         ltd: this.formatDayAndDate(ltd.data, ltd.metadata),
+      },
+      periods: {
+        termLength: `${term.inputSentence.durationMonths} months (${pluralise(term.totalDaysInTerm, 'day')})`,
+        custodialPeriod: pluralise(term.totalDaysMTD, 'day'),
+        remandPeriod: pluralise(calculationResult.remandPeriodDays, 'day'),
       },
       calculationResultString: JSON.stringify(calculationResult),
     }

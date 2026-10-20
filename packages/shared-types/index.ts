@@ -7,6 +7,7 @@ export { AdjustmentTypes }
 export * from './dto-eligibility-status'
 export * from './final-dates-status'
 export * from './dateUtils'
+export * from './textUtils'
 
 // input types
 export type InputIndividualSentence = {
