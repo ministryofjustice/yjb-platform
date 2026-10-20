@@ -110,6 +110,7 @@ describe('formatOutputCalculation', () => {
       effectiveDatesPastAdjustments: [],
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       unusedAdjustmentDays: 0,
       remandPeriodDays: 0,
     }
@@ -118,7 +119,33 @@ describe('formatOutputCalculation', () => {
 
     expect(result.ltd.data).toBe('2027-01-12')
     expect(result.etd.data).toBe('2026-11-12')
+    expect(result.erd.data).toBe('2026-11-12')
     expect(result.effectiveDates.sled.data).toBe('2027-05-28')
     expect(result.calculatedTerms[0].sled.data).toBe('2027-05-28')
+  })
+
+  it('leaves an ERD of 0 as 0 when the child is not eligible for early release', () => {
+    const outputCalculation: OutputCalculation = {
+      calculatedTerms: [],
+      effectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 0,
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28')),
+        mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-12-12')),
+        TUSED: new Date(0),
+      },
+      effectiveDatesPastAdjustments: [],
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.notEligible, 0),
+      unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
+    }
+
+    const result = JSON.parse(formatOutputCalculation(outputCalculation))
+
+    expect(result.erd).toEqual({
+      data: 0,
+      metadata: { status: 'not_eligible', message: 'Not eligible for early release' },
+    })
   })
 })

@@ -8,7 +8,7 @@ import {
   AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
 import { buildTransferDatesObj, buildfinalDatesObj } from './helpers/dateObjects'
-import { getLTDDate, getETDDate, adjustCalculation, calculateTerm, calculateRemandDays } from './lib'
+import { getLTDDate, getETDDate, getERDDate, adjustCalculation, calculateTerm, calculateRemandDays } from './lib'
 
 export default function calculateDTOSentence(inputSentence: InputSentences): OutputCalculation {
   const outputCalculation: OutputCalculation = {
@@ -17,6 +17,7 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
     effectiveDatesPastAdjustments: [],
     ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
     etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+    erd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
     unusedAdjustmentDays: 0,
     remandPeriodDays: 0,
   }
@@ -77,6 +78,10 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
       inputSentence.inputIndividualSentences[0].durationMonths,
     )
   }
+
+  // the ERD follows the final ETD, so it's set outside the MTD check above - a child
+  // who isn't eligible for early release is always shown as not eligible
+  outputCalculation.erd = getERDDate(outputCalculation.etd, inputSentence.erdEligible)
 
   return outputCalculation
 }
