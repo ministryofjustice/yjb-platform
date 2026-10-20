@@ -1,3 +1,4 @@
+import { UTCDate } from '@date-fns/utc'
 import {
   InputSentences,
   OutputCalculation,
@@ -14,8 +15,8 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
     calculatedTerms: [],
     effectiveDates: {} as EffectiveDates,
     effectiveDatesPastAdjustments: [],
-    ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, new Date(0)),
-    etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, new Date(0)),
+    ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+    etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
     unusedAdjustmentDays: 0,
     remandPeriodDays: 0,
   }
@@ -61,8 +62,12 @@ export default function calculateDTOSentence(inputSentence: InputSentences): Out
   }
 
   // finally calculate the LTD and ETD based on the effective dates post adjustments
-  // leave it 0 if we have collapsed  the MTD
-  if (outputCalculation.effectiveDates.mtd.data !== inputSentence.inputIndividualSentences[0].from) {
+  // leave it 0 if we have collapsed  the MTD - compared by value, as the collapsed
+  // MTD is a new date object set to the sentence start rather than the input date itself
+  const isMtdCollapsed =
+    new UTCDate(outputCalculation.effectiveDates.mtd.data).getTime() ===
+    new UTCDate(inputSentence.inputIndividualSentences[0].from).getTime()
+  if (!isMtdCollapsed) {
     outputCalculation.ltd = getLTDDate(
       outputCalculation.effectiveDates.mtd.data,
       inputSentence.inputIndividualSentences[0].durationMonths,

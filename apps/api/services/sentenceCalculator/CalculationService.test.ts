@@ -583,4 +583,77 @@ describe('calculateDTOSentence', () => {
     const remandOutput: OutputCalculation = calculateDTOSentence(fiftyRemandTwentyTaggedBailInput)
     compareOutputCalculations(remandOutput, expectedRemandOutput)
   })
+
+  // a 9 month sentence would normally get an ETD and LTD, but once the MTD has
+  // collapsed to the sentence date there's no MTD to count back or forward from
+  it('returns full calculation for 9 months sentence starting on 2026-06-01 with 151 days remand collapsing the MTD', () => {
+    const collapsedMtdInput: InputSentences = {
+      ...sampleInputSentences,
+      remandAdjustment: {
+        name: AdjustmentTypes.remand,
+        startDate: new Date('2026-01-01'), // 151 days prior sentence beginning
+      },
+      inputIndividualSentences: [
+        {
+          from: new Date('2026-06-01'),
+          durationMonths: 9, // sled 273 days and mtd 137 days
+        },
+      ],
+    }
+
+    const expectedCollapsedMtdOutput: OutputCalculation = {
+      calculatedTerms: [
+        {
+          inputSentence: { from: new Date('2026-06-01'), durationMonths: 9 },
+          totalDaysInTerm: 273,
+          totalDaysMTD: 137,
+          sled: {
+            data: new Date('2027-02-28'),
+            metadata: {
+              dayOfWeek: 'Sunday',
+              message: '273 days from the beginning of the sentence (1 June 2026)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-10-15'),
+            metadata: {
+              dayOfWeek: 'Thursday',
+              message: '137 days from the beginning of the sentence (1 June 2026)',
+            },
+          },
+        },
+      ],
+      effectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 151,
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-09-30'), new Date('2027-02-28'), 151),
+        mtd: buildfinalDatesObj(
+          AppliedAdjustmentStatus.collapsedUnused,
+          new Date('2026-06-01'),
+          undefined,
+          undefined,
+          14,
+        ),
+        TUSED: new Date(0),
+      },
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      unusedAdjustmentDays: 14,
+      remandPeriodDays: 151,
+      effectiveDatesPastAdjustments: [
+        {
+          adjustmentReason: 'remand',
+          adjustmentParameters: collapsedMtdInput.remandAdjustment!,
+          pastEffectiveDates: {
+            totalNumberOfRemandAndTaggedBailDays: 0,
+            sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-02-28')),
+            mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-10-15')),
+            TUSED: new Date(0),
+          },
+        },
+      ],
+    }
+
+    const collapsedMtdOutput: OutputCalculation = calculateDTOSentence(collapsedMtdInput)
+    compareOutputCalculations(collapsedMtdOutput, expectedCollapsedMtdOutput)
+  })
 })
