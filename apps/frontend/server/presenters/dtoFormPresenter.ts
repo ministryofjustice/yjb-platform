@@ -17,6 +17,11 @@ const remandStartDateFields = [
   'remand-start-date-year',
 ]
 
+// errors on a whole date have no input of their own, so the summary links to the date's first input
+const summaryLinkTargets: Record<string, string> = {
+  'remand-start-date': 'remand-start-date-day',
+}
+
 export default class DtoFormPresenter {
   constructor(private readonly validationResult: ValidationResult) {}
 
@@ -29,7 +34,7 @@ export default class DtoFormPresenter {
       formData: this.validationResult.parsedInput,
       errorSummary: errors.map(error => ({
         text: error.message,
-        href: `#${error.field}`,
+        href: `#${summaryLinkTargets[error.field] ?? error.field}`,
       })),
       errorsByField,
       sentenceDateError: sentenceDateFields.map(field => errorsByField[field]).find(Boolean),
