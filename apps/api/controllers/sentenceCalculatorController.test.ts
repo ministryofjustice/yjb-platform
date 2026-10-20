@@ -48,6 +48,7 @@ describe('SentenceController', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
       remandPeriodDays: 0,
@@ -95,6 +96,7 @@ describe('SentenceController', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -153,6 +155,7 @@ describe('SentenceController', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'taggedBail',
@@ -215,6 +218,7 @@ describe('SentenceController', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -252,5 +256,14 @@ describe('SentenceController', () => {
     }
     const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
+  })
+
+  it('returns 0 and not eligible for the ERD when the child is not eligible for early release', () => {
+    const calculatedCalculationObj = controller.getCalculation({ ...sampleInputSentences, erdEligible: false })
+
+    expect(calculatedCalculationObj.etd).toEqual(
+      buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
+    )
+    expect(calculatedCalculationObj.erd).toEqual(buildTransferDatesObj(DtoEligibilityStatus.notEligible, 0))
   })
 })

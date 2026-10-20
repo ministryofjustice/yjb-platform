@@ -74,6 +74,14 @@ describe('POST /calculations', () => {
           dayOfWeek: 'Thursday',
         },
       },
+      erd: {
+        data: '2026-11-12',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Thursday',
+        },
+      },
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
       remandPeriodDays: 0,
@@ -141,6 +149,14 @@ describe('POST /calculations', () => {
         },
       },
       etd: {
+        data: '2026-10-27',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
+        },
+      },
+      erd: {
         data: '2026-10-27',
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
@@ -255,6 +271,14 @@ describe('POST /calculations', () => {
           dayOfWeek: 'Tuesday',
         },
       },
+      erd: {
+        data: '2026-10-27',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
+        },
+      },
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -335,5 +359,20 @@ describe('POST /calculations', () => {
     const response = await request(app).post('/calculations').send(input).expect(400)
 
     expect(response.body.errors).toContainEqual(expect.objectContaining({ path: ['erdEligible'] }))
+  })
+
+  it('should return an ERD of 0 and not eligible, with the ETD unchanged, when erdEligible is false', async () => {
+    const input = { ...sampleInputSentencesBody, erdEligible: false }
+
+    const response = await request(app).post('/calculations').send(input).expect(200)
+
+    expect(response.body.erd).toEqual({
+      data: 0,
+      metadata: {
+        status: DtoEligibilityStatus.notEligible,
+        message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.notEligible],
+      },
+    })
+    expect(response.body.etd.data).toBe('2026-11-12')
   })
 })

@@ -42,6 +42,8 @@ export interface OutputCalculation {
   effectiveDatesPastAdjustments: AppendOnlyArray<RecordOfAdjustment>
   ltd: transferDatesObj
   etd: transferDatesObj
+  // the ETD for a child eligible for early release, otherwise 0 and not_eligible
+  erd: transferDatesObj
   unusedAdjustmentDays: number
   // days on remand, worked out from the remand start date (in effectiveDatesPastAdjustments) and the sentence date
   remandPeriodDays: number
