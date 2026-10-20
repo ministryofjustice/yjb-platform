@@ -177,18 +177,17 @@ describe('Sentence calculation results page', () => {
         })
       })
 
-    it.each([
-      ['MTD', 'Mid Term Date'],
-      ['SLED', 'Sentence and Licence Expiry Date'],
-      ['ETD', 'Early Transfer Date'],
-      ['LTD', 'Late Transfer Date'],
-    ])('shows the tagline "%s" under the %s key', (key: string, tagline: string) => {
-      const keyElement = cheerioPage('#results-breakdown-tab .govuk-summary-list__key').filter((_, el) =>
-        cheerioPage(el).text().trim().startsWith(key),
-      )
-      expect(keyElement.find('.govuk-hint').text().trim()).toBe(tagline)
-    })
-
+      it.each([
+        ['MTD', 'Mid Term Date'],
+        ['SLED', 'Sentence and Licence Expiry Date'],
+        ['ETD', 'Early Transfer Date'],
+        ['LTD', 'Late Transfer Date'],
+      ])('shows the tagline "%s" under the %s key', (key: string, tagline: string) => {
+        const keyElement = cheerioPage('#results-breakdown-tab .govuk-summary-list__key').filter((_, el) =>
+          cheerioPage(el).text().trim().startsWith(key),
+        )
+        expect(keyElement.find('.govuk-hint').text().trim()).toBe(tagline)
+      })
 
       it.each(expectedBreakdownLines)('renders the %s breakdown on two lines', (key: string, lines: string[]) => {
         expect(breakdownLines[key]).toEqual(lines)
