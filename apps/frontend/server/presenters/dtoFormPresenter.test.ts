@@ -3,7 +3,7 @@ import DtoFormPresenter from './dtoFormPresenter'
 import type { FieldError, ValidationResult } from '../services/dtoService'
 
 const presentErrors = (errors: FieldError[]) =>
-  new DtoFormPresenter({ isValid: errors.length === 0, parsedInput: {}, errors }).present()
+  new DtoFormPresenter({ isValid: false, parsedInput: {}, errors }).present()
 
 describe('DtoFormPresenter', () => {
   it('presents a valid result with no errors', () => {
@@ -36,29 +36,53 @@ describe('DtoFormPresenter', () => {
     expect(formData).toEqual(parsedInput)
   })
 
-  it('links each error in the summary to its field, in the order the errors were found', () => {
-    const { errorSummary } = presentErrors([
-      { field: 'sentence-length-months', message: ValidationErrorMessages.SentenceDurationOutOfRange },
-      { field: 'tagged-bail-days', message: ValidationErrorMessages.InvalidTaggedBailDays },
-      { field: 'erd-eligibility', message: ValidationErrorMessages.MissingErdEligibility },
-    ])
+  describe('error summary', () => {
+    it('links each error to its field, in the order the errors were found', () => {
+      const { errorSummary } = presentErrors([
+        { field: 'sentence-length-months', message: ValidationErrorMessages.SentenceDurationOutOfRange },
+        { field: 'tagged-bail-days', message: ValidationErrorMessages.InvalidTaggedBailDays },
+        { field: 'erd-eligibility', message: ValidationErrorMessages.MissingErdEligibility },
+      ])
 
-    expect(errorSummary).toEqual([
-      { text: ValidationErrorMessages.SentenceDurationOutOfRange, href: '#sentence-length-months' },
-      { text: ValidationErrorMessages.InvalidTaggedBailDays, href: '#tagged-bail-days' },
-      { text: ValidationErrorMessages.MissingErdEligibility, href: '#erd-eligibility' },
-    ])
+      expect(errorSummary).toEqual([
+        { text: ValidationErrorMessages.SentenceDurationOutOfRange, href: '#sentence-length-months' },
+        { text: ValidationErrorMessages.InvalidTaggedBailDays, href: '#tagged-bail-days' },
+        { text: ValidationErrorMessages.MissingErdEligibility, href: '#erd-eligibility' },
+      ])
+    })
+
+    it('links the remand before sentence date error to the remand start day input', () => {
+      const { errorSummary } = presentErrors([
+        { field: 'remand-start-date', message: ValidationErrorMessages.RemandStartDateNotBeforeSentenceDate },
+      ])
+
+      expect(errorSummary).toEqual([
+        { text: ValidationErrorMessages.RemandStartDateNotBeforeSentenceDate, href: '#remand-start-date-day' },
+      ])
+    })
   })
 
-  it('keys each error message by its field', () => {
-    const { errorsByField } = presentErrors([
-      { field: 'sentence-length-months', message: ValidationErrorMessages.SentenceDurationOutOfRange },
-      { field: 'remand-start-date-day', message: ValidationErrorMessages.InvalidDay },
-    ])
+  describe('errors by field', () => {
+    it('keys each error message by its field', () => {
+      const { errorsByField } = presentErrors([
+        { field: 'sentence-length-months', message: ValidationErrorMessages.SentenceDurationOutOfRange },
+        { field: 'remand-start-date-day', message: ValidationErrorMessages.InvalidDay },
+      ])
 
-    expect(errorsByField).toEqual({
-      'sentence-length-months': ValidationErrorMessages.SentenceDurationOutOfRange,
-      'remand-start-date-day': ValidationErrorMessages.InvalidDay,
+      expect(errorsByField).toEqual({
+        'sentence-length-months': ValidationErrorMessages.SentenceDurationOutOfRange,
+        'remand-start-date-day': ValidationErrorMessages.InvalidDay,
+      })
+    })
+
+    it('keeps the remand before sentence date error under its own field, so no date part is highlighted', () => {
+      const { errorsByField } = presentErrors([
+        { field: 'remand-start-date', message: ValidationErrorMessages.RemandStartDateNotBeforeSentenceDate },
+      ])
+
+      expect(errorsByField).toEqual({
+        'remand-start-date': ValidationErrorMessages.RemandStartDateNotBeforeSentenceDate,
+      })
     })
   })
 
