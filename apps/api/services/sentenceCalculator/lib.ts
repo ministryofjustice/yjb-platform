@@ -62,6 +62,15 @@ export function getLTDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
   return buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)
 }
 
+// the ERD is the ETD for a child who is eligible for early release - built from the
+// ETD rather than recalculated, so the two can never drift apart
+export function getERDDate(etd: transferDatesObj, erdEligible: boolean): transferDatesObj {
+  if (!erdEligible) {
+    return buildTransferDatesObj(DtoEligibilityStatus.notEligible, 0)
+  }
+  return etd
+}
+
 export function calculateTerm(inputSentence: InputIndividualSentence): CalculatedTerm {
   const totalDaysInTerm = getTotalDaysInTerm(inputSentence)
   const totalDaysMTD = getTotalDaysMTD(totalDaysInTerm)

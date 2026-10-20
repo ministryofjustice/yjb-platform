@@ -17,6 +17,7 @@ import {
   increaseTotalNumRTBDays,
   getETDDate,
   getLTDDate,
+  getERDDate,
   adjustCalculation,
   getSledDate,
   getMTDDate,
@@ -344,6 +345,29 @@ describe('getLTD', () => {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
         dayOfWeek: 'Tuesday',
+      },
+    })
+  })
+})
+
+describe('getERD', () => {
+  it.each([
+    ['1 month', buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12'))],
+    ['2 months', buildTransferDatesObj(DtoEligibilityStatus.twoMonths, new Date('2026-10-12'))],
+    ['not calculated', buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)],
+  ])('returns the same date as the ETD when eligible and the ETD is %s', (_, etd) => {
+    expect(getERDDate(etd, true)).toEqual(etd)
+  })
+
+  it.each([
+    ['1 month', buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12'))],
+    ['not calculated', buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)],
+  ])('returns 0 and not eligible when not eligible, even when the ETD is %s', (_, etd) => {
+    expect(getERDDate(etd, false)).toEqual({
+      data: 0,
+      metadata: {
+        status: 'not_eligible',
+        message: 'Not eligible for early release',
       },
     })
   })
