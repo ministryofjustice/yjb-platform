@@ -32,7 +32,7 @@
         <p>{{ calculationResultString }}</p>
       {% endcall %}
   </div>
-
+  {% include "../partials/calculation-breakdown/view-B.njk" %}
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-half">
@@ -56,7 +56,8 @@
       }) }}
     </div>
   </div>
-
-  {% include "../partials/calculation-breakdown/view-B.njk" %}
-
+  
+    <div class="govuk-grid-row govuk-!-padding-left-3 govuk-!-padding-top-4">
+      <a id="new-calculation-link-b" href="/calculate">Start a new DTO calculation</a>
+    </div>
 {% endblock %}
