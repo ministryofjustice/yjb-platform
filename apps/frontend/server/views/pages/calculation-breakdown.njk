@@ -50,7 +50,7 @@
         rows: [
           { key: { text: "Sentence date" }, value: { text: inputData.sentenceDateString } },
           { key: { text: "Sentence length" }, value: { text: inputData.sentenceLengthMonths + " months" } },
-          { key: { text: "Remand start date" }, value: { text: inputData.remandStartDateString } },
+          { key: { text: "Remand start date" }, value: { text: inputData.remandStartDateString or "0" } },
           { key: { text: "Days spent on tagged bail" }, value: { text: inputData.taggedBailDays } }
         ]
       }) }}

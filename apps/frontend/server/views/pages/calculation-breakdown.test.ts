@@ -117,6 +117,21 @@ describe('Sentence calculation results page', () => {
         expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.remandStartDateString)
       })
 
+      it('renders 0 for the remand start date when none was given', () => {
+        const noRemand: CalculationBreakdownInputData = {
+          ...parsedInput,
+          remandStartDate: undefined,
+          remandStartDateString: undefined,
+          remandStartDateBtnStr: '',
+        }
+        const cheerioPage = renderWithCheerio({ inputData: noRemand })
+
+        const remandRow = cheerioPage('.govuk-summary-card .govuk-summary-list__row').filter((_, row) =>
+          cheerioPage(row).find('.govuk-summary-list__key').text().includes('Remand start date'),
+        )
+        expect(remandRow.find('.govuk-summary-list__value').text().trim()).toBe('0')
+      })
+
       it('renders the tagged bail days', () => {
         const cheerioPage = renderWithCheerio({ inputData: parsedInput })
         expect(cheerioPage('.govuk-summary-card').text()).toContain('Days spent on tagged bail')
