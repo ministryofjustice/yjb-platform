@@ -247,6 +247,28 @@ describe('getETD', () => {
       },
     })
   })
+
+  // boundary: the rule is "over 8 months", so exactly 8 months is not calculated
+  it('returns 0 for a 8 months long sentence, no remand, mtd on 2026-12-12', () => {
+    expect(getETDDate(new Date('2026-12-12'), 8)).toEqual({
+      data: 0,
+      metadata: {
+        status: 'not_calculated',
+        message: 'Not applicable for DTOs with terms less than 8 months',
+      },
+    })
+  })
+
+  it('returns 2026-11-12 for a 9 months long sentence, no remand, mtd on 2026-12-12', () => {
+    expect(getETDDate(new Date('2026-12-12'), 9)).toEqual({
+      data: new Date('2026-11-12'),
+      metadata: {
+        status: '1_month',
+        message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Thursday',
+      },
+    })
+  })
 })
 
 describe('getLTD', () => {
@@ -300,6 +322,28 @@ describe('getLTD', () => {
       metadata: {
         status: 'not_calculated',
         message: 'Not applicable for DTOs with terms less than 8 months',
+      },
+    })
+  })
+
+  // boundary: the rule is "over 8 months", so exactly 8 months is not calculated
+  it('returns 0 for a 8 months long sentence, no remand, mtd on 2026-12-12', () => {
+    expect(getLTDDate(new Date('2026-12-12'), 8)).toEqual({
+      data: 0,
+      metadata: {
+        status: 'not_calculated',
+        message: 'Not applicable for DTOs with terms less than 8 months',
+      },
+    })
+  })
+
+  it('returns 2027-01-12 for a 9 months long sentence, no remand, mtd on 2026-12-12', () => {
+    expect(getLTDDate(new Date('2026-12-12'), 9)).toEqual({
+      data: new Date('2027-01-12'),
+      metadata: {
+        status: '1_month',
+        message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Tuesday',
       },
     })
   })
