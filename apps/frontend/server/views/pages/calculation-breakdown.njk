@@ -20,7 +20,7 @@
     href: backHref
   }) }}
 
-  <h1 class="govuk-heading-l">Calculation breakdown</h1>
+  <h1 class="govuk-heading-l">Sentence calculation results</h1>
 
   <div class="govuk-grid-row" hidden>
       {% call govukDetails({
@@ -39,10 +39,10 @@
 
       {{ govukSummaryList({
         card: {
-          title: { text: "Your answers" },
+          title: { text: "What you told us" },
           actions: { items: [
             {
-              text: "Change answers",
+              text: "Edit",
               href: backHref
             }
           ] }

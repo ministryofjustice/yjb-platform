@@ -19,7 +19,7 @@
   {% endset -%}
 
   {% set resultsBreakdownHtml %}
-  <h2>Results breakdown</h2>
+  <h2>Detailed breakdown</h2>
 
   {{ govukSummaryList({
     rows: [
@@ -47,7 +47,7 @@
           }
         },
         {
-          label: "Results breakdown",
+          label: "Detailed breakdown",
           id: "results-breakdown-tab",
           panel: {
             html: resultsBreakdownHtml

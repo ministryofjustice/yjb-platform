@@ -7,16 +7,16 @@ import { CalculationBreakdownInputData } from '../../routes/calculate'
 const env = createNunjucksTestSetup()
 const renderWithCheerio = (context = {}) => cheerio.load(env.render('pages/calculation-breakdown.njk', context))
 
-describe('Calculation breakdown page', () => {
+describe('Sentence calculation results page', () => {
   describe('content', () => {
     it('renders the title', () => {
       const cheerioPage = renderWithCheerio()
-      expect(cheerioPage('title').text()).toBe('Youth Justice Platform - Calculation breakdown')
+      expect(cheerioPage('title').text()).toBe('Youth Justice Platform - Sentence calculation results')
     })
 
     it('renders the page headings', () => {
       const cheerioPage = renderWithCheerio()
-      expect(cheerioPage('h1').text()).toBe('Calculation breakdown')
+      expect(cheerioPage('h1').text()).toBe('Sentence calculation results')
     })
   })
 
@@ -78,7 +78,7 @@ describe('Calculation breakdown page', () => {
       ['ETD', 'Tuesday, 27 October 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
     ]
 
-    describe('your answers section', () => {
+    describe('What you told us section', () => {
       const parsedInput: CalculationBreakdownInputData = {
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
@@ -92,7 +92,7 @@ describe('Calculation breakdown page', () => {
 
       it('renders the panel', () => {
         const cheerioPage = renderWithCheerio()
-        expect(cheerioPage('.govuk-summary-card').text()).toContain('Your answers')
+        expect(cheerioPage('.govuk-summary-card').text()).toContain('What you told us')
       })
 
       it('renders the sentence date', () => {
@@ -119,7 +119,7 @@ describe('Calculation breakdown page', () => {
         expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.taggedBailDays.toString())
       })
 
-      it('renders appropriate change answers link', () => {
+      it('renders appropriate Edit link', () => {
         const cheerioPage = renderWithCheerio({ inputData: parsedInput })
         const changeAnswersLink = cheerioPage('.govuk-summary-card .govuk-summary-card__actions .govuk-link')
         expect(changeAnswersLink.prop('href')).toContain(`remandStartDate=2032-12-20`)
