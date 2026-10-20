@@ -1,4 +1,5 @@
 const esbuild = require('esbuild')
+const { typecheckPlugin } = require('@jgoz/esbuild-plugin-typecheck')
 
 const watch = process.argv.includes('--watch')
 
@@ -10,6 +11,7 @@ const ctx = esbuild.context({
   outfile: 'dist/server.js',
   sourcemap: true,
   external: ['express'],
+  plugins: [typecheckPlugin({ watch })],
 })
 
 ctx

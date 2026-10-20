@@ -8,13 +8,11 @@ import {
 } from '@yjb-platform/shared-types'
 import { buildTransferDatesObj, buildfinalDatesObj } from '../services/sentenceCalculator/helpers/dateObjects'
 import formatOutputCalculation from './sentenceCalculatorMapper'
+import { sampleInputSentencesBody } from '../testutils/sampleObjects'
 
 describe('inputSentencesSchema', () => {
   it('deserializes date strings into Date objects', () => {
-    const body = {
-      offenderName: 'Test Offender',
-      inputIndividualSentences: [{ from: '2026-06-29', durationMonths: 11 }],
-    }
+    const body = sampleInputSentencesBody
 
     const result = inputSentencesSchema.parse(body)
 
@@ -23,9 +21,8 @@ describe('inputSentencesSchema', () => {
 
   it('deserializes an optional remandAdjustment with its start date', () => {
     const body = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentencesBody,
       remandAdjustment: { name: AdjustmentTypes.remand, startDate: '2026-06-14' },
-      inputIndividualSentences: [{ from: '2026-06-29', durationMonths: 11 }],
     }
 
     const result = inputSentencesSchema.parse(body)
@@ -34,6 +31,22 @@ describe('inputSentencesSchema', () => {
       name: AdjustmentTypes.remand,
       startDate: new Date('2026-06-14'),
     })
+  })
+
+  it.each([true, false])('accepts an erdEligible of %s and passes it through unchanged', erdEligible => {
+    const result = inputSentencesSchema.parse({ ...sampleInputSentencesBody, erdEligible })
+
+    expect(result.erdEligible).toBe(erdEligible)
+  })
+
+  it('throws a ZodError when erdEligible is missing', () => {
+    const { erdEligible: _omitted, ...body } = sampleInputSentencesBody
+
+    expect(() => inputSentencesSchema.parse(body)).toThrow(ZodError)
+  })
+
+  it.each(['true', 'false', 1])('throws a ZodError when erdEligible is %p rather than a boolean', erdEligible => {
+    expect(() => inputSentencesSchema.parse({ ...sampleInputSentencesBody, erdEligible })).toThrow(ZodError)
   })
 
   it('throws a ZodError when a remandAdjustment has no start date', () => {

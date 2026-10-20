@@ -5,39 +5,28 @@ import {
   DtoEligibilityStatus,
   AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
+import { sampleInputSentences } from '../../testutils/sampleObjects'
 import { buildTransferDatesObj, buildfinalDatesObj } from './helpers/dateObjects'
 import calculateDTOSentence from './CalculationService'
 
 const remandInput: InputSentences = {
-  offenderName: 'Test Offender',
+  ...sampleInputSentences,
   remandAdjustment: {
     name: AdjustmentTypes.remand,
     startDate: new Date('2026-06-14'),
   },
-  inputIndividualSentences: [
-    {
-      from: new Date('2026-06-29'),
-      durationMonths: 11,
-    },
-  ],
 }
 
 const remandTaggedBailInput: InputSentences = {
-  offenderName: 'Test Offender',
+  ...sampleInputSentences,
   taggedBailAdjustment: {
     name: AdjustmentTypes.taggedBail,
     days: 15,
   },
-  inputIndividualSentences: [
-    {
-      from: new Date('2026-06-29'),
-      durationMonths: 11,
-    },
-  ],
 }
 
 const remandAndTaggedBailInput: InputSentences = {
-  offenderName: 'Test Offender',
+  ...sampleInputSentences,
   remandAdjustment: {
     name: AdjustmentTypes.remand,
     startDate: new Date('2026-06-14'),
@@ -46,12 +35,6 @@ const remandAndTaggedBailInput: InputSentences = {
     name: AdjustmentTypes.taggedBail,
     days: 4,
   },
-  inputIndividualSentences: [
-    {
-      from: new Date('2026-06-29'),
-      durationMonths: 11,
-    },
-  ],
 }
 
 function compareOutputCalculations(outputCalculation1: OutputCalculation, outputCalculation2: OutputCalculation) {
@@ -67,7 +50,7 @@ function compareOutputCalculations(outputCalculation1: OutputCalculation, output
 describe('calculateDTOSentence', () => {
   it('returns full calculation for 11 months sentence starting on 2026-06-29 no adjustments', () => {
     const noRemandInput: InputSentences = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentences,
       remandAdjustment: {
         name: AdjustmentTypes.remand,
         // remand starting on the sentence date is 0 days, so no adjustment is applied
@@ -77,12 +60,6 @@ describe('calculateDTOSentence', () => {
         name: AdjustmentTypes.taggedBail,
         days: 0,
       },
-      inputIndividualSentences: [
-        {
-          from: new Date('2026-06-29'),
-          durationMonths: 11,
-        },
-      ],
     }
 
     const expectedNoRemandOutput: OutputCalculation = {
@@ -299,7 +276,7 @@ describe('calculateDTOSentence', () => {
 
   it('returns full calculation for 4 months sentence starting on 2026-06-01 with 50 days remand', () => {
     const fiftyDaysRemandInput: InputSentences = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentences,
       remandAdjustment: {
         name: AdjustmentTypes.remand,
         startDate: new Date('2026-04-12'), // 50 days prior sentence beginning
@@ -365,7 +342,7 @@ describe('calculateDTOSentence', () => {
   // for testing purpose these examples have very big remands, since dto sentences are min of 4 months
   it('returns full calculation for 4 months sentence starting on 2026-06-01 with 70 days remand', () => {
     const seventyDaysRemandInput: InputSentences = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentences,
       remandAdjustment: {
         name: AdjustmentTypes.remand,
         startDate: new Date('2026-03-23'), // 70 days prior to sentence beginning
@@ -437,7 +414,7 @@ describe('calculateDTOSentence', () => {
   // for testing purpose these examples have very big remands, since dto sentences are min of 4 months
   it('returns full calculation for 4 months sentence starting on 2026-06-01 with 125 days remand', () => {
     const oneTwentyFiveDaysRemandInput: InputSentences = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentences,
       remandAdjustment: {
         name: AdjustmentTypes.remand,
         startDate: new Date('2026-01-27'), // 125 days prior sentence beginning
@@ -514,7 +491,7 @@ describe('calculateDTOSentence', () => {
 
   it('returns full calculation for 4 months sentence starting on 2026-06-01 with 50 days remand and 20 days tagged bail', () => {
     const fiftyRemandTwentyTaggedBailInput: InputSentences = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentences,
       remandAdjustment: {
         name: AdjustmentTypes.remand,
         startDate: new Date('2026-04-12'), // 50 days prior sentence beginning
