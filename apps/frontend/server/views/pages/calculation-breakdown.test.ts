@@ -161,7 +161,10 @@ describe('Sentence calculation results page', () => {
       // the text of each line in each breakdown row, by the row's key
       const breakdownLines: Record<string, string[]> = {}
       cheerioPage('#results-breakdown-tab .govuk-summary-list__row').each((_, el) => {
-        const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
+        // some keys have a tagline under them - the row's key is the text without it
+        const keyElement = cheerioPage(el).find('.govuk-summary-list__key').clone()
+        keyElement.find('.govuk-hint').remove()
+        const key = keyElement.text().trim()
         breakdownLines[key] = cheerioPage(el)
           .find('.govuk-summary-list__value .govuk-\\!-display-block')
           .toArray()
@@ -173,6 +176,19 @@ describe('Sentence calculation results page', () => {
           [key]: expect.stringContaining(value),
         })
       })
+
+    it.each([
+      ['MTD', 'Mid Term Date'],
+      ['SLED', 'Sentence and Licence Expiry Date'],
+      ['ETD', 'Early Transfer Date'],
+      ['LTD', 'Late Transfer Date'],
+    ])('shows the tagline "%s" under the %s key', (key: string, tagline: string) => {
+      const keyElement = cheerioPage('#results-breakdown-tab .govuk-summary-list__key').filter((_, el) =>
+        cheerioPage(el).text().trim().startsWith(key),
+      )
+      expect(keyElement.find('.govuk-hint').text().trim()).toBe(tagline)
+    })
+
 
       it.each(expectedBreakdownLines)('renders the %s breakdown on two lines', (key: string, lines: string[]) => {
         expect(breakdownLines[key]).toEqual(lines)

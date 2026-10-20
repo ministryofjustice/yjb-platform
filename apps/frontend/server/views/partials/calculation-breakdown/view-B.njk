@@ -24,6 +24,11 @@
     <span class="govuk-!-display-block govuk-!-font-size-16">{{ secondLine }}</span>
   {%- endmacro %}
 
+  {# a summary list key with a short line of smaller grey text under it #}
+  {% macro keyWithTagline(key, tagline) -%}
+    {{ key }}<span class="govuk-hint govuk-!-font-size-16 govuk-!-margin-bottom-0">{{ tagline }}</span>
+  {%- endmacro %}
+
   {% set resultsBreakdownHtml %}
   <h2>Detailed breakdown</h2>
 
@@ -33,11 +38,11 @@
       { key: { text: "Term length" }, value: { html: twoLines(periods.termLength, breakdownObj.termLengthBreakdown) } },
       { key: { text: "Custodial period" }, value: { html: twoLines(periods.custodialPeriod, breakdownObj.custodialPeriodBreakdown) } },
       { key: { text: "Remand period" }, value: { html: twoLines(periods.remandPeriod, breakdownObj.remandPeriodBreakdown) } },
-      { key: { text: "MTD" }, value: { html: twoLines(breakdownObj.mtdDate, breakdownObj.mtdBreakdown) } },
-      { key: { text: "SLED" }, value: { html: twoLines(breakdownObj.finalSledDate, breakdownObj.finalSledBreakdown) } },
+      { key: { html: keyWithTagline("MTD", "Mid Term Date") }, value: { html: twoLines(breakdownObj.mtdDate, breakdownObj.mtdBreakdown) } },
+      { key: { html: keyWithTagline("SLED", "Sentence and Licence Expiry Date") }, value: { html: twoLines(breakdownObj.finalSledDate, breakdownObj.finalSledBreakdown) } },
       { key: { text: "Final MTD" }, value: { html: twoLines(breakdownObj.finalMtdDate, breakdownObj.finalMtdBreakdown) } },
-      { key: { text: "ETD" }, value: { html: twoLines(breakdownObj.etdDate, breakdownObj.etdBreakdown) } },
-      { key: { text: "LTD" }, value: { html: twoLines(breakdownObj.ltdDate, breakdownObj.ltdBreakdown) } }
+      { key: { html: keyWithTagline("ETD", "Early Transfer Date") }, value: { html: twoLines(breakdownObj.etdDate, breakdownObj.etdBreakdown) } },
+      { key: { html: keyWithTagline("LTD", "Late Transfer Date") }, value: { html: twoLines(breakdownObj.ltdDate, breakdownObj.ltdBreakdown) } }
     ]
   }) }}
   {% endset -%}
