@@ -114,7 +114,7 @@ describe('POST /calculate', () => {
       isValid: true,
       parsedInput: {},
       errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+      payload: { offenderName: 'Place Holder', erdEligible: true, inputIndividualSentences: [] },
     }
     dtoService.validatePayload.mockReturnValue(validResult)
     dtoService.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
@@ -134,7 +134,7 @@ describe('POST /calculate', () => {
       isValid: true,
       parsedInput: {},
       errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+      payload: { offenderName: 'Place Holder', erdEligible: true, inputIndividualSentences: [] },
     }
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
@@ -165,7 +165,7 @@ describe('POST /calculate', () => {
       isValid: true,
       parsedInput: {},
       errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+      payload: { offenderName: 'Place Holder', erdEligible: true, inputIndividualSentences: [] },
     }
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
@@ -188,7 +188,7 @@ describe('POST /calculate', () => {
       isValid: true,
       parsedInput: {},
       errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+      payload: { offenderName: 'Place Holder', erdEligible: true, inputIndividualSentences: [] },
     }
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult2,
@@ -211,7 +211,7 @@ describe('POST /calculate', () => {
       isValid: true,
       parsedInput: {},
       errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+      payload: { offenderName: 'Place Holder', erdEligible: true, inputIndividualSentences: [] },
     }
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
@@ -239,7 +239,7 @@ describe('POST /calculate', () => {
       isValid: true,
       parsedInput: {},
       errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+      payload: { offenderName: 'Place Holder', erdEligible: true, inputIndividualSentences: [] },
     }
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
@@ -263,7 +263,7 @@ describe('POST /calculate', () => {
       isValid: true,
       parsedInput: {},
       errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+      payload: { offenderName: 'Place Holder', erdEligible: true, inputIndividualSentences: [] },
     }
     // the real API sends dates as plain YYYY-MM-DD strings, not Date objects -
     // this simulates that shape to guard against calling Date-only methods on a string
@@ -297,7 +297,7 @@ describe('POST /calculate', () => {
         sentenceDateString: '22 January 2033',
       },
       errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
+      payload: { offenderName: 'Place Holder', erdEligible: true, inputIndividualSentences: [] },
     }
 
     dtoService.validatePayload.mockReturnValue(validResult)
@@ -359,6 +359,7 @@ describe('POST /calculate', () => {
 
     const validatedPayload: InputSentences = {
       offenderName: 'Place Holder',
+      erdEligible: true,
       inputIndividualSentences: [],
     }
 
@@ -403,6 +404,7 @@ describe('back link from the calculation breakdown page', () => {
     'remand-start-date-month': '6',
     'remand-start-date-year': '2026',
     'tagged-bail-days': '5',
+    'erd-eligibility': 'true',
   }
 
   async function submitForm(form: Record<string, string>): Promise<cheerio.CheerioAPI> {
