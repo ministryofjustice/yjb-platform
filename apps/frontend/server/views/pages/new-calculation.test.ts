@@ -1,8 +1,9 @@
 import * as cheerio from 'cheerio'
+import { ValidationErrorMessages } from '@yjb-platform/shared-types'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
 
 const env = createNunjucksTestSetup()
-const renderWithCheerio = () => cheerio.load(env.render('pages/new-calculation.njk'))
+const renderWithCheerio = (context: object = {}) => cheerio.load(env.render('pages/new-calculation.njk', context))
 
 describe('New calculation page', () => {
   describe('content', () => {
@@ -110,6 +111,50 @@ describe('New calculation page', () => {
       )
       expect(sentenceFieldset.length).toBe(1)
       expect(sentenceFieldset.find('#sentence-length-months').attr('name')).toEqual('sentence-length-months')
+    })
+  })
+
+  describe('ERD eligibility answer', () => {
+    const checkedEligibilityValue = (cheerioPage: cheerio.CheerioAPI) =>
+      cheerioPage('input[name="erd-eligibility"]:checked').attr('value')
+
+    it('has nothing selected when there is no previous answer', () => {
+      const cheerioPage = renderWithCheerio({ formData: {} })
+      expect(checkedEligibilityValue(cheerioPage)).toBeUndefined()
+    })
+
+    it.each([
+      [true, 'true'],
+      [false, 'false'],
+    ])('re-selects the previous answer when erdEligible is %s', (erdEligible, expectedValue) => {
+      const cheerioPage = renderWithCheerio({ formData: { erdEligible } })
+      expect(checkedEligibilityValue(cheerioPage)).toBe(expectedValue)
+    })
+
+    it('shows an error summary link and an inline error when no answer is selected', () => {
+      const cheerioPage = renderWithCheerio({
+        isValid: false,
+        formData: {},
+        errorSummary: [{ text: ValidationErrorMessages.MissingErdEligibility, href: '#erd-eligibility' }],
+        errorsByField: { 'erd-eligibility': ValidationErrorMessages.MissingErdEligibility },
+      })
+
+      const summaryLink = cheerioPage('.govuk-error-summary a[href="#erd-eligibility"]')
+      expect(summaryLink.text()).toContain(ValidationErrorMessages.MissingErdEligibility)
+      // the summary link must land on a real input for it to move focus
+      expect(cheerioPage('input#erd-eligibility').attr('name')).toBe('erd-eligibility')
+      expect(cheerioPage('#erd-eligibility-error').text()).toContain(ValidationErrorMessages.MissingErdEligibility)
+    })
+
+    it('keeps the selected answer when the form is re-rendered with errors', () => {
+      const cheerioPage = renderWithCheerio({
+        isValid: false,
+        formData: { erdEligible: false },
+        errorSummary: [{ text: ValidationErrorMessages.InvalidDay, href: '#sentence-date-day' }],
+        errorsByField: { 'sentence-date-day': ValidationErrorMessages.InvalidDay },
+      })
+
+      expect(checkedEligibilityValue(cheerioPage)).toBe('false')
     })
   })
 })

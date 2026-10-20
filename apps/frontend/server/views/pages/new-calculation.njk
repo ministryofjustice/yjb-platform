@@ -134,6 +134,7 @@
 
         {{ govukRadios({
           name: "erd-eligibility",
+          errorMessage: errorsByField['erd-eligibility'] and { text: errorsByField['erd-eligibility'] },
           fieldset: {
             legend: {
               text: "Eligibility for early release",
@@ -143,11 +144,13 @@
           items: [
             {
               value: "true",
-              text: "Eligible"
+              text: "Eligible",
+              checked: formData.erdEligible === true
             },
             {
               value: "false",
-              text: "Not eligible"
+              text: "Not eligible",
+              checked: formData.erdEligible === false
             }
           ]
         }) }}

@@ -19,6 +19,7 @@ describe('DtoService', () => {
       'sentence-date-year': 1990,
       'sentence-date-month': 5,
       'sentence-date-day': 14,
+      'erd-eligibility': 'true',
     }
 
     it('should return isValid false when sentence length is not provided', () => {
@@ -134,6 +135,32 @@ describe('DtoService', () => {
       expect(result.payload).toBeUndefined()
     })
 
+    it.each([
+      ['true', true],
+      ['false', false],
+    ])('should parse an ERD eligibility answer of "%s" as %s', (answer, expected) => {
+      const result = dtoService.validatePayload({ ...exampleValidPayload, 'erd-eligibility': answer })
+
+      expect(result.isValid).toBe(true)
+      expect(result.parsedInput.erdEligible).toBe(expected)
+      expect(result.payload.erdEligible).toBe(expected)
+    })
+
+    it.each([undefined, 'banana', '', 'TRUE'])(
+      'should return an error for an ERD eligibility answer of %p, as the question is required',
+      answer => {
+        const result = dtoService.validatePayload({ ...exampleValidPayload, 'erd-eligibility': answer })
+
+        expect(result.isValid).toBe(false)
+        expect(result.errors).toContainEqual({
+          field: 'erd-eligibility',
+          message: ValidationErrorMessages.MissingErdEligibility,
+        })
+        expect(result.parsedInput.erdEligible).toBeUndefined()
+        expect(result.payload).toBeUndefined()
+      },
+    )
+
     it('should return only correctly parsed fields', () => {
       const inputData: Record<string, unknown> = {
         ...exampleValidPayload,
@@ -143,6 +170,7 @@ describe('DtoService', () => {
 
       const expectedParsedInput: ParsedDtoForm = {
         taggedBailDays: 4,
+        erdEligible: true,
         sentenceLengthMonths: 4,
         sentenceDateDay: 14,
         sentenceDateMonth: 5,
@@ -197,6 +225,7 @@ describe('DtoService', () => {
         sentenceDate: new Date(Date.UTC(1990, 4, 14)),
         sentenceDateString: '14 May 1990',
         taggedBailDays: 0,
+        erdEligible: true,
       }
 
       expect(dtoService.validatePayload(inputData).parsedInput).toEqual(expectedParsedInput)
@@ -249,6 +278,7 @@ describe('DtoService', () => {
     it('should return expected OutputCalculation object', () => {
       const inputData: InputSentences = {
         offenderName: 'William Gates',
+        erdEligible: true,
         inputIndividualSentences: [],
       }
 
