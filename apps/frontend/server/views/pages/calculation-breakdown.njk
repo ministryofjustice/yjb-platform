@@ -1,6 +1,6 @@
 {% extends "../partials/layout.njk" %}
 
-{% set pageTitle = applicationName + " - Calculation breakdown" %}
+{% set pageTitle = applicationName + " - Sentence calculation results" %}
 {% set mainClasses = "govuk-body" %}
 {% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
@@ -20,7 +20,7 @@
     href: backHref
   }) }}
 
-  <h1 class="govuk-heading-l">Calculation breakdown</h1>
+  <h1 class="govuk-heading-l">Sentence calculation results</h1>
 
   <div class="govuk-grid-row" hidden>
       {% call govukDetails({
@@ -32,17 +32,17 @@
         <p>{{ calculationResultString }}</p>
       {% endcall %}
   </div>
-
+  {% include "../partials/calculation-breakdown/view-B.njk" %}
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-half">
 
       {{ govukSummaryList({
         card: {
-          title: { text: "Your answers" },
+          title: { text: "What you told us" },
           actions: { items: [
             {
-              text: "Change answers",
+              text: "Edit",
               href: backHref
             }
           ] }
@@ -50,13 +50,14 @@
         rows: [
           { key: { text: "Sentence date" }, value: { text: inputData.sentenceDateString } },
           { key: { text: "Sentence length" }, value: { text: inputData.sentenceLengthMonths + " months" } },
-          { key: { text: "Remand start date" }, value: { text: inputData.remandStartDateString } },
+          { key: { text: "Remand start date" }, value: { text: inputData.remandStartDateString or "0" } },
           { key: { text: "Days spent on tagged bail" }, value: { text: inputData.taggedBailDays } }
         ]
       }) }}
     </div>
   </div>
-
-  {% include "../partials/calculation-breakdown/view-B.njk" %}
-
+  
+    <div class="govuk-grid-row govuk-!-padding-left-3 govuk-!-padding-top-4">
+      <a id="new-calculation-link-b" href="/calculate">Start a new DTO calculation</a>
+    </div>
 {% endblock %}

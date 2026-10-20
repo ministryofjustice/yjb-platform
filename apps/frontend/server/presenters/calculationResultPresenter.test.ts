@@ -3,7 +3,23 @@ import CalculationResultPresenter from './calculationResultPresenter'
 import { sampleCalculationResult } from '../testutils/sampleObjects'
 
 describe('calculationResultPresenter', () => {
-  const { breakdownObj, termDates, resultDates } = new CalculationResultPresenter().present(sampleCalculationResult)
+  const { breakdownObj, termDates, resultDates, periods } = new CalculationResultPresenter().present(
+    sampleCalculationResult,
+  )
+
+  it('formats the term length, custodial period and remand period', () => {
+    expect(periods).toEqual({
+      termLength: '11 months (334 days)',
+      custodialPeriod: '167 days',
+      remandPeriod: '15 days',
+    })
+  })
+
+  it('says "1 day" rather than "1 days" for a single day of remand', () => {
+    const oneDayOfRemand: OutputCalculation = { ...sampleCalculationResult, remandPeriodDays: 1 }
+
+    expect(new CalculationResultPresenter().present(oneDayOfRemand).periods.remandPeriod).toBe('1 day')
+  })
 
   it('formats the term SLED and MTD from their metadata', () => {
     expect(termDates.sled).toBe('Friday, 28 May 2027')
@@ -19,25 +35,33 @@ describe('calculationResultPresenter', () => {
     })
   })
 
+  it.each([
+    [334, 'Term length (334) / 2'],
+    [333, 'Term length (333) / 2 and rounded up'],
+  ])('explains the custodial period for a term of %s days as "%s"', (totalDaysInTerm: number, expected: string) => {
+    expect(new CalculationResultPresenter().formatCustodialPeriodBreakdown(totalDaysInTerm)).toBe(expected)
+  })
+
   it('formats the term length breakdown with the sentence start and SLED dates', () => {
-    expect(breakdownObj.termLengthBreakdown).toBe('11 months (334 days), from 29 June 2026 to 13 May 2027')
+    expect(breakdownObj.termLengthBreakdown).toBe('from 29 June 2026 to 13 May 2027')
   })
 
-  it('formats the SLED and final MTD breakdowns from their metadata', () => {
-    expect(breakdownObj.finalSledBreakdown).toBe('Thursday, 13 May 2027, 28 May 2027 minus 15 days')
-    expect(breakdownObj.finalMtdBreakdown).toBe('Friday, 27 November 2026, 12 December 2026 minus 15 days')
+  it('splits the MTD, SLED and final MTD into the date and the explanation', () => {
+    expect(breakdownObj.mtdDate).toBe('Saturday, 12 December 2026')
     expect(breakdownObj.mtdBreakdown).toBe(
-      'Saturday, 12 December 2026, 167 days from the beginning of the sentence (29 June 2026)',
+      '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
     )
+    expect(breakdownObj.finalSledDate).toBe('Thursday, 13 May 2027')
+    expect(breakdownObj.finalSledBreakdown).toBe('28 May 2027 minus 15 days')
+    expect(breakdownObj.finalMtdDate).toBe('Friday, 27 November 2026')
+    expect(breakdownObj.finalMtdBreakdown).toBe('12 December 2026 minus 15 days')
   })
 
-  it('formats the ETD and LTD breakdowns from their metadata', () => {
-    expect(breakdownObj.etdBreakdown).toBe(
-      'Tuesday, 27 October 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months',
-    )
-    expect(breakdownObj.ltdBreakdown).toBe(
-      'Sunday, 27 December 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months',
-    )
+  it('splits the ETD and LTD into the date and the explanation', () => {
+    expect(breakdownObj.etdDate).toBe('Tuesday, 27 October 2026')
+    expect(breakdownObj.etdBreakdown).toBe('1 month away from the MTD for DTOs with terms from 8 to 18 months')
+    expect(breakdownObj.ltdDate).toBe('Sunday, 27 December 2026')
+    expect(breakdownObj.ltdBreakdown).toBe('1 month away from the MTD for DTOs with terms from 8 to 18 months')
   })
 
   it('shows only the message for a transfer date that was not calculated', () => {
@@ -52,7 +76,9 @@ describe('calculationResultPresenter', () => {
 
     const { breakdownObj: notCalculatedBreakdown } = new CalculationResultPresenter().present(result)
 
+    expect(notCalculatedBreakdown.etdDate).toBe('')
     expect(notCalculatedBreakdown.etdBreakdown).toBe('Not applicable for DTOs with terms less than 8 months')
+    expect(notCalculatedBreakdown.ltdDate).toBe('')
     expect(notCalculatedBreakdown.ltdBreakdown).toBe('Not applicable for DTOs with terms less than 8 months')
 
     const { resultDates: notCalculatedDates } = new CalculationResultPresenter().present(result)

@@ -5,6 +5,7 @@ import {
   termDatesObj,
   transferDatesObj,
   formatUkDate,
+  pluralise,
 } from '@yjb-platform/shared-types'
 
 export const DTO_ELIGIBILITY_MESSAGES: Record<DtoEligibilityStatus, string> = {
@@ -15,10 +16,12 @@ export const DTO_ELIGIBILITY_MESSAGES: Record<DtoEligibilityStatus, string> = {
 
 export const FINAL_SLED_BREAKDOWN_MESSAGE: Record<AppliedAdjustmentStatus, string> = {
   [AppliedAdjustmentStatus.not_applied]: ' No adjustments applied',
-  [AppliedAdjustmentStatus.applied]: '{0} minus {1} days',
+  // number of days
+  [AppliedAdjustmentStatus.applied]: '{0} minus {1}',
   [AppliedAdjustmentStatus.collapsed]:
     'Date was collapsed to sentence date, due to remand/tagged bail bigger then sentence period',
-  [AppliedAdjustmentStatus.collapsedUnused]: 'Date was collapsed to sentence date, with {0} unused days ',
+  //  number of unused days
+  [AppliedAdjustmentStatus.collapsedUnused]: 'Date was collapsed to sentence date, with {0} ',
 }
 
 function format(template: string, ...args: Array<string | number>): string {
@@ -55,9 +58,9 @@ export function buildfinalDatesObj(
 
   if (status === AppliedAdjustmentStatus.applied && initialDate && adjustmentDuration) {
     const sentenceStartStr = formatUkDate(initialDate)
-    message = format(FINAL_SLED_BREAKDOWN_MESSAGE[status], sentenceStartStr, adjustmentDuration)
+    message = format(FINAL_SLED_BREAKDOWN_MESSAGE[status], sentenceStartStr, pluralise(adjustmentDuration, 'day'))
   } else if (status === AppliedAdjustmentStatus.collapsedUnused && unusedDays) {
-    message = format(FINAL_SLED_BREAKDOWN_MESSAGE[status], unusedDays)
+    message = format(FINAL_SLED_BREAKDOWN_MESSAGE[status], pluralise(unusedDays, 'unused day'))
   }
 
   return {
@@ -70,14 +73,25 @@ export function buildfinalDatesObj(
   }
 }
 
-export function buildTermDatesObj(data: Date, daysFromSentenceStart: number, sentenceStart: Date): termDatesObj {
+export function buildTermDatesObj(
+  data: Date,
+  daysFromSentenceStart: number,
+  sentenceStart: Date,
+  addCustodialPeriod: boolean = false,
+): termDatesObj {
   const sentenceStartStr = formatUkDate(new Date(sentenceStart))
+
+  // the MTD is the end of the custodial period, so its message says so
+  let custodialPeriod = ''
+  if (addCustodialPeriod) {
+    custodialPeriod = ' (custodial period)'
+  }
 
   return {
     data,
     metadata: {
       dayOfWeek: getDayOfWeek(data),
-      message: `${daysFromSentenceStart} days from the beginning of the sentence (${sentenceStartStr})`,
+      message: `${pluralise(daysFromSentenceStart, 'day')}${custodialPeriod} from the beginning of the sentence (${sentenceStartStr})`,
     },
   }
 }

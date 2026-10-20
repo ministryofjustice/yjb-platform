@@ -124,8 +124,8 @@ describe('POST /calculate', () => {
       .expect('Content-Type', /html/)
       .expect(200)
       .expect(res => {
-        expect(res.text).toContain('Calculation breakdown')
-        expect(res.text).toContain('Youth Justice Platform - Calculation breakdown')
+        expect(res.text).toContain('Sentence calculation results')
+        expect(res.text).toContain('Youth Justice Platform - Sentence calculation results')
       })
   })
 
@@ -254,7 +254,7 @@ describe('POST /calculate', () => {
       .expect(res => {
         const $ = cheerio.load(res.text)
         expect($('#results-breakdown-tab').text()).toContain(breakdownObj.remandPeriodBreakdown)
-        expect(breakdownObj.remandPeriodBreakdown).toBe('(14 June 2026 to 28 June 2026)')
+        expect(breakdownObj.remandPeriodBreakdown).toBe('14 June 2026 to 28 June 2026')
       })
   })
 
@@ -277,7 +277,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#results-breakdown-tab').text()).toContain('(14 June 2026 to 28 June 2026)')
+        expect($('#results-breakdown-tab').text()).toContain('14 June 2026 to 28 June 2026')
       })
   })
 
@@ -431,7 +431,7 @@ describe('back link from the calculation breakdown page', () => {
     expect(formPage('#tagged-bail-days').attr('value')).toBe('5')
   })
 
-  it('uses the same link for "Change answers"', async () => {
+  it('uses the same link for "Edit"', async () => {
     const breakdownPage = await submitForm(completedForm)
 
     const backHref = breakdownPage('.govuk-back-link').attr('href')

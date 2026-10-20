@@ -71,7 +71,7 @@ export function calculateTerm(inputSentence: InputIndividualSentence): Calculate
     totalDaysInTerm,
     totalDaysMTD,
     sled: buildTermDatesObj(getSledDate(totalDaysInTerm, inputSentence.from), totalDaysInTerm, inputSentence.from),
-    mtd: buildTermDatesObj(getMTDDate(totalDaysMTD, inputSentence.from), totalDaysMTD, inputSentence.from),
+    mtd: buildTermDatesObj(getMTDDate(totalDaysMTD, inputSentence.from), totalDaysMTD, inputSentence.from, true),
   }
 }
 

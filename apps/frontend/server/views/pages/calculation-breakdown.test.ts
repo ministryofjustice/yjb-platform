@@ -1,22 +1,22 @@
 import * as cheerio from 'cheerio'
 import { OutputCalculation } from '@yjb-platform/shared-types'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
-import { sampleCalculationResult, breakdownObj, termDates, resultDates } from '../../testutils/sampleObjects'
+import { sampleCalculationResult, breakdownObj, termDates, resultDates, periods } from '../../testutils/sampleObjects'
 import { CalculationBreakdownInputData } from '../../routes/calculate'
 
 const env = createNunjucksTestSetup()
 const renderWithCheerio = (context = {}) => cheerio.load(env.render('pages/calculation-breakdown.njk', context))
 
-describe('Calculation breakdown page', () => {
+describe('Sentence calculation results page', () => {
   describe('content', () => {
     it('renders the title', () => {
       const cheerioPage = renderWithCheerio()
-      expect(cheerioPage('title').text()).toBe('Youth Justice Platform - Calculation breakdown')
+      expect(cheerioPage('title').text()).toBe('Youth Justice Platform - Sentence calculation results')
     })
 
     it('renders the page headings', () => {
       const cheerioPage = renderWithCheerio()
-      expect(cheerioPage('h1').text()).toBe('Calculation breakdown')
+      expect(cheerioPage('h1').text()).toBe('Sentence calculation results')
     })
   })
 
@@ -67,18 +67,22 @@ describe('Calculation breakdown page', () => {
       ['ETD', 'Tuesday 2026-10-27'],
     ]
 
-    const expectedExplanationValues: string[][] = [
-      ['Term length', ', from 29 June 2026 to 13 May 2027'],
-      ['Custodial period', '(334 divided by 2)'],
-      ['MTD', 'Saturday, 12 December 2026, 167 days from the beginning of the sentence (29 June 2026)'],
-      ['Remand period', '(14 June 2026 to 28 June 2026)'],
-      ['SLED', 'Thursday, 13 May 2027, 28 May 2027 minus 15 days'],
-      ['Final MTD', 'Friday, 27 November 2026, 12 December 2026 minus 15 days'],
-      ['LTD', 'Sunday, 27 December 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
-      ['ETD', 'Tuesday, 27 October 2026, 1 month away from the MTD for DTOs with terms from 8 to 18 months'],
+    // each breakdown row is shown on two lines: the date or period, then how it was worked out
+    const expectedBreakdownLines: [string, string[]][] = [
+      ['Term length', ['11 months (334 days)', 'from 29 June 2026 to 13 May 2027']],
+      ['Custodial period', ['167 days', 'Term length (334) / 2']],
+      ['Remand period', ['15 days', '14 June 2026 to 28 June 2026']],
+      [
+        'MTD',
+        ['Saturday, 12 December 2026', '167 days (custodial period) from the beginning of the sentence (29 June 2026)'],
+      ],
+      ['SLED', ['Thursday, 13 May 2027', '28 May 2027 minus 15 days']],
+      ['Final MTD', ['Friday, 27 November 2026', '12 December 2026 minus 15 days']],
+      ['ETD', ['Tuesday, 27 October 2026', '1 month away from the MTD for DTOs with terms from 8 to 18 months']],
+      ['LTD', ['Sunday, 27 December 2026', '1 month away from the MTD for DTOs with terms from 8 to 18 months']],
     ]
 
-    describe('your answers section', () => {
+    describe('What you told us section', () => {
       const parsedInput: CalculationBreakdownInputData = {
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
@@ -92,7 +96,7 @@ describe('Calculation breakdown page', () => {
 
       it('renders the panel', () => {
         const cheerioPage = renderWithCheerio()
-        expect(cheerioPage('.govuk-summary-card').text()).toContain('Your answers')
+        expect(cheerioPage('.govuk-summary-card').text()).toContain('What you told us')
       })
 
       it('renders the sentence date', () => {
@@ -113,13 +117,28 @@ describe('Calculation breakdown page', () => {
         expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.remandStartDateString)
       })
 
+      it('renders 0 for the remand start date when none was given', () => {
+        const noRemand: CalculationBreakdownInputData = {
+          ...parsedInput,
+          remandStartDate: undefined,
+          remandStartDateString: undefined,
+          remandStartDateBtnStr: '',
+        }
+        const cheerioPage = renderWithCheerio({ inputData: noRemand })
+
+        const remandRow = cheerioPage('.govuk-summary-card .govuk-summary-list__row').filter((_, row) =>
+          cheerioPage(row).find('.govuk-summary-list__key').text().includes('Remand start date'),
+        )
+        expect(remandRow.find('.govuk-summary-list__value').text().trim()).toBe('0')
+      })
+
       it('renders the tagged bail days', () => {
         const cheerioPage = renderWithCheerio({ inputData: parsedInput })
         expect(cheerioPage('.govuk-summary-card').text()).toContain('Days spent on tagged bail')
         expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.taggedBailDays.toString())
       })
 
-      it('renders appropriate change answers link', () => {
+      it('renders appropriate Edit link', () => {
         const cheerioPage = renderWithCheerio({ inputData: parsedInput })
         const changeAnswersLink = cheerioPage('.govuk-summary-card .govuk-summary-card__actions .govuk-link')
         expect(changeAnswersLink.prop('href')).toContain(`remandStartDate=2032-12-20`)
@@ -131,7 +150,7 @@ describe('Calculation breakdown page', () => {
 
     describe('Calculation outputs B', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj, termDates, resultDates })
+      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj, termDates, resultDates, periods })
 
       const calculationDataRows: Record<string, string> = {}
       cheerioPage('#calculation-results-tab .govuk-summary-list__row').each((_, el) => {
@@ -139,10 +158,17 @@ describe('Calculation breakdown page', () => {
         calculationDataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
       })
 
-      const explanationDataRows: Record<string, string> = {}
+      // the text of each line in each breakdown row, by the row's key
+      const breakdownLines: Record<string, string[]> = {}
       cheerioPage('#results-breakdown-tab .govuk-summary-list__row').each((_, el) => {
-        const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
-        explanationDataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
+        // some keys have a tagline under them - the row's key is the text without it
+        const keyElement = cheerioPage(el).find('.govuk-summary-list__key').clone()
+        keyElement.find('.govuk-hint').remove()
+        const key = keyElement.text().trim()
+        breakdownLines[key] = cheerioPage(el)
+          .find('.govuk-summary-list__value .govuk-\\!-display-block')
+          .toArray()
+          .map(line => cheerioPage(line).text().trim())
       })
 
       it.each(expectedCalcValues)('correctly renders the calculation result for %s', (key: string, value: string) => {
@@ -151,14 +177,21 @@ describe('Calculation breakdown page', () => {
         })
       })
 
-      it.each(expectedExplanationValues)(
-        'correctly renders the calculation explanations for %s',
-        (key: string, value: string) => {
-          expect(explanationDataRows).toMatchObject({
-            [key]: expect.stringContaining(value),
-          })
-        },
-      )
+      it.each([
+        ['MTD', 'Mid Term Date'],
+        ['SLED', 'Sentence and Licence Expiry Date'],
+        ['ETD', 'Early Transfer Date'],
+        ['LTD', 'Late Transfer Date'],
+      ])('shows the tagline "%s" under the %s key', (key: string, tagline: string) => {
+        const keyElement = cheerioPage('#results-breakdown-tab .govuk-summary-list__key').filter((_, el) =>
+          cheerioPage(el).text().trim().startsWith(key),
+        )
+        expect(keyElement.find('.govuk-hint').text().trim()).toBe(tagline)
+      })
+
+      it.each(expectedBreakdownLines)('renders the %s breakdown on two lines', (key: string, lines: string[]) => {
+        expect(breakdownLines[key]).toEqual(lines)
+      })
     })
   })
 })

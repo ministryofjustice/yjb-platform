@@ -1,4 +1,4 @@
-import { formatUkDate, toDateString } from '@yjb-platform/shared-types'
+import { formatUkDate, pluralise, toDateString } from '@yjb-platform/shared-types'
 
 // tests for shared date helpers
 describe('shared date helpers', () => {
@@ -23,5 +23,16 @@ describe('shared date helpers', () => {
 
     expect(formatUkDate(lateEveningUtc)).toBe('9 June 2026')
     expect(toDateString(lateEveningUtc)).toBe('2026-06-09')
+  })
+})
+
+describe('pluralise', () => {
+  it.each([
+    [0, '0 days'],
+    [1, '1 day'],
+    [2, '2 days'],
+    [15, '15 days'],
+  ])('pluralise(%s, "day") is "%s"', (count: number, expected: string) => {
+    expect(pluralise(count, 'day')).toBe(expected)
   })
 })

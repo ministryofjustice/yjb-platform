@@ -1,11 +1,13 @@
 import { UTCDate } from '@date-fns/utc'
 import { subDays } from 'date-fns'
-import { OutputCalculation, calcBreakdown, AdjustmentTypes, formatUkDate } from '@yjb-platform/shared-types'
+import { OutputCalculation, calcBreakdown, AdjustmentTypes, formatUkDate, pluralise } from '@yjb-platform/shared-types'
 
 export type CalculationResultObj = {
   breakdownObj: calcBreakdown
   termDates: { sled: string; mtd: string }
   resultDates: { finalSled: string; finalMtd: string; etd: string; ltd: string }
+  // lengths of time as text
+  periods: { termLength: string; custodialPeriod: string; remandPeriod: string }
   calculationResultString: string
 }
 
@@ -20,22 +22,25 @@ export default class CalculationResultPresenter {
     const remandBreakdown =
       remandAdjustmentRecord?.adjustmentParameters.name === AdjustmentTypes.remand
         ? // remand ends the day before the sentence starts
-          `(${formatUkDate(remandAdjustmentRecord.adjustmentParameters.startDate)} to ${formatUkDate(
+          `${formatUkDate(remandAdjustmentRecord.adjustmentParameters.startDate)} to ${formatUkDate(
             subDays(new UTCDate(term.inputSentence.from), 1),
-          )})`
+          )}`
         : ''
 
     const breakdownObj: calcBreakdown = {
-      termLengthBreakdown: `${term.inputSentence.durationMonths} months (${term.totalDaysInTerm} days), from ${formatUkDate(
-        term.inputSentence.from,
-      )} to ${formatUkDate(effectiveDates.sled.data)}`,
-      custodialPeriodBreakdown: `${term.totalDaysInTerm} divided by 2${term.totalDaysInTerm % 2 ? ', rounded up' : ''}`,
+      termLengthBreakdown: `from ${formatUkDate(term.inputSentence.from)} to ${formatUkDate(effectiveDates.sled.data)}`,
+      custodialPeriodBreakdown: this.formatCustodialPeriodBreakdown(term.totalDaysInTerm),
       remandPeriodBreakdown: remandBreakdown,
-      mtdBreakdown: this.formatDateBreakdown(term.mtd.data, term.mtd.metadata),
-      finalSledBreakdown: this.formatDateBreakdown(effectiveDates.sled.data, effectiveDates.sled.metadata),
-      finalMtdBreakdown: this.formatDateBreakdown(effectiveDates.mtd.data, effectiveDates.mtd.metadata),
-      etdBreakdown: this.formatDateBreakdown(etd.data, etd.metadata),
-      ltdBreakdown: this.formatDateBreakdown(ltd.data, ltd.metadata),
+      mtdDate: this.formatDateLine(term.mtd.data, term.mtd.metadata),
+      mtdBreakdown: term.mtd.metadata.message,
+      finalSledDate: this.formatDateLine(effectiveDates.sled.data, effectiveDates.sled.metadata),
+      finalSledBreakdown: effectiveDates.sled.metadata.message,
+      finalMtdDate: this.formatDateLine(effectiveDates.mtd.data, effectiveDates.mtd.metadata),
+      finalMtdBreakdown: effectiveDates.mtd.metadata.message,
+      etdDate: this.formatDateLine(etd.data, etd.metadata),
+      etdBreakdown: etd.metadata.message,
+      ltdDate: this.formatDateLine(ltd.data, ltd.metadata),
+      ltdBreakdown: ltd.metadata.message,
     }
 
     return {
@@ -50,13 +55,36 @@ export default class CalculationResultPresenter {
         etd: this.formatDayAndDate(etd.data, etd.metadata),
         ltd: this.formatDayAndDate(ltd.data, ltd.metadata),
       },
+      periods: {
+        termLength: `${term.inputSentence.durationMonths} months (${pluralise(term.totalDaysInTerm, 'day')})`,
+        custodialPeriod: pluralise(term.totalDaysMTD, 'day'),
+        remandPeriod: pluralise(calculationResult.remandPeriodDays, 'day'),
+      },
       calculationResultString: JSON.stringify(calculationResult),
     }
   }
 
-  // TODO: check what we need to see if no date (probably show a message?) and if we can combine with formatDayAndDate
-  formatDateBreakdown(date: Date | string | 0, metadata: DateMetadata): string {
-    return [metadata.dayOfWeek, date ? formatUkDate(date) : undefined, metadata.message].filter(Boolean).join(', ')
+  // the custodial period is half the term, e.g. "Term length (334) / 2" - a term with an odd number of
+  // days can't be halved exactly, e.g. "Term length (333) / 2 and rounded up"
+  formatCustodialPeriodBreakdown(totalDaysInTerm: number): string {
+    const breakdown = `Term length (${totalDaysInTerm}) / 2`
+
+    const hasOddNumberOfDays = totalDaysInTerm % 2 === 1
+    if (hasOddNumberOfDays) {
+      return `${breakdown} and rounded up`
+    }
+
+    return breakdown
+  }
+
+  // the first line of a date row in the breakdown, e.g. "Saturday, 12 December 2026" - empty when there is
+  // no date (e.g. an ETD that wasn't calculated), as the second line then explains why
+  formatDateLine(date: Date | string | 0, metadata: DateMetadata): string {
+    if (!date) {
+      return ''
+    }
+
+    return [metadata.dayOfWeek, formatUkDate(date)].filter(Boolean).join(', ')
   }
 
   formatDayAndDate(date: Date | string | 0, metadata: DateMetadata): string {

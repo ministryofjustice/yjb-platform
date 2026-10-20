@@ -102,7 +102,7 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-12-12'),
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (29 June 2026)',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
             },
           },
         },
@@ -142,7 +142,7 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-12-12'),
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (29 June 2026)',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
             },
           },
         },
@@ -193,7 +193,7 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-12-12'),
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (29 June 2026)',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
             },
           },
         },
@@ -244,7 +244,7 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-12-12'),
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (29 June 2026)',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
             },
           },
         },
@@ -329,7 +329,7 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-07-31'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '61 days from the beginning of the sentence (1 June 2026)',
+              message: '61 days (custodial period) from the beginning of the sentence (1 June 2026)',
             },
           },
         },
@@ -395,7 +395,7 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-07-31'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '61 days from the beginning of the sentence (1 June 2026)',
+              message: '61 days (custodial period) from the beginning of the sentence (1 June 2026)',
             },
           },
         },
@@ -467,7 +467,7 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-07-31'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '61 days from the beginning of the sentence (1 June 2026)',
+              message: '61 days (custodial period) from the beginning of the sentence (1 June 2026)',
             },
           },
         },
@@ -548,7 +548,7 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-07-31'),
             metadata: {
               dayOfWeek: 'Friday',
-              message: '61 days from the beginning of the sentence (1 June 2026)',
+              message: '61 days (custodial period) from the beginning of the sentence (1 June 2026)',
             },
           },
         },

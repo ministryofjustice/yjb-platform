@@ -83,7 +83,7 @@ describe('formatOutputCalculation', () => {
             data: new Date('2026-12-12'),
             metadata: {
               dayOfWeek: 'Saturday',
-              message: '167 days from the beginning of the sentence (29 June 2026)',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
             },
           },
         },
