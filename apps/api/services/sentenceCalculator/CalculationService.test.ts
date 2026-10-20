@@ -677,6 +677,29 @@ describe('calculateDTOSentence', () => {
       expect(output.erd).toEqual(output.etd)
     })
 
+    it('returns an ETD, LTD and ERD for an 8 months sentence when the child is eligible', () => {
+      const output: OutputCalculation = calculateDTOSentence({
+        ...sampleInputSentences,
+        inputIndividualSentences: [{ from: new Date('2026-06-29'), durationMonths: 8 }],
+      })
+
+      expect(output.ltd.metadata.status).toBe(DtoEligibilityStatus.oneMonth)
+      expect(output.etd.metadata.status).toBe(DtoEligibilityStatus.oneMonth)
+      expect(output.erd).toEqual(output.etd)
+    })
+
+    it('returns 0 and not calculated for the ETD, LTD and ERD for a 7 months sentence when the child is eligible', () => {
+      const output: OutputCalculation = calculateDTOSentence({
+        ...sampleInputSentences,
+        inputIndividualSentences: [{ from: new Date('2026-06-29'), durationMonths: 7 }],
+      })
+
+      const notCalculated = buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)
+      expect(output.ltd).toEqual(notCalculated)
+      expect(output.etd).toEqual(notCalculated)
+      expect(output.erd).toEqual(notCalculated)
+    })
+
     it('returns 0 and not eligible for the ERD, but still calculates the ETD, when the child is not eligible', () => {
       const output: OutputCalculation = calculateDTOSentence({ ...sampleInputSentences, erdEligible: false })
 
