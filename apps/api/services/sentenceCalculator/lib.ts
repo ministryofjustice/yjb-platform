@@ -43,7 +43,7 @@ export function getMTDDate(totalDaysMTD: number, from: Date): Date {
 }
 
 export function getETDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
-  if (sentenceLenth > 8 && sentenceLenth <= 18) {
+  if (sentenceLenth >= 8 && sentenceLenth <= 18) {
     return buildTransferDatesObj(DtoEligibilityStatus.oneMonth, subMonths(new UTCDate(mtd), 1))
   }
   if (sentenceLenth > 18) {
@@ -53,7 +53,7 @@ export function getETDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
 }
 
 export function getLTDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
-  if (sentenceLenth > 8 && sentenceLenth <= 18) {
+  if (sentenceLenth >= 8 && sentenceLenth <= 18) {
     return buildTransferDatesObj(DtoEligibilityStatus.oneMonth, addMonths(new UTCDate(mtd), 1))
   }
   if (sentenceLenth > 18) {

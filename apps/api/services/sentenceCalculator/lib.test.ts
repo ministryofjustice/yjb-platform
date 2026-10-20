@@ -249,9 +249,9 @@ describe('getETD', () => {
     })
   })
 
-  // boundary: the rule is "over 8 months", so exactly 8 months is not calculated
-  it('returns 0 for a 8 months long sentence, no remand, mtd on 2026-12-12', () => {
-    expect(getETDDate(new Date('2026-12-12'), 8)).toEqual({
+  // boundary: terms of 8 months or more are calculated, 7 months or less are not
+  it('returns 0 for a 7 months long sentence, no remand, mtd on 2026-12-12', () => {
+    expect(getETDDate(new Date('2026-12-12'), 7)).toEqual({
       data: 0,
       metadata: {
         status: 'not_calculated',
@@ -260,8 +260,8 @@ describe('getETD', () => {
     })
   })
 
-  it('returns 2026-11-12 for a 9 months long sentence, no remand, mtd on 2026-12-12', () => {
-    expect(getETDDate(new Date('2026-12-12'), 9)).toEqual({
+  it('returns 2026-11-12 for a 8 months long sentence, no remand, mtd on 2026-12-12', () => {
+    expect(getETDDate(new Date('2026-12-12'), 8)).toEqual({
       data: new Date('2026-11-12'),
       metadata: {
         status: '1_month',
@@ -327,9 +327,9 @@ describe('getLTD', () => {
     })
   })
 
-  // boundary: the rule is "over 8 months", so exactly 8 months is not calculated
-  it('returns 0 for a 8 months long sentence, no remand, mtd on 2026-12-12', () => {
-    expect(getLTDDate(new Date('2026-12-12'), 8)).toEqual({
+  // boundary: terms of 8 months or more are calculated, 7 months or less are not
+  it('returns 0 for a 7 months long sentence, no remand, mtd on 2026-12-12', () => {
+    expect(getLTDDate(new Date('2026-12-12'), 7)).toEqual({
       data: 0,
       metadata: {
         status: 'not_calculated',
@@ -338,8 +338,8 @@ describe('getLTD', () => {
     })
   })
 
-  it('returns 2027-01-12 for a 9 months long sentence, no remand, mtd on 2026-12-12', () => {
-    expect(getLTDDate(new Date('2026-12-12'), 9)).toEqual({
+  it('returns 2027-01-12 for a 8 months long sentence, no remand, mtd on 2026-12-12', () => {
+    expect(getLTDDate(new Date('2026-12-12'), 8)).toEqual({
       data: new Date('2027-01-12'),
       metadata: {
         status: '1_month',
