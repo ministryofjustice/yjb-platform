@@ -57,7 +57,7 @@ describe('DtoFormPresenter', () => {
       ])
 
       expect(errorSummary).toEqual([
-        { text: ValidationErrorMessages.RemandStartDateNotBeforeSentenceDate, href: '#remand-start-date-day' },
+        { text: ValidationErrorMessages.RemandStartDateNotBeforeSentenceDate, href: '#remand-start-date' },
       ])
     })
   })
