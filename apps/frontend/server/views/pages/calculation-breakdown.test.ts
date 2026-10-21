@@ -31,6 +31,7 @@ describe('Sentence calculation results page', () => {
     it('passes the submitted form data to the back button', () => {
       const parsedInput: CalculationBreakdownInputData = {
         taggedBailDays: 44,
+        erdEligible: true,
         sentenceLengthMonths: 22,
         sentenceDate: new Date(Date.UTC(2033, 0, 22)),
         sentenceDateString: '22 January 2033',
@@ -45,6 +46,7 @@ describe('Sentence calculation results page', () => {
       expect(button.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
       expect(button.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
       expect(button.prop('href')).toContain(`sentenceDate=2033-01-22`)
+      expect(button.prop('href')).toContain(`erdEligible=true`)
     })
 
     it('includes a Start a new calculation button', () => {
@@ -65,6 +67,7 @@ describe('Sentence calculation results page', () => {
       ['Final MTD', 'Friday 2026-11-27'],
       ['LTD', 'Sunday 2026-12-27'],
       ['ETD', 'Tuesday 2026-10-27'],
+      ['ERD', 'Tuesday 2026-10-27'],
     ]
 
     // each breakdown row is shown on two lines: the date or period, then how it was worked out
@@ -80,11 +83,13 @@ describe('Sentence calculation results page', () => {
       ['Final MTD', ['Friday, 27 November 2026', '12 December 2026 minus 15 days']],
       ['ETD', ['Tuesday, 27 October 2026', '1 month away from the MTD for DTOs with terms from 8 to 18 months']],
       ['LTD', ['Sunday, 27 December 2026', '1 month away from the MTD for DTOs with terms from 8 to 18 months']],
+      ['ERD', ['Tuesday, 27 October 2026', '1 month away from the MTD for DTOs with terms from 8 to 18 months']],
     ]
 
     describe('What you told us section', () => {
       const parsedInput: CalculationBreakdownInputData = {
         taggedBailDays: 44,
+        erdEligible: true,
         sentenceLengthMonths: 22,
         sentenceDate: new Date(Date.UTC(2033, 0, 22)),
         sentenceDateString: '22 January 2033',
@@ -138,6 +143,15 @@ describe('Sentence calculation results page', () => {
         expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.taggedBailDays.toString())
       })
 
+      it.each(['Eligible', 'Not Eligible'])('renders the ERD eligibility answer "%s"', (erdEligibility: string) => {
+        const cheerioPage = renderWithCheerio({ inputData: parsedInput, erdEligibility })
+
+        const erdRow = cheerioPage('.govuk-summary-card .govuk-summary-list__row').filter((_, row) =>
+          cheerioPage(row).find('.govuk-summary-list__key').text().includes('Eligibility for early release'),
+        )
+        expect(erdRow.find('.govuk-summary-list__value').text().trim()).toBe(erdEligibility)
+      })
+
       it('renders appropriate Edit link', () => {
         const cheerioPage = renderWithCheerio({ inputData: parsedInput })
         const changeAnswersLink = cheerioPage('.govuk-summary-card .govuk-summary-card__actions .govuk-link')
@@ -145,6 +159,7 @@ describe('Sentence calculation results page', () => {
         expect(changeAnswersLink.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
         expect(changeAnswersLink.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
         expect(changeAnswersLink.prop('href')).toContain(`sentenceDate=2033-01-22`)
+        expect(changeAnswersLink.prop('href')).toContain(`erdEligible=true`)
       })
     })
 
@@ -182,6 +197,7 @@ describe('Sentence calculation results page', () => {
         ['SLED', 'Sentence and Licence Expiry Date'],
         ['ETD', 'Early Transfer Date'],
         ['LTD', 'Late Transfer Date'],
+        ['ERD', 'Early Release Date'],
       ])('shows the tagline "%s" under the %s key', (key: string, tagline: string) => {
         const keyElement = cheerioPage('#results-breakdown-tab .govuk-summary-list__key').filter((_, el) =>
           cheerioPage(el).text().trim().startsWith(key),
@@ -191,6 +207,30 @@ describe('Sentence calculation results page', () => {
 
       it.each(expectedBreakdownLines)('renders the %s breakdown on two lines', (key: string, lines: string[]) => {
         expect(breakdownLines[key]).toEqual(lines)
+      })
+
+      it('renders only the message for the ERD when the child is not eligible for early release', () => {
+        const notEligiblePage = renderWithCheerio({
+          calculationResult,
+          breakdownObj: { ...breakdownObj, erdDate: '', erdBreakdown: 'Not eligible for early release' },
+          termDates,
+          resultDates: { ...resultDates, erd: 'Not eligible for early release' },
+          periods,
+        })
+
+        const rowFor = (tabId: string) =>
+          notEligiblePage(`${tabId} .govuk-summary-list__row`).filter((_, row) =>
+            notEligiblePage(row).find('.govuk-summary-list__key').text().trim().startsWith('ERD'),
+          )
+        expect(rowFor('#calculation-results-tab').find('.govuk-summary-list__value').text().trim()).toBe(
+          'Not eligible for early release',
+        )
+        expect(
+          rowFor('#results-breakdown-tab')
+            .find('.govuk-summary-list__value .govuk-\\!-display-block')
+            .toArray()
+            .map(line => notEligiblePage(line).text().trim()),
+        ).toEqual(['Not eligible for early release'])
       })
     })
   })

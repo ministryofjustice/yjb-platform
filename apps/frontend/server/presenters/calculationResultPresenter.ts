@@ -1,21 +1,24 @@
 import { UTCDate } from '@date-fns/utc'
 import { subDays } from 'date-fns'
 import { OutputCalculation, calcBreakdown, AdjustmentTypes, formatUkDate, pluralise } from '@yjb-platform/shared-types'
+import { ParsedDtoForm } from '../services/dtoService'
 
 export type CalculationResultObj = {
   breakdownObj: calcBreakdown
   termDates: { sled: string; mtd: string }
-  resultDates: { finalSled: string; finalMtd: string; etd: string; ltd: string }
+  resultDates: { finalSled: string; finalMtd: string; etd: string; ltd: string; erd: string }
   // lengths of time as text
   periods: { termLength: string; custodialPeriod: string; remandPeriod: string }
   calculationResultString: string
+  // the answer to the ERD eligibility question, e.g. "Eligible"
+  erdEligibility: string
 }
 
 type DateMetadata = { dayOfWeek?: string; message: string }
 
 export default class CalculationResultPresenter {
-  present(calculationResult: OutputCalculation): CalculationResultObj {
-    const { calculatedTerms, effectiveDates, effectiveDatesPastAdjustments, etd, ltd } = calculationResult
+  present(calculationResult: OutputCalculation, parsedInput: ParsedDtoForm): CalculationResultObj {
+    const { calculatedTerms, effectiveDates, effectiveDatesPastAdjustments, etd, ltd, erd } = calculationResult
     const term = calculatedTerms[0]
 
     const remandAdjustmentRecord = effectiveDatesPastAdjustments[0]
@@ -41,6 +44,8 @@ export default class CalculationResultPresenter {
       etdBreakdown: etd.metadata.message,
       ltdDate: this.formatDateLine(ltd.data, ltd.metadata),
       ltdBreakdown: ltd.metadata.message,
+      erdDate: this.formatDateLine(erd.data, erd.metadata),
+      erdBreakdown: erd.metadata.message,
     }
 
     return {
@@ -54,6 +59,7 @@ export default class CalculationResultPresenter {
         finalMtd: this.formatDayAndDate(effectiveDates.mtd.data, effectiveDates.mtd.metadata),
         etd: this.formatDayAndDate(etd.data, etd.metadata),
         ltd: this.formatDayAndDate(ltd.data, ltd.metadata),
+        erd: this.formatDayAndDate(erd.data, erd.metadata),
       },
       periods: {
         termLength: `${term.inputSentence.durationMonths} months (${pluralise(term.totalDaysInTerm, 'day')})`,
@@ -61,6 +67,7 @@ export default class CalculationResultPresenter {
         remandPeriod: pluralise(calculationResult.remandPeriodDays, 'day'),
       },
       calculationResultString: JSON.stringify(calculationResult),
+      erdEligibility: parsedInput.erdEligible ? 'Eligible' : 'Not Eligible',
     }
   }
 

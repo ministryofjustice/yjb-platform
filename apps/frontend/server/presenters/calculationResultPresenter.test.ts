@@ -1,10 +1,13 @@
 import { DtoEligibilityStatus, OutputCalculation } from '@yjb-platform/shared-types'
 import CalculationResultPresenter from './calculationResultPresenter'
 import { sampleCalculationResult } from '../testutils/sampleObjects'
+import { ParsedDtoForm } from '../services/dtoService'
 
 describe('calculationResultPresenter', () => {
+  const parsedInput: ParsedDtoForm = { erdEligible: true }
   const { breakdownObj, termDates, resultDates, periods } = new CalculationResultPresenter().present(
     sampleCalculationResult,
+    parsedInput,
   )
 
   it('formats the term length, custodial period and remand period', () => {
@@ -18,7 +21,7 @@ describe('calculationResultPresenter', () => {
   it('says "1 day" rather than "1 days" for a single day of remand', () => {
     const oneDayOfRemand: OutputCalculation = { ...sampleCalculationResult, remandPeriodDays: 1 }
 
-    expect(new CalculationResultPresenter().present(oneDayOfRemand).periods.remandPeriod).toBe('1 day')
+    expect(new CalculationResultPresenter().present(oneDayOfRemand, parsedInput).periods.remandPeriod).toBe('1 day')
   })
 
   it('formats the term SLED and MTD from their metadata', () => {
@@ -32,7 +35,17 @@ describe('calculationResultPresenter', () => {
       finalMtd: 'Friday, 27 November 2026',
       etd: 'Tuesday, 27 October 2026',
       ltd: 'Sunday, 27 December 2026',
+      erd: 'Tuesday, 27 October 2026',
     })
+  })
+
+  it.each([
+    [true, 'Eligible'],
+    [false, 'Not Eligible'],
+  ])('shows the ERD eligibility answer %s as "%s"', (erdEligible: boolean, expected: string) => {
+    const { erdEligibility } = new CalculationResultPresenter().present(sampleCalculationResult, { erdEligible })
+
+    expect(erdEligibility).toBe(expected)
   })
 
   it.each([
@@ -64,6 +77,49 @@ describe('calculationResultPresenter', () => {
     expect(breakdownObj.ltdBreakdown).toBe('1 month away from the MTD for DTOs with terms from 8 to 18 months')
   })
 
+  it('splits the ERD into the date and the explanation', () => {
+    expect(breakdownObj.erdDate).toBe('Tuesday, 27 October 2026')
+    expect(breakdownObj.erdBreakdown).toBe('1 month away from the MTD for DTOs with terms from 8 to 18 months')
+  })
+
+  it('shows only the message for an ERD that the child is eligible for but was not calculated', () => {
+    const result: OutputCalculation = {
+      ...sampleCalculationResult,
+      erd: {
+        data: 0,
+        metadata: {
+          status: DtoEligibilityStatus.notCalculated,
+          message: 'Not applicable for DTOs with terms less than 8 months',
+        },
+      },
+    }
+
+    const presented = new CalculationResultPresenter().present(result, parsedInput)
+
+    expect(presented.breakdownObj.erdDate).toBe('')
+    expect(presented.breakdownObj.erdBreakdown).toBe('Not applicable for DTOs with terms less than 8 months')
+    expect(presented.resultDates.erd).toBe('Not applicable for DTOs with terms less than 8 months')
+  })
+
+  it('shows only the message for the ERD when the child is not eligible for early release', () => {
+    const result: OutputCalculation = {
+      ...sampleCalculationResult,
+      erd: {
+        data: 0,
+        metadata: {
+          status: DtoEligibilityStatus.notEligible,
+          message: 'Not eligible for early release',
+        },
+      },
+    }
+
+    const presented = new CalculationResultPresenter().present(result, { erdEligible: false })
+
+    expect(presented.breakdownObj.erdDate).toBe('')
+    expect(presented.breakdownObj.erdBreakdown).toBe('Not eligible for early release')
+    expect(presented.resultDates.erd).toBe('Not eligible for early release')
+  })
+
   it('shows only the message for a transfer date that was not calculated', () => {
     const notCalculated = {
       data: 0 as const,
@@ -74,14 +130,14 @@ describe('calculationResultPresenter', () => {
     }
     const result: OutputCalculation = { ...sampleCalculationResult, etd: notCalculated, ltd: notCalculated }
 
-    const { breakdownObj: notCalculatedBreakdown } = new CalculationResultPresenter().present(result)
+    const { breakdownObj: notCalculatedBreakdown } = new CalculationResultPresenter().present(result, parsedInput)
 
     expect(notCalculatedBreakdown.etdDate).toBe('')
     expect(notCalculatedBreakdown.etdBreakdown).toBe('Not applicable for DTOs with terms less than 8 months')
     expect(notCalculatedBreakdown.ltdDate).toBe('')
     expect(notCalculatedBreakdown.ltdBreakdown).toBe('Not applicable for DTOs with terms less than 8 months')
 
-    const { resultDates: notCalculatedDates } = new CalculationResultPresenter().present(result)
+    const { resultDates: notCalculatedDates } = new CalculationResultPresenter().present(result, parsedInput)
     expect(notCalculatedDates.etd).toBe('Not applicable for DTOs with terms less than 8 months')
     expect(notCalculatedDates.ltd).toBe('Not applicable for DTOs with terms less than 8 months')
   })
@@ -93,7 +149,7 @@ describe('calculationResultPresenter', () => {
       breakdownObj: apiBreakdown,
       termDates: apiTermDates,
       resultDates: apiResultDates,
-    } = new CalculationResultPresenter().present(fromApi)
+    } = new CalculationResultPresenter().present(fromApi, parsedInput)
 
     expect(apiBreakdown).toEqual(breakdownObj)
     expect(apiTermDates).toEqual(termDates)

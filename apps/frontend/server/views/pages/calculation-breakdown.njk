@@ -11,6 +11,7 @@
   + "&taggedBailDays=" + inputData.taggedBailDays
   + "&sentenceLengthMonths=" + inputData.sentenceLengthMonths
   + "&sentenceDate=" + inputData.sentenceDateBtnStr
+  + "&erdEligible=" + inputData.erdEligible
 %}
 
 {% block content %}
@@ -51,7 +52,8 @@
           { key: { text: "Sentence date" }, value: { text: inputData.sentenceDateString } },
           { key: { text: "Sentence length" }, value: { text: inputData.sentenceLengthMonths + " months" } },
           { key: { text: "Remand start date" }, value: { text: inputData.remandStartDateString or "0" } },
-          { key: { text: "Days spent on tagged bail" }, value: { text: inputData.taggedBailDays } }
+          { key: { text: "Days spent on tagged bail" }, value: { text: inputData.taggedBailDays } },
+          { key: { text: "Eligibility for early release" }, value: { text: erdEligibility } }
         ]
       }) }}
     </div>

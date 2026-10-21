@@ -49,7 +49,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
   const router = Router()
 
   router.get('/', async (req, res, _next) => {
-    const { sentenceLengthMonths, taggedBailDays } = req.query
+    const { sentenceLengthMonths, taggedBailDays, erdEligible } = req.query
     const sentenceDate = getDatePartsFromQuery(req.query.sentenceDate)
     const remandStartDate = getDatePartsFromQuery(req.query.remandStartDate)
 
@@ -66,6 +66,8 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
         remandStartDateDay: remandStartDate.day,
         remandStartDateMonth: remandStartDate.month,
         remandStartDateYear: remandStartDate.year,
+        // the back link sends the ERD answer as "true" or "false" - anything else leaves both radios unselected
+        erdEligible: erdEligible === 'true' || erdEligible === 'false' ? erdEligible === 'true' : undefined,
       },
       errorSummary: [],
       errorsByField: {},
@@ -82,9 +84,11 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
 
     if (validationResult.isValid) {
       const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult.payload)
-      const formattedCalculation: CalculationResultObj = new CalculationResultPresenter().present(calculationResult)
-
       const { parsedInput } = validationResult
+      const formattedCalculation: CalculationResultObj = new CalculationResultPresenter().present(
+        calculationResult,
+        parsedInput,
+      )
       const inputData: CalculationBreakdownInputData = {
         ...parsedInput,
         sentenceDateBtnStr: toBackLinkDate(parsedInput.sentenceDate),

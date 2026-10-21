@@ -109,7 +109,9 @@ export type calcBreakdown = {
   etdDate: string,
   etdBreakdown: string,
   ltdDate: string,
-  ltdBreakdown: string
+  ltdBreakdown: string,
+  erdDate: string,
+  erdBreakdown: string
 }
 
 // zod schemas mirroring the input types above, for validating untrusted request
