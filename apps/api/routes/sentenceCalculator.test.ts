@@ -6,6 +6,7 @@ import {
   FINAL_SLED_BREAKDOWN_MESSAGE,
 } from '../services/sentenceCalculator/helpers/dateObjects'
 import sentenceCalculatorRoutes from './sentenceCalculator'
+import { sampleInputSentencesBody } from '../testutils/sampleObjects'
 
 const app = express()
 app.use(express.json())
@@ -13,15 +14,7 @@ app.use('/calculations', sentenceCalculatorRoutes())
 
 describe('POST /calculations', () => {
   it('should return valid calculations for a valid input of sentence with no remand', () => {
-    const input = {
-      offenderName: 'Test Offender',
-      inputIndividualSentences: [
-        {
-          from: '2026-06-29',
-          durationMonths: 11,
-        },
-      ],
-    }
+    const input = sampleInputSentencesBody
 
     const output = {
       calculatedTerms: [
@@ -91,17 +84,11 @@ describe('POST /calculations', () => {
 
   it('should return a valid calculation for a valid input with 15 days remand', () => {
     const input = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentencesBody,
       remandAdjustment: {
         name: 'remand',
         startDate: new Date('2026-06-14'),
       },
-      inputIndividualSentences: [
-        {
-          from: '2026-06-29',
-          durationMonths: 11,
-        },
-      ],
     }
     const output = {
       calculatedTerms: [
@@ -199,7 +186,7 @@ describe('POST /calculations', () => {
 
   it('returns 10 days of remand for a remand start date of 2026-06-19 and a sentence starting on 2026-06-29', () => {
     const inputSentence = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentencesBody,
       remandAdjustment: {
         name: 'remand',
         startDate: '2026-06-19',
@@ -208,12 +195,6 @@ describe('POST /calculations', () => {
         name: 'taggedBail',
         days: 5,
       },
-      inputIndividualSentences: [
-        {
-          from: '2026-06-29',
-          durationMonths: 11,
-        },
-      ],
     }
 
     const expectedOutputCalculation = {
@@ -346,5 +327,13 @@ describe('POST /calculations', () => {
 
     expect(response.body.errors).toBeInstanceOf(Array)
     expect(response.body.errors.length).toBeGreaterThan(0)
+  })
+
+  it('should return 400 with an erdEligible validation error when erdEligible is missing', async () => {
+    const { erdEligible: _omitted, ...input } = sampleInputSentencesBody
+
+    const response = await request(app).post('/calculations').send(input).expect(400)
+
+    expect(response.body.errors).toContainEqual(expect.objectContaining({ path: ['erdEligible'] }))
   })
 })

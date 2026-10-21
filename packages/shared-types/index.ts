@@ -19,6 +19,7 @@ export type InputSentences = {
   offenderName: string
   remandAdjustment?: RemandAdjustment
   taggedBailAdjustment?: TaggedBailAdjustment
+  erdEligible: boolean
   inputIndividualSentences: InputIndividualSentence[]
 }
 

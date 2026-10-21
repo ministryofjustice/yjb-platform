@@ -8,6 +8,7 @@ export type ParsedDtoForm = {
   remandStartDate?: Date
   remandStartDateString?: string
   taggedBailDays?: number
+  erdEligible?: boolean
   sentenceLengthMonths?: number
   sentenceDateDay?: number
   sentenceDateMonth?: number
@@ -34,8 +35,9 @@ export default class DtoParseResult {
     schema: ZodType<ParsedDtoForm[K]>,
     formFieldName: string,
     formFieldPropertyName: K,
+    isRequired = false,
   ) {
-    if (formFieldRaw !== undefined) {
+    if (formFieldRaw !== undefined || isRequired) {
       const result = schema.safeParse(formFieldRaw)
       if (result.success) {
         this.data[formFieldPropertyName] = result.data

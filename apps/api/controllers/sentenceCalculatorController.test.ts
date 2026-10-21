@@ -5,6 +5,7 @@ import {
   DtoEligibilityStatus,
   AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
+import { sampleInputSentences } from '../testutils/sampleObjects'
 import { buildTransferDatesObj, buildfinalDatesObj } from '../services/sentenceCalculator/helpers/dateObjects'
 import SentenceCalculatorController from './sentenceCalculatorController'
 
@@ -16,15 +17,7 @@ beforeEach(() => {
 
 describe('SentenceController', () => {
   it('returns 2027-05-28 sled and 2026-12-12 mtd for 11 month sentence starting on 026-06-29 with no remand', () => {
-    const inputSentence: InputSentences = {
-      offenderName: 'test Offender',
-      inputIndividualSentences: [
-        {
-          from: new Date('2026-06-29'),
-          durationMonths: 11,
-        },
-      ],
-    }
+    const inputSentence: InputSentences = sampleInputSentences
     const expectedOutputCalculation: OutputCalculation = {
       calculatedTerms: [
         {
@@ -65,17 +58,11 @@ describe('SentenceController', () => {
 
   it('returns sled 2027-05-13 and mtd 2026-11-2 for 11 month sentence starting on 2026-06-29 with 15 days remand', () => {
     const inputSentence: InputSentences = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentences,
       remandAdjustment: {
         name: AdjustmentTypes.remand,
         startDate: new Date('2026-06-14'),
       },
-      inputIndividualSentences: [
-        {
-          from: new Date('2026-06-29'),
-          durationMonths: 11,
-        },
-      ],
     }
 
     const expectedOutputCalculation: OutputCalculation = {
@@ -129,17 +116,11 @@ describe('SentenceController', () => {
 
   it('returns sled 2027-05-13 and mtd 2026-11-2 for 11 month sentence starting on 2026-06-29 with 15 days tagged bail', () => {
     const inputSentence: InputSentences = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentences,
       taggedBailAdjustment: {
         name: AdjustmentTypes.taggedBail,
         days: 15,
       },
-      inputIndividualSentences: [
-        {
-          from: new Date('2026-06-29'),
-          durationMonths: 11,
-        },
-      ],
     }
 
     const expectedOutputCalculation: OutputCalculation = {
@@ -193,7 +174,7 @@ describe('SentenceController', () => {
 
   it('returns sled 2027-05-13 and mtd 2026-11-2 for 11 month sentence starting on 2026-06-29 with 10 days of remand and 5 days tagged bail', () => {
     const inputSentence: InputSentences = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentences,
       remandAdjustment: {
         name: AdjustmentTypes.remand,
         startDate: new Date('2026-06-19'),
@@ -202,12 +183,6 @@ describe('SentenceController', () => {
         name: AdjustmentTypes.taggedBail,
         days: 5,
       },
-      inputIndividualSentences: [
-        {
-          from: new Date('2026-06-29'),
-          durationMonths: 11,
-        },
-      ],
     }
 
     const expectedOutputCalculation: OutputCalculation = {

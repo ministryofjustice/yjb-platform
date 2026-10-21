@@ -109,13 +109,19 @@ describe('GET /calculate', () => {
 })
 
 describe('POST /calculate', () => {
+  const exampleValidResult: ValidationResult = {
+    isValid: true,
+    parsedInput: {},
+    errors: [],
+    payload: {
+      offenderName: 'Place Holder',
+      erdEligible: true,
+      inputIndividualSentences: [],
+    },
+  }
+
   it('should render a calculation breakdown page when the payload is valid', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+    const validResult: ValidationResult = exampleValidResult
     dtoService.validatePayload.mockReturnValue(validResult)
     dtoService.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
 
@@ -130,12 +136,7 @@ describe('POST /calculate', () => {
   })
 
   it('should pass the calculationResult into the template', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+    const validResult: ValidationResult = exampleValidResult
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
       etd: {
@@ -161,12 +162,7 @@ describe('POST /calculate', () => {
   })
 
   it('should pass the breakdownObj with custodial breakdown into the template', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+    const validResult: ValidationResult = exampleValidResult
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
     }
@@ -184,12 +180,7 @@ describe('POST /calculate', () => {
   })
 
   it('should pass the breakdownObj into the template for with custodial breakdown with rounded number', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+    const validResult: ValidationResult = exampleValidResult
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult2,
     }
@@ -207,12 +198,7 @@ describe('POST /calculate', () => {
   })
 
   it('should pass the date breakdowns into the template', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+    const validResult: ValidationResult = exampleValidResult
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
     }
@@ -235,12 +221,7 @@ describe('POST /calculate', () => {
   })
 
   it('should pass the breakdownObj into the template for remand period breakdown', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+    const validResult: ValidationResult = exampleValidResult
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
     }
@@ -259,14 +240,7 @@ describe('POST /calculate', () => {
   })
 
   it('should render the remand period breakdown correctly when dates arrive as JSON-serialized strings (real API shape)', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
-    // the real API sends dates as plain YYYY-MM-DD strings, not Date objects -
-    // this simulates that shape to guard against calling Date-only methods on a string
+    const validResult: ValidationResult = exampleValidResult
     const mockCalculationResult: OutputCalculation = JSON.parse(JSON.stringify(sampleCalculationResult))
     dtoService.validatePayload.mockReturnValue(validResult)
     dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
@@ -287,7 +261,7 @@ describe('POST /calculate', () => {
     }
 
     const validResult: ValidationResult = {
-      isValid: true,
+      ...exampleValidResult,
       parsedInput: {
         remandStartDate: new Date(Date.UTC(2032, 11, 20)),
         remandStartDateString: '20 December 2032',
@@ -296,8 +270,6 @@ describe('POST /calculate', () => {
         sentenceDate: new Date(Date.UTC(2033, 0, 22)),
         sentenceDateString: '22 January 2033',
       },
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
     }
 
     dtoService.validatePayload.mockReturnValue(validResult)
@@ -316,9 +288,8 @@ describe('POST /calculate', () => {
 
   it('should render the new calculation page when the payload is invalid', () => {
     const invalidResult: ValidationResult = {
+      ...exampleValidResult,
       isValid: false,
-      parsedInput: {},
-      errors: [],
     }
     dtoService.validatePayload.mockReturnValue(invalidResult)
 
@@ -359,6 +330,7 @@ describe('POST /calculate', () => {
 
     const validatedPayload: InputSentences = {
       offenderName: 'Place Holder',
+      erdEligible: true,
       inputIndividualSentences: [],
     }
 
@@ -403,6 +375,7 @@ describe('back link from the calculation breakdown page', () => {
     'remand-start-date-month': '6',
     'remand-start-date-year': '2026',
     'tagged-bail-days': '5',
+    'erd-eligibility': 'true',
   }
 
   async function submitForm(form: Record<string, string>): Promise<cheerio.CheerioAPI> {

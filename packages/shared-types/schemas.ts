@@ -12,6 +12,7 @@ export enum ValidationErrorMessages {
   SentenceDurationOutOfRange = 'Sentence length must be between 4 and 24 months',
   ZeroSentenceDuration = 'Sentence duration cannot be 0',
   RemandStartDateNotBeforeSentenceDate = 'Remand start date must be before the sentence date',
+  MissingErdEligibility = 'Select if the child is eligible for early release',
 }
 
 //indivudual schemas for reuse from front and backend
@@ -20,6 +21,7 @@ export const taggedBailDaysSchema = z.number().int().nonnegative()
 export const sentenceFrom = z.coerce.date()
 export const sentanceDurationMonths = z.number().int().positive()
 export const sentanceOffenderName = z.string()
+export const erdEligibleSchema = z.boolean()
 export const sentenceDateStringSchema = z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/)
 
 // the GOV.UK date input submits day/month/year as three separate fields - these
@@ -54,6 +56,9 @@ export const dtoTaggedBailDaysSchema = z.coerce
   .int({ error: ValidationErrorMessages.InvalidTaggedBailDays })
   .nonnegative({ error: ValidationErrorMessages.InvalidTaggedBailDays })
   .pipe(taggedBailDaysSchema)
+export const dtoErdEligibilitySchema = z
+  .enum(['true', 'false'], { error: ValidationErrorMessages.MissingErdEligibility })
+  .transform((value) => value === 'true')
 
 //input object schemas
 export const inputIndividualSentenceSchema = z.object({
@@ -75,6 +80,7 @@ export const inputSentencesSchema = z.object({
   offenderName: sentanceOffenderName,
   remandAdjustment: remandAdjustmentSchema.optional(),
   taggedBailAdjustment: taggedBailAdjustmentSchema.optional(),
+  erdEligible: erdEligibleSchema,
   inputIndividualSentences: z.array(inputIndividualSentenceSchema).min(1),
 })
 

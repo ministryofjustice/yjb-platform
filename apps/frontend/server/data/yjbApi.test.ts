@@ -38,6 +38,7 @@ describe('ExampleApiClient', () => {
           name: 'remand',
           startDate: new Date('2026-06-14'),
         },
+        erdEligible: true,
         inputIndividualSentences: [
           {
             from: new Date('2026-06-29'),
@@ -57,6 +58,7 @@ describe('ExampleApiClient', () => {
           name: 'remand',
           startDate: new Date('2026-06-14'),
         },
+        erdEligible: true,
         inputIndividualSentences: [],
       }
 

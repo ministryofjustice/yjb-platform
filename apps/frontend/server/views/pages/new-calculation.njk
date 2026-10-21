@@ -5,6 +5,7 @@
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
 
 {% set pageTitle = applicationName + " - New calculation" %}
 {% set mainClasses = "govuk-body" %}
@@ -86,9 +87,6 @@
         }) }}
         {% endcall %}
 
-      
-
-
         {# Commention out for now
         {{ govukInput({
           label: {
@@ -119,6 +117,7 @@
             { name: 'year', value: formData.remandStartDateYear, error: errorsByField['remand-start-date-year'] or false }
           ]
         }) }}
+
         {{ govukInput({
           label: {
             text: "Tagged bail"
@@ -131,6 +130,29 @@
           },
           value: formData.taggedBailDays,
           errorMessage: errorsByField['tagged-bail-days'] and { text: errorsByField['tagged-bail-days'] }
+        }) }}
+
+        {{ govukRadios({
+          name: "erd-eligibility",
+          errorMessage: errorsByField['erd-eligibility'] and { text: errorsByField['erd-eligibility'] },
+          fieldset: {
+            legend: {
+              text: "Eligibility for early release",
+              classes: "govuk-fieldset__legend--s"
+            }
+          },
+          items: [
+            {
+              value: "true",
+              text: "Eligible",
+              checked: formData.erdEligible === true
+            },
+            {
+              value: "false",
+              text: "Not eligible",
+              checked: formData.erdEligible === false
+            }
+          ]
         }) }}
       </div>
     </div>

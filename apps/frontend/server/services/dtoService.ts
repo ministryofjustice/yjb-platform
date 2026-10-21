@@ -5,6 +5,7 @@ import {
   RemandAdjustment,
   dtoDurationMonthsSchema,
   dtoTaggedBailDaysSchema,
+  dtoErdEligibilitySchema,
   sentenceDateDaySchema,
   sentenceDateMonthSchema,
   sentenceDateYearSchema,
@@ -129,6 +130,14 @@ function parseDtoForm(formData: Record<string, unknown>): DtoParseResult {
     'taggedBailDays',
   )
 
+  parseResult.processFormField(
+    formData['erd-eligibility'],
+    dtoErdEligibilitySchema,
+    'erd-eligibility',
+    'erdEligible',
+    true,
+  )
+
   return parseResult
 }
 
@@ -148,6 +157,7 @@ function constructInputSentences(parsed: ParsedDtoForm): InputSentences {
     offenderName: 'John Doe',
     remandAdjustment,
     taggedBailAdjustment,
+    erdEligible: parsed.erdEligible,
     inputIndividualSentences,
   }
 }
