@@ -627,7 +627,7 @@ describe('calculateDTOSentence', () => {
             data: new Date('2026-10-15'),
             metadata: {
               dayOfWeek: 'Thursday',
-              message: '137 days from the beginning of the sentence (1 June 2026)',
+              message: '137 days (custodial period) from the beginning of the sentence (1 June 2026)',
             },
           },
         },
