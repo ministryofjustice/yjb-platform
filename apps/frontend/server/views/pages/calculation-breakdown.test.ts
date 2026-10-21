@@ -39,6 +39,7 @@ describe('Sentence calculation results page', () => {
         remandStartDate: new Date(Date.UTC(2032, 11, 20)),
         remandStartDateString: '20 December 2032',
         remandStartDateBtnStr: '2032-12-20',
+        erdEligibility: 'Eligible',
       }
       const cheerioPage = renderWithCheerio({ inputData: parsedInput })
       const button = cheerioPage('.govuk-back-link')
@@ -97,6 +98,7 @@ describe('Sentence calculation results page', () => {
         remandStartDate: new Date(Date.UTC(2032, 11, 20)),
         remandStartDateString: '20 December 2032',
         remandStartDateBtnStr: '2032-12-20',
+        erdEligibility: 'Eligible',
       }
 
       it('renders the panel', () => {
@@ -144,7 +146,7 @@ describe('Sentence calculation results page', () => {
       })
 
       it.each(['Eligible', 'Not Eligible'])('renders the ERD eligibility answer "%s"', (erdEligibility: string) => {
-        const cheerioPage = renderWithCheerio({ inputData: parsedInput, erdEligibility })
+        const cheerioPage = renderWithCheerio({ inputData: { ...parsedInput, erdEligibility } })
 
         const erdRow = cheerioPage('.govuk-summary-card .govuk-summary-list__row').filter((_, row) =>
           cheerioPage(row).find('.govuk-summary-list__key').text().includes('Eligibility for early release'),

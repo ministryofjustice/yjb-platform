@@ -245,8 +245,11 @@ describe('POST /calculate', () => {
       })
   })
 
-  it('should pass the ERD eligibility answer into the template', () => {
-    const validResult: ValidationResult = { ...exampleValidResult, parsedInput: { erdEligible: false } }
+  it.each([
+    [true, 'Eligible'],
+    [false, 'Not Eligible'],
+  ])('should show the ERD eligibility answer %s as "%s" in What you told us', (erdEligible, expected) => {
+    const validResult: ValidationResult = { ...exampleValidResult, parsedInput: { erdEligible } }
     dtoService.validatePayload.mockReturnValue(validResult)
     dtoService.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
 
@@ -256,7 +259,10 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('.govuk-summary-card').text()).toContain('Not Eligible')
+        const erdRow = $('.govuk-summary-card .govuk-summary-list__row').filter((_, row) =>
+          $(row).find('.govuk-summary-list__key').text().includes('Eligibility for early release'),
+        )
+        expect(erdRow.find('.govuk-summary-list__value').text().trim()).toBe(expected)
       })
   })
 

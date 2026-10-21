@@ -1,7 +1,6 @@
 import { UTCDate } from '@date-fns/utc'
 import { subDays } from 'date-fns'
 import { OutputCalculation, calcBreakdown, AdjustmentTypes, formatUkDate, pluralise } from '@yjb-platform/shared-types'
-import { ParsedDtoForm } from '../services/dtoService'
 
 export type CalculationResultObj = {
   breakdownObj: calcBreakdown
@@ -10,14 +9,12 @@ export type CalculationResultObj = {
   // lengths of time as text
   periods: { termLength: string; custodialPeriod: string; remandPeriod: string }
   calculationResultString: string
-  // the answer to the ERD eligibility question, e.g. "Eligible"
-  erdEligibility: string
 }
 
 type DateMetadata = { dayOfWeek?: string; message: string }
 
 export default class CalculationResultPresenter {
-  present(calculationResult: OutputCalculation, parsedInput: ParsedDtoForm): CalculationResultObj {
+  present(calculationResult: OutputCalculation): CalculationResultObj {
     const { calculatedTerms, effectiveDates, effectiveDatesPastAdjustments, etd, ltd, erd } = calculationResult
     const term = calculatedTerms[0]
 
@@ -67,7 +64,6 @@ export default class CalculationResultPresenter {
         remandPeriod: pluralise(calculationResult.remandPeriodDays, 'day'),
       },
       calculationResultString: JSON.stringify(calculationResult),
-      erdEligibility: parsedInput.erdEligible ? 'Eligible' : 'Not Eligible',
     }
   }
 

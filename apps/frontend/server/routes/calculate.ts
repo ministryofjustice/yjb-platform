@@ -35,6 +35,7 @@ function getDatePartsFromQuery(queryValue: unknown): DateParts {
 export type CalculationBreakdownInputData = ParsedDtoForm & {
   sentenceDateBtnStr: string
   remandStartDateBtnStr: string
+  erdEligibility: string
 }
 
 function toBackLinkDate(date: Date | undefined): string {
@@ -85,14 +86,12 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
     if (validationResult.isValid) {
       const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult.payload)
       const { parsedInput } = validationResult
-      const formattedCalculation: CalculationResultObj = new CalculationResultPresenter().present(
-        calculationResult,
-        parsedInput,
-      )
+      const formattedCalculation: CalculationResultObj = new CalculationResultPresenter().present(calculationResult)
       const inputData: CalculationBreakdownInputData = {
         ...parsedInput,
         sentenceDateBtnStr: toBackLinkDate(parsedInput.sentenceDate),
         remandStartDateBtnStr: toBackLinkDate(parsedInput.remandStartDate),
+        erdEligibility: parsedInput.erdEligible ? 'Eligible' : 'Not Eligible',
       }
 
       const pageData: CalculationResultPageObject = {
