@@ -13,8 +13,8 @@
           { key: { text: "SLED" }, value: { text: resultDates.finalSled } },
           { key: { text: "Final MTD" }, value: { text: resultDates.finalMtd } },
           { key: { text: "ETD" }, value: { text: resultDates.etd } },
-          { key: { text: "ERD" }, value: { text: resultDates.erd } },
-          { key: { text: "LTD" }, value: { text: resultDates.ltd } }
+          { key: { text: "LTD" }, value: { text: resultDates.ltd } },
+          { key: { text: "ERD" }, value: { text: resultDates.erd } }
         ]
       }) }}
   {% endset -%}
@@ -43,8 +43,8 @@
       { key: { html: keyWithTagline("SLED", "Sentence and Licence Expiry Date") }, value: { html: twoLines(breakdownObj.finalSledDate, breakdownObj.finalSledBreakdown) } },
       { key: { text: "Final MTD" }, value: { html: twoLines(breakdownObj.finalMtdDate, breakdownObj.finalMtdBreakdown) } },
       { key: { html: keyWithTagline("ETD", "Early Transfer Date") }, value: { html: twoLines(breakdownObj.etdDate, breakdownObj.etdBreakdown) } },
-      { key: { html: keyWithTagline("ERD", "Early Release Date") }, value: { html: twoLines(breakdownObj.erdDate, breakdownObj.erdBreakdown) } },
-      { key: { html: keyWithTagline("LTD", "Late Transfer Date") }, value: { html: twoLines(breakdownObj.ltdDate, breakdownObj.ltdBreakdown) } }
+      { key: { html: keyWithTagline("LTD", "Late Transfer Date") }, value: { html: twoLines(breakdownObj.ltdDate, breakdownObj.ltdBreakdown) } },
+      { key: { html: keyWithTagline("ERD", "Early Release Date") }, value: { html: twoLines(breakdownObj.erdDate, breakdownObj.erdBreakdown) } }
     ]
   }) }}
   {% endset -%}
