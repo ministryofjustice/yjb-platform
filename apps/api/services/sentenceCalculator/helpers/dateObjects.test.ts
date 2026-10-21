@@ -1,6 +1,39 @@
 import { UTCDate } from '@date-fns/utc'
-import { AppliedAdjustmentStatus } from '@yjb-platform/shared-types'
-import { buildfinalDatesObj, buildTermDatesObj } from './dateObjects'
+import { AppliedAdjustmentStatus, DtoEligibilityStatus } from '@yjb-platform/shared-types'
+import { buildTransferDatesObj, buildfinalDatesObj, buildTermDatesObj } from './dateObjects'
+
+describe('buildTransferDatesObj', () => {
+  it('adds dayOfWeek and the eligibility message when a transfer date is calculated', () => {
+    expect(buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12'))).toEqual({
+      data: new Date('2026-11-12'),
+      metadata: {
+        dayOfWeek: 'Thursday',
+        status: DtoEligibilityStatus.oneMonth,
+        message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+      },
+    })
+  })
+
+  it('leaves out dayOfWeek when the transfer date is not calculated', () => {
+    expect(buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)).toEqual({
+      data: 0,
+      metadata: {
+        status: DtoEligibilityStatus.notCalculated,
+        message: 'Not applicable for DTOs with terms less than 8 months',
+      },
+    })
+  })
+
+  it('leaves out dayOfWeek and explains why when the child is not eligible for early release', () => {
+    expect(buildTransferDatesObj(DtoEligibilityStatus.notEligible, 0)).toEqual({
+      data: 0,
+      metadata: {
+        status: 'not_eligible',
+        message: 'Not eligible for early release',
+      },
+    })
+  })
+})
 
 describe('buildfinalDatesObj', () => {
   it('adds dayOfWeek when no adjustments were applied', () => {

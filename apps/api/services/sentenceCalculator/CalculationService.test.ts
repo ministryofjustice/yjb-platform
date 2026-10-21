@@ -42,6 +42,7 @@ function compareOutputCalculations(outputCalculation1: OutputCalculation, output
   expect(outputCalculation1.effectiveDates).toEqual(outputCalculation2.effectiveDates)
   expect(outputCalculation1.ltd).toEqual(outputCalculation2.ltd)
   expect(outputCalculation1.etd).toEqual(outputCalculation2.etd)
+  expect(outputCalculation1.erd).toEqual(outputCalculation2.erd)
   expect(outputCalculation1.unusedAdjustmentDays).toEqual(outputCalculation2.unusedAdjustmentDays)
   expect(outputCalculation1.effectiveDatesPastAdjustments).toEqual(outputCalculation2.effectiveDatesPastAdjustments)
   expect(outputCalculation1).toEqual(outputCalculation2)
@@ -92,6 +93,7 @@ describe('calculateDTOSentence', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
       remandPeriodDays: 0,
@@ -132,6 +134,7 @@ describe('calculateDTOSentence', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       unusedAdjustmentDays: 0,
       remandPeriodDays: 15,
       effectiveDatesPastAdjustments: [
@@ -183,6 +186,7 @@ describe('calculateDTOSentence', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       unusedAdjustmentDays: 0,
       remandPeriodDays: 0,
       effectiveDatesPastAdjustments: [
@@ -234,6 +238,7 @@ describe('calculateDTOSentence', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-23')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-23')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-23')),
       unusedAdjustmentDays: 0,
       remandPeriodDays: 15,
       effectiveDatesPastAdjustments: [
@@ -319,6 +324,7 @@ describe('calculateDTOSentence', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       unusedAdjustmentDays: 0,
       remandPeriodDays: 50,
       effectiveDatesPastAdjustments: [
@@ -391,6 +397,7 @@ describe('calculateDTOSentence', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       unusedAdjustmentDays: 9,
       remandPeriodDays: 70,
       effectiveDatesPastAdjustments: [
@@ -469,6 +476,7 @@ describe('calculateDTOSentence', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       unusedAdjustmentDays: 64,
       remandPeriodDays: 125,
       effectiveDatesPastAdjustments: [
@@ -544,6 +552,7 @@ describe('calculateDTOSentence', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
       unusedAdjustmentDays: 9,
       remandPeriodDays: 50,
       effectiveDatesPastAdjustments: [
@@ -582,5 +591,139 @@ describe('calculateDTOSentence', () => {
 
     const remandOutput: OutputCalculation = calculateDTOSentence(fiftyRemandTwentyTaggedBailInput)
     compareOutputCalculations(remandOutput, expectedRemandOutput)
+  })
+
+  // a 9 month sentence would normally get an ETD and LTD, but once the MTD has
+  // collapsed to the sentence date there's no MTD to count back or forward from
+  it('returns full calculation for 9 months sentence starting on 2026-06-01 with 151 days remand collapsing the MTD', () => {
+    const collapsedMtdInput: InputSentences = {
+      ...sampleInputSentences,
+      remandAdjustment: {
+        name: AdjustmentTypes.remand,
+        startDate: new Date('2026-01-01'), // 151 days prior sentence beginning
+      },
+      inputIndividualSentences: [
+        {
+          from: new Date('2026-06-01'),
+          durationMonths: 9, // sled 273 days and mtd 137 days
+        },
+      ],
+    }
+
+    const expectedCollapsedMtdOutput: OutputCalculation = {
+      calculatedTerms: [
+        {
+          inputSentence: { from: new Date('2026-06-01'), durationMonths: 9 },
+          totalDaysInTerm: 273,
+          totalDaysMTD: 137,
+          sled: {
+            data: new Date('2027-02-28'),
+            metadata: {
+              dayOfWeek: 'Sunday',
+              message: '273 days from the beginning of the sentence (1 June 2026)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-10-15'),
+            metadata: {
+              dayOfWeek: 'Thursday',
+              message: '137 days (custodial period) from the beginning of the sentence (1 June 2026)',
+            },
+          },
+        },
+      ],
+      effectiveDates: {
+        totalNumberOfRemandAndTaggedBailDays: 151,
+        sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-09-30'), new Date('2027-02-28'), 151),
+        mtd: buildfinalDatesObj(
+          AppliedAdjustmentStatus.collapsedUnused,
+          new Date('2026-06-01'),
+          undefined,
+          undefined,
+          14,
+        ),
+        TUSED: new Date(0),
+      },
+      ltd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      etd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0),
+      unusedAdjustmentDays: 14,
+      remandPeriodDays: 151,
+      effectiveDatesPastAdjustments: [
+        {
+          adjustmentReason: 'remand',
+          adjustmentParameters: collapsedMtdInput.remandAdjustment!,
+          pastEffectiveDates: {
+            totalNumberOfRemandAndTaggedBailDays: 0,
+            sled: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-02-28')),
+            mtd: buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2026-10-15')),
+            TUSED: new Date(0),
+          },
+        },
+      ],
+    }
+
+    const collapsedMtdOutput: OutputCalculation = calculateDTOSentence(collapsedMtdInput)
+    compareOutputCalculations(collapsedMtdOutput, expectedCollapsedMtdOutput)
+  })
+
+  describe('ERD', () => {
+    const notEligibleErd = buildTransferDatesObj(DtoEligibilityStatus.notEligible, 0)
+
+    it('returns the ETD as the ERD when the child is eligible for early release', () => {
+      const output: OutputCalculation = calculateDTOSentence({ ...sampleInputSentences, erdEligible: true })
+
+      expect(output.etd).toEqual(buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')))
+      expect(output.erd).toEqual(output.etd)
+    })
+
+    it('returns an ETD, LTD and ERD for an 8 months sentence when the child is eligible', () => {
+      const output: OutputCalculation = calculateDTOSentence({
+        ...sampleInputSentences,
+        inputIndividualSentences: [{ from: new Date('2026-06-29'), durationMonths: 8 }],
+      })
+
+      expect(output.ltd.metadata.status).toBe(DtoEligibilityStatus.oneMonth)
+      expect(output.etd.metadata.status).toBe(DtoEligibilityStatus.oneMonth)
+      expect(output.erd).toEqual(output.etd)
+    })
+
+    it('returns 0 and not calculated for the ETD, LTD and ERD for a 7 months sentence when the child is eligible', () => {
+      const output: OutputCalculation = calculateDTOSentence({
+        ...sampleInputSentences,
+        inputIndividualSentences: [{ from: new Date('2026-06-29'), durationMonths: 7 }],
+      })
+
+      const notCalculated = buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)
+      expect(output.ltd).toEqual(notCalculated)
+      expect(output.etd).toEqual(notCalculated)
+      expect(output.erd).toEqual(notCalculated)
+    })
+
+    it('returns 0 and not eligible for the ERD, but still calculates the ETD, when the child is not eligible', () => {
+      const output: OutputCalculation = calculateDTOSentence({ ...sampleInputSentences, erdEligible: false })
+
+      expect(output.etd).toEqual(buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')))
+      expect(output.erd).toEqual(notEligibleErd)
+    })
+
+    it('returns 0 and not eligible for the ERD after a 15 days remand when the child is not eligible', () => {
+      const output: OutputCalculation = calculateDTOSentence({ ...remandInput, erdEligible: false })
+
+      expect(output.etd).toEqual(buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')))
+      expect(output.erd).toEqual(notEligibleErd)
+    })
+
+    it('returns 0 and not eligible for the ERD when the child is not eligible and the MTD has collapsed', () => {
+      const output: OutputCalculation = calculateDTOSentence({
+        ...sampleInputSentences,
+        erdEligible: false,
+        remandAdjustment: { name: AdjustmentTypes.remand, startDate: new Date('2026-01-01') },
+        inputIndividualSentences: [{ from: new Date('2026-06-01'), durationMonths: 9 }],
+      })
+
+      expect(output.etd).toEqual(buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0))
+      expect(output.erd).toEqual(notEligibleErd)
+    })
   })
 })

@@ -95,6 +95,14 @@ export const sampleCalculationResult: OutputCalculation = {
       message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
     },
   },
+  erd: {
+    data: new Date('2026-10-27'),
+    metadata: {
+      dayOfWeek: 'Tuesday',
+      status: DtoEligibilityStatus.oneMonth,
+      message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+    },
+  },
   unusedAdjustmentDays: 0,
   remandPeriodDays: 15,
 }
@@ -216,6 +224,14 @@ export const sampleCalculationResult2: OutputCalculation = {
     },
   },
   etd: {
+    data: new Date('2026-10-26'),
+    metadata: {
+      dayOfWeek: 'Monday',
+      status: DtoEligibilityStatus.oneMonth,
+      message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+    },
+  },
+  erd: {
     data: new Date('2026-10-26'),
     metadata: {
       dayOfWeek: 'Monday',

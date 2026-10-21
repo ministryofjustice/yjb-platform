@@ -43,7 +43,7 @@ export function getMTDDate(totalDaysMTD: number, from: Date): Date {
 }
 
 export function getETDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
-  if (sentenceLenth > 8 && sentenceLenth <= 18) {
+  if (sentenceLenth >= 8 && sentenceLenth <= 18) {
     return buildTransferDatesObj(DtoEligibilityStatus.oneMonth, subMonths(new UTCDate(mtd), 1))
   }
   if (sentenceLenth > 18) {
@@ -53,13 +53,22 @@ export function getETDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
 }
 
 export function getLTDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
-  if (sentenceLenth > 8 && sentenceLenth <= 18) {
+  if (sentenceLenth >= 8 && sentenceLenth <= 18) {
     return buildTransferDatesObj(DtoEligibilityStatus.oneMonth, addMonths(new UTCDate(mtd), 1))
   }
   if (sentenceLenth > 18) {
     return buildTransferDatesObj(DtoEligibilityStatus.twoMonths, addMonths(new UTCDate(mtd), 2))
   }
   return buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)
+}
+
+// the ERD is the ETD for a child who is eligible for early release - built from the
+// ETD rather than recalculated, so the two can never drift apart
+export function getERDDate(etd: transferDatesObj, erdEligible: boolean): transferDatesObj {
+  if (!erdEligible) {
+    return buildTransferDatesObj(DtoEligibilityStatus.notEligible, 0)
+  }
+  return etd
 }
 
 export function calculateTerm(inputSentence: InputIndividualSentence): CalculatedTerm {
