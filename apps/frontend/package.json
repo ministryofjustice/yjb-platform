@@ -22,7 +22,7 @@
     "@yjb-platform/shared-types": "*",
     "bunyan": "^1.8.15",
     "bunyan-format": "^0.2.1",
-    "compression": "^1.8.1",
+    "compression": "^1.8.2",
     "date-fns": "^4.4.0",
     "express": "^5.2.1",
     "govuk-frontend": "^6.5.1",
