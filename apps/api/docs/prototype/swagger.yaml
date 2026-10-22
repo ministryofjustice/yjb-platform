@@ -36,7 +36,7 @@ tags:
 paths:
   /children:
     get:
-      summary: Retrieve a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address)
+      summary: Search for a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address)
       tags:
         - Reviewed
       description: |
