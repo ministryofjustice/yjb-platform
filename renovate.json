@@ -36,6 +36,12 @@
       "allowedVersions": "<15"
     },
     {
+      "description": "TypeScript 7 has no JavaScript API, which ts-jest and typescript-eslint need - stay on 6 until they support it",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7"
+    },
+    {
       "matchDatasources": ["docker"],
       "matchPackageNames": ["node", "hmpps-node"],
       "matchUpdateTypes": ["major"],
