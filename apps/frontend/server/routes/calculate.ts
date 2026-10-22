@@ -1,23 +1,65 @@
 import { Router } from 'express'
-import { OutputCalculation, calcBreakdown, AdjustmentTypes } from '@yjb-platform/shared-types'
+import { UTCDate } from '@date-fns/utc'
+import { isValid, parse } from 'date-fns'
+import { OutputCalculation, toDateString } from '@yjb-platform/shared-types'
 import type { Services } from '../services'
-import { ValidationResult } from '../services/dtoService'
+import { ParsedDtoForm, ValidationResult } from '../services/dtoService'
 import DtoFormPresenter, { FormPageObject } from '../presenters/dtoFormPresenter'
+import CalculationResultPresenter, { CalculationResultObj } from '../presenters/calculationResultPresenter'
 
-function formatUkDate(date: Date | string): string {
-  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
-    new Date(date),
-  )
+type DateParts = {
+  day?: number
+  month?: number
+  year?: number
+}
+
+// The back link sends dates in the query string as yyyy-mm-dd (in function toDateString),
+// but the form shows each date as three separate boxes
+function getDatePartsFromQuery(queryValue: unknown): DateParts {
+  if (typeof queryValue !== 'string') {
+    return {}
+  }
+
+  const date = parse(queryValue, 'yyyy-MM-dd', new UTCDate())
+  if (!isValid(date)) {
+    return {}
+  }
+
+  return {
+    day: date.getDate(),
+    month: date.getMonth() + 1,
+    year: date.getFullYear(),
+  }
+}
+
+export type CalculationBreakdownInputData = ParsedDtoForm & {
+  sentenceDateBtnStr: string
+  remandStartDateBtnStr: string
+  erdEligibility: string
+}
+
+function toBackLinkDate(date: Date | undefined): string {
+  if (date === undefined) {
+    return ''
+  }
+
+  return toDateString(date)
 }
 
 export default function calculateRoutes({ dtoService }: Partial<Services>): Router {
   const router = Router()
 
   router.get('/', async (req, res, _next) => {
-    const { sentenceLengthMonths, remandDays, taggedBailDays, sentenceDate } = req.query
-    const [sentenceDateDay, sentenceDateMonth, sentenceDateYear] = sentenceDate
-      ? (sentenceDate as string).split('/')
-      : []
+    const { sentenceLengthMonths, taggedBailDays, erdEligible } = req.query
+    const sentenceDate = getDatePartsFromQuery(req.query.sentenceDate)
+    const remandStartDate = getDatePartsFromQuery(req.query.remandStartDate)
+
+    let erdEligibleAnswer: boolean | undefined
+    if (erdEligible === 'true') {
+      erdEligibleAnswer = true
+    } else if (erdEligible === 'false') {
+      erdEligibleAnswer = false
+    }
 
     const formPageObject: FormPageObject = {
       // no payload has been submitted on first load, so there's nothing to
@@ -25,11 +67,14 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
       isValid: true,
       formData: {
         sentenceLengthMonths,
-        remandDays,
         taggedBailDays,
-        sentenceDateDay,
-        sentenceDateMonth,
-        sentenceDateYear,
+        sentenceDateDay: sentenceDate.day,
+        sentenceDateMonth: sentenceDate.month,
+        sentenceDateYear: sentenceDate.year,
+        remandStartDateDay: remandStartDate.day,
+        remandStartDateMonth: remandStartDate.month,
+        remandStartDateYear: remandStartDate.year,
+        erdEligible: erdEligibleAnswer,
       },
       errorSummary: [],
       errorsByField: {},
@@ -46,40 +91,35 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
 
     if (validationResult.isValid) {
       const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult.payload)
-      const calculationResultString = JSON.stringify(calculationResult)
-
-      // TODO: move breakdown string construction in a dedicated method
-      const remandAdjustmentRecord = calculationResult.effectiveDatesPastAdjustments[0]
-      const remandBreakdown =
-        remandAdjustmentRecord?.adjustmentParameters.name === AdjustmentTypes.remand
-          ? `(${formatUkDate(remandAdjustmentRecord.adjustmentParameters.startDate)} to ${formatUkDate(
-              new Date(
-                new Date(calculationResult.calculatedTerms[0].inputSentence.from).getTime() - 24 * 60 * 60 * 1000,
-              ),
-            )})`
-          : ''
-
-      const breakdownObj: calcBreakdown = {
-        custodialPeriodBreakdown: `${calculationResult.calculatedTerms[0].totalDaysInTerm} divided by 2${
-          calculationResult.calculatedTerms[0].totalDaysInTerm % 2 ? ', rounded up' : ''
-        }`,
-        mtdBreadown: `${calculationResult.calculatedTerms[0].totalDaysMTD} days from the beginning of the sentence (${formatUkDate(
-          calculationResult.calculatedTerms[0].inputSentence.from,
-        )})`,
-        remandPeriodBreakdown: remandBreakdown,
+      const { parsedInput } = validationResult
+      const formattedCalculation: CalculationResultObj = new CalculationResultPresenter().present(calculationResult)
+      const inputData: CalculationBreakdownInputData = {
+        ...parsedInput,
+        sentenceDateBtnStr: toBackLinkDate(parsedInput.sentenceDate),
+        remandStartDateBtnStr: toBackLinkDate(parsedInput.remandStartDate),
+        erdEligibility: parsedInput.erdEligible ? 'Eligible' : 'Not Eligible',
       }
 
-      return res.render('pages/calculation-breakdown', {
+      const pageData: CalculationResultPageObject = {
         calculationResult,
-        inputData: validationResult.parsedInput,
+        inputData,
         payloadString,
-        breakdownObj,
-        calculationResultString,
-      })
+        ...formattedCalculation,
+      }
+
+      return res.render('pages/calculation-breakdown', pageData)
     }
 
-    return res.render('pages/new-calculation', new DtoFormPresenter(validationResult).present())
+    const pageData: FormPageObject = new DtoFormPresenter(validationResult).present()
+
+    return res.render('pages/new-calculation', pageData)
   })
 
   return router
+}
+
+type CalculationResultPageObject = CalculationResultObj & {
+  calculationResult: OutputCalculation
+  inputData: CalculationBreakdownInputData
+  payloadString: string
 }

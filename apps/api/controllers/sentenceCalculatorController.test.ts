@@ -3,10 +3,10 @@ import {
   OutputCalculation,
   AdjustmentTypes,
   DtoEligibilityStatus,
-  buildTransferDatesObj,
-  buildfinalDatesObj,
   AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
+import { sampleInputSentences } from '../testutils/sampleObjects'
+import { buildTransferDatesObj, buildfinalDatesObj } from '../services/sentenceCalculator/helpers/dateObjects'
 import SentenceCalculatorController from './sentenceCalculatorController'
 
 let controller: SentenceCalculatorController
@@ -17,23 +17,27 @@ beforeEach(() => {
 
 describe('SentenceController', () => {
   it('returns 2027-05-28 sled and 2026-12-12 mtd for 11 month sentence starting on 026-06-29 with no remand', () => {
-    const inputSentence: InputSentences = {
-      offenderName: 'test Offender',
-      inputIndividualSentences: [
-        {
-          from: new Date('2026-06-29'),
-          durationMonths: 11,
-        },
-      ],
-    }
+    const inputSentence: InputSentences = sampleInputSentences
     const expectedOutputCalculation: OutputCalculation = {
       calculatedTerms: [
         {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -44,8 +48,10 @@ describe('SentenceController', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
     }
     const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
@@ -53,18 +59,11 @@ describe('SentenceController', () => {
 
   it('returns sled 2027-05-13 and mtd 2026-11-2 for 11 month sentence starting on 2026-06-29 with 15 days remand', () => {
     const inputSentence: InputSentences = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentences,
       remandAdjustment: {
         name: AdjustmentTypes.remand,
-        days: 15,
         startDate: new Date('2026-06-14'),
       },
-      inputIndividualSentences: [
-        {
-          from: new Date('2026-06-29'),
-          durationMonths: 11,
-        },
-      ],
     }
 
     const expectedOutputCalculation: OutputCalculation = {
@@ -73,8 +72,20 @@ describe('SentenceController', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -85,6 +96,7 @@ describe('SentenceController', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -98,6 +110,7 @@ describe('SentenceController', () => {
         },
       ],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 15,
     }
     const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
@@ -105,17 +118,11 @@ describe('SentenceController', () => {
 
   it('returns sled 2027-05-13 and mtd 2026-11-2 for 11 month sentence starting on 2026-06-29 with 15 days tagged bail', () => {
     const inputSentence: InputSentences = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentences,
       taggedBailAdjustment: {
         name: AdjustmentTypes.taggedBail,
         days: 15,
       },
-      inputIndividualSentences: [
-        {
-          from: new Date('2026-06-29'),
-          durationMonths: 11,
-        },
-      ],
     }
 
     const expectedOutputCalculation: OutputCalculation = {
@@ -124,8 +131,20 @@ describe('SentenceController', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -136,6 +155,7 @@ describe('SentenceController', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'taggedBail',
@@ -149,6 +169,7 @@ describe('SentenceController', () => {
         },
       ],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
     }
     const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
@@ -156,22 +177,15 @@ describe('SentenceController', () => {
 
   it('returns sled 2027-05-13 and mtd 2026-11-2 for 11 month sentence starting on 2026-06-29 with 10 days of remand and 5 days tagged bail', () => {
     const inputSentence: InputSentences = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentences,
       remandAdjustment: {
         name: AdjustmentTypes.remand,
-        days: 10,
-        startDate: new Date('2026-06-14'),
+        startDate: new Date('2026-06-19'),
       },
       taggedBailAdjustment: {
         name: AdjustmentTypes.taggedBail,
         days: 5,
       },
-      inputIndividualSentences: [
-        {
-          from: new Date('2026-06-29'),
-          durationMonths: 11,
-        },
-      ],
     }
 
     const expectedOutputCalculation: OutputCalculation = {
@@ -180,8 +194,20 @@ describe('SentenceController', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -192,6 +218,7 @@ describe('SentenceController', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-12-27')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-10-27')),
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
@@ -225,8 +252,18 @@ describe('SentenceController', () => {
         },
       ],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 10,
     }
     const calculatedCalculationObj = controller.getCalculation(inputSentence)
     expect(calculatedCalculationObj).toEqual(expectedOutputCalculation)
+  })
+
+  it('returns 0 and not eligible for the ERD when the child is not eligible for early release', () => {
+    const calculatedCalculationObj = controller.getCalculation({ ...sampleInputSentences, erdEligible: false })
+
+    expect(calculatedCalculationObj.etd).toEqual(
+      buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
+    )
+    expect(calculatedCalculationObj.erd).toEqual(buildTransferDatesObj(DtoEligibilityStatus.notEligible, 0))
   })
 })

@@ -7,10 +7,9 @@ import {
   AdjustmentResult,
   CalculatedTerm,
   DtoEligibilityStatus,
-  buildTransferDatesObj,
-  buildfinalDatesObj,
   AppliedAdjustmentStatus,
 } from '@yjb-platform/shared-types'
+import { buildTransferDatesObj, buildfinalDatesObj } from './helpers/dateObjects'
 import {
   getTotalDaysInTerm,
   addDaysToDate,
@@ -18,11 +17,12 @@ import {
   increaseTotalNumRTBDays,
   getETDDate,
   getLTDDate,
+  getERDDate,
   adjustCalculation,
   getSledDate,
   getMTDDate,
   calculateTerm,
-  calculateAdjustmentStart,
+  calculateRemandDays,
 } from './lib'
 
 describe('getTotalDaysInTerm', () => {
@@ -201,6 +201,7 @@ describe('getETD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Thursday',
       },
     })
   })
@@ -211,6 +212,7 @@ describe('getETD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Thursday',
       },
     })
   })
@@ -221,6 +223,7 @@ describe('getETD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Thursday',
       },
     })
   })
@@ -231,6 +234,7 @@ describe('getETD', () => {
       metadata: {
         status: '2_months',
         message: '2 months away from the MTD for DTOs with terms over 18 months',
+        dayOfWeek: 'Monday',
       },
     })
   })
@@ -244,6 +248,28 @@ describe('getETD', () => {
       },
     })
   })
+
+  // boundary: terms of 8 months or more are calculated, 7 months or less are not
+  it('returns 0 for a 7 months long sentence, no remand, mtd on 2026-12-12', () => {
+    expect(getETDDate(new Date('2026-12-12'), 7)).toEqual({
+      data: 0,
+      metadata: {
+        status: 'not_calculated',
+        message: 'Not applicable for DTOs with terms less than 8 months',
+      },
+    })
+  })
+
+  it('returns 2026-11-12 for a 8 months long sentence, no remand, mtd on 2026-12-12', () => {
+    expect(getETDDate(new Date('2026-12-12'), 8)).toEqual({
+      data: new Date('2026-11-12'),
+      metadata: {
+        status: '1_month',
+        message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Thursday',
+      },
+    })
+  })
 })
 
 describe('getLTD', () => {
@@ -253,6 +279,7 @@ describe('getLTD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Tuesday',
       },
     })
   })
@@ -263,6 +290,7 @@ describe('getLTD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Tuesday',
       },
     })
   })
@@ -273,6 +301,7 @@ describe('getLTD', () => {
       metadata: {
         status: '1_month',
         message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Tuesday',
       },
     })
   })
@@ -283,6 +312,7 @@ describe('getLTD', () => {
       metadata: {
         status: '2_months',
         message: '2 months away from the MTD for DTOs with terms over 18 months',
+        dayOfWeek: 'Friday',
       },
     })
   })
@@ -293,6 +323,51 @@ describe('getLTD', () => {
       metadata: {
         status: 'not_calculated',
         message: 'Not applicable for DTOs with terms less than 8 months',
+      },
+    })
+  })
+
+  // boundary: terms of 8 months or more are calculated, 7 months or less are not
+  it('returns 0 for a 7 months long sentence, no remand, mtd on 2026-12-12', () => {
+    expect(getLTDDate(new Date('2026-12-12'), 7)).toEqual({
+      data: 0,
+      metadata: {
+        status: 'not_calculated',
+        message: 'Not applicable for DTOs with terms less than 8 months',
+      },
+    })
+  })
+
+  it('returns 2027-01-12 for a 8 months long sentence, no remand, mtd on 2026-12-12', () => {
+    expect(getLTDDate(new Date('2026-12-12'), 8)).toEqual({
+      data: new Date('2027-01-12'),
+      metadata: {
+        status: '1_month',
+        message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        dayOfWeek: 'Tuesday',
+      },
+    })
+  })
+})
+
+describe('getERD', () => {
+  it.each([
+    ['1 month', buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12'))],
+    ['2 months', buildTransferDatesObj(DtoEligibilityStatus.twoMonths, new Date('2026-10-12'))],
+    ['not calculated', buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)],
+  ])('returns the same date as the ETD when eligible and the ETD is %s', (_, etd) => {
+    expect(getERDDate(etd, true)).toEqual(etd)
+  })
+
+  it.each([
+    ['1 month', buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12'))],
+    ['not calculated', buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)],
+  ])('returns 0 and not eligible when not eligible, even when the ETD is %s', (_, etd) => {
+    expect(getERDDate(etd, false)).toEqual({
+      data: 0,
+      metadata: {
+        status: 'not_eligible',
+        message: 'Not eligible for early release',
       },
     })
   })
@@ -309,8 +384,20 @@ describe('calculateTerm', () => {
       inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
       totalDaysInTerm: 334,
       totalDaysMTD: 167,
-      sled: new Date('2027-05-28'),
-      mtd: new Date('2026-12-12'),
+      sled: {
+        data: new Date('2027-05-28'),
+        metadata: {
+          dayOfWeek: 'Friday',
+          message: '334 days from the beginning of the sentence (29 June 2026)',
+        },
+      },
+      mtd: {
+        data: new Date('2026-12-12'),
+        metadata: {
+          dayOfWeek: 'Saturday',
+          message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+        },
+      },
     }
 
     expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
@@ -326,8 +413,20 @@ describe('calculateTerm', () => {
       inputSentence: { from: new Date('2026-08-24'), durationMonths: 2 },
       totalDaysInTerm: 61,
       totalDaysMTD: 31,
-      sled: new Date('2026-10-23'),
-      mtd: new Date('2026-09-23'),
+      sled: {
+        data: new Date('2026-10-23'),
+        metadata: {
+          dayOfWeek: 'Friday',
+          message: '61 days from the beginning of the sentence (24 August 2026)',
+        },
+      },
+      mtd: {
+        data: new Date('2026-09-23'),
+        metadata: {
+          dayOfWeek: 'Wednesday',
+          message: '31 days (custodial period) from the beginning of the sentence (24 August 2026)',
+        },
+      },
     }
 
     expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
@@ -343,8 +442,20 @@ describe('calculateTerm', () => {
       inputSentence: { from: new Date('2028-02-20'), durationMonths: 1 },
       totalDaysInTerm: 29,
       totalDaysMTD: 15,
-      sled: new Date('2028-03-19'),
-      mtd: new Date('2028-03-05'),
+      sled: {
+        data: new Date('2028-03-19'),
+        metadata: {
+          dayOfWeek: 'Sunday',
+          message: '29 days from the beginning of the sentence (20 February 2028)',
+        },
+      },
+      mtd: {
+        data: new Date('2028-03-05'),
+        metadata: {
+          dayOfWeek: 'Sunday',
+          message: '15 days (custodial period) from the beginning of the sentence (20 February 2028)',
+        },
+      },
     }
 
     expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
@@ -360,8 +471,20 @@ describe('calculateTerm', () => {
       inputSentence: { from: new Date('2027-01-31'), durationMonths: 1 },
       totalDaysInTerm: 28,
       totalDaysMTD: 14,
-      sled: new Date('2027-02-27'),
-      mtd: new Date('2027-02-13'),
+      sled: {
+        data: new Date('2027-02-27'),
+        metadata: {
+          dayOfWeek: 'Saturday',
+          message: '28 days from the beginning of the sentence (31 January 2027)',
+        },
+      },
+      mtd: {
+        data: new Date('2027-02-13'),
+        metadata: {
+          dayOfWeek: 'Saturday',
+          message: '14 days (custodial period) from the beginning of the sentence (31 January 2027)',
+        },
+      },
     }
 
     expect(calculateTerm(inputSentence)).toEqual(expectedTermOutput)
@@ -376,8 +499,20 @@ describe('adjustCalculation', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -388,13 +523,14 @@ describe('adjustCalculation', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
       effectiveDatesPastAdjustments: [],
     }
 
     const remandAdjustment: RemandAdjustment = {
       name: AdjustmentTypes.remand,
-      days: 10,
       startDate: new Date('2026-06-14'),
     }
 
@@ -418,7 +554,7 @@ describe('adjustCalculation', () => {
       unusedAdjustmentDays: 0,
     }
 
-    expect(adjustCalculation(initialOutputCalculation, remandAdjustment)).toEqual(expectedRemandAdjustmentResult)
+    expect(adjustCalculation(initialOutputCalculation, remandAdjustment, 10)).toEqual(expectedRemandAdjustmentResult)
   })
 
   it('returns an adjustment calculation for 15 tagged bail, no remand starting on 2026-06-29 11 months', () => {
@@ -428,8 +564,20 @@ describe('adjustCalculation', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -440,8 +588,10 @@ describe('adjustCalculation', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
     }
 
     const taggedBailAdjustment: TaggedBailAdjustment = {
@@ -469,7 +619,7 @@ describe('adjustCalculation', () => {
       unusedAdjustmentDays: 0,
     }
 
-    expect(adjustCalculation(initialOutputCalculation, taggedBailAdjustment)).toEqual(
+    expect(adjustCalculation(initialOutputCalculation, taggedBailAdjustment, taggedBailAdjustment.days)).toEqual(
       expectedTaggedBailAdjustmentResult,
     )
   })
@@ -481,8 +631,20 @@ describe('adjustCalculation', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -493,13 +655,14 @@ describe('adjustCalculation', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
     }
 
     const remandAdjustment: RemandAdjustment = {
       name: AdjustmentTypes.remand,
-      days: 10,
       startDate: new Date('2026-06-14'),
     }
 
@@ -529,7 +692,7 @@ describe('adjustCalculation', () => {
     }
 
     // get the adjustmented Effective Date calcs for remand
-    const resultRemandAdjustment: AdjustmentResult = adjustCalculation(initialOutputCalculation, remandAdjustment)
+    const resultRemandAdjustment: AdjustmentResult = adjustCalculation(initialOutputCalculation, remandAdjustment, 10)
 
     // apply new Effective Dates past adjustments record to a copy of initial calc obj (preserve obj for clear debugging)
     const adjustedCalulationObject = initialOutputCalculation
@@ -537,7 +700,9 @@ describe('adjustCalculation', () => {
     adjustedCalulationObject.effectiveDatesPastAdjustments.push(resultRemandAdjustment.newRecordOfAdjustment)
 
     // get the adjustmented Effective Date calcs for tagged bail
-    expect(adjustCalculation(adjustedCalulationObject, taggedBailAdjustment)).toEqual(finalAdjustmentResult)
+    expect(adjustCalculation(adjustedCalulationObject, taggedBailAdjustment, taggedBailAdjustment.days)).toEqual(
+      finalAdjustmentResult,
+    )
   })
 
   it('it correctly applies a remand adjustment to a calculation already adjusted by tagged bail', () => {
@@ -547,8 +712,20 @@ describe('adjustCalculation', () => {
           inputSentence: { from: new Date('2026-06-29'), durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: new Date('2027-05-28'),
-          mtd: new Date('2026-12-12'),
+          sled: {
+            data: new Date('2027-05-28'),
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
+            },
+          },
+          mtd: {
+            data: new Date('2026-12-12'),
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -559,13 +736,14 @@ describe('adjustCalculation', () => {
       },
       ltd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2027-01-12')),
       etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
+      erd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12')),
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
     }
 
     const remandAdjustment: RemandAdjustment = {
       name: AdjustmentTypes.remand,
-      days: 10,
       startDate: new Date('2026-06-14'),
     }
 
@@ -598,6 +776,7 @@ describe('adjustCalculation', () => {
     const resultTaggedBailAdjustment: AdjustmentResult = adjustCalculation(
       initialOutputCalculation,
       taggedBailAdjustment,
+      taggedBailAdjustment.days,
     )
 
     // apply new Effective Dates past adjustments record to a copy of initial calc obj (preserve obj for clear debugging)
@@ -606,20 +785,20 @@ describe('adjustCalculation', () => {
     adjustedCalulationObject.effectiveDatesPastAdjustments.push(resultTaggedBailAdjustment.newRecordOfAdjustment)
 
     // get the adjustmented Effective Date calcs for tagged bail
-    expect(adjustCalculation(adjustedCalulationObject, remandAdjustment)).toEqual(finalAdjustmentResult)
+    expect(adjustCalculation(adjustedCalulationObject, remandAdjustment, 10)).toEqual(finalAdjustmentResult)
   })
 })
 
-describe('calculateAdjustmentStart', () => {
-  it('should return 2026-06-14 for 15 day remand on sentence starting 2026-06-29', () => {
-    const inputSentence: InputIndividualSentence = {
-      from: new Date('2026-06-29'),
-      durationMonths: 11,
-    }
-    const remandAdjustment: RemandAdjustment = {
-      name: AdjustmentTypes.remand,
-      days: 15,
-    }
-    expect(calculateAdjustmentStart(inputSentence.from, remandAdjustment.days)).toEqual(new Date('2026-06-14'))
+describe('calculateRemandDays', () => {
+  it('returns 15 days for remand starting 2026-06-14 on a sentence starting 2026-06-29', () => {
+    expect(calculateRemandDays(new Date('2026-06-29'), new Date('2026-06-14'))).toBe(15)
+  })
+
+  it('returns 0 days for remand starting on the sentence date', () => {
+    expect(calculateRemandDays(new Date('2026-06-29'), new Date('2026-06-29'))).toBe(0)
+  })
+
+  it('counts calendar days across a month boundary', () => {
+    expect(calculateRemandDays(new Date('2026-04-01'), new Date('2026-03-23'))).toBe(9)
   })
 })

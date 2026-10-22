@@ -10,11 +10,10 @@ import {
   CalculatedTerm,
   transferDatesObj,
   DtoEligibilityStatus,
-  buildTransferDatesObj,
-  buildfinalDatesObj,
   AppliedAdjustmentStatus,
   finalDatesObj,
 } from '@yjb-platform/shared-types'
+import { buildTransferDatesObj, buildfinalDatesObj, buildTermDatesObj } from './helpers/dateObjects'
 
 export function getTotalDaysInTerm(sentenceInput: InputIndividualSentence): number {
   const utcFrom = new UTCDate(sentenceInput.from)
@@ -44,7 +43,7 @@ export function getMTDDate(totalDaysMTD: number, from: Date): Date {
 }
 
 export function getETDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
-  if (sentenceLenth > 8 && sentenceLenth <= 18) {
+  if (sentenceLenth >= 8 && sentenceLenth <= 18) {
     return buildTransferDatesObj(DtoEligibilityStatus.oneMonth, subMonths(new UTCDate(mtd), 1))
   }
   if (sentenceLenth > 18) {
@@ -54,13 +53,22 @@ export function getETDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
 }
 
 export function getLTDDate(mtd: Date, sentenceLenth: number): transferDatesObj {
-  if (sentenceLenth > 8 && sentenceLenth <= 18) {
+  if (sentenceLenth >= 8 && sentenceLenth <= 18) {
     return buildTransferDatesObj(DtoEligibilityStatus.oneMonth, addMonths(new UTCDate(mtd), 1))
   }
   if (sentenceLenth > 18) {
     return buildTransferDatesObj(DtoEligibilityStatus.twoMonths, addMonths(new UTCDate(mtd), 2))
   }
   return buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)
+}
+
+// the ERD is the ETD for a child who is eligible for early release - built from the
+// ETD rather than recalculated, so the two can never drift apart
+export function getERDDate(etd: transferDatesObj, erdEligible: boolean): transferDatesObj {
+  if (!erdEligible) {
+    return buildTransferDatesObj(DtoEligibilityStatus.notEligible, 0)
+  }
+  return etd
 }
 
 export function calculateTerm(inputSentence: InputIndividualSentence): CalculatedTerm {
@@ -71,8 +79,8 @@ export function calculateTerm(inputSentence: InputIndividualSentence): Calculate
     inputSentence,
     totalDaysInTerm,
     totalDaysMTD,
-    sled: getSledDate(totalDaysInTerm, inputSentence.from),
-    mtd: getMTDDate(totalDaysMTD, inputSentence.from),
+    sled: buildTermDatesObj(getSledDate(totalDaysInTerm, inputSentence.from), totalDaysInTerm, inputSentence.from),
+    mtd: buildTermDatesObj(getMTDDate(totalDaysMTD, inputSentence.from), totalDaysMTD, inputSentence.from, true),
   }
 }
 
@@ -98,6 +106,7 @@ function buildFieldFinalDatesObj(
 export function adjustCalculation(
   srcCal: Readonly<OutputCalculation>,
   inputAdjustment: Readonly<InputAdjustment>,
+  adjustmentDays: number,
 ): AdjustmentResult {
   // save existing effective dates and adjustment parameters prior to the adjustment
   const outputAdjustmentRecord: RecordOfAdjustment = {
@@ -114,20 +123,20 @@ export function adjustCalculation(
   // MTD and SLED each track their own remaining budget independently: every adjustment
   // subtracts its full day count from both, and each collapses to the sentence start
   // once its own budget is exhausted - there's no carryover from one to the other
-  const isMtdCollapsed = inputAdjustment.days >= initialMtdBudget
-  const isSledCollapsed = inputAdjustment.days >= initialSledBudget
+  const isMtdCollapsed = adjustmentDays >= initialMtdBudget
+  const isSledCollapsed = adjustmentDays >= initialSledBudget
 
   const outputEffectiveDatesMTD = isMtdCollapsed
     ? sentenceStartDate
-    : subDays(srcCal.effectiveDates.mtd.data, inputAdjustment.days)
+    : subDays(srcCal.effectiveDates.mtd.data, adjustmentDays)
 
   const outputEffectiveDatesSled = isSledCollapsed
     ? sentenceStartDate
-    : subDays(srcCal.effectiveDates.sled.data, inputAdjustment.days)
+    : subDays(srcCal.effectiveDates.sled.data, adjustmentDays)
 
   if (isMtdCollapsed) {
     // record how far past the MTD budget this adjustment went, for the audit trail
-    unusedAdjustmentDays = Math.max(0, inputAdjustment.days - initialMtdBudget)
+    unusedAdjustmentDays = Math.max(0, adjustmentDays - initialMtdBudget)
   }
 
   // the "applied" message always describes the net shift from the originally
@@ -135,7 +144,7 @@ export function adjustCalculation(
   // subDays chaining is additive, so this stays accurate across multiple adjustments
   const cumulativeAdjustmentDays = increaseTotalNumRTBDays(
     srcCal.effectiveDates.totalNumberOfRemandAndTaggedBailDays,
-    inputAdjustment.days,
+    adjustmentDays,
   )
 
   const outputNewEffectiveDates: EffectiveDates = {
@@ -143,14 +152,14 @@ export function adjustCalculation(
     sled: buildFieldFinalDatesObj(
       isSledCollapsed,
       outputEffectiveDatesSled,
-      srcCal.calculatedTerms[0].sled,
+      srcCal.calculatedTerms[0].sled.data,
       cumulativeAdjustmentDays,
       unusedAdjustmentDays,
     ),
     mtd: buildFieldFinalDatesObj(
       isMtdCollapsed,
       outputEffectiveDatesMTD,
-      srcCal.calculatedTerms[0].mtd,
+      srcCal.calculatedTerms[0].mtd.data,
       cumulativeAdjustmentDays,
       unusedAdjustmentDays,
     ),
@@ -164,6 +173,8 @@ export function adjustCalculation(
   }
 }
 
-export function calculateAdjustmentStart(sentenceStart: Date, adjustmentLenth: number): Date {
-  return subDays(sentenceStart, adjustmentLenth)
+// remand runs up to the day before the sentence starts, so the days on remand are
+// the calendar days between the remand start date and the sentence start date
+export function calculateRemandDays(sentenceStart: Date, remandStart: Date): number {
+  return differenceInCalendarDays(new UTCDate(sentenceStart), new UTCDate(remandStart))
 }

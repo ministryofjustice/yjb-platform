@@ -6,6 +6,8 @@ import { finalDatesObj } from './final-dates-status'
 export { AdjustmentTypes }
 export * from './dto-eligibility-status'
 export * from './final-dates-status'
+export * from './dateUtils'
+export * from './textUtils'
 
 // input types
 export type InputIndividualSentence = {
@@ -17,23 +19,19 @@ export type InputSentences = {
   offenderName: string
   remandAdjustment?: RemandAdjustment
   taggedBailAdjustment?: TaggedBailAdjustment
+  erdEligible: boolean
   inputIndividualSentences: InputIndividualSentence[]
 }
 
-// common shape every adjustment shares
-interface BaseAdjustment {
-  name: AdjustmentTypes
-  days: number
-}
-
-export interface RemandAdjustment extends BaseAdjustment {
+// remand is sent as its start date only - the API works out the days on remand from the sentence date
+export interface RemandAdjustment {
   name: typeof AdjustmentTypes.remand
-  startDate?: Date
+  startDate: Date
 }
 
-export interface TaggedBailAdjustment extends BaseAdjustment {
+export interface TaggedBailAdjustment {
   name: typeof AdjustmentTypes.taggedBail
-  // no startDate — and TS will error if you try to read one
+  days: number
 }
 
 export type InputAdjustment = RemandAdjustment | TaggedBailAdjustment
@@ -45,7 +43,11 @@ export interface OutputCalculation {
   effectiveDatesPastAdjustments: AppendOnlyArray<RecordOfAdjustment>
   ltd: transferDatesObj
   etd: transferDatesObj
+  // the ETD for a child eligible for early release, otherwise 0 and not_eligible
+  erd: transferDatesObj
   unusedAdjustmentDays: number
+  // days on remand, worked out from the remand start date (in effectiveDatesPastAdjustments) and the sentence date
+  remandPeriodDays: number
 }
 
 export type EffectiveDates = {
@@ -55,13 +57,21 @@ export type EffectiveDates = {
   TUSED: Date
 }
 
+export type termDatesObj = {
+  data: Date
+  metadata: {
+    dayOfWeek: string
+    message: string
+  }
+}
+
 // each term corresponds to one line on the sheet or one sentence
 export type CalculatedTerm = {
   inputSentence: InputIndividualSentence
   totalDaysInTerm: number
   totalDaysMTD: number
-  sled: Date
-  mtd: Date
+  sled: termDatesObj
+  mtd: termDatesObj
 }
 
 export type RecordOfAdjustment = {
@@ -85,10 +95,23 @@ export type AppendOnlyArray<T> = {
   [Symbol.iterator](): IterableIterator<T>
 }
 
+// each row of the detailed breakdown is shown on two lines
 export type calcBreakdown = {
+  termLengthBreakdown: string,
   custodialPeriodBreakdown: string,
-  mtdBreadown: string,
-  remandPeriodBreakdown: string
+  remandPeriodBreakdown: string,
+  mtdDate: string,
+  mtdBreakdown: string,
+  finalSledDate: string,
+  finalSledBreakdown: string,
+  finalMtdDate: string,
+  finalMtdBreakdown: string,
+  etdDate: string,
+  etdBreakdown: string,
+  ltdDate: string,
+  ltdBreakdown: string,
+  erdDate: string,
+  erdBreakdown: string
 }
 
 // zod schemas mirroring the input types above, for validating untrusted request

@@ -7,6 +7,8 @@
     "build": "tsc --build"
   },
   "dependencies": {
-    "zod": "^4.6.5"
+    "@date-fns/utc": "^2.1.1",
+    "date-fns": "^4.4.0",
+    "zod": "^4.6.7"
   }
 }

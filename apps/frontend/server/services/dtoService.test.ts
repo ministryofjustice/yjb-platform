@@ -19,6 +19,7 @@ describe('DtoService', () => {
       'sentence-date-year': 1990,
       'sentence-date-month': 5,
       'sentence-date-day': 14,
+      'erd-eligibility': 'true',
     }
 
     it('should return isValid false when sentence length is not provided', () => {
@@ -68,31 +69,119 @@ describe('DtoService', () => {
       })
     })
 
-    it('should return isValid false for remand NAN', () => {
-      const payload: Record<string, unknown> = {
-        ...exampleValidPayload,
-        'remand-days': 'abc',
-      }
+    const exampleRemandStartDate: Record<string, unknown> = {
+      'remand-start-date-day': 9,
+      'remand-start-date-month': 5,
+      'remand-start-date-year': 1990,
+    }
 
-      expect(dtoService.validatePayload(payload).isValid).toBe(false)
+    it('should return isValid false when the remand start date is not a valid date', () => {
+      const result = dtoService.validatePayload({
+        ...exampleValidPayload,
+        ...exampleRemandStartDate,
+        'remand-start-date-day': 'abc',
+      })
+
+      expect(result.isValid).toBe(false)
+      expect(result.errors).toContainEqual({
+        field: 'remand-start-date-day',
+        message: ValidationErrorMessages.InvalidDay,
+      })
     })
+
+    it('should treat a blank remand start date as no remand', () => {
+      const result = dtoService.validatePayload({
+        ...exampleValidPayload,
+        'remand-start-date-day': '',
+        'remand-start-date-month': '',
+        'remand-start-date-year': '',
+      })
+
+      expect(result.isValid).toBe(true)
+      expect(result.errors).toEqual([])
+      expect(result.payload.remandAdjustment).toBeUndefined()
+    })
+
+    it('should require every part of the remand start date once any part is filled in', () => {
+      const result = dtoService.validatePayload({
+        ...exampleValidPayload,
+        'remand-start-date-day': 9,
+        'remand-start-date-month': '',
+        'remand-start-date-year': '',
+      })
+
+      expect(result.isValid).toBe(false)
+      expect(result.errors).toEqual([
+        { field: 'remand-start-date-month', message: ValidationErrorMessages.InvalidMonth },
+        { field: 'remand-start-date-year', message: ValidationErrorMessages.InvalidYear },
+      ])
+    })
+
+    it.each([
+      ['on', 14],
+      ['after', 20],
+    ])('should return isValid false when the remand start date is %s the sentence date', (_when, day) => {
+      const result = dtoService.validatePayload({
+        ...exampleValidPayload,
+        ...exampleRemandStartDate,
+        'remand-start-date-day': day,
+      })
+
+      expect(result.isValid).toBe(false)
+      expect(result.errors).toContainEqual({
+        field: 'remand-start-date',
+        message: ValidationErrorMessages.RemandStartDateNotBeforeSentenceDate,
+      })
+      expect(result.payload).toBeUndefined()
+    })
+
+    it.each([
+      ['true', true],
+      ['false', false],
+    ])('should parse an ERD eligibility answer of "%s" as %s', (answer, expected) => {
+      const result = dtoService.validatePayload({ ...exampleValidPayload, 'erd-eligibility': answer })
+
+      expect(result.isValid).toBe(true)
+      expect(result.parsedInput.erdEligible).toBe(expected)
+      expect(result.payload.erdEligible).toBe(expected)
+    })
+
+    it.each([undefined, 'banana', '', 'TRUE'])(
+      'should return an error for an ERD eligibility answer of %p, as the question is required',
+      answer => {
+        const result = dtoService.validatePayload({ ...exampleValidPayload, 'erd-eligibility': answer })
+
+        expect(result.isValid).toBe(false)
+        expect(result.errors).toContainEqual({
+          field: 'erd-eligibility',
+          message: ValidationErrorMessages.MissingErdEligibility,
+        })
+        expect(result.parsedInput.erdEligible).toBeUndefined()
+        expect(result.payload).toBeUndefined()
+      },
+    )
 
     it('should return only correctly parsed fields', () => {
       const inputData: Record<string, unknown> = {
         ...exampleValidPayload,
-        'remand-days': 15,
+        ...exampleRemandStartDate,
         'tagged-bail-days': 4,
       }
 
       const expectedParsedInput: ParsedDtoForm = {
-        remandDays: 15,
         taggedBailDays: 4,
+        erdEligible: true,
         sentenceLengthMonths: 4,
         sentenceDateDay: 14,
         sentenceDateMonth: 5,
         sentenceDateYear: 1990,
         sentenceDate: new Date(Date.UTC(1990, 4, 14)),
-        sentenceDateString: '14/05/1990',
+        sentenceDateString: '14 May 1990',
+        remandStartDateDay: 9,
+        remandStartDateMonth: 5,
+        remandStartDateYear: 1990,
+        remandStartDate: new Date(Date.UTC(1990, 4, 9)),
+        remandStartDateString: '9 May 1990',
       }
       expect(dtoService.validatePayload(inputData).parsedInput).toEqual(expectedParsedInput)
     })
@@ -115,39 +204,17 @@ describe('DtoService', () => {
         sentenceDateMonth: 5,
         sentenceDateYear: 1990,
         sentenceDate: new Date(Date.UTC(1990, 4, 14)),
-        sentenceDateString: '14/05/1990',
+        sentenceDateString: '14 May 1990',
       }
       expect(dtoService.validatePayload(payload).parsedInput).toEqual(expectedParsedInput)
       // nothing submitted, parsedInput is still returned, just empty
       expect(dtoService.validatePayload({}).parsedInput).toEqual({})
     })
 
-    it('should return the parsed form data as parsedInput for tagged bail 4 and remand 5', () => {
-      const inputData: Record<string, unknown> = {
-        ...exampleValidPayload,
-        'tagged-bail-days': 5,
-        'remand-days': 4,
-      }
-
-      const expectedParsedInput: ParsedDtoForm = {
-        sentenceLengthMonths: 4,
-        sentenceDateDay: 14,
-        sentenceDateMonth: 5,
-        sentenceDateYear: 1990,
-        sentenceDate: new Date(Date.UTC(1990, 4, 14)),
-        sentenceDateString: '14/05/1990',
-        remandDays: 4,
-        taggedBailDays: 5,
-      }
-
-      expect(dtoService.validatePayload(inputData).parsedInput).toEqual(expectedParsedInput)
-    })
-
-    it('should return the parsed form data as parsedInput for tagged bail 0 and remand 0', () => {
+    it('should return the parsed form data as parsedInput for tagged bail 0 and no remand', () => {
       const inputData: Record<string, unknown> = {
         ...exampleValidPayload,
         'tagged-bail-days': 0,
-        'remand-days': 0,
       }
 
       const expectedParsedInput: ParsedDtoForm = {
@@ -156,9 +223,9 @@ describe('DtoService', () => {
         sentenceDateMonth: 5,
         sentenceDateYear: 1990,
         sentenceDate: new Date(Date.UTC(1990, 4, 14)),
-        sentenceDateString: '14/05/1990',
-        remandDays: 0,
+        sentenceDateString: '14 May 1990',
         taggedBailDays: 0,
+        erdEligible: true,
       }
 
       expect(dtoService.validatePayload(inputData).parsedInput).toEqual(expectedParsedInput)
@@ -177,7 +244,7 @@ describe('DtoService', () => {
 
       expect(payload).toEqual(
         expect.objectContaining({
-          inputIndividualSentences: [{ from: new Date(2054, 1, 11), durationMonths: 4 }],
+          inputIndividualSentences: [{ from: new Date(Date.UTC(2054, 1, 11)), durationMonths: 4 }],
         }),
       )
     })
@@ -197,31 +264,13 @@ describe('DtoService', () => {
       )
     })
 
-    it('should include remandAdjustment in the payload when remand-days is provided', () => {
-      const inputData: Record<string, unknown> = {
-        ...exampleValidPayload,
-        'remand-days': 5,
-      }
+    it('should send only the remand start date in the payload, for the API to work out the days', () => {
+      const { payload } = dtoService.validatePayload({ ...exampleValidPayload, ...exampleRemandStartDate })
 
-      const { payload } = dtoService.validatePayload(inputData)
-
-      expect(payload).toEqual(
-        expect.objectContaining({
-          remandAdjustment: expect.objectContaining({ name: 'remand', days: 5 }),
-        }),
-      )
-    })
-
-    it('should not set a remandAdjustment startDate, leaving the API to derive it from the sentence date and remand days', () => {
-      const inputData: Record<string, unknown> = {
-        ...exampleValidPayload,
-        'remand-days': 5,
-      }
-
-      const { payload } = dtoService.validatePayload(inputData)
-
-      expect(payload.remandAdjustment).toEqual({ name: 'remand', days: 5 })
-      expect(payload.remandAdjustment.startDate).toBeUndefined()
+      expect(payload.remandAdjustment).toEqual({
+        name: 'remand',
+        startDate: new Date(Date.UTC(1990, 4, 9)),
+      })
     })
   })
 
@@ -229,6 +278,7 @@ describe('DtoService', () => {
     it('should return expected OutputCalculation object', () => {
       const inputData: InputSentences = {
         offenderName: 'William Gates',
+        erdEligible: true,
         inputIndividualSentences: [],
       }
 

@@ -1,22 +1,22 @@
 import * as cheerio from 'cheerio'
 import { OutputCalculation } from '@yjb-platform/shared-types'
 import createNunjucksTestSetup from '../../testutils/nunjucksSetup'
-import { sampleCalculationResult, breakdownObj } from '../../testutils/sampleObjects'
-import { ParsedDtoForm } from '../../services/dtoService'
+import { sampleCalculationResult, breakdownObj, termDates, resultDates, periods } from '../../testutils/sampleObjects'
+import { CalculationBreakdownInputData } from '../../routes/calculate'
 
 const env = createNunjucksTestSetup()
 const renderWithCheerio = (context = {}) => cheerio.load(env.render('pages/calculation-breakdown.njk', context))
 
-describe('Calculation breakdown page', () => {
+describe('Sentence calculation results page', () => {
   describe('content', () => {
     it('renders the title', () => {
       const cheerioPage = renderWithCheerio()
-      expect(cheerioPage('title').text()).toBe('Youth Justice Platform - Calculation breakdown')
+      expect(cheerioPage('title').text()).toBe('Youth Justice Platform - Sentence calculation results')
     })
 
     it('renders the page headings', () => {
       const cheerioPage = renderWithCheerio()
-      expect(cheerioPage('h1').text()).toBe('Calculation breakdown')
+      expect(cheerioPage('h1').text()).toBe('Sentence calculation results')
     })
   })
 
@@ -29,24 +29,30 @@ describe('Calculation breakdown page', () => {
     })
 
     it('passes the submitted form data to the back button', () => {
-      const parsedInput: ParsedDtoForm = {
-        remandDays: 33,
+      const parsedInput: CalculationBreakdownInputData = {
         taggedBailDays: 44,
+        erdEligible: true,
         sentenceLengthMonths: 22,
-        sentenceDate: new Date('01/22/2033'),
-        sentenceDateString: '01/22/2033',
+        sentenceDate: new Date(Date.UTC(2033, 0, 22)),
+        sentenceDateString: '22 January 2033',
+        sentenceDateBtnStr: '2033-01-22',
+        remandStartDate: new Date(Date.UTC(2032, 11, 20)),
+        remandStartDateString: '20 December 2032',
+        remandStartDateBtnStr: '2032-12-20',
+        erdEligibility: 'Eligible',
       }
       const cheerioPage = renderWithCheerio({ inputData: parsedInput })
       const button = cheerioPage('.govuk-back-link')
-      expect(button.prop('href')).toContain(`remandDays=${parsedInput.remandDays}`)
+      expect(button.prop('href')).toContain(`remandStartDate=2032-12-20`)
       expect(button.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
       expect(button.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
-      expect(button.prop('href')).toContain(`sentenceDate=01/22/2033`)
+      expect(button.prop('href')).toContain(`sentenceDate=2033-01-22`)
+      expect(button.prop('href')).toContain(`erdEligible=true`)
     })
 
     it('includes a Start a new calculation button', () => {
       const cheerioPage = renderWithCheerio()
-      const link = cheerioPage('#new-calculation-link-a')
+      const link = cheerioPage('#new-calculation-link-b')
       expect(link.text()).toBe('Start a new DTO calculation')
       expect(link.prop('href')).toBe('/calculate')
     })
@@ -56,37 +62,48 @@ describe('Calculation breakdown page', () => {
     const expectedCalcValues: string[][] = [
       ['Term length', '11 months (334 days)'],
       ['Custodial period', '167 days'],
-      ['MTD', 'Sat Dec 12 2026'],
+      ['MTD', 'Saturday 2026-12-12'],
       ['Remand period', '15 days'],
-      ['SLED', 'Thu May 13 2027'],
-      ['Final MTD', 'Fri Nov 27 2026'],
-      ['LTD', 'Sun Dec 27 2026'],
-      ['ETD', 'Tue Oct 27 2026'],
+      ['SLED', 'Thursday 2027-05-13'],
+      ['Final MTD', 'Friday 2026-11-27'],
+      ['LTD', 'Sunday 2026-12-27'],
+      ['ETD', 'Tuesday 2026-10-27'],
+      ['ERD', 'Tuesday 2026-10-27'],
     ]
 
-    const expectedExplanationValues: string[][] = [
-      ['Term length', ', from 2026-06-29 to 2027-05-13'],
-      ['Custodial period', '(334 divided by 2)'],
-      ['MTD', '167 days from the beginning of the sentence (29 June 2026)'],
-      ['Remand period', '(14 June 2026 to 28 June 2026)'],
-      ['SLED', '(2027-05-28 minus 15 days)'],
-      ['Final MTD', '(2026-12-12 minus 15 days)'],
-      ['LTD', '(1 month away from the MTD for DTOs with terms from 8 to 18 months)'],
-      ['ETD', '(1 month away from the MTD for DTOs with terms from 8 to 18 months)'],
+    // each breakdown row is shown on two lines: the date or period, then how it was worked out
+    const expectedBreakdownLines: [string, string[]][] = [
+      ['Term length', ['11 months (334 days)', 'from 29 June 2026 to 13 May 2027']],
+      ['Custodial period', ['167 days', 'Term length (334) / 2']],
+      ['Remand period', ['15 days', '14 June 2026 to 28 June 2026']],
+      [
+        'MTD',
+        ['Saturday, 12 December 2026', '167 days (custodial period) from the beginning of the sentence (29 June 2026)'],
+      ],
+      ['SLED', ['Thursday, 13 May 2027', '28 May 2027 minus 15 days']],
+      ['Final MTD', ['Friday, 27 November 2026', '12 December 2026 minus 15 days']],
+      ['ETD', ['Tuesday, 27 October 2026', '1 month away from the MTD for DTOs with terms from 8 to 18 months']],
+      ['LTD', ['Sunday, 27 December 2026', '1 month away from the MTD for DTOs with terms from 8 to 18 months']],
+      ['ERD', ['Tuesday, 27 October 2026', '1 month away from the MTD for DTOs with terms from 8 to 18 months']],
     ]
 
-    describe('your answers section', () => {
-      const parsedInput: ParsedDtoForm = {
-        remandDays: 33,
+    describe('What you told us section', () => {
+      const parsedInput: CalculationBreakdownInputData = {
         taggedBailDays: 44,
+        erdEligible: true,
         sentenceLengthMonths: 22,
-        sentenceDate: new Date('01/22/2033'),
-        sentenceDateString: '01/22/2033',
+        sentenceDate: new Date(Date.UTC(2033, 0, 22)),
+        sentenceDateString: '22 January 2033',
+        sentenceDateBtnStr: '2033-01-22',
+        remandStartDate: new Date(Date.UTC(2032, 11, 20)),
+        remandStartDateString: '20 December 2032',
+        remandStartDateBtnStr: '2032-12-20',
+        erdEligibility: 'Eligible',
       }
 
       it('renders the panel', () => {
         const cheerioPage = renderWithCheerio()
-        expect(cheerioPage('.govuk-summary-card').text()).toContain('Your answers')
+        expect(cheerioPage('.govuk-summary-card').text()).toContain('What you told us')
       })
 
       it('renders the sentence date', () => {
@@ -101,10 +118,25 @@ describe('Calculation breakdown page', () => {
         expect(cheerioPage('.govuk-summary-card').text()).toContain(`${parsedInput.sentenceLengthMonths} months`)
       })
 
-      it('renders the remand days', () => {
+      it('renders the remand date', () => {
         const cheerioPage = renderWithCheerio({ inputData: parsedInput })
-        expect(cheerioPage('.govuk-summary-card').text()).toContain('Days spent on remand')
-        expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.remandDays.toString())
+        expect(cheerioPage('.govuk-summary-card').text()).toContain('Remand start date')
+        expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.remandStartDateString)
+      })
+
+      it('renders 0 for the remand start date when none was given', () => {
+        const noRemand: CalculationBreakdownInputData = {
+          ...parsedInput,
+          remandStartDate: undefined,
+          remandStartDateString: undefined,
+          remandStartDateBtnStr: '',
+        }
+        const cheerioPage = renderWithCheerio({ inputData: noRemand })
+
+        const remandRow = cheerioPage('.govuk-summary-card .govuk-summary-list__row').filter((_, row) =>
+          cheerioPage(row).find('.govuk-summary-list__key').text().includes('Remand start date'),
+        )
+        expect(remandRow.find('.govuk-summary-list__value').text().trim()).toBe('0')
       })
 
       it('renders the tagged bail days', () => {
@@ -113,71 +145,29 @@ describe('Calculation breakdown page', () => {
         expect(cheerioPage('.govuk-summary-card').text()).toContain(parsedInput.taggedBailDays.toString())
       })
 
-      it('renders appropriate change answers link', () => {
+      it.each(['Eligible', 'Not Eligible'])('renders the ERD eligibility answer "%s"', (erdEligibility: string) => {
+        const cheerioPage = renderWithCheerio({ inputData: { ...parsedInput, erdEligibility } })
+
+        const erdRow = cheerioPage('.govuk-summary-card .govuk-summary-list__row').filter((_, row) =>
+          cheerioPage(row).find('.govuk-summary-list__key').text().includes('Eligibility for early release'),
+        )
+        expect(erdRow.find('.govuk-summary-list__value').text().trim()).toBe(erdEligibility)
+      })
+
+      it('renders appropriate Edit link', () => {
         const cheerioPage = renderWithCheerio({ inputData: parsedInput })
         const changeAnswersLink = cheerioPage('.govuk-summary-card .govuk-summary-card__actions .govuk-link')
-        expect(changeAnswersLink.prop('href')).toContain(`remandDays=${parsedInput.remandDays}`)
+        expect(changeAnswersLink.prop('href')).toContain(`remandStartDate=2032-12-20`)
         expect(changeAnswersLink.prop('href')).toContain(`taggedBailDays=${parsedInput.taggedBailDays}`)
         expect(changeAnswersLink.prop('href')).toContain(`sentenceLengthMonths=${parsedInput.sentenceLengthMonths}`)
-        expect(changeAnswersLink.prop('href')).toContain(`sentenceDate=01/22/2033`)
+        expect(changeAnswersLink.prop('href')).toContain(`sentenceDate=2033-01-22`)
+        expect(changeAnswersLink.prop('href')).toContain(`erdEligible=true`)
       })
-    })
-
-    describe('Calculation outputs A', () => {
-      const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj })
-
-      it('correctly renders the Calculation Summary panel values', () => {
-        const summaryData: Record<string, string> = {}
-        cheerioPage('#release-dates .govuk-summary-list__row').each((_, el) => {
-          const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
-          summaryData[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
-        })
-
-        expect(summaryData).toMatchObject({
-          ETD: expect.stringContaining('Tue Oct 27 2026'),
-          MTD: expect.stringContaining('Fri Nov 27 2026'),
-          LTD: expect.stringContaining('Sun Dec 27 2026'),
-          SLED: expect.stringContaining('Thu May 13 2027'),
-        })
-      })
-
-      it.each(expectedCalcValues)('correctly renders the calculation values for %s', (_key: string, value: string) => {
-        expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
-      })
-
-      it.each(expectedExplanationValues)(
-        'correctly renders the calculation explanations for %s',
-        (_key: string, value: string) => {
-          expect(cheerioPage('#detailed-breakdown').text()).toContain(value)
-        },
-      )
-
-      // TODO: it(renders the explanation for collapsed sentences correctly)
-      // it('renders the explanation for collapsed sentences correctly', () => {
-      //   const collapsedDates: EffectiveDates = {
-      //     totalNumberOfRemandAndTaggedBailDays: 4000,
-      //       sled: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2026-03-24'), new Date('2027-05-28'), 4000),
-      //       mtd: buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2025-11-27'), new Date('2026-12-12'), 4000),
-      //       TUSED: new Date('1970-01-01'),
-      //   }
-      //
-      //   const collapsedCalculationResult: OutputCalculation = {
-      //     ...sampleCalculationResult,
-      //     effectiveDates: collapsedDates
-      //   }
-      //   const cheerioPage = renderWithCheerio({ collapsedCalculationResult, breakdownObj })
-      //   const expectedExplanation: string = "(Date was collapsed to sentence day, with 64 unused days )"
-      //   const foundText = cheerioPage('#detailed-breakdown').text()
-      //   // expect(cheerioPage('#detailed-breakdown').text()).toContain(expectedExplanation)
-      //   expect(foundText).toContain(expectedExplanation)
-      //
-      // })
     })
 
     describe('Calculation outputs B', () => {
       const calculationResult: OutputCalculation = sampleCalculationResult
-      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj })
+      const cheerioPage = renderWithCheerio({ calculationResult, breakdownObj, termDates, resultDates, periods })
 
       const calculationDataRows: Record<string, string> = {}
       cheerioPage('#calculation-results-tab .govuk-summary-list__row').each((_, el) => {
@@ -185,10 +175,17 @@ describe('Calculation breakdown page', () => {
         calculationDataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
       })
 
-      const explanationDataRows: Record<string, string> = {}
+      // the text of each line in each breakdown row, by the row's key
+      const breakdownLines: Record<string, string[]> = {}
       cheerioPage('#results-breakdown-tab .govuk-summary-list__row').each((_, el) => {
-        const key = cheerioPage(el).find('.govuk-summary-list__key').text().trim()
-        explanationDataRows[key] = cheerioPage(el).find('.govuk-summary-list__value').text().trim()
+        // some keys have a tagline under them - the row's key is the text without it
+        const keyElement = cheerioPage(el).find('.govuk-summary-list__key').clone()
+        keyElement.find('.govuk-hint').remove()
+        const key = keyElement.text().trim()
+        breakdownLines[key] = cheerioPage(el)
+          .find('.govuk-summary-list__value .govuk-\\!-display-block')
+          .toArray()
+          .map(line => cheerioPage(line).text().trim())
       })
 
       it.each(expectedCalcValues)('correctly renders the calculation result for %s', (key: string, value: string) => {
@@ -197,14 +194,46 @@ describe('Calculation breakdown page', () => {
         })
       })
 
-      it.each(expectedExplanationValues)(
-        'correctly renders the calculation explanations for %s',
-        (key: string, value: string) => {
-          expect(explanationDataRows).toMatchObject({
-            [key]: expect.stringContaining(value),
-          })
-        },
-      )
+      it.each([
+        ['MTD', 'Mid Term Date'],
+        ['SLED', 'Sentence and Licence Expiry Date'],
+        ['ETD', 'Early Transfer Date'],
+        ['LTD', 'Late Transfer Date'],
+        ['ERD', 'Early Release Date'],
+      ])('shows the tagline "%s" under the %s key', (key: string, tagline: string) => {
+        const keyElement = cheerioPage('#results-breakdown-tab .govuk-summary-list__key').filter((_, el) =>
+          cheerioPage(el).text().trim().startsWith(key),
+        )
+        expect(keyElement.find('.govuk-hint').text().trim()).toBe(tagline)
+      })
+
+      it.each(expectedBreakdownLines)('renders the %s breakdown on two lines', (key: string, lines: string[]) => {
+        expect(breakdownLines[key]).toEqual(lines)
+      })
+
+      it('renders only the message for the ERD when the child is not eligible for early release', () => {
+        const notEligiblePage = renderWithCheerio({
+          calculationResult,
+          breakdownObj: { ...breakdownObj, erdDate: '', erdBreakdown: 'Not eligible for early release' },
+          termDates,
+          resultDates: { ...resultDates, erd: 'Not eligible for early release' },
+          periods,
+        })
+
+        const rowFor = (tabId: string) =>
+          notEligiblePage(`${tabId} .govuk-summary-list__row`).filter((_, row) =>
+            notEligiblePage(row).find('.govuk-summary-list__key').text().trim().startsWith('ERD'),
+          )
+        expect(rowFor('#calculation-results-tab').find('.govuk-summary-list__value').text().trim()).toBe(
+          'Not eligible for early release',
+        )
+        expect(
+          rowFor('#results-breakdown-tab')
+            .find('.govuk-summary-list__value .govuk-\\!-display-block')
+            .toArray()
+            .map(line => notEligiblePage(line).text().trim()),
+        ).toEqual(['Not eligible for early release'])
+      })
     })
   })
 })

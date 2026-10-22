@@ -1,0 +1,160 @@
+import { UTCDate } from '@date-fns/utc'
+import { AppliedAdjustmentStatus, DtoEligibilityStatus } from '@yjb-platform/shared-types'
+import { buildTransferDatesObj, buildfinalDatesObj, buildTermDatesObj } from './dateObjects'
+
+describe('buildTransferDatesObj', () => {
+  it('adds dayOfWeek and the eligibility message when a transfer date is calculated', () => {
+    expect(buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('2026-11-12'))).toEqual({
+      data: new Date('2026-11-12'),
+      metadata: {
+        dayOfWeek: 'Thursday',
+        status: DtoEligibilityStatus.oneMonth,
+        message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+      },
+    })
+  })
+
+  it('leaves out dayOfWeek when the transfer date is not calculated', () => {
+    expect(buildTransferDatesObj(DtoEligibilityStatus.notCalculated, 0)).toEqual({
+      data: 0,
+      metadata: {
+        status: DtoEligibilityStatus.notCalculated,
+        message: 'Not applicable for DTOs with terms less than 8 months',
+      },
+    })
+  })
+
+  it('leaves out dayOfWeek and explains why when the child is not eligible for early release', () => {
+    expect(buildTransferDatesObj(DtoEligibilityStatus.notEligible, 0)).toEqual({
+      data: 0,
+      metadata: {
+        status: 'not_eligible',
+        message: 'Not eligible for early release',
+      },
+    })
+  })
+})
+
+describe('buildfinalDatesObj', () => {
+  it('adds dayOfWeek when no adjustments were applied', () => {
+    expect(buildfinalDatesObj(AppliedAdjustmentStatus.not_applied, new Date('2027-05-28'))).toEqual({
+      data: new Date('2027-05-28'),
+      metadata: {
+        dayOfWeek: 'Friday',
+        status: AppliedAdjustmentStatus.not_applied,
+        message: ' No adjustments applied',
+      },
+    })
+  })
+
+  it('adds dayOfWeek and the adjustment breakdown when adjustments were applied', () => {
+    expect(
+      buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-13'), new Date('2027-05-28'), 15),
+    ).toEqual({
+      data: new Date('2027-05-13'),
+      metadata: {
+        dayOfWeek: 'Thursday',
+        status: AppliedAdjustmentStatus.applied,
+        message: '28 May 2027 minus 15 days',
+      },
+    })
+  })
+
+  it('adds dayOfWeek when the date was collapsed to the sentence date', () => {
+    expect(buildfinalDatesObj(AppliedAdjustmentStatus.collapsed, new Date('2026-06-29'))).toEqual({
+      data: new Date('2026-06-29'),
+      metadata: {
+        dayOfWeek: 'Monday',
+        status: AppliedAdjustmentStatus.collapsed,
+        message: 'Date was collapsed to sentence date, due to remand/tagged bail bigger then sentence period',
+      },
+    })
+  })
+
+  it('adds dayOfWeek and the unused days when the date was collapsed with unused days', () => {
+    expect(
+      buildfinalDatesObj(AppliedAdjustmentStatus.collapsedUnused, new Date('2026-06-29'), undefined, undefined, 12),
+    ).toEqual({
+      data: new Date('2026-06-29'),
+      metadata: {
+        dayOfWeek: 'Monday',
+        status: AppliedAdjustmentStatus.collapsedUnused,
+        message: 'Date was collapsed to sentence date, with 12 unused days ',
+      },
+    })
+  })
+
+  it('works out dayOfWeek in UTC so the local timezone cannot shift the day', () => {
+    // 23:30 UTC on a Sunday is already Monday in any timezone ahead of UTC (e.g. BST)
+    const lateSundayUtc = new Date(Date.UTC(2026, 6, 26, 23, 30))
+
+    expect(buildfinalDatesObj(AppliedAdjustmentStatus.collapsed, lateSundayUtc).metadata.dayOfWeek).toBe('Sunday')
+  })
+
+  it('works out dayOfWeek for a UTCDate, as used by the sentence calculator', () => {
+    expect(buildfinalDatesObj(AppliedAdjustmentStatus.collapsed, new UTCDate('2026-12-12')).metadata.dayOfWeek).toBe(
+      'Saturday',
+    )
+  })
+})
+
+describe('buildfinalDatesObj with a single day', () => {
+  it('says "minus 1 day" rather than "minus 1 days"', () => {
+    expect(
+      buildfinalDatesObj(AppliedAdjustmentStatus.applied, new Date('2027-05-27'), new Date('2027-05-28'), 1).metadata
+        .message,
+    ).toBe('28 May 2027 minus 1 day')
+  })
+
+  it('says "1 unused day" rather than "1 unused days"', () => {
+    expect(
+      buildfinalDatesObj(AppliedAdjustmentStatus.collapsedUnused, new Date('2026-06-29'), undefined, undefined, 1)
+        .metadata.message,
+    ).toBe('Date was collapsed to sentence date, with 1 unused day ')
+  })
+})
+
+describe('buildTermDatesObj', () => {
+  it('adds dayOfWeek and the days from the beginning of the sentence', () => {
+    expect(buildTermDatesObj(new Date('2026-12-12'), 167, new Date('2026-06-29'))).toEqual({
+      data: new Date('2026-12-12'),
+      metadata: {
+        dayOfWeek: 'Saturday',
+        message: '167 days from the beginning of the sentence (29 June 2026)',
+      },
+    })
+  })
+
+  it('says "1 day" rather than "1 days"', () => {
+    expect(buildTermDatesObj(new Date('2026-06-30'), 1, new Date('2026-06-29')).metadata.message).toBe(
+      '1 day from the beginning of the sentence (29 June 2026)',
+    )
+  })
+
+  it('adds "(custodial period)" after the days when asked to, as for the MTD', () => {
+    expect(buildTermDatesObj(new Date('2026-12-12'), 167, new Date('2026-06-29'), true).metadata.message).toBe(
+      '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+    )
+  })
+
+  it('accepts the sentence start as a date string, as it arrives in the request', () => {
+    const sentenceStart = '2026-06-29' as unknown as Date
+
+    expect(buildTermDatesObj(new Date('2027-05-28'), 334, sentenceStart).metadata.message).toBe(
+      '334 days from the beginning of the sentence (29 June 2026)',
+    )
+  })
+
+  it('works out dayOfWeek in UTC so the local timezone cannot shift the day', () => {
+    // 23:30 UTC on a Sunday is already Monday in any timezone ahead of UTC (e.g. BST)
+    const lateSundayUtc = new Date(Date.UTC(2026, 6, 26, 23, 30))
+
+    expect(buildTermDatesObj(lateSundayUtc, 28, new Date('2026-06-29')).metadata.dayOfWeek).toBe('Sunday')
+  })
+
+  it('works out dayOfWeek for a UTCDate, as used by the sentence calculator', () => {
+    expect(buildTermDatesObj(new UTCDate('2027-05-28'), 334, new UTCDate('2026-06-29')).metadata.dayOfWeek).toBe(
+      'Friday',
+    )
+  })
+})

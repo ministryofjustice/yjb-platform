@@ -5,6 +5,7 @@
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
 
 {% set pageTitle = applicationName + " - New calculation" %}
 {% set mainClasses = "govuk-body" %}
@@ -18,15 +19,14 @@
   }) }}
   {% endif %}
 
-  <h1>New calculation</h1>
-  <p id="instruction-text">Enter the calculation details below</p>
-
-  <h2>Offence and sentence details</h2>
+  <h1>Start a new calculation</h1>
+  <p id="instruction-text">Use this tool to check a Detention and Training Order (DTO) calculation.</p>
 
   <form id="calculation-form" action="/calculate" method="post">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-one-third">
-        {{ govukSelect({
+        {#  Sentence type dropdown not needed for now #}
+        {# {{ govukSelect({
           name: "sentence-type",
           label: {
             text: "Sentence type",
@@ -44,27 +44,8 @@
               text: "Some sentence that is applicable to DTO"
             }
           ]
-        }) }}
+        }) }} #}
 
-        {% call govukFieldset({
-          legend: {
-            text: "Length of sentence",
-            classes: "govuk-fieldset__legend--s"
-          }
-        }) %}
-          {{ govukInput({
-            label: {
-              text: "Months"
-            },
-            classes: "govuk-!-width-one-quarter",
-            id: "sentence-length-months",
-            name: "sentence-length-months",
-            value: formData.sentenceLengthMonths,
-            errorMessage: errorsByField['sentence-length-months'] and { text: errorsByField['sentence-length-months'] }
-          }) }}
-        {% endcall %}
-      </div>
-      <div class="govuk-grid-column-one-third">
         {{ govukDateInput({
           id: 'sentence-date',
           namePrefix: "sentence-date",
@@ -87,38 +68,92 @@
 
         {% call govukFieldset({
           legend: {
-            text: "Remand periods (days)",
+            text: "Length of sentence",
             classes: "govuk-fieldset__legend--s"
           }
         }) %}
-
-          <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-half">
-              {{ govukInput({
-                label: {
-                  text: "Remand"
-                },
-                id: "remand-days",
-                name: "remand-days",
-                value: formData.remandDays,
-                errorMessage: errorsByField['remand-days'] and { text: errorsByField['remand-days'] }
-              }) }}
-            </div>
-
-            <div class="govuk-grid-column-one-half">
-              {{ govukInput({
-                label: {
-                  text: "Tagged bail"
-                },
-                id: "tagged-bail-days",
-                name: "tagged-bail-days",
-                value: formData.taggedBailDays,
-                errorMessage: errorsByField['tagged-bail-days'] and { text: errorsByField['tagged-bail-days'] }
-              }) }}
-            </div>
-          </div>
-
+        {{ govukInput({
+          label: {
+            text: "Months"
+          },
+          classes: "govuk-input--width-2",
+          id: "sentence-length-months",
+          name: "sentence-length-months",
+          suffix: {
+            text: "Months"
+          },
+          value: formData.sentenceLengthMonths,
+          errorMessage: errorsByField['sentence-length-months'] and { text: errorsByField['sentence-length-months'] }
+        }) }}
         {% endcall %}
+
+        {# Commention out for now
+        {{ govukInput({
+          label: {
+            text: "Remand"
+          },
+          id: "remand-days",
+          name: "remand-days",
+          value: formData.remandDays,
+          errorMessage: errorsByField['remand-days'] and { text: errorsByField['remand-days'] }
+        }) }} #}
+
+         {{ govukDateInput({
+          id: 'remand-start-date',
+          namePrefix: "remand-start-date",
+          fieldset: {
+            legend: {
+              text: "Remand start date (optional)",
+              classes: "govuk-fieldset__legend--s"
+            }
+          },
+          hint: {
+            text: "Leave blank if no time spent on remand"
+          },
+          errorMessage: remandStartDateError and { text: remandStartDateError },
+          items: [
+            { name: 'day', value: formData.remandStartDateDay, error: errorsByField['remand-start-date-day'] or false },
+            { name: 'month', value: formData.remandStartDateMonth, error: errorsByField['remand-start-date-month'] or false },
+            { name: 'year', value: formData.remandStartDateYear, error: errorsByField['remand-start-date-year'] or false }
+          ]
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "Tagged bail"
+          },
+          classes: "govuk-input--width-2",
+          id: "tagged-bail-days",
+          name: "tagged-bail-days",
+          suffix: {
+            text: "Days"
+          },
+          value: formData.taggedBailDays,
+          errorMessage: errorsByField['tagged-bail-days'] and { text: errorsByField['tagged-bail-days'] }
+        }) }}
+
+        {{ govukRadios({
+          name: "erd-eligibility",
+          errorMessage: errorsByField['erd-eligibility'] and { text: errorsByField['erd-eligibility'] },
+          fieldset: {
+            legend: {
+              text: "Eligibility for early release",
+              classes: "govuk-fieldset__legend--s"
+            }
+          },
+          items: [
+            {
+              value: "true",
+              text: "Eligible",
+              checked: formData.erdEligible === true
+            },
+            {
+              value: "false",
+              text: "Not eligible",
+              checked: formData.erdEligible === false
+            }
+          ]
+        }) }}
       </div>
     </div>
 

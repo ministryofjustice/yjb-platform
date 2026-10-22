@@ -1,12 +1,12 @@
 import request from 'supertest'
 import express from 'express'
+import { DtoEligibilityStatus, AppliedAdjustmentStatus } from '@yjb-platform/shared-types'
 import {
-  DtoEligibilityStatus,
   DTO_ELIGIBILITY_MESSAGES,
-  AppliedAdjustmentStatus,
   FINAL_SLED_BREAKDOWN_MESSAGE,
-} from '@yjb-platform/shared-types'
+} from '../services/sentenceCalculator/helpers/dateObjects'
 import sentenceCalculatorRoutes from './sentenceCalculator'
+import { sampleInputSentencesBody } from '../testutils/sampleObjects'
 
 const app = express()
 app.use(express.json())
@@ -14,15 +14,7 @@ app.use('/calculations', sentenceCalculatorRoutes())
 
 describe('POST /calculations', () => {
   it('should return valid calculations for a valid input of sentence with no remand', () => {
-    const input = {
-      offenderName: 'Test Offender',
-      inputIndividualSentences: [
-        {
-          from: '2026-06-29',
-          durationMonths: 11,
-        },
-      ],
-    }
+    const input = sampleInputSentencesBody
 
     const output = {
       calculatedTerms: [
@@ -30,8 +22,20 @@ describe('POST /calculations', () => {
           inputSentence: { from: '2026-06-29', durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: '2027-05-28',
-          mtd: '2026-12-12',
+          sled: {
+            data: '2027-05-28',
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
+            },
+          },
+          mtd: {
+            data: '2026-12-12',
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -41,6 +45,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.not_applied,
             message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+            dayOfWeek: 'Friday',
           },
         },
         mtd: {
@@ -48,6 +53,7 @@ describe('POST /calculations', () => {
           metadata: {
             status: AppliedAdjustmentStatus.not_applied,
             message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+            dayOfWeek: 'Saturday',
           },
         },
         TUSED: '1970-01-01',
@@ -57,6 +63,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
         },
       },
       etd: {
@@ -64,10 +71,20 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Thursday',
+        },
+      },
+      erd: {
+        data: '2026-11-12',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Thursday',
         },
       },
       effectiveDatesPastAdjustments: [],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 0,
     }
 
     return request(app).post('/calculations').send(input).expect(200, output)
@@ -75,18 +92,11 @@ describe('POST /calculations', () => {
 
   it('should return a valid calculation for a valid input with 15 days remand', () => {
     const input = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentencesBody,
       remandAdjustment: {
         name: 'remand',
-        days: 15,
         startDate: new Date('2026-06-14'),
       },
-      inputIndividualSentences: [
-        {
-          from: '2026-06-29',
-          durationMonths: 11,
-        },
-      ],
     }
     const output = {
       calculatedTerms: [
@@ -94,8 +104,20 @@ describe('POST /calculations', () => {
           inputSentence: { from: '2026-06-29', durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: '2027-05-28',
-          mtd: '2026-12-12',
+          sled: {
+            data: '2027-05-28',
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
+            },
+          },
+          mtd: {
+            data: '2026-12-12',
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -104,14 +126,16 @@ describe('POST /calculations', () => {
           data: '2027-05-13',
           metadata: {
             status: AppliedAdjustmentStatus.applied,
-            message: '2027-05-28 minus 15 days',
+            message: '28 May 2027 minus 15 days',
+            dayOfWeek: 'Thursday',
           },
         },
         mtd: {
           data: '2026-11-27',
           metadata: {
             status: AppliedAdjustmentStatus.applied,
-            message: '2026-12-12 minus 15 days',
+            message: '12 December 2026 minus 15 days',
+            dayOfWeek: 'Friday',
           },
         },
         TUSED: '1970-01-01',
@@ -121,6 +145,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Sunday',
         },
       },
       etd: {
@@ -128,15 +153,24 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
+        },
+      },
+      erd: {
+        data: '2026-10-27',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
         },
       },
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 15,
       effectiveDatesPastAdjustments: [
         {
           adjustmentReason: 'remand',
           adjustmentParameters: {
             name: 'remand',
-            days: 15,
             startDate: '2026-06-14',
           },
           pastEffectiveDates: {
@@ -146,6 +180,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.not_applied,
                 message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+                dayOfWeek: 'Friday',
               },
             },
             mtd: {
@@ -153,6 +188,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.not_applied,
                 message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+                dayOfWeek: 'Saturday',
               },
             },
             TUSED: '1970-01-01',
@@ -164,23 +200,17 @@ describe('POST /calculations', () => {
     return request(app).post('/calculations').send(input).expect(200, output)
   })
 
-  it('returns 2026-06-19 remand start date for sentence starting on 2026-06-29 with 10 days of remand, which has no initial start date', () => {
+  it('returns 10 days of remand for a remand start date of 2026-06-19 and a sentence starting on 2026-06-29', () => {
     const inputSentence = {
-      offenderName: 'Test Offender',
+      ...sampleInputSentencesBody,
       remandAdjustment: {
         name: 'remand',
-        days: 10,
+        startDate: '2026-06-19',
       },
       taggedBailAdjustment: {
         name: 'taggedBail',
         days: 5,
       },
-      inputIndividualSentences: [
-        {
-          from: '2026-06-29',
-          durationMonths: 11,
-        },
-      ],
     }
 
     const expectedOutputCalculation = {
@@ -189,8 +219,20 @@ describe('POST /calculations', () => {
           inputSentence: { from: '2026-06-29', durationMonths: 11 },
           totalDaysInTerm: 334,
           totalDaysMTD: 167,
-          sled: '2027-05-28',
-          mtd: '2026-12-12',
+          sled: {
+            data: '2027-05-28',
+            metadata: {
+              dayOfWeek: 'Friday',
+              message: '334 days from the beginning of the sentence (29 June 2026)',
+            },
+          },
+          mtd: {
+            data: '2026-12-12',
+            metadata: {
+              dayOfWeek: 'Saturday',
+              message: '167 days (custodial period) from the beginning of the sentence (29 June 2026)',
+            },
+          },
         },
       ],
       effectiveDates: {
@@ -199,14 +241,16 @@ describe('POST /calculations', () => {
           data: '2027-05-13',
           metadata: {
             status: AppliedAdjustmentStatus.applied,
-            message: '2027-05-28 minus 15 days',
+            message: '28 May 2027 minus 15 days',
+            dayOfWeek: 'Thursday',
           },
         },
         mtd: {
           data: '2026-11-27',
           metadata: {
             status: AppliedAdjustmentStatus.applied,
-            message: '2026-12-12 minus 15 days',
+            message: '12 December 2026 minus 15 days',
+            dayOfWeek: 'Friday',
           },
         },
         TUSED: '1970-01-01',
@@ -216,6 +260,7 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Sunday',
         },
       },
       etd: {
@@ -223,6 +268,15 @@ describe('POST /calculations', () => {
         metadata: {
           status: DtoEligibilityStatus.oneMonth,
           message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
+        },
+      },
+      erd: {
+        data: '2026-10-27',
+        metadata: {
+          status: DtoEligibilityStatus.oneMonth,
+          message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.oneMonth],
+          dayOfWeek: 'Tuesday',
         },
       },
       effectiveDatesPastAdjustments: [
@@ -230,7 +284,6 @@ describe('POST /calculations', () => {
           adjustmentReason: 'remand',
           adjustmentParameters: {
             name: 'remand',
-            days: 10,
             startDate: '2026-06-19',
           },
           pastEffectiveDates: {
@@ -240,6 +293,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.not_applied,
                 message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+                dayOfWeek: 'Friday',
               },
             },
             mtd: {
@@ -247,6 +301,7 @@ describe('POST /calculations', () => {
               metadata: {
                 status: AppliedAdjustmentStatus.not_applied,
                 message: FINAL_SLED_BREAKDOWN_MESSAGE[AppliedAdjustmentStatus.not_applied],
+                dayOfWeek: 'Saturday',
               },
             },
             TUSED: '1970-01-01',
@@ -264,14 +319,16 @@ describe('POST /calculations', () => {
               data: '2027-05-18',
               metadata: {
                 status: AppliedAdjustmentStatus.applied,
-                message: '2027-05-28 minus 10 days',
+                message: '28 May 2027 minus 10 days',
+                dayOfWeek: 'Tuesday',
               },
             },
             mtd: {
               data: '2026-12-02',
               metadata: {
                 status: AppliedAdjustmentStatus.applied,
-                message: '2026-12-12 minus 10 days',
+                message: '12 December 2026 minus 10 days',
+                dayOfWeek: 'Wednesday',
               },
             },
             TUSED: '1970-01-01',
@@ -279,6 +336,7 @@ describe('POST /calculations', () => {
         },
       ],
       unusedAdjustmentDays: 0,
+      remandPeriodDays: 10,
     }
 
     return request(app).post('/calculations').send(inputSentence).expect(200, expectedOutputCalculation)
@@ -293,5 +351,28 @@ describe('POST /calculations', () => {
 
     expect(response.body.errors).toBeInstanceOf(Array)
     expect(response.body.errors.length).toBeGreaterThan(0)
+  })
+
+  it('should return 400 with an erdEligible validation error when erdEligible is missing', async () => {
+    const { erdEligible: _omitted, ...input } = sampleInputSentencesBody
+
+    const response = await request(app).post('/calculations').send(input).expect(400)
+
+    expect(response.body.errors).toContainEqual(expect.objectContaining({ path: ['erdEligible'] }))
+  })
+
+  it('should return an ERD of 0 and not eligible, with the ETD unchanged, when erdEligible is false', async () => {
+    const input = { ...sampleInputSentencesBody, erdEligible: false }
+
+    const response = await request(app).post('/calculations').send(input).expect(200)
+
+    expect(response.body.erd).toEqual({
+      data: 0,
+      metadata: {
+        status: DtoEligibilityStatus.notEligible,
+        message: DTO_ELIGIBILITY_MESSAGES[DtoEligibilityStatus.notEligible],
+      },
+    })
+    expect(response.body.etd.data).toBe('2026-11-12')
   })
 })

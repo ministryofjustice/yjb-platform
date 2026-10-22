@@ -2,8 +2,13 @@ import type { ZodType } from 'zod'
 
 // every field is optional as not all fields might parse correctly
 export type ParsedDtoForm = {
-  remandDays?: number
+  remandStartDateDay?: number
+  remandStartDateMonth?: number
+  remandStartDateYear?: number
+  remandStartDate?: Date
+  remandStartDateString?: string
   taggedBailDays?: number
+  erdEligible?: boolean
   sentenceLengthMonths?: number
   sentenceDateDay?: number
   sentenceDateMonth?: number
@@ -30,8 +35,9 @@ export default class DtoParseResult {
     schema: ZodType<ParsedDtoForm[K]>,
     formFieldName: string,
     formFieldPropertyName: K,
+    isRequired = false,
   ) {
-    if (formFieldRaw !== undefined) {
+    if (formFieldRaw !== undefined || isRequired) {
       const result = schema.safeParse(formFieldRaw)
       if (result.success) {
         this.data[formFieldPropertyName] = result.data

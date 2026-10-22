@@ -2,12 +2,7 @@ import type { Express } from 'express'
 import request from 'supertest'
 import { isDeepStrictEqual } from 'util'
 import * as cheerio from 'cheerio'
-import {
-  InputSentences,
-  OutputCalculation,
-  DtoEligibilityStatus,
-  buildTransferDatesObj,
-} from '@yjb-platform/shared-types'
+import { InputSentences, OutputCalculation, DtoEligibilityStatus } from '@yjb-platform/shared-types'
 import { appWithAllRoutes } from '../testutils/appSetup'
 import YjbApiClient from '../data/yjbApi'
 import DtoService, { ValidationResult } from '../services/dtoService'
@@ -52,9 +47,9 @@ describe('GET /calculate', () => {
   })
 
   describe('should render', () => {
-    it('a sentence date of 11/03/2044 when queryString sentenceDate=11/03/2044 is passed', () => {
+    it('a sentence date of 12/04/2045 when queryString sentenceDate=2045-04-12 is passed', () => {
       return request(app)
-        .get('/calculate?sentenceDate=12/04/2045')
+        .get('/calculate?sentenceDate=2045-04-12')
         .expect(res => {
           const $ = cheerio.load(res.text)
           expect($('#sentence-date-day').attr('value')).toContain('12')
@@ -63,9 +58,43 @@ describe('GET /calculate', () => {
         })
     })
 
+    it('a remand start date of 20/10/2026 when queryString remandStartDate=2026-10-20 is passed', () => {
+      return request(app)
+        .get('/calculate?remandStartDate=2026-10-20')
+        .expect(res => {
+          const $ = cheerio.load(res.text)
+          expect($('#remand-start-date-day').attr('value')).toContain('20')
+          expect($('#remand-start-date-month').attr('value')).toContain('10')
+          expect($('#remand-start-date-year').attr('value')).toContain('2026')
+        })
+    })
+
+    it.each([
+      ['missing', ''],
+      ['not a date', '?sentenceDate=abc&remandStartDate=abc'],
+      ['impossible (31 February)', '?sentenceDate=2026-02-31&remandStartDate=2026-02-31'],
+    ])('empty date boxes when the dates in the queryString are %s', (_description, queryString) => {
+      return request(app)
+        .get(`/calculate${queryString}`)
+        .expect(200)
+        .expect(res => {
+          const $ = cheerio.load(res.text)
+          const dateBoxIds = [
+            '#sentence-date-day',
+            '#sentence-date-month',
+            '#sentence-date-year',
+            '#remand-start-date-day',
+            '#remand-start-date-month',
+            '#remand-start-date-year',
+          ]
+          dateBoxIds.forEach(id => {
+            expect($(id).attr('value')).toBeUndefined()
+          })
+        })
+    })
+
     const fieldTestCases = [
       ['11', '#sentence-length-months', 'sentenceLengthMonths'],
-      ['73', '#remand-days', 'remandDays'],
       ['654', '#tagged-bail-days', 'taggedBailDays'],
     ]
     it.each(fieldTestCases)('%s in field %s when queryString %s is passed', (value, elementId, queryString) => {
@@ -76,17 +105,47 @@ describe('GET /calculate', () => {
           expect($(elementId).attr('value')).toContain(value)
         })
     })
+
+    it.each([
+      ['true', 'true'],
+      ['false', 'false'],
+    ])('the ERD eligibility answer selected when queryString erdEligible=%s is passed', (value, expectedValue) => {
+      return request(app)
+        .get(`/calculate?erdEligible=${value}`)
+        .expect(res => {
+          const $ = cheerio.load(res.text)
+          expect($('input[name="erd-eligibility"]:checked').attr('value')).toBe(expectedValue)
+        })
+    })
+
+    it.each([
+      ['missing', ''],
+      ['not true or false', '?erdEligible=undefined'],
+    ])('no ERD eligibility answer selected when the queryString value is %s', (_description, queryString) => {
+      return request(app)
+        .get(`/calculate${queryString}`)
+        .expect(res => {
+          const $ = cheerio.load(res.text)
+          expect($('input[name="erd-eligibility"]:checked').length).toBe(0)
+        })
+    })
   })
 })
 
 describe('POST /calculate', () => {
+  const exampleValidResult: ValidationResult = {
+    isValid: true,
+    parsedInput: {},
+    errors: [],
+    payload: {
+      offenderName: 'Place Holder',
+      erdEligible: true,
+      inputIndividualSentences: [],
+    },
+  }
+
   it('should render a calculation breakdown page when the payload is valid', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+    const validResult: ValidationResult = exampleValidResult
     dtoService.validatePayload.mockReturnValue(validResult)
     dtoService.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
 
@@ -95,21 +154,23 @@ describe('POST /calculate', () => {
       .expect('Content-Type', /html/)
       .expect(200)
       .expect(res => {
-        expect(res.text).toContain('Calculation breakdown')
-        expect(res.text).toContain('Youth Justice Platform - Calculation breakdown')
+        expect(res.text).toContain('Sentence calculation results')
+        expect(res.text).toContain('Youth Justice Platform - Sentence calculation results')
       })
   })
 
   it('should pass the calculationResult into the template', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+    const validResult: ValidationResult = exampleValidResult
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
-      etd: buildTransferDatesObj(DtoEligibilityStatus.oneMonth, new Date('01/01/3093')),
+      etd: {
+        data: new Date('3093-01-01'),
+        metadata: {
+          dayOfWeek: 'Sunday',
+          status: DtoEligibilityStatus.oneMonth,
+          message: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+        },
+      },
     }
     dtoService.validatePayload.mockReturnValue(validResult)
     dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
@@ -120,17 +181,12 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#release-dates').text()).toContain('Sun Jan 01 3093')
+        expect($('#calculation-results-tab').text()).toContain('Sunday, 1 January 3093')
       })
   })
 
   it('should pass the breakdownObj with custodial breakdown into the template', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+    const validResult: ValidationResult = exampleValidResult
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
     }
@@ -143,17 +199,12 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#detailed-breakdown').text()).toContain(breakdownObj.custodialPeriodBreakdown)
+        expect($('#results-breakdown-tab').text()).toContain(breakdownObj.custodialPeriodBreakdown)
       })
   })
 
   it('should pass the breakdownObj into the template for with custodial breakdown with rounded number', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+    const validResult: ValidationResult = exampleValidResult
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult2,
     }
@@ -166,17 +217,12 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#detailed-breakdown').text()).toContain(breakdownObj2.custodialPeriodBreakdown)
+        expect($('#results-breakdown-tab').text()).toContain(breakdownObj2.custodialPeriodBreakdown)
       })
   })
 
-  it('should pass the breakdownObj into the template for MTD breakdown', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+  it('should pass the date breakdowns into the template', () => {
+    const validResult: ValidationResult = exampleValidResult
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
     }
@@ -189,17 +235,39 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#detailed-breakdown').text()).toContain(breakdownObj.mtdBreadown)
+        const detailedBreakdown = $('#results-breakdown-tab').text()
+        expect(detailedBreakdown).toContain(breakdownObj.mtdBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.finalSledBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.finalMtdBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.etdBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.ltdBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.erdBreakdown)
+      })
+  })
+
+  it.each([
+    [true, 'Eligible'],
+    [false, 'Not Eligible'],
+  ])('should show the ERD eligibility answer %s as "%s" in What you told us', (erdEligible, expected) => {
+    const validResult: ValidationResult = { ...exampleValidResult, parsedInput: { erdEligible } }
+    dtoService.validatePayload.mockReturnValue(validResult)
+    dtoService.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
+
+    return request(app)
+      .post('/calculate')
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        const $ = cheerio.load(res.text)
+        const erdRow = $('.govuk-summary-card .govuk-summary-list__row').filter((_, row) =>
+          $(row).find('.govuk-summary-list__key').text().includes('Eligibility for early release'),
+        )
+        expect(erdRow.find('.govuk-summary-list__value').text().trim()).toBe(expected)
       })
   })
 
   it('should pass the breakdownObj into the template for remand period breakdown', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
+    const validResult: ValidationResult = exampleValidResult
     const mockCalculationResult: OutputCalculation = {
       ...sampleCalculationResult,
     }
@@ -212,20 +280,13 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#detailed-breakdown').text()).toContain(breakdownObj.remandPeriodBreakdown)
-        expect(breakdownObj.remandPeriodBreakdown).toBe('(14 June 2026 to 28 June 2026)')
+        expect($('#results-breakdown-tab').text()).toContain(breakdownObj.remandPeriodBreakdown)
+        expect(breakdownObj.remandPeriodBreakdown).toBe('14 June 2026 to 28 June 2026')
       })
   })
 
   it('should render the remand period breakdown correctly when dates arrive as JSON-serialized strings (real API shape)', () => {
-    const validResult: ValidationResult = {
-      isValid: true,
-      parsedInput: {},
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
-    }
-    // the real API sends dates as plain YYYY-MM-DD strings, not Date objects -
-    // this simulates that shape to guard against calling Date-only methods on a string
+    const validResult: ValidationResult = exampleValidResult
     const mockCalculationResult: OutputCalculation = JSON.parse(JSON.stringify(sampleCalculationResult))
     dtoService.validatePayload.mockReturnValue(validResult)
     dtoService.calculateDtoSentence.mockResolvedValue(mockCalculationResult)
@@ -236,7 +297,7 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('#detailed-breakdown').text()).toContain('(14 June 2026 to 28 June 2026)')
+        expect($('#results-breakdown-tab').text()).toContain('14 June 2026 to 28 June 2026')
       })
   })
 
@@ -246,16 +307,15 @@ describe('POST /calculate', () => {
     }
 
     const validResult: ValidationResult = {
-      isValid: true,
+      ...exampleValidResult,
       parsedInput: {
-        remandDays: 33,
+        remandStartDate: new Date(Date.UTC(2032, 11, 20)),
+        remandStartDateString: '20 December 2032',
         taggedBailDays: 44,
         sentenceLengthMonths: 22,
-        sentenceDate: new Date('01/22/2033'),
-        sentenceDateString: '01/22/2033',
+        sentenceDate: new Date(Date.UTC(2033, 0, 22)),
+        sentenceDateString: '22 January 2033',
       },
-      errors: [],
-      payload: { offenderName: 'Place Holder', inputIndividualSentences: [] },
     }
 
     dtoService.validatePayload.mockReturnValue(validResult)
@@ -268,15 +328,14 @@ describe('POST /calculate', () => {
       .expect(200)
       .expect(res => {
         const $ = cheerio.load(res.text)
-        expect($('.govuk-back-link').prop('href')).toContain(`remandDays=${validResult.parsedInput.remandDays}`)
+        expect($('.govuk-back-link').prop('href')).toContain('remandStartDate=2032-12-20')
       })
   })
 
   it('should render the new calculation page when the payload is invalid', () => {
     const invalidResult: ValidationResult = {
+      ...exampleValidResult,
       isValid: false,
-      parsedInput: {},
-      errors: [],
     }
     dtoService.validatePayload.mockReturnValue(invalidResult)
 
@@ -317,6 +376,7 @@ describe('POST /calculate', () => {
 
     const validatedPayload: InputSentences = {
       offenderName: 'Place Holder',
+      erdEligible: true,
       inputIndividualSentences: [],
     }
 
@@ -335,5 +395,95 @@ describe('POST /calculate', () => {
       .expect(res => {
         expect(dtoService.calculateDtoSentence).toHaveBeenCalledWith(validatedPayload)
       })
+  })
+})
+
+describe('back link from the calculation breakdown page', () => {
+  // the rest of this file mocks DtoService - these tests need the real one, so the back link is
+  // built from what the form really produces. Only the API call is mocked
+  const RealDtoService: typeof DtoService = jest.requireActual('../services/dtoService').default
+
+  let appWithRealDtoService: Express
+
+  beforeEach(() => {
+    yjbApiClient.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
+    appWithRealDtoService = appWithAllRoutes({
+      services: { dtoService: new RealDtoService(yjbApiClient), yjbApiClient },
+    })
+  })
+
+  const completedForm = {
+    'sentence-date-day': '29',
+    'sentence-date-month': '6',
+    'sentence-date-year': '2026',
+    'sentence-length-months': '11',
+    'remand-start-date-day': '14',
+    'remand-start-date-month': '6',
+    'remand-start-date-year': '2026',
+    'tagged-bail-days': '5',
+    'erd-eligibility': 'true',
+  }
+
+  async function submitForm(form: Record<string, string>): Promise<cheerio.CheerioAPI> {
+    const response = await request(appWithRealDtoService).post('/calculate').type('form').send(form).expect(200)
+    return cheerio.load(response.text)
+  }
+
+  async function followLink(href: string): Promise<cheerio.CheerioAPI> {
+    const response = await request(appWithRealDtoService).get(href).expect(200)
+    return cheerio.load(response.text)
+  }
+
+  it('refills the form with everything that was submitted', async () => {
+    const breakdownPage = await submitForm(completedForm)
+    const backHref = breakdownPage('.govuk-back-link').attr('href')
+
+    const formPage = await followLink(backHref)
+
+    expect(formPage('#sentence-date-day').attr('value')).toBe('29')
+    expect(formPage('#sentence-date-month').attr('value')).toBe('6')
+    expect(formPage('#sentence-date-year').attr('value')).toBe('2026')
+    expect(formPage('#sentence-length-months').attr('value')).toBe('11')
+    expect(formPage('#remand-start-date-day').attr('value')).toBe('14')
+    expect(formPage('#remand-start-date-month').attr('value')).toBe('6')
+    expect(formPage('#remand-start-date-year').attr('value')).toBe('2026')
+    expect(formPage('#tagged-bail-days').attr('value')).toBe('5')
+    expect(formPage('input[name="erd-eligibility"]:checked').attr('value')).toBe('true')
+  })
+
+  it('refills the ERD eligibility answer when the child is not eligible', async () => {
+    const breakdownPage = await submitForm({ ...completedForm, 'erd-eligibility': 'false' })
+    const backHref = breakdownPage('.govuk-back-link').attr('href')
+
+    const formPage = await followLink(backHref)
+
+    expect(formPage('input[name="erd-eligibility"]:checked').attr('value')).toBe('false')
+  })
+
+  it('uses the same link for "Edit"', async () => {
+    const breakdownPage = await submitForm(completedForm)
+
+    const backHref = breakdownPage('.govuk-back-link').attr('href')
+    const changeAnswersHref = breakdownPage('.govuk-summary-card__actions .govuk-link').attr('href')
+
+    expect(changeAnswersHref).toBe(backHref)
+  })
+
+  it('does not put "undefined" in the link when the optional remand and tagged bail are left blank', async () => {
+    const breakdownPage = await submitForm({
+      ...completedForm,
+      'remand-start-date-day': '',
+      'remand-start-date-month': '',
+      'remand-start-date-year': '',
+      'tagged-bail-days': '',
+    })
+    const backHref = breakdownPage('.govuk-back-link').attr('href')
+
+    expect(backHref).not.toContain('undefined')
+
+    const formPage = await followLink(backHref)
+    expect(formPage('#remand-start-date-day').attr('value')).toBeUndefined()
+    expect(formPage('#remand-start-date-month').attr('value')).toBeUndefined()
+    expect(formPage('#remand-start-date-year').attr('value')).toBeUndefined()
   })
 })

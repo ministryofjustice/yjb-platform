@@ -1,17 +1,17 @@
 {% extends "../partials/layout.njk" %}
 
-{% set pageTitle = applicationName + " - Calculation breakdown" %}
+{% set pageTitle = applicationName + " - Sentence calculation results" %}
 {% set mainClasses = "govuk-body" %}
-{% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/tabs/macro.njk" import govukTabs %}
 
-{% set backHref = "/calculate?remandDays=" + inputData.remandDays
+{% set backHref = "/calculate?remandStartDate=" + inputData.remandStartDateBtnStr
   + "&taggedBailDays=" + inputData.taggedBailDays
   + "&sentenceLengthMonths=" + inputData.sentenceLengthMonths
-  + "&sentenceDate=" + inputData.sentenceDateString
+  + "&sentenceDate=" + inputData.sentenceDateBtnStr
+  + "&erdEligible=" + inputData.erdEligible
 %}
 
 {% block content %}
@@ -21,18 +21,7 @@
     href: backHref
   }) }}
 
-  <h1 class="govuk-heading-l">Calculation breakdown</h1>
-
-  <div class="govuk-grid-row govuk-!-padding-left-3">
-    {{ govukButton({
-      text: "Option A",
-      attributes: { "data-action": "show-view-1" }
-    }) }}
-    {{ govukButton({
-      text: "Option B",
-      attributes: { "data-action": "show-view-2" }
-    }) }}
-  </div>
+  <h1 class="govuk-heading-l">Sentence calculation results</h1>
 
   <div class="govuk-grid-row" hidden>
       {% call govukDetails({
@@ -44,17 +33,17 @@
         <p>{{ calculationResultString }}</p>
       {% endcall %}
   </div>
-
+  {% include "../partials/calculation-breakdown/view-B.njk" %}
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-half">
 
       {{ govukSummaryList({
         card: {
-          title: { text: "Your answers" },
+          title: { text: "What you told us" },
           actions: { items: [
             {
-              text: "Change answers",
+              text: "Edit",
               href: backHref
             }
           ] }
@@ -62,36 +51,15 @@
         rows: [
           { key: { text: "Sentence date" }, value: { text: inputData.sentenceDateString } },
           { key: { text: "Sentence length" }, value: { text: inputData.sentenceLengthMonths + " months" } },
-          { key: { text: "Days spent on remand" }, value: { text: inputData.remandDays } },
-          { key: { text: "Days spent on tagged bail" }, value: { text: inputData.taggedBailDays } }
+          { key: { text: "Remand start date" }, value: { text: inputData.remandStartDateString or "0" } },
+          { key: { text: "Days spent on tagged bail" }, value: { text: inputData.taggedBailDays } },
+          { key: { text: "Eligibility for early release" }, value: { text: inputData.erdEligibility } }
         ]
       }) }}
     </div>
   </div>
-
-  {% include "../partials/calculation-breakdown/view-A.njk" %}
-  {% include "../partials/calculation-breakdown/view-B.njk" %}
-
-{% endblock %}
-
-{% block bodyEnd %}
-  {{ super() }}
-  <script nonce="{{ cspNonce }}">
-    document.addEventListener('DOMContentLoaded', () => {
-      const btnView1 = document.querySelector('[data-action="show-view-1"]')
-      const btnView2 = document.querySelector('[data-action="show-view-2"]')
-      const view1 = document.getElementById('view-1')
-      const view2 = document.getElementById('view-2')
-
-      btnView1?.addEventListener('click', () => {
-        view1.hidden = false;
-        view2.hidden = true;
-      });
-
-      btnView2?.addEventListener('click', () => {
-        view1.hidden = true;
-        view2.hidden = false;
-      });
-    });
-  </script>
+  
+    <div class="govuk-grid-row govuk-!-padding-left-3 govuk-!-padding-top-4">
+      <a id="new-calculation-link-b" href="/calculate">Start a new DTO calculation</a>
+    </div>
 {% endblock %}
