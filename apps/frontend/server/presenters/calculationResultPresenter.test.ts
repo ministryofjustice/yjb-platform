@@ -32,6 +32,7 @@ describe('calculationResultPresenter', () => {
       finalMtd: 'Friday, 27 November 2026',
       etd: 'Tuesday, 27 October 2026',
       ltd: 'Sunday, 27 December 2026',
+      erd: 'Tuesday, 27 October 2026',
     })
   })
 
@@ -62,6 +63,49 @@ describe('calculationResultPresenter', () => {
     expect(breakdownObj.etdBreakdown).toBe('1 month away from the MTD for DTOs with terms from 8 to 18 months')
     expect(breakdownObj.ltdDate).toBe('Sunday, 27 December 2026')
     expect(breakdownObj.ltdBreakdown).toBe('1 month away from the MTD for DTOs with terms from 8 to 18 months')
+  })
+
+  it('splits the ERD into the date and the explanation', () => {
+    expect(breakdownObj.erdDate).toBe('Tuesday, 27 October 2026')
+    expect(breakdownObj.erdBreakdown).toBe('1 month away from the MTD for DTOs with terms from 8 to 18 months')
+  })
+
+  it('shows only the message for an ERD that the child is eligible for but was not calculated', () => {
+    const result: OutputCalculation = {
+      ...sampleCalculationResult,
+      erd: {
+        data: 0,
+        metadata: {
+          status: DtoEligibilityStatus.notCalculated,
+          message: 'Not applicable for DTOs with terms less than 8 months',
+        },
+      },
+    }
+
+    const presented = new CalculationResultPresenter().present(result)
+
+    expect(presented.breakdownObj.erdDate).toBe('')
+    expect(presented.breakdownObj.erdBreakdown).toBe('Not applicable for DTOs with terms less than 8 months')
+    expect(presented.resultDates.erd).toBe('Not applicable for DTOs with terms less than 8 months')
+  })
+
+  it('shows only the message for the ERD when the child is not eligible for early release', () => {
+    const result: OutputCalculation = {
+      ...sampleCalculationResult,
+      erd: {
+        data: 0,
+        metadata: {
+          status: DtoEligibilityStatus.notEligible,
+          message: 'Not eligible for early release',
+        },
+      },
+    }
+
+    const presented = new CalculationResultPresenter().present(result)
+
+    expect(presented.breakdownObj.erdDate).toBe('')
+    expect(presented.breakdownObj.erdBreakdown).toBe('Not eligible for early release')
+    expect(presented.resultDates.erd).toBe('Not eligible for early release')
   })
 
   it('shows only the message for a transfer date that was not calculated', () => {

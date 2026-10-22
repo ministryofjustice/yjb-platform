@@ -105,6 +105,30 @@ describe('GET /calculate', () => {
           expect($(elementId).attr('value')).toContain(value)
         })
     })
+
+    it.each([
+      ['true', 'true'],
+      ['false', 'false'],
+    ])('the ERD eligibility answer selected when queryString erdEligible=%s is passed', (value, expectedValue) => {
+      return request(app)
+        .get(`/calculate?erdEligible=${value}`)
+        .expect(res => {
+          const $ = cheerio.load(res.text)
+          expect($('input[name="erd-eligibility"]:checked').attr('value')).toBe(expectedValue)
+        })
+    })
+
+    it.each([
+      ['missing', ''],
+      ['not true or false', '?erdEligible=undefined'],
+    ])('no ERD eligibility answer selected when the queryString value is %s', (_description, queryString) => {
+      return request(app)
+        .get(`/calculate${queryString}`)
+        .expect(res => {
+          const $ = cheerio.load(res.text)
+          expect($('input[name="erd-eligibility"]:checked').length).toBe(0)
+        })
+    })
   })
 })
 
@@ -217,6 +241,28 @@ describe('POST /calculate', () => {
         expect(detailedBreakdown).toContain(breakdownObj.finalMtdBreakdown)
         expect(detailedBreakdown).toContain(breakdownObj.etdBreakdown)
         expect(detailedBreakdown).toContain(breakdownObj.ltdBreakdown)
+        expect(detailedBreakdown).toContain(breakdownObj.erdBreakdown)
+      })
+  })
+
+  it.each([
+    [true, 'Eligible'],
+    [false, 'Not Eligible'],
+  ])('should show the ERD eligibility answer %s as "%s" in What you told us', (erdEligible, expected) => {
+    const validResult: ValidationResult = { ...exampleValidResult, parsedInput: { erdEligible } }
+    dtoService.validatePayload.mockReturnValue(validResult)
+    dtoService.calculateDtoSentence.mockResolvedValue(sampleCalculationResult)
+
+    return request(app)
+      .post('/calculate')
+      .expect('Content-Type', /html/)
+      .expect(200)
+      .expect(res => {
+        const $ = cheerio.load(res.text)
+        const erdRow = $('.govuk-summary-card .govuk-summary-list__row').filter((_, row) =>
+          $(row).find('.govuk-summary-list__key').text().includes('Eligibility for early release'),
+        )
+        expect(erdRow.find('.govuk-summary-list__value').text().trim()).toBe(expected)
       })
   })
 
@@ -402,6 +448,16 @@ describe('back link from the calculation breakdown page', () => {
     expect(formPage('#remand-start-date-month').attr('value')).toBe('6')
     expect(formPage('#remand-start-date-year').attr('value')).toBe('2026')
     expect(formPage('#tagged-bail-days').attr('value')).toBe('5')
+    expect(formPage('input[name="erd-eligibility"]:checked').attr('value')).toBe('true')
+  })
+
+  it('refills the ERD eligibility answer when the child is not eligible', async () => {
+    const breakdownPage = await submitForm({ ...completedForm, 'erd-eligibility': 'false' })
+    const backHref = breakdownPage('.govuk-back-link').attr('href')
+
+    const formPage = await followLink(backHref)
+
+    expect(formPage('input[name="erd-eligibility"]:checked').attr('value')).toBe('false')
   })
 
   it('uses the same link for "Edit"', async () => {

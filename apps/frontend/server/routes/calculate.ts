@@ -35,6 +35,7 @@ function getDatePartsFromQuery(queryValue: unknown): DateParts {
 export type CalculationBreakdownInputData = ParsedDtoForm & {
   sentenceDateBtnStr: string
   remandStartDateBtnStr: string
+  erdEligibility: string
 }
 
 function toBackLinkDate(date: Date | undefined): string {
@@ -49,9 +50,16 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
   const router = Router()
 
   router.get('/', async (req, res, _next) => {
-    const { sentenceLengthMonths, taggedBailDays } = req.query
+    const { sentenceLengthMonths, taggedBailDays, erdEligible } = req.query
     const sentenceDate = getDatePartsFromQuery(req.query.sentenceDate)
     const remandStartDate = getDatePartsFromQuery(req.query.remandStartDate)
+
+    let erdEligibleAnswer: boolean | undefined
+    if (erdEligible === 'true') {
+      erdEligibleAnswer = true
+    } else if (erdEligible === 'false') {
+      erdEligibleAnswer = false
+    }
 
     const formPageObject: FormPageObject = {
       // no payload has been submitted on first load, so there's nothing to
@@ -66,6 +74,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
         remandStartDateDay: remandStartDate.day,
         remandStartDateMonth: remandStartDate.month,
         remandStartDateYear: remandStartDate.year,
+        erdEligible: erdEligibleAnswer,
       },
       errorSummary: [],
       errorsByField: {},
@@ -82,13 +91,13 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
 
     if (validationResult.isValid) {
       const calculationResult: OutputCalculation = await dtoService.calculateDtoSentence(validationResult.payload)
-      const formattedCalculation: CalculationResultObj = new CalculationResultPresenter().present(calculationResult)
-
       const { parsedInput } = validationResult
+      const formattedCalculation: CalculationResultObj = new CalculationResultPresenter().present(calculationResult)
       const inputData: CalculationBreakdownInputData = {
         ...parsedInput,
         sentenceDateBtnStr: toBackLinkDate(parsedInput.sentenceDate),
         remandStartDateBtnStr: toBackLinkDate(parsedInput.remandStartDate),
+        erdEligibility: parsedInput.erdEligible ? 'Eligible' : 'Not Eligible',
       }
 
       const pageData: CalculationResultPageObject = {

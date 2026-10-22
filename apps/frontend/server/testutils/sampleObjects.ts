@@ -123,6 +123,7 @@ export const resultDates = {
   finalMtd: 'Friday 2026-11-27',
   etd: 'Tuesday 2026-10-27',
   ltd: 'Sunday 2026-12-27',
+  erd: 'Tuesday 2026-10-27',
 }
 
 export const breakdownObj: calcBreakdown = {
@@ -139,6 +140,8 @@ export const breakdownObj: calcBreakdown = {
   etdBreakdown: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
   ltdDate: 'Sunday, 27 December 2026',
   ltdBreakdown: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
+  erdDate: 'Tuesday, 27 October 2026',
+  erdBreakdown: '1 month away from the MTD for DTOs with terms from 8 to 18 months',
 }
 
 export const sampleCalculationResult2: OutputCalculation = {
