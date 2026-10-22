@@ -54,6 +54,13 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
     const sentenceDate = getDatePartsFromQuery(req.query.sentenceDate)
     const remandStartDate = getDatePartsFromQuery(req.query.remandStartDate)
 
+    let erdEligibleAnswer: boolean | undefined
+    if (erdEligible === 'true') {
+      erdEligibleAnswer = true
+    } else if (erdEligible === 'false') {
+      erdEligibleAnswer = false
+    }
+
     const formPageObject: FormPageObject = {
       // no payload has been submitted on first load, so there's nothing to
       // validate, isValid is true so the error summary doesn't render
@@ -67,8 +74,7 @@ export default function calculateRoutes({ dtoService }: Partial<Services>): Rout
         remandStartDateDay: remandStartDate.day,
         remandStartDateMonth: remandStartDate.month,
         remandStartDateYear: remandStartDate.year,
-        // the back link sends the ERD answer as "true" or "false" - anything else leaves both radios unselected
-        erdEligible: erdEligible === 'true' || erdEligible === 'false' ? erdEligible === 'true' : undefined,
+        erdEligible: erdEligibleAnswer,
       },
       errorSummary: [],
       errorsByField: {},
