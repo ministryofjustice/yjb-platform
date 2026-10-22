@@ -30,6 +30,12 @@
       "enabled": false
     },
     {
+      "description": "nock 15 is ESM only and breaks the frontend Jest setup - stay on 14 until the tests are moved to support it",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["nock"],
+      "allowedVersions": "<15"
+    },
+    {
       "matchDatasources": ["docker"],
       "matchPackageNames": ["node", "hmpps-node"],
       "matchUpdateTypes": ["major"],
