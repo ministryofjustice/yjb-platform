@@ -22,7 +22,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@jgoz/esbuild-plugin-typecheck": "^4.0.5",
+    "@jgoz/esbuild-plugin-typecheck": "^5.0.0",
     "@ministryofjustice/eslint-config-hmpps": "^2.0.0-alpha.2",
     "@tsconfig/node24": "^24.0.5",
     "@types/express": "^5.0.6",
