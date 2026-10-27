@@ -1,8 +1,6 @@
 # YJB Platform
 
-A monorepo to contain applications running  the new Youth Justice Platform.
-
-## Testing git access post VPN migration, please delete this line
+A monorepo to contain applications running  the new Youth Justice Platform.esting git access post VPN migration
 
 ## Steps to run the apps
 
