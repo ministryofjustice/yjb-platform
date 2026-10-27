@@ -2,6 +2,8 @@
 
 A monorepo to contain applications running  the new Youth Justice Platform.
 
+## Testing git access post VPN migration, please delete this line
+
 ## Steps to run the apps
 
 ### Prerequisites
