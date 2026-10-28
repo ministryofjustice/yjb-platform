@@ -18,7 +18,7 @@ function appSetup(services: Services, production: boolean): Express {
     res.locals.user = user
     next()
   })
-  app.use(express.json())
+  app.use(express.json({ inflate: false }))
   app.use(express.urlencoded({ extended: true }))
   app.use(routes(services))
   app.use((_req, _res, next) => next(new NotFound()))
