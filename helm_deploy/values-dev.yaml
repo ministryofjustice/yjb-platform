@@ -14,6 +14,3 @@ generic-service:
     API_URL: 'https://yjb-platform-api-dev.apps.live.cloud-platform.service.justice.gov.uk'
     ENVIRONMENT_NAME: DEV
     AUDIT_ENABLED: "false"
-
-generic-prometheus-alerts:
-  alertSeverity: NON_PROD_ALERTS_SEVERITY_LABEL
