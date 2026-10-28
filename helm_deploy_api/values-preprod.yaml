@@ -10,6 +10,3 @@ generic-service:
   env:
     INGRESS_URL: "https://yjb-platform-api-preprod.apps.live.cloud-platform.service.justice.gov.uk"
     ENVIRONMENT_NAME: PRE-PRODUCTION
-
-generic-prometheus-alerts:
-  alertSeverity: NON_PROD_ALERTS_SEVERITY_LABEL
