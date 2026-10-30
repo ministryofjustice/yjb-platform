@@ -1,7 +1,8 @@
 /children
 - [ ] Just have POST for children - simpler
+  - Owen wants to discuss this with Ben
 - [ ] Search should return an array of child objects
-- [ ] PUT /children should be post => put is to update an existing record
+- [x] PUT /children should be post => put is to update an existing record
 - [ ] Add seperate PUT to update a child record
 
 /children/stages
