@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@jgoz/esbuild-plugin-typecheck": "^5.0.0",
-    "@ministryofjustice/eslint-config-hmpps": "^2.0.0-alpha.2",
+    "@ministryofjustice/eslint-config-hmpps": "^2.0.0-alpha.3",
     "@ministryofjustice/frontend-types": "^2.0.3",
     "@tsconfig/node24": "^24.0.5",
     "@types/bunyan": "^1.8.11",
