@@ -145,7 +145,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-    put:
+    post:
       summary: |
         Create a new child in AssetPlus, in order to subsequently create Stages
 
@@ -475,6 +475,17 @@ paths:
             Bad request
 
             The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (CYPID, SUI or PNCID).
+
+            Alternatively, some other unexpected error was found in the request data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: |
+            Forbidden
+
+            The user is attempting to PATCH a Stage that has been signed off and is no longer available for editing.
 
             Alternatively, some other unexpected error was found in the request data.
           content:
