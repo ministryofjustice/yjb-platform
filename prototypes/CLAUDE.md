@@ -8,7 +8,7 @@ Illustrative flows of screens for the Youth Justice Platform, built as static HT
   - `current-pages/`: the app's current pages, rendered from its real templates and linked into a static flow. New prototypes start as a copy of it.
   - `example-data.json`: the scenarios (form inputs and captured API outputs) and page definitions the render uses.
   - `page-contexts/`: the JSON context each page's template was rendered with.
-  - `render-manifest.json`: the commits of the app sources the last render used.
+  - `render-manifest.json`: a content hash and commit for each source the last render used: the app, the render scripts and `example-data.json`. `npm run prototype:status` compares them with now.
   - `scripts/`: render, capture, link-check and compare scripts, run via the `npm run prototype:*` scripts in the root package.json.
 - `<name>/`: one folder per prototype, each with its own `index.html` and `assets/`.
 

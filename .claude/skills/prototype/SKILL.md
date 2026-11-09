@@ -15,8 +15,8 @@ The starting point for every prototype is `prototypes/shared/current-pages/`, a 
 
 Before anything else, check whether `shared/current-pages` is out of date.
 
-1. Read `prototypes/shared/render-manifest.json`. For each path in its `sources`, compare the stored commit with `git log -1 --format=%H -- <path>`, and note any uncommitted changes (`git status --porcelain -- <path>`).
-2. If `current-pages` or the manifest is missing, or anything differs, tell the user what has changed (`git log --oneline <old>..HEAD -- <path>`) and **ask whether to re-render**. If nothing has changed, say so in one line and carry on.
+1. Run `npm run prototype:status`. It compares a content hash of each source a render depends on with the one recorded in `render-manifest.json`. The sources are the app (`apps/frontend`, `apps/api`, `packages/shared-types`), the render scripts and `example-data.json`. For each changed source it lists the commits since the last render and notes any uncommitted changes.
+2. If it suggests a re-render, summarise what changed for the user and **ask whether to re-render**. If it reports everything up to date, say so in one line and carry on.
 3. Re-render only after the user agrees, using the steps below.
 
 ### Re-rendering the current pages

@@ -1,14 +1,15 @@
 // Sends each valid scenario to the running API and saves the response into example-data.json.
 // Needs the API running (npm run dev -w apps/api); set API_URL if it isn't on localhost:3001.
 import DtoService from '../../../apps/frontend/server/services/dtoService'
+import type YjbApiClient from '../../../apps/frontend/server/data/yjbApi'
 import { loadData, saveData } from './lib'
 
 const apiUrl = process.env.API_URL ?? 'http://localhost:3001'
 
 async function main() {
   const data = loadData()
-  // validation doesn't touch the API client
-  const dtoService = new DtoService(null)
+  // validation doesn't touch the API client, so none is needed
+  const dtoService = new DtoService(null as unknown as YjbApiClient)
 
   for (const [name, scenario] of Object.entries(data.scenarios)) {
     const validation = dtoService.validatePayload(scenario.formBody)

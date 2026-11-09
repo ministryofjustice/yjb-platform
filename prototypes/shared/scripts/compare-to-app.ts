@@ -18,7 +18,11 @@ async function main() {
     let response: Response
 
     if ('followLink' in request) {
-      const href = findLinkHref(liveHtml.get(request.followLink.page), request.followLink.selector)
+      const linkedHtml = liveHtml.get(request.followLink.page)
+      if (!linkedHtml) {
+        throw new Error(`${page.file}: followLink page ${request.followLink.page} must come earlier in pages`)
+      }
+      const href = findLinkHref(linkedHtml, request.followLink.selector)
       response = await fetch(appUrl + href)
     } else if (request.method === 'POST') {
       response = await fetch(appUrl + request.path, {

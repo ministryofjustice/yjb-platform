@@ -6,7 +6,6 @@
 //      links and GET forms mapped by example-data.json, the app's UI JavaScript as a classic script (browsers
 //      refuse ES modules from file://), plus a prototype banner and index.html.
 // run.sh builds shared-types and the frontend first, so dist/server/views and the compiled CSS exist.
-import { execSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import { AddressInfo } from 'net'
@@ -27,9 +26,10 @@ import {
   OUT_DIR,
   PageSpec,
   REPO_ROOT,
-  SOURCE_PATHS,
   findLinkHref,
   loadData,
+  RenderManifest,
+  sourceState,
 } from './lib'
 
 const FRONTEND_DIR = path.join(REPO_ROOT, 'apps/frontend')
@@ -68,7 +68,7 @@ async function captureContexts(data: ExampleData): Promise<Map<string, Rendered>
   let currentScenario: string | undefined
   const stubApiClient = {
     calculateDtoSentence: async () => {
-      const output = data.scenarios[currentScenario]?.apiOutput
+      const output = currentScenario && data.scenarios[currentScenario]?.apiOutput
       if (!output) {
         throw new Error(`Scenario "${currentScenario}" has no apiOutput - run prototype:capture first`)
       }
@@ -194,7 +194,10 @@ function mapLink(href: string, links: Record<string, string>): string | undefine
   return prefix && links[prefix]
 }
 
-function toStaticPage(html: string, page: PageSpec, data: ExampleData, assets: AssetCopier): string {
+// the parts of a page spec the rewrite needs; index.html has no request, so it isn't a full PageSpec
+type StaticPage = Pick<PageSpec, 'file' | 'links' | 'formAction'>
+
+function toStaticPage(html: string, page: StaticPage, data: ExampleData, assets: AssetCopier): string {
   const $ = cheerio.load(html)
   const links = { ...data.globalLinks, ...page.links }
   const unmapped: string[] = []
@@ -285,19 +288,6 @@ ${scenarioRows}
 {% endblock %}`
 }
 
-function sourceCommits(): Record<string, { commit: string; uncommittedChanges: boolean }> {
-  const git = (args: string) => execSync(`git ${args}`, { cwd: REPO_ROOT, encoding: 'utf8' }).trim()
-  return Object.fromEntries(
-    SOURCE_PATHS.map(source => [
-      source,
-      {
-        commit: git(`log -1 --format=%H -- ${source}`),
-        uncommittedChanges: git(`status --porcelain -- ${source}`) !== '',
-      },
-    ]),
-  )
-}
-
 async function main() {
   const data = loadData()
   const rendered = await captureContexts(data)
@@ -309,8 +299,16 @@ async function main() {
   const assets = new AssetCopier(OUT_DIR)
   buildUiScript(OUT_DIR)
 
+  const renderedPage = (file: string): Rendered => {
+    const result = rendered.get(file)
+    if (!result) {
+      throw new Error(`${file} was not rendered`)
+    }
+    return result
+  }
+
   for (const page of data.pages) {
-    const { view, context } = rendered.get(page.file)
+    const { view, context } = renderedPage(page.file)
     const contextFile = path.join(CONTEXT_DIR, page.file.replace(/\.html$/, '.json'))
     fs.writeFileSync(contextFile, `${JSON.stringify({ view, context }, null, 2)}\n`)
 
@@ -320,15 +318,14 @@ async function main() {
     console.log(`rendered ${page.file} (${view})`)
   }
 
-  const { context: anyContext } = rendered.get(data.pages[0].file)
+  const { context: anyContext } = renderedPage(data.pages[0].file)
   const indexHtml = nunjucks.renderString(indexTemplate(data), anyContext)
-  const indexPage: PageSpec = { file: 'index.html', title: 'Index', description: '', request: null }
-  fs.writeFileSync(path.join(OUT_DIR, 'index.html'), toStaticPage(indexHtml, indexPage, data, assets))
+  fs.writeFileSync(path.join(OUT_DIR, 'index.html'), toStaticPage(indexHtml, { file: 'index.html' }, data, assets))
   console.log('rendered index.html')
 
   fs.writeFileSync(
     MANIFEST_FILE,
-    `${JSON.stringify({ renderedAt: new Date().toISOString(), sources: sourceCommits() }, null, 2)}\n`,
+    `${JSON.stringify({ renderedAt: new Date().toISOString(), sources: sourceState() } satisfies RenderManifest, null, 2)}\n`,
   )
 }
 
