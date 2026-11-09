@@ -3,7 +3,8 @@
 //      scenario's captured apiOutput. The context each route passes to res.render is saved as JSON in
 //      page-contexts/, then the real Nunjucks template is rendered with it.
 //   2. Rewrite the HTML into a static flow: relative asset paths (copied into current-pages/assets),
-//      links and GET forms mapped by example-data.json, no scripts, plus a prototype banner and index.html.
+//      links and GET forms mapped by example-data.json, the app's UI JavaScript as a classic script (browsers
+//      refuse ES modules from file://), plus a prototype banner and index.html.
 // run.sh builds shared-types and the frontend first, so dist/server/views and the compiled CSS exist.
 import { execSync } from 'child_process'
 import fs from 'fs'
@@ -11,6 +12,7 @@ import path from 'path'
 import { AddressInfo } from 'net'
 import express from 'express'
 import nunjucks from 'nunjucks'
+import { buildSync } from 'esbuild'
 import * as cheerio from 'cheerio'
 import nunjucksSetup from '../../../apps/frontend/server/utils/nunjucksSetup'
 import setUpWebRequestParsing from '../../../apps/frontend/server/middleware/setupRequestParsing'
@@ -41,6 +43,22 @@ const ASSET_MOUNTS = [
   path.join(NODE_MODULES, '@ministryofjustice/frontend/moj/assets'),
   path.join(NODE_MODULES, '@ministryofjustice/frontend'),
 ]
+
+const UI_SCRIPT = 'assets/js/index.js'
+
+// the frontend's own JS entry point (govuk-frontend and MOJ Frontend initAll), bundled as an IIFE
+function buildUiScript(outDir: string): void {
+  buildSync({
+    entryPoints: [path.join(FRONTEND_DIR, 'assets/js/index.ts')],
+    outfile: path.join(outDir, UI_SCRIPT),
+    bundle: true,
+    format: 'iife',
+    platform: 'browser',
+    target: 'es2018',
+    minify: true,
+    logLevel: 'warning',
+  })
+}
 
 type Rendered = { view: string; context: Record<string, unknown> }
 
@@ -181,8 +199,10 @@ function toStaticPage(html: string, page: PageSpec, data: ExampleData, assets: A
   const links = { ...data.globalLinks, ...page.links }
   const unmapped: string[] = []
 
-  // prototypes have no JavaScript; removing the inline js-enabled script too keeps components in their no-JS state
-  $('script').remove()
+  // swap the app's ES module bundle for the classic-script build of the same entry point; the GOV.UK
+  // template's inline script stays, as it sets the body classes that govuk-frontend initialises against
+  $('script[type=module]').remove()
+  $('body').append(`<script src="${UI_SCRIPT}"></script>`)
   // a web app manifest is pointless offline, and browsers refuse to load it from file://
   $('link[rel=manifest]').remove()
   $('.govuk-details__summary-text')
@@ -287,6 +307,7 @@ async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true })
   fs.mkdirSync(CONTEXT_DIR, { recursive: true })
   const assets = new AssetCopier(OUT_DIR)
+  buildUiScript(OUT_DIR)
 
   for (const page of data.pages) {
     const { view, context } = rendered.get(page.file)

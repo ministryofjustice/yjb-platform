@@ -28,7 +28,7 @@ All of these run from the repo root. The scripts are in `prototypes/shared/scrip
    - Each page has a `request` (the real route to run), `links` (app href → static file; a key ending in `*` matches by prefix), a `formAction` for pages with forms, and optional `compareIgnore` selectors for content that legitimately differs from the live app (like the current time).
 2. **Start the app:** `npm run start:dev`, in the background. It runs the frontend on :3000 and the API on :3001.
 3. **Capture API outputs:** `npm run prototype:capture`. This posts each valid scenario to the real API and stores the response as `apiOutput`.
-4. **Render:** `npm run prototype:render`. It builds the frontend, runs each page's request through the real routes, saves each template context to `shared/page-contexts/`, renders the real Nunjucks templates, and then rewrites the HTML into a static flow. If it stops on an unmapped link or a form with no `formAction`, add the mapping to `example-data.json`. Don't loosen the script.
+4. **Render:** `npm run prototype:render`. It builds the frontend, runs each page's request through the real routes, saves each template context to `shared/page-contexts/`, renders the real Nunjucks templates, and then rewrites the HTML into a static flow. That includes swapping the app's ES-module script for a classic-script build at `assets/js/index.js`. If it stops on an unmapped link or a form with no `formAction`, add the mapping to `example-data.json`. Don't loosen the script.
 5. **Test run.** All three checks must pass before you report the render as done:
    - `npm run prototype:check -- prototypes/shared/current-pages`
    - `npm run prototype:compare`, which diffs each page's `<main>` text and form state against the live app
@@ -57,7 +57,10 @@ If `prototypes/<name>/` already exists, you're editing that prototype. Read its 
    Use each component's rendered HTML as published in its design system docs or produced by its Nunjucks macro. `assets/css/index.css` already contains all of GOV.UK Frontend and MOJ Frontend, so no extra CSS is usually needed. If some is, add it to a new file in the prototype's own `assets/` and link it relatively.
 4. Navigation:
    - **Forms use `<form method="get" action="next-page.html">` with a real `<button>`.** A form can only go to one page, so each branch or error state is its own page (e.g. `check-answers-error.html`), reachable from `index.html`.
-   - **No JavaScript.** Show components in their no-JS state, or render the state the screen needs (e.g. an expanded section) directly in the HTML.
+   - **JavaScript is only the app's own UI script.** Every page ends with the GOV.UK inline `js-enabled` script and `<script src="assets/js/index.js"></script>`. That file is a classic-script build of the frontend's entry point, which initialises GOV.UK and MOJ components through `data-module` attributes, so components like tabs work as in the live app.
+     - Never write custom JavaScript.
+     - Never use `type="module"` scripts: browsers block them from file://.
+     - Never fake behaviour with scripts. Show a different state as its own page.
 5. Use realistic content: the same example people, dates and values throughout the flow, so the screens tell one consistent story.
 
 ## Step 3: banner and index
@@ -69,7 +72,7 @@ If `prototypes/<name>/` already exists, you're editing that prototype. Read its 
 
 1. `npm run prototype:check -- prototypes/<name>` must pass. It checks for:
    - broken, absolute or external references
-   - scripts
+   - `type="module"` scripts
    - links that leave the folder
    - broken `#` anchors
    - pages that can't be reached from `index.html`
@@ -90,6 +93,7 @@ At each step check:
 - GOV.UK styles and fonts are applied
 - no images are missing
 - the console shows no errors
+- interactive components such as tabs work
 
 Take screenshots of the key screens.
 

@@ -19,7 +19,7 @@ Illustrative flows of screens for the Youth Justice Platform, built as static HT
   - no `../` out of the folder, no absolute `/` paths, no external assets
   - never link between prototype folders
   - outbound `<a>` links to other websites are fine
-- **Opens from file://.** Pages are never served. Use no JavaScript (render components in their no-JS state) and no fetches.
+- **Opens from file://.** Pages are never served. Interactive components (tabs, accordions, etc.) use the app's own UI JavaScript: `assets/js/index.js`, a classic-script build of `apps/frontend/assets/js/index.ts`, loaded with `<script src="assets/js/index.js"></script>` at the end of `<body>`. Keep the GOV.UK template's inline `js-enabled` script before it. Never use `type="module"` scripts (browsers block them from file://), and never use fetches or any other custom JavaScript.
 - **Navigation.** Forms use `<form method="get" action="next-page.html">` with a real `<button>`. Error states and branches are separate pages. Every page can be reached from the folder's `index.html`, and every page carries the prototype banner linking back to it.
 - **Design priority:**
   1. the app's current conventions (existing pages, `apps/frontend` templates and SCSS)
