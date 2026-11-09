@@ -1,0 +1,17 @@
+{
+  "renderedAt": "2026-11-09T10:19:33.069Z",
+  "sources": {
+    "apps/frontend": {
+      "commit": "11f7f3c585a9e6d18535df19194ec7e254973118",
+      "uncommittedChanges": false
+    },
+    "apps/api": {
+      "commit": "11f7f3c585a9e6d18535df19194ec7e254973118",
+      "uncommittedChanges": true
+    },
+    "packages/shared-types": {
+      "commit": "c45985c7ddc8349c1ed9afb789cf1ba7d179e1a2",
+      "uncommittedChanges": false
+    }
+  }
+}

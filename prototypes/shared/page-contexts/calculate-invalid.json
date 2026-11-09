@@ -1,0 +1,40 @@
+{
+  "view": "pages/new-calculation",
+  "context": {
+    "asset_path": "/assets/",
+    "applicationName": "Youth Justice Platform",
+    "environmentName": "",
+    "environmentNameColour": "",
+    "isValid": false,
+    "formData": {
+      "sentenceDateMonth": 3,
+      "sentenceLengthMonths": 1,
+      "taggedBailDays": 0
+    },
+    "errorSummary": [
+      {
+        "text": "Please provide a valid day",
+        "href": "#sentence-date-day"
+      },
+      {
+        "text": "Please provide a valid year between 1900 and 2100",
+        "href": "#sentence-date-year"
+      },
+      {
+        "text": "Select if the child is eligible for early release",
+        "href": "#erd-eligibility"
+      },
+      {
+        "text": "Sentence length must be between 4 and 24 months",
+        "href": "#sentence-length-months"
+      }
+    ],
+    "errorsByField": {
+      "sentence-date-day": "Please provide a valid day",
+      "sentence-date-year": "Please provide a valid year between 1900 and 2100",
+      "erd-eligibility": "Select if the child is eligible for early release",
+      "sentence-length-months": "Sentence length must be between 4 and 24 months"
+    },
+    "sentenceDateError": "Please provide a valid day"
+  }
+}

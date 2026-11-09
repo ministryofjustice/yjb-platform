@@ -1,0 +1,10 @@
+{
+  "view": "pages/index",
+  "context": {
+    "asset_path": "/assets/",
+    "applicationName": "Youth Justice Platform",
+    "environmentName": "",
+    "environmentNameColour": "",
+    "currentTime": "10:19:32 on 09 November 2026"
+  }
+}

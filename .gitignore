@@ -155,3 +155,5 @@ tmp/
 
 #act 
 .act_config/secrets
+# prototype render script bundles
+prototypes/shared/scripts/.build/
