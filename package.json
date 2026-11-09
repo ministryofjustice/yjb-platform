@@ -24,7 +24,8 @@
     "prototype:capture": "prototypes/shared/scripts/run.sh capture-api-outputs",
     "prototype:render": "prototypes/shared/scripts/run.sh render",
     "prototype:check": "prototypes/shared/scripts/run.sh check-links",
-    "prototype:compare": "prototypes/shared/scripts/run.sh compare-to-app"
+    "prototype:compare": "prototypes/shared/scripts/run.sh compare-to-app",
+    "prototype:status": "prototypes/shared/scripts/run.sh render-status"
   },
   "repository": {
     "type": "git",

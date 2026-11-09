@@ -101,8 +101,8 @@ if (!fs.existsSync(index)) {
 } else {
   const reached = new Set([index])
   const queue = [index]
-  while (queue.length) {
-    for (const next of linksFrom.get(queue.shift()) ?? []) {
+  for (let page = queue.shift(); page; page = queue.shift()) {
+    for (const next of linksFrom.get(page) ?? []) {
       if (!reached.has(next)) {
         reached.add(next)
         queue.push(next)
