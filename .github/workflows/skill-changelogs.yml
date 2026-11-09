@@ -1,0 +1,27 @@
+name: Skill changelogs
+
+# Fails a PR that changes a Claude skill without recording it in that skill's changelog.md
+# (run /skill-changelog on the branch), or that edits a changelog entry already on main.
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.claude/skills/**'
+
+permissions:
+  contents: read
+
+jobs:
+  check_skill_changelogs:
+    name: Check skill changelogs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Check every changed skill has a changelog entry and version bump
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+          BRANCH: ${{ github.head_ref }}
+        run: bash .claude/skills/skill-changelog/check-changelogs.sh --strict

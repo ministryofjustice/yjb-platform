@@ -2,6 +2,7 @@
 name: prototype
 description: Build or edit an illustrative prototype flow of screens for the Youth Justice Platform, as static HTML pages in /prototypes that open straight from file://. Also re-renders the shared baseline of current pages when the app has changed.
 disable-model-invocation: true
+version: 1.0.0
 ---
 
 # Prototype a flow of screens
