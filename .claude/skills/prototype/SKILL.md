@@ -37,13 +37,16 @@ All of these run from the repo root. The scripts are in `prototypes/shared/scrip
 
 ## Step 1: brief
 
-Ask the user for anything they haven't already given:
-- the prototype's **name**, which becomes a kebab-case folder under `prototypes/`
-- **what change** it illustrates, and who it's for
-- **which screens** change, which are new, and which are unchanged but stay in the flow
-- any **example values** the new screens need (don't invent them)
+Ask with a single `AskUserQuestion` call: checkbox-style questions, not prose. Build the options from what's really there: the folders in `prototypes/`, the pages in `shared/current-pages/index.html`, and the scenarios in `example-data.json`. Skip any question the user has already answered. Ask these four:
 
-If `prototypes/<name>/` already exists, you're editing that prototype. Read its pages before changing them.
+1. **Prototype** (single choice): each existing prototype folder, to edit it, plus "New prototype". The user names a new one in "Other", and you turn it into a kebab-case folder name.
+2. **Audience** (multiple choice): user research, stakeholder or policy review, handover to developers, design exploration.
+3. **Screens that change** (multiple choice): the current pages from the index. Group them if there are more than four, e.g. the form with its edit and error variants. Ask the user to describe the change, and any new screens and where they sit in the flow, in the notes or "Other".
+4. **Example data** (single choice): use the existing scenarios in `example-data.json` (name them), "I'll provide the values", or "Ask me for each new value as you build". Never invent values.
+
+Follow up in a second `AskUserQuestion` call, still as checkboxes where possible, only for gaps the answers leave. For example, if the change description is missing, list likely changes as options and let "Other" take the rest.
+
+If the chosen prototype folder already has pages, you're editing it. Read them before changing anything.
 
 ## Step 2: build the pages
 
