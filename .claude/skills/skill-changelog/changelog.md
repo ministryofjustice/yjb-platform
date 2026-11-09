@@ -3,7 +3,7 @@
 Newest first. Each branch adds one entry covering its changes compared with main. Entries are never edited once they reach main.
 
 ## 1.0.0 · 2026-11-09 · prototypes/e2e_workflow
-<!-- skill-hash: a8580ce425cc414ed5d52210541da8d5f0f92afe -->
+<!-- skill-hash: eaff7be42ad29a2c90c261b3573b7980670f7f97 -->
 
 ### Added
 - `/skill-changelog` proposes one changelog entry per changed skill, covering everything the branch changed since it diverged from main, and writes it only after approval.
