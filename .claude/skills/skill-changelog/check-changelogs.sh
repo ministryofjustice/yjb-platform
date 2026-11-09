@@ -15,6 +15,9 @@
 # Env: BASE_REF  the branch to compare with (default origin/main, falling back to main)
 #      BRANCH    this branch's name (default GITHUB_HEAD_REF, then the current git branch)
 set -euo pipefail
+# byte-order sorting and matching, whatever the machine's locale: skill_hash sorts file names, and a
+# locale-dependent order (e.g. en_GB ignores case, CI's C locale doesn't) gives a different hash in CI
+export LC_ALL=C
 
 STRICT=false
 [ "${1:-}" = "--strict" ] && STRICT=true
