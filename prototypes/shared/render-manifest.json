@@ -1,17 +1,25 @@
 {
-  "renderedAt": "2026-11-09T12:30:38.491Z",
+  "renderedAt": "2026-11-09T17:09:08.689Z",
   "sources": {
     "apps/frontend": {
       "commit": "11f7f3c585a9e6d18535df19194ec7e254973118",
-      "uncommittedChanges": false
+      "contentHash": "1a50373481313548410ecda9e79ab381f5558a54"
     },
     "apps/api": {
       "commit": "11f7f3c585a9e6d18535df19194ec7e254973118",
-      "uncommittedChanges": false
+      "contentHash": "35dc129bceb702c0ffb2770bb3d18202e6786515"
     },
     "packages/shared-types": {
       "commit": "c45985c7ddc8349c1ed9afb789cf1ba7d179e1a2",
-      "uncommittedChanges": false
+      "contentHash": "294b5672cd9a89f0a6570e742fa87553e8017c74"
+    },
+    "prototypes/shared/scripts": {
+      "commit": "f837b9c7a30c7364b88cea1df2e8535d2665d06d",
+      "contentHash": "6a5330ab6826d47ba2d76ddcac40101873e4a18d"
+    },
+    "prototypes/shared/example-data.json": {
+      "commit": "f50abd9a946e26026b61a4f514022eefad4e5de0",
+      "contentHash": "8a111a8fbd7b90a8e28186ba3ce8b0d12d06ab93"
     }
   }
 }
