@@ -1,7 +1,8 @@
 // Checks that a prototype folder works from file:// and as a zip on its own:
 //  - every href, src, form action and CSS url() points to a file inside the folder that exists
-//  - no absolute (/...) or external (http:, //...) references, and no <script> tags; the one exception is
-//    an <a> linking out to another website, which still works from a zip
+//  - no absolute (/...) or external (http:, //...) references; the one exception is an <a> linking out to
+//    another website, which still works from a zip
+//  - no ES module scripts, which browsers refuse to load from file://
 //  - every #fragment link has a matching id on its page
 //  - every HTML page can be reached from index.html
 // Usage: run.sh check-links prototypes/<name>
@@ -56,8 +57,8 @@ for (const file of files.filter(f => f.endsWith('.html'))) {
   const targets = new Set<string>()
   linksFrom.set(file, targets)
 
-  if ($('script').length) {
-    errors.push(`${where}: has ${$('script').length} <script> tag(s); prototypes don't use JavaScript`)
+  if ($('script[type=module]').length) {
+    errors.push(`${where}: has a type="module" script, which won't load from file:// - use a classic script`)
   }
 
   $('*').each((_i, el) => {
