@@ -9,8 +9,9 @@ Illustrative flows of screens for the Youth Justice Platform, built as static HT
   - `example-data.json`: the scenarios (form inputs and captured API outputs) and page definitions the render uses.
   - `page-contexts/`: the JSON context each page's template was rendered with.
   - `render-manifest.json`: a content hash and commit for each source the last render used: the app, the render scripts and `example-data.json`. `npm run prototype:status` compares them with now.
-  - `scripts/`: render, capture, link-check and compare scripts, run via the `npm run prototype:*` scripts in the root package.json.
+  - `scripts/`: render, capture, link-check, template-check and compare scripts, run via the `npm run prototype:*` scripts in the root package.json.
 - `<name>/`: one folder per prototype, each with its own `index.html` and `assets/`.
+  - `templates/`: Nunjucks templates for the prototype's new and changed pages, laid out like `apps/frontend/server/views/`, with `contexts/<page>.json` giving the view and data for each static page and a `README.md` for developers.
 
 ## Rules
 
@@ -27,4 +28,5 @@ Illustrative flows of screens for the Youth Justice Platform, built as static HT
   3. GOV.UK Frontend
 - **Example data is never invented.** Ask the user, or use the app's test fixtures and say so.
 - **`shared/` is generated.** Don't hand-edit `current-pages/`, `page-contexts/` or `render-manifest.json`. Re-render only through `/prototype`, and only after checking with the user.
-- After any change, run `npm run prototype:check -- prototypes/<folder>`.
+- **Templates match the pages.** A prototype's templates render the same pages as its static HTML. Change both together.
+- After any change, run `npm run prototype:check -- prototypes/<folder>` and, if it has templates, `npm run prototype:templates -- prototypes/<folder>`.

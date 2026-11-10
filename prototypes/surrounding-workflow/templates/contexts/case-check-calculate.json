@@ -1,0 +1,21 @@
+{
+  "view": "pages/new-calculation",
+  "context": {
+    "user": {
+      "name": "[Your name]",
+      "team": "[Your team]"
+    },
+    "unreadNotifications": 3,
+    "isValid": true,
+    "formData": {},
+    "errorSummary": [],
+    "errorsByField": {},
+    "case": {
+      "id": "child-3",
+      "name": "[Child 3 name]",
+      "calculation": "check",
+      "backHref": "/cases/child-3",
+      "formAction": "/cases/child-3/check"
+    }
+  }
+}
