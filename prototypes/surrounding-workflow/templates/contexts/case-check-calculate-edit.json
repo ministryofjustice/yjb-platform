@@ -1,0 +1,28 @@
+{
+  "view": "pages/new-calculation",
+  "context": {
+    "user": {
+      "name": "[Your name]",
+      "team": "[Your team]"
+    },
+    "unreadNotifications": 3,
+    "isValid": true,
+    "formData": {
+      "sentenceLengthMonths": "11",
+      "taggedBailDays": "0",
+      "sentenceDateDay": 29,
+      "sentenceDateMonth": 6,
+      "sentenceDateYear": 2026,
+      "erdEligible": true
+    },
+    "errorSummary": [],
+    "errorsByField": {},
+    "case": {
+      "id": "child-3",
+      "name": "[Child 3 name]",
+      "calculation": "check",
+      "backHref": "/cases/child-3/check/results",
+      "formAction": "/cases/child-3/check"
+    }
+  }
+}

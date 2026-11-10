@@ -1,0 +1,78 @@
+{
+  "view": "pages/caseload",
+  "context": {
+    "user": {
+      "name": "[Your name]",
+      "team": "[Your team]"
+    },
+    "unreadNotifications": 3,
+    "checkRequest": {
+      "by": "[Colleague name]",
+      "childName": "[Child 3 name]",
+      "dueDate": "[Due date]",
+      "caseId": "child-3"
+    },
+    "cases": [
+      {
+        "id": "child-1",
+        "name": "[Child 1 name]",
+        "reference": "[Reference]",
+        "dateOfBirth": "[Date of birth]",
+        "assignedTo": "[Your name]",
+        "dueDate": "[Due date]",
+        "status": "first-calculation-needed",
+        "sentenceDate": "[Sentence date]"
+      },
+      {
+        "id": "child-2",
+        "name": "[Child 2 name]",
+        "reference": "[Reference]",
+        "dateOfBirth": "[Date of birth]",
+        "assignedTo": "[Your name]",
+        "dueDate": "[Due date]",
+        "status": "first-calculation-needed",
+        "sentenceDate": "[Sentence date]"
+      },
+      {
+        "id": "child-3",
+        "name": "[Child 3 name]",
+        "reference": "[Reference]",
+        "dateOfBirth": "[Date of birth]",
+        "assignedTo": "[Your name]",
+        "dueDate": "[Due date]",
+        "status": "check-needed",
+        "sentenceDate": "[Sentence date]"
+      },
+      {
+        "id": "child-4",
+        "name": "[Child 4 name]",
+        "reference": "[Reference]",
+        "dateOfBirth": "[Date of birth]",
+        "assignedTo": "[Your name]",
+        "dueDate": "[Due date]",
+        "status": "check-needed",
+        "sentenceDate": "[Sentence date]"
+      },
+      {
+        "id": "child-5",
+        "name": "[Child 5 name]",
+        "reference": "[Reference]",
+        "dateOfBirth": "[Date of birth]",
+        "assignedTo": "[Your name]",
+        "dueDate": "[Due date]",
+        "status": "mismatch",
+        "sentenceDate": "[Sentence date]"
+      },
+      {
+        "id": "child-6",
+        "name": "[Child 6 name]",
+        "reference": "[Reference]",
+        "dateOfBirth": "[Date of birth]",
+        "assignedTo": "[Your name]",
+        "dueDate": "[Due date]",
+        "status": "checked",
+        "sentenceDate": "[Sentence date]"
+      }
+    ]
+  }
+}

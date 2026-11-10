@@ -1,0 +1,39 @@
+{
+  "view": "pages/check-complete",
+  "context": {
+    "user": {
+      "name": "[Your name]",
+      "team": "[Your team]"
+    },
+    "unreadNotifications": 3,
+    "case": {
+      "id": "child-3",
+      "name": "[Child 3 name]",
+      "reference": "[Reference]",
+      "dateOfBirth": "[Date of birth]",
+      "assignedTo": "[Your name]",
+      "dueDate": "[Due date]",
+      "status": "checked",
+      "sentence": {
+        "type": "Detention and Training Order (DTO)",
+        "date": "29 June 2026",
+        "length": "11 months",
+        "remandStartDate": null,
+        "taggedBailDays": "0",
+        "earlyReleaseEligibility": "Eligible"
+      },
+      "calculations": [
+        {
+          "type": "First calculation",
+          "by": "[Colleague name]",
+          "date": "[Date]"
+        }
+      ],
+      "firstCalculation": {
+        "type": "First calculation",
+        "by": "[Colleague name]",
+        "date": "[Date]"
+      }
+    }
+  }
+}
