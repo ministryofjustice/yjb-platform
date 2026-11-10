@@ -1,0 +1,21 @@
+{# New. Shown after a matching check is confirmed. #}
+{% extends "../partials/layout.njk" %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "../partials/case-status-tag.njk" import caseStatusTag %}
+
+{% set pageTitle = applicationName + " - Calculation checked" %}
+{% set mainClasses = "govuk-body" %}
+{% set primaryNavigation = "caseload" %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {{ govukPanel({ titleText: "Calculation checked", text: "for " + case.name }) }}
+      <p class="govuk-body">The sentence dates are confirmed. We've told {{ case.firstCalculation.by }}.</p>
+      <p class="govuk-body">The case status is now {{ caseStatusTag(case.status) }}</p>
+      <p class="govuk-body"><a class="govuk-link" href="/">Return to your caseload</a></p>
+    </div>
+  </div>
+
+{% endblock %}

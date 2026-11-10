@@ -1,0 +1,22 @@
+{# New. Shown after a first calculation is saved to a case. #}
+{% extends "../partials/layout.njk" %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "../partials/case-status-tag.njk" import caseStatusTag %}
+
+{% set pageTitle = applicationName + " - Calculation saved" %}
+{% set mainClasses = "govuk-body" %}
+{% set primaryNavigation = "caseload" %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {{ govukPanel({ titleText: "Calculation saved", text: "for " + case.name }) }}
+      <h2 class="govuk-heading-m">What happens next</h2>
+      <p class="govuk-body">A colleague in {{ user.team }} will check your calculation by doing their own from blank. We'll send you a notification when they've finished.</p>
+      <p class="govuk-body">The case status is now {{ caseStatusTag(case.status) }}</p>
+      <p class="govuk-body"><a class="govuk-link" href="/">Return to your caseload</a></p>
+    </div>
+  </div>
+
+{% endblock %}

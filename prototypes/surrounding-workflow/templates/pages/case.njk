@@ -1,0 +1,74 @@
+{# New. One child's case: what to do next, their details, the sentence from court and the calculations so far. #}
+{% extends "../partials/layout.njk" %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "../partials/case-status-tag.njk" import caseStatusTag %}
+
+{% set pageTitle = applicationName + " - " + case.name + " - Case" %}
+{% set mainClasses = "govuk-body" %}
+{% set primaryNavigation = "caseload" %}
+
+{% block content %}
+
+  {{ govukBackLink({ text: "Back to caseload", href: "/" }) }}
+  <span class="govuk-caption-l">Case</span>
+  <h1 class="govuk-heading-l">{{ case.name }}</h1>
+  <p class="govuk-body">{{ caseStatusTag(case.status) }} <span class="govuk-!-margin-left-2">Due by {{ case.dueDate }}</span></p>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h2 class="govuk-heading-m">What you need to do</h2>
+      {% if case.status == "check-needed" %}
+        <p class="govuk-body">{{ case.firstCalculation.by }} has calculated the sentence dates for this case. Check them by doing your own calculation from blank, using the court documents.</p>
+        {{ govukInsetText({ text: "The first calculation's dates stay hidden until you've finished your check, so your calculation is independent." }) }}
+        {{ govukButton({ text: "Start check calculation", href: "/cases/" + case.id + "/check", isStartButton: true }) }}
+      {% else %}
+        <p class="govuk-body">Calculate the sentence dates for this Detention and Training Order. When you save it, a colleague in {{ user.team }} will check it by doing their own calculation from blank.</p>
+        {{ govukButton({ text: "Start calculation", href: "/cases/" + case.id + "/calculate", isStartButton: true }) }}
+      {% endif %}
+
+      {{ govukSummaryList({
+        card: { title: { text: "Child details" } },
+        rows: [
+          { key: { text: "Reference" }, value: { text: case.reference } },
+          { key: { text: "Date of birth" }, value: { text: case.dateOfBirth } },
+          { key: { text: "Assigned to" }, value: { text: case.assignedTo } }
+        ]
+      }) }}
+
+      {{ govukSummaryList({
+        card: { title: { text: "Sentence details from the court" } },
+        rows: [
+          { key: { text: "Sentence type" }, value: { text: case.sentence.type } },
+          { key: { text: "Sentence date" }, value: { text: case.sentence.date } },
+          { key: { text: "Sentence length" }, value: { text: case.sentence.length } },
+          { key: { text: "Remand start date" }, value: { text: case.sentence.remandStartDate or "None" } },
+          { key: { text: "Days spent on tagged bail" }, value: { text: case.sentence.taggedBailDays } },
+          { key: { text: "Eligibility for early release" }, value: { text: case.sentence.earlyReleaseEligibility } }
+        ]
+      }) }}
+
+      <h2 class="govuk-heading-m">Calculation history</h2>
+      {% if case.calculations | length %}
+        {% set historyRows = [] %}
+        {% for calculation in case.calculations %}
+          {% set historyRows = (historyRows.push([
+            { text: calculation.type },
+            { text: calculation.by },
+            { text: calculation.date }
+          ]), historyRows) %}
+        {% endfor %}
+        {{ govukTable({
+          head: [{ text: "Calculation" }, { text: "By" }, { text: "Date" }],
+          rows: historyRows
+        }) }}
+      {% else %}
+        <p class="govuk-body">No calculations have been recorded for this case yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+{% endblock %}

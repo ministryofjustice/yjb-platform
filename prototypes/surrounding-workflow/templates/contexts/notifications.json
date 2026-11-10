@@ -1,0 +1,40 @@
+{
+  "view": "pages/notifications",
+  "context": {
+    "user": {
+      "name": "[Your name]",
+      "team": "[Your team]"
+    },
+    "unreadNotifications": 3,
+    "notifications": [
+      {
+        "unread": true,
+        "heading": "Check needed: [Child 3 name]",
+        "body": "[Colleague name] has finished the first calculation. Check it by [Due date].",
+        "time": "[Date and time]",
+        "caseId": "child-3",
+        "linkText": "Check the calculation"
+      },
+      {
+        "unread": true,
+        "heading": "New case assigned: [Child 1 name]",
+        "body": "A first calculation is needed by [Due date].",
+        "time": "[Date and time]",
+        "caseId": "child-1",
+        "linkText": "Start the calculation"
+      },
+      {
+        "unread": true,
+        "heading": "Mismatch: [Child 5 name]",
+        "body": "Your check did not match [Colleague name]’s first calculation. Agree the correct dates and recalculate.",
+        "time": "[Date and time]"
+      },
+      {
+        "unread": false,
+        "heading": "Checked: [Child 6 name]",
+        "body": "[Colleague name] checked your calculation and it matched.",
+        "time": "[Date and time]"
+      }
+    ]
+  }
+}

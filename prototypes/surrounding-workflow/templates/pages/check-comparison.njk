@@ -1,0 +1,69 @@
+{# New. A check calculation compared with the first calculation, date by date. #}
+{% extends "../partials/layout.njk" %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+
+{% set differences = comparison.rows | rejectattr("matches") | length %}
+{% set pageTitle = applicationName + (" - Calculations match" if not differences else " - Calculations do not match") %}
+{% set mainClasses = "govuk-body" %}
+{% set primaryNavigation = "caseload" %}
+
+{% block content %}
+
+  {{ govukBackLink({ text: "Back", href: "/cases/" + case.id + "/check/results" }) }}
+  <span class="govuk-caption-l">Check calculation for {{ case.name }}</span>
+  <h1 class="govuk-heading-l">{{ "The calculations match" if not differences else "The calculations do not match" }}</h1>
+
+  {% set comparisonRows = [] %}
+  {% for row in comparison.rows %}
+    {% set keyHtml %}{{ row.key }}{% if row.hint %}<span class="govuk-hint govuk-!-font-size-16 govuk-!-margin-bottom-0 govuk-!-display-block">{{ row.hint }}</span>{% endif %}{% endset %}
+    {% set comparisonRows = (comparisonRows.push([
+      { html: keyHtml },
+      { text: row.first },
+      { text: row.check },
+      { html: govukTag({ text: "Matches", classes: "govuk-tag--green" }) if row.matches else govukTag({ text: "Different", classes: "govuk-tag--red" }) }
+    ]), comparisonRows) %}
+  {% endfor %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      {% if differences %}
+        {{ govukWarningText({
+          text: differences + " dates are different. Don’t use either calculation until you and " + comparison.firstBy + " agree the correct dates."
+        }) }}
+      {% else %}
+        <p class="govuk-body">Your check gives the same dates as {{ comparison.firstBy }}’s first calculation.</p>
+      {% endif %}
+
+      {{ govukTable({
+        caption: "Dates compared",
+        captionClasses: "govuk-table__caption--m",
+        firstCellIsHeader: true,
+        head: [
+          { text: "Date" },
+          { html: 'First calculation<span class="govuk-!-display-block govuk-!-font-weight-regular">by ' + (comparison.firstBy | escape) + '</span>' },
+          { html: 'Your check<span class="govuk-!-display-block govuk-!-font-weight-regular">by ' + (comparison.checkBy | escape) + '</span>' },
+          { text: "Result" }
+        ],
+        rows: comparisonRows
+      }) }}
+
+      {% if differences %}
+        <h2 class="govuk-heading-m">What to do next</h2>
+        <p class="govuk-body">Compare what each of you entered against the court documents. We've told {{ comparison.firstBy }} about the mismatch.</p>
+        <div class="govuk-button-group">
+          {{ govukButton({ text: "Change your answers", href: "/cases/" + case.id + "/check/edit", classes: "govuk-button--secondary" }) }}
+          <a class="govuk-link" href="/">Return to your caseload</a>
+        </div>
+      {% else %}
+        <form method="post" action="/cases/{{ case.id }}/check/confirm">
+          {{ govukButton({ text: "Confirm dates are checked" }) }}
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+{% endblock %}

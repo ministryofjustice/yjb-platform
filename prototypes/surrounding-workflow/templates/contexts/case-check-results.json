@@ -1,0 +1,138 @@
+{
+  "view": "pages/calculation-breakdown",
+  "context": {
+    "user": {
+      "name": "[Your name]",
+      "team": "[Your team]"
+    },
+    "unreadNotifications": 3,
+    "calculationResult": {
+      "calculatedTerms": [
+        {
+          "inputSentence": {
+            "from": "2026-06-29",
+            "durationMonths": 11
+          },
+          "totalDaysInTerm": 334,
+          "totalDaysMTD": 167,
+          "sled": {
+            "data": "2027-05-28",
+            "metadata": {
+              "dayOfWeek": "Friday",
+              "message": "334 days from the beginning of the sentence (29 June 2026)"
+            }
+          },
+          "mtd": {
+            "data": "2026-12-12",
+            "metadata": {
+              "dayOfWeek": "Saturday",
+              "message": "167 days (custodial period) from the beginning of the sentence (29 June 2026)"
+            }
+          }
+        }
+      ],
+      "effectiveDates": {
+        "totalNumberOfRemandAndTaggedBailDays": 0,
+        "sled": {
+          "data": "2027-05-28",
+          "metadata": {
+            "dayOfWeek": "Friday",
+            "status": "no-adjustments-applied",
+            "message": " No adjustments applied"
+          }
+        },
+        "mtd": {
+          "data": "2026-12-12",
+          "metadata": {
+            "dayOfWeek": "Saturday",
+            "status": "no-adjustments-applied",
+            "message": " No adjustments applied"
+          }
+        },
+        "TUSED": "1970-01-01"
+      },
+      "effectiveDatesPastAdjustments": [],
+      "ltd": {
+        "data": "2027-01-12",
+        "metadata": {
+          "status": "1_month",
+          "message": "1 month away from the MTD for DTOs with terms from 8 to 18 months",
+          "dayOfWeek": "Tuesday"
+        }
+      },
+      "etd": {
+        "data": "2026-11-12",
+        "metadata": {
+          "status": "1_month",
+          "message": "1 month away from the MTD for DTOs with terms from 8 to 18 months",
+          "dayOfWeek": "Thursday"
+        }
+      },
+      "erd": {
+        "data": "2026-11-12",
+        "metadata": {
+          "status": "1_month",
+          "message": "1 month away from the MTD for DTOs with terms from 8 to 18 months",
+          "dayOfWeek": "Thursday"
+        }
+      },
+      "unusedAdjustmentDays": 0,
+      "remandPeriodDays": 0
+    },
+    "inputData": {
+      "sentenceDateDay": 29,
+      "sentenceDateMonth": 6,
+      "sentenceDateYear": 2026,
+      "sentenceDate": "2026-06-29T00:00:00.000Z",
+      "sentenceDateString": "29 June 2026",
+      "sentenceLengthMonths": 11,
+      "taggedBailDays": 0,
+      "erdEligible": true,
+      "sentenceDateBtnStr": "2026-06-29",
+      "remandStartDateBtnStr": "",
+      "erdEligibility": "Eligible"
+    },
+    "payloadString": "{\"sentence-date-day\":\"29\",\"sentence-date-month\":\"6\",\"sentence-date-year\":\"2026\",\"sentence-length-months\":\"11\",\"remand-days\":\"\",\"remand-start-date-day\":\"\",\"remand-start-date-month\":\"\",\"remand-start-date-year\":\"\",\"tagged-bail-days\":\"\",\"erd-eligibility\":\"true\"}",
+    "breakdownObj": {
+      "termLengthBreakdown": "from 29 June 2026 to 28 May 2027",
+      "custodialPeriodBreakdown": "Term length (334) / 2",
+      "remandPeriodBreakdown": "",
+      "mtdDate": "Saturday, 12 December 2026",
+      "mtdBreakdown": "167 days (custodial period) from the beginning of the sentence (29 June 2026)",
+      "finalSledDate": "Friday, 28 May 2027",
+      "finalSledBreakdown": " No adjustments applied",
+      "finalMtdDate": "Saturday, 12 December 2026",
+      "finalMtdBreakdown": " No adjustments applied",
+      "etdDate": "Thursday, 12 November 2026",
+      "etdBreakdown": "1 month away from the MTD for DTOs with terms from 8 to 18 months",
+      "ltdDate": "Tuesday, 12 January 2027",
+      "ltdBreakdown": "1 month away from the MTD for DTOs with terms from 8 to 18 months",
+      "erdDate": "Thursday, 12 November 2026",
+      "erdBreakdown": "1 month away from the MTD for DTOs with terms from 8 to 18 months"
+    },
+    "termDates": {
+      "sled": "Friday, 28 May 2027",
+      "mtd": "Saturday, 12 December 2026"
+    },
+    "resultDates": {
+      "finalSled": "Friday, 28 May 2027",
+      "finalMtd": "Saturday, 12 December 2026",
+      "etd": "Thursday, 12 November 2026",
+      "ltd": "Tuesday, 12 January 2027",
+      "erd": "Thursday, 12 November 2026"
+    },
+    "periods": {
+      "termLength": "11 months (334 days)",
+      "custodialPeriod": "167 days",
+      "remandPeriod": "0 days"
+    },
+    "calculationResultString": "{\"calculatedTerms\":[{\"inputSentence\":{\"from\":\"2026-06-29\",\"durationMonths\":11},\"totalDaysInTerm\":334,\"totalDaysMTD\":167,\"sled\":{\"data\":\"2027-05-28\",\"metadata\":{\"dayOfWeek\":\"Friday\",\"message\":\"334 days from the beginning of the sentence (29 June 2026)\"}},\"mtd\":{\"data\":\"2026-12-12\",\"metadata\":{\"dayOfWeek\":\"Saturday\",\"message\":\"167 days (custodial period) from the beginning of the sentence (29 June 2026)\"}}}],\"effectiveDates\":{\"totalNumberOfRemandAndTaggedBailDays\":0,\"sled\":{\"data\":\"2027-05-28\",\"metadata\":{\"dayOfWeek\":\"Friday\",\"status\":\"no-adjustments-applied\",\"message\":\" No adjustments applied\"}},\"mtd\":{\"data\":\"2026-12-12\",\"metadata\":{\"dayOfWeek\":\"Saturday\",\"status\":\"no-adjustments-applied\",\"message\":\" No adjustments applied\"}},\"TUSED\":\"1970-01-01\"},\"effectiveDatesPastAdjustments\":[],\"ltd\":{\"data\":\"2027-01-12\",\"metadata\":{\"status\":\"1_month\",\"message\":\"1 month away from the MTD for DTOs with terms from 8 to 18 months\",\"dayOfWeek\":\"Tuesday\"}},\"etd\":{\"data\":\"2026-11-12\",\"metadata\":{\"status\":\"1_month\",\"message\":\"1 month away from the MTD for DTOs with terms from 8 to 18 months\",\"dayOfWeek\":\"Thursday\"}},\"erd\":{\"data\":\"2026-11-12\",\"metadata\":{\"status\":\"1_month\",\"message\":\"1 month away from the MTD for DTOs with terms from 8 to 18 months\",\"dayOfWeek\":\"Thursday\"}},\"unusedAdjustmentDays\":0,\"remandPeriodDays\":0}",
+    "case": {
+      "id": "child-3",
+      "name": "[Child 3 name]",
+      "calculation": "check",
+      "editHref": "/cases/child-3/check/edit",
+      "continueAction": "/cases/child-3/check/compare"
+    }
+  }
+}

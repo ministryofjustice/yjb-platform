@@ -1,0 +1,120 @@
+{# New. The caseworker's caseload: what needs doing, and every case they can see. #}
+{% extends "../partials/layout.njk" %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "moj/components/search/macro.njk" import mojSearch %}
+{% from "../partials/case-status-tag.njk" import caseStatusTag %}
+
+{% set pageTitle = applicationName + " - Caseload" %}
+{% set mainClasses = "govuk-body" %}
+{% set primaryNavigation = "caseload" %}
+
+{% block content %}
+
+  {% if checkRequest %}
+    {% set bannerHtml %}
+      <p class="govuk-notification-banner__heading">{{ checkRequest.by }} has finished the first calculation for {{ checkRequest.childName }}. It needs your check by {{ checkRequest.dueDate }}.
+        <a class="govuk-notification-banner__link" href="/cases/{{ checkRequest.caseId }}">Check the calculation</a>
+      </p>
+    {% endset %}
+    {{ govukNotificationBanner({ html: bannerHtml }) }}
+  {% endif %}
+
+  <span class="govuk-caption-l">{{ user.team }}</span>
+  <h1 class="govuk-heading-l">Caseload</h1>
+  <p class="govuk-body">Signed in as {{ user.name }}. You have <a class="govuk-link" href="/notifications">{{ unreadNotifications }} unread notifications</a>.</p>
+
+  {% set statusCounts = [
+    { label: "First calculation needed", status: "first-calculation-needed" },
+    { label: "Check needed", status: "check-needed" },
+    { label: "Mismatch to resolve", status: "mismatch" },
+    { label: "Checked", status: "checked" }
+  ] %}
+  {% set casesByStatus = cases | groupby("status") %}
+  <div class="govuk-grid-row">
+    {% for count in statusCounts %}
+      <div class="govuk-grid-column-one-quarter">
+        <div class="app-count-card">
+          <p class="govuk-heading-xl govuk-!-margin-bottom-1">{{ (casesByStatus[count.status] or []) | length }}</p>
+          <p class="govuk-body govuk-!-margin-bottom-0">{{ count.label }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+      {{ mojSearch({
+        action: "/",
+        method: "get",
+        input: { id: "search", name: "search" },
+        label: { text: "Search by name or reference" },
+        button: { text: "Search" }
+      }) }}
+    </div>
+  </div>
+
+  <form method="get" action="/">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-quarter">
+        {{ govukSelect({
+          id: "status",
+          name: "status",
+          label: { text: "Status" },
+          items: [
+            { value: "", text: "All statuses" },
+            { value: "first-calculation-needed", text: "First calculation needed" },
+            { value: "check-needed", text: "Check needed" },
+            { value: "mismatch", text: "Mismatch" },
+            { value: "checked", text: "Checked" }
+          ]
+        }) }}
+      </div>
+      <div class="govuk-grid-column-one-quarter">
+        {{ govukSelect({
+          id: "assigned",
+          name: "assigned",
+          label: { text: "Assigned to" },
+          items: [
+            { value: "me", text: "Me" },
+            { value: "team", text: "Everyone in " + user.team }
+          ]
+        }) }}
+      </div>
+    </div>
+    {{ govukButton({ text: "Apply filters", classes: "govuk-button--secondary" }) }}
+  </form>
+
+  {% set caseRows = [] %}
+  {% for case in cases %}
+    {% set caseRows = (caseRows.push([
+      { html: '<a class="govuk-link" href="/cases/' + case.id + '">' + (case.name | escape) + '</a>' },
+      { text: case.reference },
+      { text: case.dateOfBirth },
+      { text: case.sentenceDate },
+      { html: caseStatusTag(case.status) },
+      { text: case.dueDate },
+      { text: case.assignedTo }
+    ]), caseRows) %}
+  {% endfor %}
+
+  {% set sortable = { "aria-sort": "none" } %}
+  {{ govukTable({
+    caption: "Children's cases (" + (cases | length) + ")",
+    captionClasses: "govuk-table__caption--m",
+    attributes: { "data-module": "moj-sortable-table" },
+    head: [
+      { text: "Name", attributes: sortable },
+      { text: "Reference", attributes: sortable },
+      { text: "Date of birth", attributes: sortable },
+      { text: "Sentence date", attributes: sortable },
+      { text: "Status", attributes: sortable },
+      { text: "Due by", attributes: sortable },
+      { text: "Assigned to", attributes: sortable }
+    ],
+    rows: caseRows
+  }) }}
+
+{% endblock %}

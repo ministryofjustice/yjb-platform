@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Bundles one of the TypeScript scripts in this folder with esbuild and runs it with node.
-# Usage: run.sh <capture-api-outputs|render|check-links|compare-to-app> [args...]
+# Usage: run.sh <capture-api-outputs|render|render-status|check-links|check-templates|compare-to-app> [args...]
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
