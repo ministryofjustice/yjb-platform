@@ -93,7 +93,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompleteChild"
+                type: array
+                items:
+                  $ref:  "#/components/schemas/CompleteChild"
         '201':
           description: |
             Success response (new child)
@@ -102,7 +104,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MinimalChild"
+                type: array
+                items:
+                  $ref: "#/components/schemas/MinimalChild"
         '400':
           description: |
             Bad request
@@ -234,7 +238,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompleteChild"
+                type: array
+                items:
+                  $ref: "#/components/schemas/CompleteChild"
         '201':
           description: |
             Created: Success response (new child)
@@ -243,7 +249,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MinimalChild"
+                type: array
+                items:
+                  $ref: "#/components/schemas/MinimalChild"
         '400':
           description: |
             Bad request
