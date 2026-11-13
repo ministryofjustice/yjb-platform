@@ -42,21 +42,21 @@ paths:
       description: |
         This endpoint retrieves a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address). The response will be an array of `MinimalChild` objects, which may be empty if no matching records are found.
 
-         **Note:** Several parameters here contain personally-identifiable information and should not be sent in the querystring. If passing any of the following parameters, use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body. This applies to `family_name`, `given_names`, `date_of_birth` and `postcode`. If any of these parameters is sent in the querystring, a `405 Method Not Allowed` response will be returned.
-         
-         The `X-Parameters` header should accept either key/value pairs or JSON, for example:
-         
-         ```text
-         X-Parameters: family_name=Smith, given_names=Michael Talal, date_of_birth=2012-11-24, postcode=SW1A 0AA
-         ```
-         
-         or
-         
-         ```json
-         X-Parameters: { "family_name": "Smith", "given_names": [ "Michael", "Talal" ], "date_of_birth": "2012-11-24", "postcode": "SW1A 0AA" }
-         ```
-         
-         Optional whitespace between or within values will be ignored. `family_name =   Smith,     given_names  =Michael   Talal` will be treated exactly the same as `family_name=Smith,given_names=Michael Talal`.
+        **Note:** Several parameters here contain personally-identifiable information and should not be sent in the querystring. If passing any of the following parameters, use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body. This applies to `family_name`, `given_names`, `date_of_birth` and `postcode`. If any of these parameters is sent in the querystring, a `405 Method Not Allowed` response will be returned. Repeated requests with personally-identifiable information in the querystring will be logged and may result in the client being blocked from the API.
+        
+        The `X-Parameters` header should accept either key/value pairs or JSON, for example:
+        
+        ```text
+        X-Parameters: family_name=Smith, given_names=Michael Talal, date_of_birth=2012-11-24, postcode=SW1A 0AA
+        ```
+        
+        or
+        
+        ```json
+        X-Parameters: { "family_name": "Smith", "given_names": [ "Michael", "Talal" ], "date_of_birth": "2012-11-24", "postcode": "SW1A 0AA" }
+        ```
+        
+        Optional whitespace between or within values will be ignored. `family_name =   Smith,     given_names  =Michael   Talal` will be treated exactly the same as `family_name=Smith,given_names=Michael Talal`.
       parameters:
         - name: oypid
           in: query
@@ -221,6 +221,8 @@ paths:
         - Reviewed
       description: |
         This endpoint searches for a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address). The response will be an array of `MinimalChild` objects, which may be empty if no matching records are found.
+
+        This end point is fundmentally the same as `GET /children`, but allows personally-identifiable information to be sent in the request body, rather than in the querystring or headers. Equivalent requests to `GET /children` and `POST /children/search` should be idempotent, returning the same results for the same request parameters.
       requestBody:
         required: true
         content:
@@ -276,17 +278,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CompleteChild"
-        '201':
-          description: |
-            Created: Success response (new child)
-
-            For a new child, this will return the same `MinimalChild` object, with as many or as few properties as was supplied in the request.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/MinimalChild"
         '400':
           description: |
             Bad request
