@@ -157,7 +157,7 @@ paths:
 
         TODO: Needs review and other responses
       tags:
-        - Not yet reviewed
+        - Reviewed
       requestBody:
         required: true
         content:
@@ -178,6 +178,41 @@ paths:
                     minimum: 1
                     maximum: 999999999
                     # NHS numbers are 10 digits, so YPIDs must not collide — and are unlikely to, given that this is over 10✕ the population of the UK
+                  identifier_array:
+                    type: object
+                    $ref: "#/components/schemas/IdentifierArray"
+                    # Repeat the identifier in the array here, but with the additional properties that confirm which identifier type (SUI / NHS number or YPID) we are returning here.
+        '400':
+          description: |
+            Bad request
+
+            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object contained a non-null `ypid`.
+
+            Alternatively, some other unexpected error was found in the request data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '409':
+          description: |
+            Conflict
+
+            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same OYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+
+            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: |
+            Internal server error
+
+            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /children/search:
     post:
