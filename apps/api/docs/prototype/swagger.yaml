@@ -26,21 +26,19 @@ info:
 servers: []
 
 tags:
-- name: Reviewed
-  description: New API methods that should be correct for v0.0.2
-- name: Not yet reviewed
-  description: New API methods with WIP details, containing leftovers from v0.0.1
-- name: Existing workflows
-  description: Stub methods representing workflows that exist in the current AssetPlus processes
+  - name: Find and create children
+    description: Find and create children in AssetPlus, using identifiers or biographical details
+  - name: Find, create and update Stages
+    description: Find, create and update Stages for children in AssetPlus
 
 paths:
   /children:
     get:
-      summary: Search for a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address)
+      summary: Search for a child's record from AssetPlus, either from an identifier or from biographical details
       tags:
-        - Reviewed
+        - Find and create children
       description: |
-        This endpoint retrieves a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address). The response will be an array of `MinimalChild` objects, which may be empty if no matching records are found.
+        This endpoint retrieves a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address). The response will be an array of `CompleteChild` objects, which may be empty if no matching records are found.
 
         **Note:** Several parameters here contain personally-identifiable information and should not be sent in the querystring. If passing any of the following parameters, use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body. This applies to `family_name`, `given_names`, `date_of_birth` and `postcode`. If any of these parameters is sent in the querystring, a `405 Method Not Allowed` response will be returned. Repeated requests with personally-identifiable information in the querystring will be logged and may result in the client being blocked from the API.
         
@@ -96,17 +94,6 @@ paths:
                 type: array
                 items:
                   $ref:  "#/components/schemas/CompleteChild"
-        '201':
-          description: |
-            Success response (new child)
-
-            For a new child, this will return the same `MinimalChild` object, with as many or as few properties as was supplied in the request.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/MinimalChild"
         '400':
           description: |
             Bad request
@@ -150,14 +137,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
     post:
-      summary: |
+      summary:  Create a new child in AssetPlus, in order to subsequently create Stages
+      tags:
+        - Find and create children
+      description: |
         Create a new child in AssetPlus, in order to subsequently create Stages
 
         The `ypid` in the `MinimalChild` object in the request body must be null or zero. Any other value will be disregarded.
-
-        TODO: Needs review and other responses
-      tags:
-        - Reviewed
       requestBody:
         required: true
         content:
@@ -216,13 +202,13 @@ paths:
 
   /children/search:
     post:
-      summary: Search for a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address)
+      summary: Search for a child's record from AssetPlus, either from an identifier or from biographical details
       tags:
-        - Reviewed
+        - Find and create children
       description: |
         This endpoint searches for a child's record from AssetPlus, providing at least one identifier (OYPID, SUI or PNCID) or providing search parameters (name, date of birth and address). The response will be an array of `MinimalChild` objects, which may be empty if no matching records are found.
 
-        This end point is fundmentally the same as `GET /children`, but allows personally-identifiable information to be sent in the request body, rather than in the querystring or headers. Equivalent requests to `GET /children` and `POST /children/search` should be idempotent, returning the same results for the same request parameters.
+        This end point is fundmentally the same as `GET /children`, but allows personally-identifiable information to be sent in the request body, rather than in the querystring or headers. Equivalent requests to `GET /children` and `POST /children/search` must be idempotent, returning the same results for the same request parameters.
       requestBody:
         required: true
         content:
@@ -312,12 +298,13 @@ paths:
 
   /children/{ypid}/:
     get:
-      summary: |
-        Fetch the full AssetPlus data packet for the given child
-
-        TODO: Needs other response types
+      summary: Fetch the full AssetPlus data packet for the specified child
       tags:
-        - Existing workflows
+        - Find and create children
+      description: |
+        Fetch the full AssetPlus data packet for the specified child, specified in the path `ypid` parameter. The response will be a `CompleteChild` object showing all known data for the child.
+
+        Note that future versions of this API might additionally accept other identifiers.
       parameters:
         - $ref: "#/components/parameters/ypidParameter"
       responses:
@@ -326,20 +313,48 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Stage"
+                $ref: "#/components/schemas/CompleteChild"
+        '400':
+          description: |
+            Bad request
+
+            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: |
+            Not Found
+
+            The provided `ypid` does not exist or is not associated with any child in the system.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: |
+            Internal server error
+
+            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /children/{ypid}/stages/:
+    parameters:
+      - $ref: "#/components/parameters/ypidParameter"
     get:
-      summary: |
-        Fetch all Stages for the given child
-
-        TODO: Needs other response types; check the 200 response makes sense
+      summary: Fetch all Stages for the specified child
       tags:
-        - Existing workflows
-      parameters:
-        - $ref: "#/components/parameters/ypidParameter"
+        - Find, create and update Stages
+      description: |
+        Fetch all Stages for the givin child. The response will be an array of `Stage` objects showing all signed-off Stages for the child specified in the path `ypid` parameter, and any partial Stages that have been saved for that child by the organisation making the request.
+
+        Note that this method will return different results depending on the organisation and user making the request, and the current state of the Stages. For example, a user from an organisation with a saved partial Stage and an updated Stage received from another organisation will receive a “rebased” Stage, containing the updates from the other organisation, but with their own partial Stage changes applied thereafter. Other organisations requesting Stages for the same child would not see the saved partial Stage, which is only available to the organisation that saved it.
+
+        Note that future versions of this API might additionally accept other identifiers.
       responses:
         '200':
           description: Successful response
@@ -349,14 +364,41 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Stage"
+        '400':
+          description: |
+            Bad request
+
+            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: |
+            Not Found
+
+            The provided `ypid` does not exist or is not associated with any child in the system.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: |
+            Internal server error
+
+            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     post:
-      summary: Create a new AssetPlus Stage
+      summary: Create a new AssetPlus Stage for the specified child
       tags:
-        - Not yet reviewed
+        - Find, create and update Stages
       description: |
-        This endpoint creates a new AssetPlus record-stub. The request body must include the base demographic information to be able to disambiguate a child — either a OYPID or a SUI. The response will include a unique AssetPlus record identifier, which can be used to retrieve or update the record in subsequent API calls.
-      parameters:
-        - $ref: "#/components/parameters/ypidParameter"
+        This endpoint creates a new AssetPlus record-stub for the child specified in the path `ypid` parameter. The request body must include a `MinimalChild` object, which will be used to confirm that the new Stage is being created for the expected child. The response will include the `stageid` of the newly-created Stage, which can then be used to subsequently update that Stage.
+
+        It is not possible to create a Stage for a child who is not already known to be in the system. If the child's `ypid` is not known, then the client must first search for the child using `GET /children` or `POST /children/search`, and if the child is not found, create the child using `POST /children`. Once the child is created, the client can then create a Stage for that child using this endpoint.
       requestBody:
         required: true
         content:
@@ -369,30 +411,16 @@ paths:
       responses:
         '200':
           description: |
-            Success response (existing child)
+            Success response
 
-            For a child who is already known to the system, this will return a complete `FullChild` object, with as many or as few properties as are known to the server.
-
-            Note that a _new_ child will give a different response, with only a `CompleteChild`, which is expected to be the more common response.
-
-            As clients might struggle to accept a `201 Created` response, clients should validate whether a `200 OK` response contains only the `MinimalChild` submitted in the request or a more complete `CompleteChild`.
+            For a child who is already known to the system, this will return the `stageid` of the newly-created Stage, which can then be used to subsequently update that Stage.
           content:
             application/json:
               schema:
-                type: integer
-                minimum: 1
-                description: The internal identifier for an AssetPlus Stage
-        '201':
-          description: |
-            Success response (new child)
-
-            For a new child, this will return the same `MinimalChild` object, with as many or as few properties as was supplied in the request.
-
-            *Note:* We might send a `200 OK` header for this response in future, if clients struggle to accept a `201 Created`.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MinimalChild"
+                type: object
+                properties:
+                  stage_id:
+                    $ref: "#/components/parameters/stageidParameter"
         '400':
           description: |
             Bad request
@@ -404,18 +432,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        '405':
+        '404':
           description: |
-            Method Not Allowed
+            Not Found
 
-            The request included personally-identifying information fields (one or more of `family_name`, `given_names`, `date_of_birth` and `postcode`) in the querystring.
-
-            Either reissue the request using the HTTP header `X-Parameters` for those fields
+            The provided `ypid` does not exist or is not associated with any child in the system.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         '409':
           description: |
             Conflict
 
-            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same CYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+            The request format was valid, but identifiers in the request body conflicted. For example, the child indicated by the `ypid` in the path does not match the identifiers in the request body. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
 
             An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
           content:
@@ -437,10 +467,13 @@ paths:
       - $ref: "#/components/parameters/ypidParameter"
       - $ref: "#/components/parameters/stageidParameter"
     get:
-      tags:
-        - Not yet reviewed
       summary: Fetch an AssetPlus Stage (or partial Stage)
-      description: This endpoint retrieves an existing AssetPlus Stage, which may be a full Stage or a partial Stage.
+      tags:
+        - Find, create and update Stages
+      description: |
+        This endpoint retrieves an existing AssetPlus Stage, which may be a full Stage or a partial Stage.
+
+        Partial Stages will only be provided to a user from the organisation that created the partial Stage. Other organisations requesting a `stageid` that corresponds to a partial Stage will receive a 409 Conflict response, as if the `stageid` does not exist.
       responses:
         '200':
           description: Success response, including the requested Stage, including a `MinimalChild` object, which must be used to confirm that the response relates to the expected child.
@@ -454,19 +487,18 @@ paths:
           description: |
             Bad Request
             
-            Some unexpected error occurred with the request data, unrelated to any mismatch between the child and the `stageid`.
+            Some unexpected error occurred with the request data, unrelated to any mismatch between the child and the `stageid`. For example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        '404':
+        '409':
           description: |
-            Not Found
+            Conflict
 
-            The provided `stageid` does not exist or is not associated with the child corresponding to the given `ypid`. Alternatively, if a `X-Parameters` header was provided, either the details therewithin did not correspond to the provided `ypid`.
+            The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
 
-            For the sake of security, the server will not specify which of these conditions is the case in the error response.
-          # Or maybe we want to send a 409 Conflict for mismatches?
+            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
           content:
             application/json:
               schema:
@@ -481,11 +513,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
     patch:
-      tags:
-        - Not yet reviewed
       summary: Save a partial update to an existing AssetPlus Stage
+      tags:
+        - Find, create and update Stages
       description: |
-        This endpoint saves a partial update to an existing AssetPlus record. The request body must include at least one property to update. The response will just be an acknowledgement of the update, with no content, or an error response.
+        This endpoint saves a partial update to an existing AssetPlus record. The request body must include at least one property to update. The response will just be an acknowledgement of the update, with no content, or an error response. The response may optionally include a notification message saying that someone else also has a partial Stage open for this child.
       requestBody:
         required: true
         content:
@@ -508,7 +540,7 @@ paths:
           description: |
             Bad request
 
-            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (CYPID, SUI or PNCID).
+            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
 
             Alternatively, some other unexpected error was found in the request data.
           content:
@@ -519,7 +551,7 @@ paths:
           description: |
             Forbidden
 
-            The user is attempting to PATCH a Stage that has been signed off and is no longer available for editing.
+            The user is attempting to PATCH a Stage that has been signed off and is no longer available for editing. Alternatively, the user may be attempting to PATCH a Stage that was created by another organisation.
 
             Alternatively, some other unexpected error was found in the request data.
           content:
@@ -530,7 +562,7 @@ paths:
           description: |
             Conflict
 
-            The request format was valid, but identifiers in the request conflicted with existing records in the system. For example, if a child with the same OYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+            The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
 
             An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
           content:
@@ -547,11 +579,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
     put:
-      tags:
-        - Not yet reviewed
       summary: Save a complete update to an existing AssetPlus record
+      tags:
+        - Find, create and update Stages
       description: |
         This endpoint saves a complete update to an existing AssetPlus record. The request body must include the unique AssetPlus record identifier, and all properties to update.
+
+        As might be expected, this will replace any existing record with the new data, and any properties not included in the request body will be removed from the record, irrespective of whether or not they were sent in a previous PATCH request. The response will just be an acknowledgement of the update, with no content, or an error response. The response may optionally include a notification message saying that someone else also has a partial Stage open for this child.
       requestBody:
         required: true
         content:
@@ -563,12 +597,29 @@ paths:
                   $ref: "#/components/schemas/Stage"
       responses:
         '200':
-          description: Success response
+          description: Success response, optionally containing a notification message saying that someone else also has a partial Stage open for this child.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+                minimumItems: 0
+                maximumItems: 1
         '400':
           description: |
             Bad request
 
-            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (CYPID, SUI or PNCID).
+            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
+
+            Alternatively, some other unexpected error was found in the request data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: |
+            Forbidden
+
+            The user is attempting to PUT a Stage that has been signed off and is no longer available for editing. Alternatively, the user may be attempting to PUT a Stage that was created by another organisation.
 
             Alternatively, some other unexpected error was found in the request data.
           content:
@@ -579,7 +630,7 @@ paths:
           description: |
             Conflict
 
-            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same CYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+            The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
 
             An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
           content:
