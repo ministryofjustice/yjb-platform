@@ -646,6 +646,59 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      summary: Delete an existing AssetPlus record
+      tags:
+        - Find, create and update Stages
+      description: |
+        This endpoint deletes an existing AssetPlus record. The request body must include the unique AssetPlus record identifier. Users can only delete Stages that they have created by a user in their own organisation and that have not yet been signed off.
+
+        The response will just be an acknowledgement of the deletion, with no content, or an error response.
+      responses:
+        '200':
+          description: Success response — the Stage was succesfully deleted, and the response body will be empty.
+        '400':
+          description: |
+            Bad request
+
+            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
+
+            Alternatively, some other unexpected error was found in the request data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: |
+            Forbidden
+
+            The user is attempting to DELETE a Stage that has been signed off and is no longer available for editing. Alternatively, the user may be attempting to DELETE a Stage that was created by another organisation.
+
+            Alternatively, some other unexpected error was found in the request data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '409':
+          description: |
+            Conflict
+
+            The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
+
+            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: |
+            Internal server error
+
+            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   parameters:
