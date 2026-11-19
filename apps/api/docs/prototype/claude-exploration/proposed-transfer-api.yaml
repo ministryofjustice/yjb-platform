@@ -1,0 +1,1147 @@
+openapi: 3.0.4
+info:
+  title: Prototype API – transfer and caretaking extensions
+  description: |
+    Draft **additions** to the prototype AssetPlus API (`../swagger.yaml`). They cover the functions of today's AssetPlus case-transfer process for **YOT ↔ Secure Estate caretaking**, including the YJB Placement Service, on the assumption of a **central store** rather than CMS-to-CMS messaging.
+
+    > **⚠️ This is an illustrative draft of pseudocode for discussion, not a final spec.** It follows the conventions of `../swagger.yaml`.
+
+    This file contains **only new routes**. Existing routes (`/children`, `/children/search`, `/children/{ypid}`, `/children/{ypid}/stages`, `/children/{ypid}/stages/{stageid}`) are unchanged and remain in `../swagger.yaml`. `MinimalChild` is referenced from that file so there is a single source of truth.
+
+    Each operation cites the current-process requirement it replaces. Short refs (`AP02`, `AP06`) are listed in `documents-list.md`. Operations or properties marked `x-speculative: true` are not based on any source document.
+
+    **How the current concepts map to this API (see `api-scope-and-options.md` §3 for alternatives):**
+
+    | Today (AP06 messages) | Here |
+    | --- | --- |
+    | Data Transfer (sharing) | `POST /children/{ypid}/transfers` |
+    | Acknowledge Data Transfer | The `201 Created` response; there is no separate message |
+    | Transfer Acceptance / Rejection | `POST /transfers/{transferid}/acceptance` / `rejection` |
+    | Assessment Update | Completing a stage while a caretaking transfer is `accepted` (`POST …/stages/{stageid}/transitions`) creates a pending review for the other party |
+    | Update Acceptance / Rejection | `POST /children/{ypid}/stages/{stageid}/reviews` |
+    | Unstructured_Data + secure email | `…/stages/{stageid}/attachments` |
+
+    **Caller identity.** The caller's organisation (OU code) and role are assumed to come from the authentication token. Where a source says the YOT decides which roles may accept or reject (AP02 L891 SE009, L872 YY016), a caller without that role gets `403 Forbidden`.
+  version: 0.0.1-draft
+
+servers: []
+
+tags:
+  - name: Organisations
+    description: YOTs, secure establishments and the Placement Service, addressed by OU code
+  - name: Transfers and caretaking
+    description: Requesting, accepting, rejecting and ending caretaking (and complete) transfers
+  - name: Stage lifecycle and review
+    description: Completing, stopping, cancelling and re-opening stages, and reviewing stages shared by the other party
+  - name: Attachments
+    description: Files attached to a stage (replaces the Unstructured_Data list plus secure email)
+  - name: Placements
+    description: YJB Placement Service requests that lead to secure-estate caretaking
+  - name: Records
+    description: Merging duplicate AssetPlus records
+  - name: Reference data
+    description: Lists of controlled values
+
+paths:
+  /organisations:
+    get:
+      summary: List organisations that can send or receive transfers
+      tags: [Organisations]
+      description: |
+        Returns YOTs, secure establishments and the Placement Service, so a client can choose a transfer destination by OU code.
+
+        Today the destination is chosen by the person starting the transfer (AP06 L272) and identified by OU code in the message header (AP06 L416–419).
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: "#/components/schemas/OrganisationType"
+        - name: ou_code
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Organisation"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /children/{ypid}/transfers:
+    parameters:
+      - $ref: "#/components/parameters/ypidParameter"
+    get:
+      summary: List transfers (current and past) for a child
+      tags: [Transfers and caretaking]
+      description: |
+        Lists every transfer for the child that is visible to the caller's organisation. A transfer with status `requested` or `accepted` is what the "transferred / caretaking" flag shows today, which must distinguish requested from accepted (AP02 L875 SE026, L845 YY032).
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/TransferStatus"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transfer"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '404':
+          $ref: "#/components/responses/ChildNotFound"
+        '500':
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Request a caretaking (or complete) transfer
+      tags: [Transfers and caretaking]
+      description: |
+        Replaces the AP06 **Data Transfer** message (AP06 §6.3.1, L404–432; sharing §6.4, L476–478).
+
+        In a central store no data is copied. The recipient organisation is given access to the child's completed stages once it accepts. Before accepting, it can view the assessment, as today (AP02 L850 YY005).
+
+        The server enforces the current preconditions and returns `422` with the rule ID if one fails:
+        - `SE002` / `YY003`: the last stage is completed and no stage is in progress (AP02 L876, L846)
+        - `SE020` / `YY023`: no existing caretaking arrangement (AP02 L877, L847)
+        - `YY013`: a Host YOT cannot transfer on to another YOT (AP02 L868)
+        - `YY017`: no complete transfer for a Looked After Child (AP02 L849)
+        - `YY004` (Should): no complete transfer with breach proceedings pending (AP02 L848)
+
+        Transfers to a secure establishment must be `caretaking` (AP02 L874 SE001). They are normally created by the Placement Service via `POST /placement-requests/{placementrequestid}/decision` rather than directly. See `api-scope-and-options.md` option D for alternatives.
+
+        The `child` property confirms the request is for the expected child, following the `POST /children/{ypid}/stages` convention in `../swagger.yaml`. It mitigates the "Wrong AssetPlus" rejection reason (AP06 L339).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferRequest"
+      responses:
+        '201':
+          description: |
+            Transfer requested (status `requested`). This replaces the automatic Connectivity "acknowledge" (AP06 §6.3.2, L400).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transfer"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '422':
+          $ref: "#/components/responses/RuleViolation"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /transfers:
+    get:
+      summary: Transfer inbox and outbox for the caller's organisation
+      tags: [Transfers and caretaking]
+      description: |
+        Lets a receiving organisation find transfers waiting for a decision. Today acceptance is user-driven (AP06 L400), and users are reminded until they decide (AP02 L886 SE005). This is the polling half of `api-scope-and-options.md` option C; `/subscriptions` is the push half.
+      parameters:
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum: [incoming, outgoing]
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/TransferStatus"
+        - name: type
+          in: query
+          schema:
+            $ref: "#/components/schemas/TransferType"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transfer"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /transfers/{transferid}:
+    parameters:
+      - $ref: "#/components/parameters/transferidParameter"
+    get:
+      summary: Fetch a transfer
+      tags: [Transfers and caretaking]
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transfer"
+        '404':
+          $ref: "#/components/responses/TransferNotFound"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /transfers/{transferid}/acceptance:
+    parameters:
+      - $ref: "#/components/parameters/transferidParameter"
+    post:
+      summary: Accept a requested transfer
+      tags: [Transfers and caretaking]
+      description: |
+        Replaces **Transfer Acceptance** (AP06 §6.3.3, L456–474). The sender is notified automatically (AP02 L852 YY019). Once accepted, either party can complete and share stages (AP02 L878 SE019, L882 SE004).
+
+        For a `complete` transfer, case ownership moves to the recipient.
+      responses:
+        '200':
+          description: Accepted. Returns the updated transfer.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transfer"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/TransferNotFound"
+        '422':
+          $ref: "#/components/responses/RuleViolation"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /transfers/{transferid}/rejection:
+    parameters:
+      - $ref: "#/components/parameters/transferidParameter"
+    post:
+      summary: Reject a requested transfer, with a reason
+      tags: [Transfers and caretaking]
+      description: |
+        Replaces **Transfer Rejection** (AP06 §6.3.3). The reason must come from the initial-transfer list (AP06 L336–347, AP02 L850 YY005). See `GET /reference-data/transfer-rejection-reasons`.
+
+        Today "the framework must be deleted in the rejecting YOT" (AP02 L850 YY005). Here, the recipient simply loses access.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Rejection"
+      responses:
+        '200':
+          description: Rejected. Returns the updated transfer.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transfer"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/TransferNotFound"
+        '422':
+          $ref: "#/components/responses/RuleViolation"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /transfers/{transferid}/ending:
+    parameters:
+      - $ref: "#/components/parameters/transferidParameter"
+    post:
+      summary: End a caretaking arrangement
+      tags: [Transfers and caretaking]
+      description: |
+        Only the Home YOT can end caretaking (AP02 L890 SE008, L866 YY011). For an SE this happens when the young person leaves custody. After this, stages are no longer shared and the caretaker loses write access.
+
+        For YOT↔YOT caretaking, the outcome `complete_transfer_to_host` turns the arrangement into a complete transfer to the Host YOT (AP02 L866 YY011). This option is not valid for an SE.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferEnding"
+      responses:
+        '200':
+          description: Ended. Returns the updated transfer.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transfer"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/TransferNotFound"
+        '422':
+          $ref: "#/components/responses/RuleViolation"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /children/{ypid}/stages/{stageid}/transitions:
+    parameters:
+      - $ref: "#/components/parameters/ypidParameter"
+      - $ref: "#/components/parameters/stageidParameter"
+    post:
+      summary: Complete, stop, cancel or re-open a stage
+      tags: [Stage lifecycle and review]
+      description: |
+        `../swagger.yaml` lets clients create and edit stages, but has no explicit way to change a stage's status. Today's statuses and actions are:
+        - `complete`: needs managerial sign-off and all mandatory fields, and creates a snapshot (AP02 L525 GE059, L517 GE044)
+        - `stop`: needs a reason and creates a snapshot (AP02 L526 GE068)
+        - `cancel`: needs a reason and can only be done by the owner; hides the stage, keeps the audit trail, and reverts to the previous stage (AP02 L527 GE069)
+        - `reopen`: only from the caretaking statuses; returns the stage to `in_progress` (AP02 L858 YY026)
+
+        **Sharing.** If an `accepted` caretaking transfer exists when a stage is completed, the stage is shared with the other party and gets status `completed_shared`, replacing 'Completed – Transferred' (AP02 L857 YY025, AP06 §6.5.1). The other party must then review it via `…/reviews`.
+
+        `422` is returned for rule failures, for example `complete` without sign-off, or `reopen` from a plain `completed` stage.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StageTransition"
+      responses:
+        '200':
+          description: Transition applied. Returns the new stage status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StageStatusResponse"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '422':
+          $ref: "#/components/responses/RuleViolation"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /children/{ypid}/stages/{stageid}/reviews:
+    parameters:
+      - $ref: "#/components/parameters/ypidParameter"
+      - $ref: "#/components/parameters/stageidParameter"
+    get:
+      summary: List reviews of a shared stage
+      tags: [Stage lifecycle and review]
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '500':
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Accept or reject a stage shared by the other party
+      tags: [Stage lifecycle and review]
+      description: |
+        Replaces **Update Acceptance or Rejection** (AP06 §6.5.3, L554–556):
+        - **Accept:** the stage becomes `completed` and the sender is notified (AP02 L887 SE014, L864 YY022).
+        - **Reject:** the stage becomes `completed_rejected` (AP02 L886 SE005). The reason must come from the update list: Level of completeness, Errors of fact, Conflict in stages, Caretaking has ended, Other (AP02 L886 SE005, AP06 L341–345).
+
+        Before deciding, the reviewer can view the stage and its changes (`…/changes`) (AP02 L863 YY009, L888 SE006).
+
+        See `api-scope-and-options.md` option B for alternatives, including removing this step.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewDecision"
+      responses:
+        '201':
+          description: Review recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '422':
+          $ref: "#/components/responses/RuleViolation"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /reviews:
+    get:
+      summary: Shared stages awaiting the caller organisation's review
+      tags: [Stage lifecycle and review]
+      description: |
+        The review inbox. Users are reminded until they accept or reject (AP02 L886 SE005, L863 YY009).
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, accepted, rejected]
+            default: pending
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PendingReview"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /children/{ypid}/stages/{stageid}/changes:
+    parameters:
+      - $ref: "#/components/parameters/ypidParameter"
+      - $ref: "#/components/parameters/stageidParameter"
+    get:
+      summary: Changes in this stage compared with the previous completed stage
+      tags: [Stage lifecycle and review]
+      description: |
+        Lets the receiving party "identify the changes made" and "extract to PDF and print" (AP02 L888 SE006, L865 YY010). It also matches the AP06 audit approach of comparing a stage with the previous stage (AP06 L256).
+
+        Request `Accept: application/pdf` for a printable version.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StageChanges"
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /children/{ypid}/stages/{stageid}/attachments:
+    parameters:
+      - $ref: "#/components/parameters/ypidParameter"
+      - $ref: "#/components/parameters/stageidParameter"
+    get:
+      summary: List attachments on a stage
+      tags: [Attachments]
+      description: |
+        Replaces the `Unstructured_Data` list, which catalogued files sent "via alternate means e.g. secure email" because Connectivity could not carry them (AP06 L260–266). Attachments are uploaded at section level (AP02 L537 GE019).
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Attachment"
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '500':
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Upload an attachment to a stage
+      tags: [Attachments]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                section:
+                  type: string
+                  description: The framework section the file belongs to (AP02 L537 GE019). Values TBC.
+              required: [file]
+      responses:
+        '201':
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attachment"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /children/{ypid}/stages/{stageid}/attachments/{attachmentid}:
+    parameters:
+      - $ref: "#/components/parameters/ypidParameter"
+      - $ref: "#/components/parameters/stageidParameter"
+      - name: attachmentid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Download an attachment
+      tags: [Attachments]
+      responses:
+        '200':
+          description: The file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /placement-requests:
+    post:
+      summary: Ask the Placement Service to place a child in the secure estate
+      tags: [Placements]
+      x-speculative: true
+      description: |
+        **⚠️ Speculative.** AP02 says a YOT→SE transfer "will always be via the YJB Placement Service" (AP02 L874 SE001), and the Custody module gives placements "appropriate information to make a placement" (AP02 L484). Neither document describes the Placement Service process.
+
+        This models placement as a separate client, because Placements and the SE may in future use different client systems (User 2026-11-19).
+
+        The referenced stage would normally be a completed Placement Notification, Bail Recommendation, PSR (All options) or Post Court stage, which carry the Custody module (AP06 L365–369, AP02 L517 GE044).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlacementRequestCreate"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlacementRequest"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '422':
+          $ref: "#/components/responses/RuleViolation"
+        '500':
+          $ref: "#/components/responses/ServerError"
+    get:
+      summary: List placement requests (Placement Service work queue, or YOT's own)
+      tags: [Placements]
+      x-speculative: true
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/PlacementRequestStatus"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlacementRequest"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /placement-requests/{placementrequestid}:
+    parameters:
+      - $ref: "#/components/parameters/placementrequestidParameter"
+    get:
+      summary: Fetch a placement request
+      tags: [Placements]
+      x-speculative: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlacementRequest"
+        '404':
+          description: Not found, or not visible to the caller
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /placement-requests/{placementrequestid}/decision:
+    parameters:
+      - $ref: "#/components/parameters/placementrequestidParameter"
+    post:
+      summary: Record the placement decision and start secure-estate caretaking
+      tags: [Placements]
+      x-speculative: true
+      description: |
+        **⚠️ Speculative.** The Placement Service records which secure establishment the child is placed in. This creates a `caretaking` transfer from the requesting YOT to that establishment, with status `requested` (AP02 L874 SE001). The same preconditions as `POST /children/{ypid}/transfers` apply.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlacementDecision"
+      responses:
+        '200':
+          description: Decision recorded. Returns the placement request with the new transfer ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlacementRequest"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '422':
+          $ref: "#/components/responses/RuleViolation"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /children/{ypid}/merges:
+    parameters:
+      - $ref: "#/components/parameters/ypidParameter"
+    post:
+      summary: Merge a duplicate AssetPlus record into this child
+      tags: [Records]
+      description: |
+        Today two copies of the framework can be merged by combining all stages in completion-date order and renumbering episodes by creation date (AP02 L870 YY014). In a central store the copies are two `ypid`s for the same child. `../todo.md` L17 notes that a child can currently have more than one AssetPlus record.
+
+        The duplicate `ypid` is retired and resolves to this one.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                duplicate_ypid:
+                  type: integer
+                  minimum: 1
+                  maximum: 999999999
+                reason:
+                  type: string
+              required: [duplicate_ypid]
+      responses:
+        '200':
+          description: Merged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ypid:
+                    type: integer
+                  retired_ypid:
+                    type: integer
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '422':
+          $ref: "#/components/responses/RuleViolation"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /reference-data/{list}:
+    parameters:
+      - name: list
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+            - transfer-rejection-reasons
+            - update-rejection-reasons
+            - stage-types
+            - stage-statuses
+            - organisation-types
+    get:
+      summary: Controlled value lists
+      tags: [Reference data]
+      description: |
+        Today these are enumerations fixed in the XSD (static lookups, AP06 L241) or in the requirements (rejection reasons AP06 L336–347; stage types AP02 L520 GE034). Dynamic lists such as offence codes are validated by each CMS (AP06 L243).
+
+        Serving them from the API lets clients stay in step with the server.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReferenceItem"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /subscriptions:
+    post:
+      summary: Subscribe to transfer and review events (webhooks)
+      tags: [Transfers and caretaking]
+      x-speculative: true
+      description: |
+        **Option C2 in `api-scope-and-options.md`.** Push alternative to polling `/transfers` and `/reviews`. Replaces the automatic notifications sent today:
+        - acceptance of a transfer (AP02 L852 YY019)
+        - acceptance of an update (AP02 L887 SE014)
+        - rejection (AP02 L886 SE005)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                callback_url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - transfer.requested
+                      - transfer.accepted
+                      - transfer.rejected
+                      - transfer.ended
+                      - stage.shared
+                      - review.accepted
+                      - review.rejected
+                      - placement_request.created
+                      - placement_request.decided
+              required: [callback_url, events]
+      responses:
+        '201':
+          description: Subscribed
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+components:
+  parameters:
+    ypidParameter:
+      name: ypid
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 999999999
+      description: The internal AssetPlus identifier for a child (as `../swagger.yaml`).
+    stageidParameter:
+      name: stageid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: The internal identifier for an AssetPlus Stage (as `../swagger.yaml`).
+    transferidParameter:
+      name: transferid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    placementrequestidParameter:
+      name: placementrequestid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Bad request. The request was malformed or failed schema validation.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: |
+        Forbidden. The caller's organisation is not a party to this resource, or the caller's role is not allowed to perform the action (AP02 L891 SE009, L872 YY016).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ChildNotFound:
+      description: The provided `ypid` does not exist or is not visible to the caller.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ChildConflict:
+      description: |
+        Conflict. As in `../swagger.yaml`, a `stageid` that doesn't belong to the `ypid`, or a `child` body that doesn't match the `ypid`, returns 409 rather than 404 to avoid revealing which identifiers exist.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    TransferNotFound:
+      description: The transfer does not exist or the caller's organisation is not a party to it.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    RuleViolation:
+      description: |
+        Unprocessable. The request is well-formed but breaks a business rule. `rule` gives the requirement ID from the source documents (e.g. `SE002`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RuleViolation"
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: A human-readable error message.
+    RuleViolation:
+      allOf:
+        - $ref: "#/components/schemas/ErrorResponse"
+        - type: object
+          properties:
+            rule:
+              type: string
+              description: Requirement ID that was broken, e.g. `SE002`, `SE020`, `YY017`, `GE059`.
+              example: SE002
+
+    OrganisationType:
+      type: string
+      enum: [yot, secure_establishment, placement_service, probation]
+    Organisation:
+      type: object
+      properties:
+        ou_code:
+          type: string
+          description: Organisational Unit code, as used in the AP06 header (`Originating_YOT/OUCode`, AP06 L416), e.g. `F00BA00` (AP06 L496).
+        name:
+          type: string
+        type:
+          $ref: "#/components/schemas/OrganisationType"
+      required: [ou_code, name, type]
+
+    TransferType:
+      type: string
+      enum: [caretaking, complete]
+      description: |
+        `caretaking` = temporary home/host sharing. `complete` = ownership moves (AP02 L844 YY002). Transfers to a secure establishment are always `caretaking` (AP02 L874 SE001).
+    TransferStatus:
+      type: string
+      enum: [requested, accepted, rejected, ended]
+      description: |
+        `requested` / `accepted` drive the "transferred / caretaking" flag (AP02 L875 SE026). `rejected` / `ended` clear it.
+    TransferRequest:
+      type: object
+      properties:
+        child:
+          $ref: "../swagger.yaml#/components/schemas/MinimalChild"
+        type:
+          $ref: "#/components/schemas/TransferType"
+        to_ou_code:
+          type: string
+          description: Recipient organisation. Chosen by the person starting the transfer (AP06 L272).
+        note:
+          type: string
+          description: Free text, for example a reference to the off-system agreement (AP06 L399).
+      required: [child, type, to_ou_code]
+    Transfer:
+      type: object
+      properties:
+        transfer_id:
+          type: string
+          format: uuid
+          description: Replaces the AP06 Message_ID that stays the same across an exchange (AP06 L280).
+        ypid:
+          type: integer
+        type:
+          $ref: "#/components/schemas/TransferType"
+        status:
+          $ref: "#/components/schemas/TransferStatus"
+        home:
+          $ref: "#/components/schemas/Organisation"
+        from:
+          $ref: "#/components/schemas/Organisation"
+        to:
+          $ref: "#/components/schemas/Organisation"
+        placement_request_id:
+          type: string
+          format: uuid
+          nullable: true
+        requested_at:
+          type: string
+          format: date-time
+        requested_by:
+          type: string
+        decided_at:
+          type: string
+          format: date-time
+          nullable: true
+        decided_by:
+          type: string
+          nullable: true
+        rejection:
+          allOf:
+            - $ref: "#/components/schemas/Rejection"
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        ending_outcome:
+          type: string
+          enum: [returned_to_home, complete_transfer_to_host]
+          nullable: true
+      required: [transfer_id, ypid, type, status, home, from, to, requested_at]
+    Rejection:
+      type: object
+      properties:
+        reason:
+          type: string
+          description: |
+            A code from `GET /reference-data/transfer-rejection-reasons` (for transfers) or `update-rejection-reasons` (for reviews) (AP06 L336–347).
+        description:
+          type: string
+          description: Free text. Required when `reason` is `other` (AP06 L345, L467).
+      required: [reason]
+    TransferEnding:
+      type: object
+      properties:
+        outcome:
+          type: string
+          enum: [returned_to_home, complete_transfer_to_host]
+          description: '`complete_transfer_to_host` is valid for YOT↔YOT only (AP02 L866 YY011).'
+      required: [outcome]
+
+    StageStatus:
+      type: string
+      enum:
+        - in_progress
+        - completed
+        - stopped
+        - cancelled
+        - completed_shared
+        - completed_rejected
+      description: |
+        `in_progress`, `completed`, `stopped`, `cancelled` come from AP02 L524 GE058.
+        `completed_shared` and `completed_rejected` come from the caretaking statuses (AP02 L857 YY025, L883 SE016).
+        'Completed – awaiting Transfer' is dropped because, in a central store, a completed stage is shared immediately. See `api-scope-and-options.md` §2.
+    StageTransition:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [complete, stop, cancel, reopen]
+        reason:
+          type: string
+          description: Required for `stop` and `cancel` (AP02 L526 GE068, L527 GE069).
+      required: [action]
+    StageStatusResponse:
+      type: object
+      properties:
+        stageid:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/StageStatus"
+        shared_with:
+          type: array
+          items:
+            $ref: "#/components/schemas/Organisation"
+          description: Organisations that must review this stage, if any.
+
+    ReviewDecision:
+      type: object
+      properties:
+        decision:
+          type: string
+          enum: [accept, reject]
+        rejection:
+          $ref: "#/components/schemas/Rejection"
+      required: [decision]
+    Review:
+      type: object
+      properties:
+        review_id:
+          type: string
+          format: uuid
+        stageid:
+          type: string
+          format: uuid
+        reviewing_organisation:
+          $ref: "#/components/schemas/Organisation"
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        rejection:
+          allOf:
+            - $ref: "#/components/schemas/Rejection"
+          nullable: true
+        decided_at:
+          type: string
+          format: date-time
+          nullable: true
+        decided_by:
+          type: string
+          nullable: true
+    PendingReview:
+      allOf:
+        - $ref: "#/components/schemas/Review"
+        - type: object
+          properties:
+            ypid:
+              type: integer
+            stage_type:
+              type: string
+            completed_by_organisation:
+              $ref: "#/components/schemas/Organisation"
+            completed_at:
+              type: string
+              format: date-time
+
+    StageChanges:
+      type: object
+      properties:
+        stageid:
+          type: string
+          format: uuid
+        compared_with_stageid:
+          type: string
+          format: uuid
+          nullable: true
+        changes:
+          type: array
+          items:
+            type: object
+            properties:
+              field_reference:
+                type: string
+                description: Data-dictionary field reference, e.g. `5.3.2` (AP06 L235).
+              section:
+                type: string
+              previous_value: {}
+              new_value: {}
+
+    Attachment:
+      type: object
+      properties:
+        attachment_id:
+          type: string
+          format: uuid
+        filename:
+          type: string
+        content_type:
+          type: string
+        size_bytes:
+          type: integer
+        section:
+          type: string
+          nullable: true
+        uploaded_by:
+          type: string
+        uploaded_at:
+          type: string
+          format: date-time
+
+    PlacementRequestStatus:
+      type: string
+      enum: [requested, placed, withdrawn]
+      x-speculative: true
+    PlacementRequestCreate:
+      type: object
+      x-speculative: true
+      properties:
+        child:
+          $ref: "../swagger.yaml#/components/schemas/MinimalChild"
+        ypid:
+          type: integer
+        stageid:
+          type: string
+          format: uuid
+          description: The completed stage carrying the Custody module.
+      required: [child, ypid, stageid]
+    PlacementRequest:
+      type: object
+      x-speculative: true
+      properties:
+        placement_request_id:
+          type: string
+          format: uuid
+        ypid:
+          type: integer
+        stageid:
+          type: string
+          format: uuid
+        requesting_yot:
+          $ref: "#/components/schemas/Organisation"
+        status:
+          $ref: "#/components/schemas/PlacementRequestStatus"
+        placed_at:
+          allOf:
+            - $ref: "#/components/schemas/Organisation"
+          nullable: true
+        transfer_id:
+          type: string
+          format: uuid
+          nullable: true
+    PlacementDecision:
+      type: object
+      x-speculative: true
+      properties:
+        secure_establishment_ou_code:
+          type: string
+      required: [secure_establishment_ou_code]
+
+    ReferenceItem:
+      type: object
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+        applies_to:
+          type: array
+          items:
+            type: string
+          description: e.g. which organisation types may create a stage type (AP02 L520 GE034), or which rejection reasons apply to initial transfer only (AP06 L347).
