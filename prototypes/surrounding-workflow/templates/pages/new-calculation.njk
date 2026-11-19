@@ -1,0 +1,182 @@
+{% extends "../partials/layout.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+
+{% set pageTitle = applicationName + " - New calculation" %}
+{% set mainClasses = "govuk-body" %}
+{# Changed: when the calculation is for a case, show the case navigation and say whose calculation it is #}
+{% if case %}
+  {% set primaryNavigation = "caseload" %}
+  {% set calculationLabel = "Check calculation" if case.calculation == "check" else "First calculation" %}
+{% endif %}
+
+{% block content %}
+
+  {% if not (isValid | default(true)) %}
+   {{ govukErrorSummary({
+    titleText: "There is a problem",
+    errorList: errorSummary
+  }) }}
+  {% endif %}
+
+  {% if case %}
+    {{ govukBackLink({ text: "Back", href: case.backHref }) }}
+    <span class="govuk-caption-l">{{ calculationLabel }} for {{ case.name }}</span>
+  {% endif %}
+  <h1>Start a new calculation</h1>
+  {% if not case %}
+    <p id="instruction-text">Use this tool to check a Detention and Training Order (DTO) calculation.</p>
+  {% elif case.calculation == "check" %}
+    <p id="instruction-text">Enter the details from the court documents. Don’t copy them from the first calculation.</p>
+  {% else %}
+    <p id="instruction-text">Enter the details from the court documents for this Detention and Training Order (DTO).</p>
+  {% endif %}
+
+  <form id="calculation-form" action="{{ case.formAction if case else '/calculate' }}" method="post">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-third">
+        {#  Sentence type dropdown not needed for now #}
+        {# {{ govukSelect({
+          name: "sentence-type",
+          label: {
+            text: "Sentence type",
+            classes: "govuk-fieldset__legend--s"
+          },
+          items: [
+            {
+              value: "",
+              text: "",
+              selected: true,
+              disabled: true
+            },
+            {
+              value: "some-sentence-code",
+              text: "Some sentence that is applicable to DTO"
+            }
+          ]
+        }) }} #}
+
+        {{ govukDateInput({
+          id: 'sentence-date',
+          namePrefix: "sentence-date",
+          fieldset: {
+            legend: {
+              text: "Sentence date",
+              classes: "govuk-fieldset__legend--s"
+            }
+          },
+          hint: {
+            text: "For example, 27 03 2007"
+          },
+          errorMessage: sentenceDateError and { text: sentenceDateError },
+          items: [
+            { name: 'day', value: formData.sentenceDateDay, error: errorsByField['sentence-date-day'] or false },
+            { name: 'month', value: formData.sentenceDateMonth, error: errorsByField['sentence-date-month'] or false },
+            { name: 'year', value: formData.sentenceDateYear, error: errorsByField['sentence-date-year'] or false }
+          ]
+        }) }}
+
+        {% call govukFieldset({
+          legend: {
+            text: "Length of sentence",
+            classes: "govuk-fieldset__legend--s"
+          }
+        }) %}
+        {{ govukInput({
+          label: {
+            text: "Months"
+          },
+          classes: "govuk-input--width-2",
+          id: "sentence-length-months",
+          name: "sentence-length-months",
+          suffix: {
+            text: "Months"
+          },
+          value: formData.sentenceLengthMonths,
+          errorMessage: errorsByField['sentence-length-months'] and { text: errorsByField['sentence-length-months'] }
+        }) }}
+        {% endcall %}
+
+        {# Commention out for now
+        {{ govukInput({
+          label: {
+            text: "Remand"
+          },
+          id: "remand-days",
+          name: "remand-days",
+          value: formData.remandDays,
+          errorMessage: errorsByField['remand-days'] and { text: errorsByField['remand-days'] }
+        }) }} #}
+
+         {{ govukDateInput({
+          id: 'remand-start-date',
+          namePrefix: "remand-start-date",
+          fieldset: {
+            legend: {
+              text: "Remand start date (optional)",
+              classes: "govuk-fieldset__legend--s"
+            }
+          },
+          hint: {
+            text: "Leave blank if no time spent on remand"
+          },
+          errorMessage: remandStartDateError and { text: remandStartDateError },
+          items: [
+            { name: 'day', value: formData.remandStartDateDay, error: errorsByField['remand-start-date-day'] or false },
+            { name: 'month', value: formData.remandStartDateMonth, error: errorsByField['remand-start-date-month'] or false },
+            { name: 'year', value: formData.remandStartDateYear, error: errorsByField['remand-start-date-year'] or false }
+          ]
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "Tagged bail"
+          },
+          classes: "govuk-input--width-2",
+          id: "tagged-bail-days",
+          name: "tagged-bail-days",
+          suffix: {
+            text: "Days"
+          },
+          value: formData.taggedBailDays,
+          errorMessage: errorsByField['tagged-bail-days'] and { text: errorsByField['tagged-bail-days'] }
+        }) }}
+
+        {{ govukRadios({
+          name: "erd-eligibility",
+          errorMessage: errorsByField['erd-eligibility'] and { text: errorsByField['erd-eligibility'] },
+          fieldset: {
+            legend: {
+              text: "Eligibility for early release",
+              classes: "govuk-fieldset__legend--s"
+            }
+          },
+          items: [
+            {
+              value: "true",
+              text: "Eligible",
+              checked: formData.erdEligible === true
+            },
+            {
+              value: "false",
+              text: "Not eligible",
+              checked: formData.erdEligible === false
+            }
+          ]
+        }) }}
+      </div>
+    </div>
+
+    {{ govukButton({
+      id: 'calculate-button',
+      text: "Calculate"
+    }) }}
+  </form>
+
+{% endblock %}

@@ -1,0 +1,11 @@
+/* Styles for pages new to this prototype, using GOV.UK Frontend colours */
+.app-count-card {
+  margin-bottom: 20px;
+  padding: 15px 20px;
+  border-top: 5px solid #1d70b8;
+  background: #f3f2f1;
+}
+.app-notification {
+  padding: 20px 0 10px;
+  border-bottom: 1px solid #b1b4b6;
+}

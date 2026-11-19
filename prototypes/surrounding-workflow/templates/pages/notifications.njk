@@ -1,0 +1,29 @@
+{# New. Everything that's happened to the caseworker's cases, newest first. #}
+{% extends "../partials/layout.njk" %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+
+{% set pageTitle = applicationName + " - Notifications" %}
+{% set mainClasses = "govuk-body" %}
+{% set primaryNavigation = "notifications" %}
+
+{% block content %}
+
+  <span class="govuk-caption-l">{{ user.team }}</span>
+  <h1 class="govuk-heading-l">Notifications</h1>
+  <p class="govuk-body">{{ unreadNotifications }} unread. <a class="govuk-link" href="/notifications/mark-all-read">Mark all as read</a></p>
+
+  {% for notification in notifications %}
+    <div class="app-notification">
+      <h2 class="govuk-heading-s govuk-!-margin-bottom-2">
+        {%- if notification.unread %}{{ govukTag({ text: "New", classes: "govuk-tag--blue govuk-!-margin-right-2" }) }}{% endif -%}
+        {{ notification.heading }}
+      </h2>
+      <p class="govuk-body govuk-!-margin-bottom-2">{{ notification.body }}</p>
+      <p class="govuk-body-s govuk-hint govuk-!-margin-bottom-2">{{ notification.time }}</p>
+      {% if notification.caseId %}
+        <p class="govuk-body"><a class="govuk-link" href="/cases/{{ notification.caseId }}">{{ notification.linkText }}</a></p>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+{% endblock %}
