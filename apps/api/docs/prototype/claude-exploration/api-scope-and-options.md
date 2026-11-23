@@ -16,6 +16,8 @@ Citation format is as in [documents-list.md](documents-list.md) and [current-pro
 
 **Updated 2026-11-19** to use the AP 03 data dictionary, the Prototype workbook and the v12.0.0 XSDs. It also covers `DELETE /children/{ypid}/stages/{stageid}`, which was added to `../swagger.yaml` in commit `2234377` (see F4 and option I).
 
+**Updated 2026-11-23** with the decisions from a design session (Q1–Q48). They're cited as `[User 2026-11-23 Qn]`. The full record, including seven inferences still to confirm, is in `.grill-me/assetplus-api-design-20261123T1315-summary.md`. `proposed-transfer-api.yaml` (v0.0.3-draft) has been revised to match. Its description now lists the recommended changes to `../swagger.yaml` and the departures from the current process. Where a decision overrides a recommendation below, the original text is kept and marked **Decided**.
+
 ---
 
 ## 1. Function inventory and coverage
@@ -31,9 +33,9 @@ Coverage values:
 | :-- | :-- | :-- | :-- | :-- |
 | F1 | Identify and find a young person | [AP06 L209, L323] | ✅ `GET /children`, `POST /children/search`, `GET /children/{ypid}` [swagger.yaml L35–343] | — |
 | F2 | Create a record for an unknown young person | Unknown/Known process maps [AP02 L707–735] (images only) | ✅ `POST /children` [swagger.yaml L139] | — |
-| F3 | Create a stage, edit it, only one in progress. Available stage types depend on organisation type and case type | [AP02 L520 GE034; AP03 'Data Items CONSOLIDATED' row 4 cols AH–AL; AssessmentTransfer L249] | 🟡 `POST/PATCH/PUT …/stages` [swagger.yaml L394–648]. The "one in progress" rule isn't stated; partial stages are per organisation [swagger.yaml L353–355]. There's no case type | Add the rules and a `case_type` to `POST …/stages` (§4) |
-| F4 | Complete (with sign-off), stop, cancel, re-open a stage | [AP02 L525–527 GE059/68/69; L858 YY026] | 🟡 `DELETE …/stages/{stageid}` removes a stage that hasn't been signed off [swagger.yaml L649–654]. That is closest to GE069 "cancel", but it differs: there's no reason, it's limited by organisation rather than owner, and it's a hard delete rather than "hidden, audit trail retained". There's no way to complete, stop or re-open, and the Stage schema has no status [swagger.yaml L956–963] | `POST …/stages/{stageid}/transitions`, `StageStatus`; option I decides how DELETE and `cancel` fit together |
-| F5 | Choose destination by organisation (OU code) | [AP06 L272, L416–419; AssessmentTransfer L360–365] | ❌ | `GET /organisations`. AP03 lists the 258 YOTs with OU codes [AP03 'YOT Full List']; no source lists SEs or the Placement Service |
+| F3 | Create a stage, edit it, only one in progress. Available stage types depend on organisation type and case type | [AP02 L520 GE034; AP03 'Data Items CONSOLIDATED' row 4 cols AH–AL; AssessmentTransfer L249] | 🟡 `POST/PATCH/PUT …/stages` [swagger.yaml L394–648]. The "one in progress" rule isn't stated; partial stages are per organisation [swagger.yaml L353–355]. There's no case type | **Decided:** one partial stage per child per organisation [User 2026-11-23 Q28]. `POST` takes `stage_type` and `case_type`, and the platform enforces both rules with `422` [Q29] (§4) |
+| F4 | Complete (with sign-off), stop, cancel, re-open a stage | [AP02 L525–527 GE059/68/69; L858 YY026] | 🟡 `DELETE …/stages/{stageid}` removes a stage that hasn't been signed off [swagger.yaml L649–654]. That is closest to GE069 "cancel", but it differs: there's no reason, it's limited by organisation rather than owner, and it's a hard delete rather than "hidden, audit trail retained". There's no way to complete, stop or re-open, and the Stage schema has no status [swagger.yaml L956–963] | **Decided:** no transitions API. An accepted `PUT` completes the stage; a soft `DELETE` cancels it (option I2). Stop and re-open are dropped [User 2026-11-23 Q7, Q8, Q10–Q12] |
+| F5 | Choose destination by organisation (OU code) | [AP06 L272, L416–419; AssessmentTransfer L360–365] | ❌ | `GET /organisations`, `GET /organisations/{ou_code}`. AP03 lists the 258 YOTs with OU codes [AP03 'YOT Full List']; no source lists SEs or the Placement Service. **Decided:** YJB maintains the list in the platform, and the API only reads it [User 2026-11-23 Q46] |
 | F6 | Request caretaking transfer to the SE (all completed stages, never stopped ones) | [AP02 L874 SE001; AP06 §6.3.1] | ❌ | `POST /children/{ypid}/transfers` |
 | F7 | Transfer preconditions: last stage complete and none in progress; one arrangement at a time | [AP02 L876 SE002, L877 SE020] | ❌ | `422` + `rule` on `POST …/transfers` |
 | F8 | Flag case as requested / accepted / cleared | [AP02 L875 SE026] | ❌ | `Transfer.status`, `GET /children/{ypid}/transfers` |
@@ -41,26 +43,26 @@ Coverage values:
 | F10 | Person accepts or rejects a transfer, with a reason list | [AP06 §6.3.3, L336–347; SimpleTypes L1119–1131, L1342–1353] | ❌ | `POST /transfers/{id}/acceptance`, `/rejection` |
 | F11 | View assessment before deciding | [AP02 L850 YY005] | 🟡 `GET …/stages` exists, but the recipient has no access rule before acceptance | Access rule in the `POST …/transfers` description |
 | F12 | No updates until accepted | [AP02 L878 SE019] | ❌ | Enforced by `Transfer.status` |
-| F13 | Either side completes and shares a stage | [AP02 L882 SE004; AP06 §6.5.1] | 🟡 Either org can create stages; no sharing concept | `transitions` + `completed_shared` |
+| F13 | Either side completes and shares a stage | [AP02 L882 SE004; AP06 §6.5.1] | 🟡 Either org can create stages; no sharing concept | An accepted `PUT` while a caretaking transfer is `accepted` gives `completed_shared` [User 2026-11-23 Q8] |
 | F14 | Accept or reject a shared update, with a reason list, and reminders | [AP02 L886 SE005, L887 SE014] | ❌ | `POST …/stages/{stageid}/reviews`, `GET /reviews` |
 | F15 | Identify changes in a received stage, PDF/print | [AP02 L888 SE006] | ❌ | `GET …/stages/{stageid}/changes` (JSON or PDF) |
-| F16 | Caretaking statuses ('awaiting Transfer', 'Transferred', 'rejected') | [AP02 L883 SE016, L857 YY025] | ❌ | `StageStatus` (see §2 on dropping 'awaiting Transfer'). These statuses are local to each CMS today; they're not in the schema [SimpleTypes L1731–1738] |
+| F16 | Caretaking statuses ('awaiting Transfer', 'Transferred', 'rejected') | [AP02 L883 SE016, L857 YY025] | ❌ | `StageStatus`. These statuses are local to each CMS today; they're not in the schema [SimpleTypes L1731–1738]. **Decided:** 'awaiting Transfer' becomes partial (`in_progress`) [User 2026-11-23 Q7]; `completed_shared` is final [Q10]; `completed_rejected` is a read-only record [Q11] |
 | F17 | Home YOT ends caretaking | [AP02 L890 SE008] | ❌ | `POST /transfers/{id}/ending` |
 | F18 | Role-based permission to accept or reject | [AP02 L891 SE009] | ❌ No auth model | `403` + token roles (§3 option G) |
-| F19 | Attachments listed and sent separately | [AP06 L260–266; AP02 L537 GE019; AssessmentTransfer L2679–2690] | ❌ | `…/stages/{stageid}/attachments`. v12 lists each file by section and document name |
-| F20 | Placement via the YJB Placement Service | [AP02 L874 SE001, L484; AssessmentTransfer L1148–1186] | 🟡 The placement recommendation (establishment type, exclusions, notes for Placements) is stage data, so it would sit in `Stage.data`. There's no placement decision | `/placement-requests` ⚠️ |
+| F19 | Attachments listed and sent separately | [AP06 L260–266; AP02 L537 GE019; AssessmentTransfer L2679–2690] | ❌ | `…/stages/{stageid}/attachments`. v12 lists each file by section and document name. **Decided:** attachments follow the stage's lifecycle [User 2026-11-23 Q43], uploads are scanned asynchronously (`202`) [Q44], and `section` stays free text [Q45] |
+| F20 | Placement via the YJB Placement Service | [AP02 L874 SE001, L484; AssessmentTransfer L1148–1186] | 🟡 The placement recommendation (establishment type, exclusions, notes for Placements) is stage data, so it would sit in `Stage.data`. There's no placement decision | **Decided:** the Placement Service uses its own web UI on an internal API. The public API has only `POST /children/{ypid}/placement-requests` and a `GET` for its status [User 2026-11-23 Q35–Q37] |
 | F21 | Show that the young person is in custody | [AP02 L874 SE001] | ❌ | Derived from an accepted SE `Transfer` ⚠️. AP03 has a system-calculated "Young person currently in custody" item that is *not* transferred [AP03 'Data Dictionary Master' row 1026], which supports deriving it on the server rather than storing it |
 | F22 | Stage payload: core + triggered modules | [AP06 L361–378 Rule 4, L506–548; AssessmentTransfer L294–338] | 🟡 `Stage.data` is "structure TBC" [swagger.yaml L963] | Option E. Now possible to work out from the v12 XSDs and AP03 |
 | F23 | History / snapshots by date or stage type | [AP02 L528 GE003] | 🟡 `GET …/stages` lists stages, with no date or type filters | Add `type`, `completed_from`, `completed_to` query params (§4) |
-| F24 | Audit: who changed what and when | [AP02 L536 GE015; AP06 L256] | ❌ Not described. The new DELETE route risks losing audit history (option I) | Option H |
-| F25 | Merge duplicate AssetPlus records | [AP02 L870 YY014; todo.md L17] | ❌ | `POST /children/{ypid}/merges` |
+| F24 | Audit: who changed what and when | [AP02 L536 GE015; AP06 L256] | ❌ Not described. The new DELETE route risks losing audit history (option I) | Option H. **Decided:** a public `GET …/stages/{stageid}/history` [User 2026-11-23 Q39] |
+| F25 | Merge duplicate AssetPlus records | [AP02 L870 YY014; todo.md L17] | ❌ | **Decided:** one record per child [User 2026-11-23 Q25]. CMSs report suspects with `POST /children/{ypid}/duplicate-reports` [Q42]; only YJB merges, with `POST /children/{ypid}/merges` [Q27]; a merged-away `ypid` returns `308` [Q26] |
 | F26 | Controlled lists (rejection reasons, stage types, case types) | [AP06 L241–243, L336–347; AP02 L520; SimpleTypes L166–184, L291–301, L1342–1353; AP03 'YJBDropDownLists'] | ❌ | `GET /reference-data/{list}` |
 | F27 | Supplier (non-AssetPlus) data travels with the case | [AP06 L249, L882–892; AP03 'Data Dictionary Master' rows 1069–1177] | ❌ | Open question Q6. Not in the v12 schema |
 | F28 | Agree transfer "off-system" first | [AP06 L399] | n/a | Optional `note` on `TransferRequest` |
 | F29 | Interim EYE-format output for SEs not on AssetPlus | [AP02 L892 SE010] | ❌ | Open question Q8 (probably obsolete ⚠️) |
-| F30 | Receiver sees an index of all the case's stages, including in-progress, stopped and cancelled ones, with their attachments | [AssessmentTransfer L336, L2667–2690; SimpleTypes L1731–1738] | 🟡 `GET …/stages` returns signed-off stages only [swagger.yaml L353] | Add a `status` filter and return stopped/cancelled stages as summaries (§4) |
-| F31 | Each stage records the schema version it was written in; the schema changes every year | [AssessmentTransfer L2678, L5–71] | ❌ | `schema_version` on `Stage` (§2 item 22, option E) |
-| F32 | Countersignature of Explanations & Conclusions and of Pathways & Planning | [AssessmentTransfer L334–335, L454–472; AP02 L525 GE059] | ❌ | Sign-off fields on `Stage` (§4); checked by the `complete` transition |
+| F30 | Receiver sees an index of all the case's stages, including in-progress, stopped and cancelled ones, with their attachments | [AssessmentTransfer L336, L2667–2690; SimpleTypes L1731–1738] | 🟡 `GET …/stages` returns signed-off stages only [swagger.yaml L353] | Add a `status` filter and return cancelled stages as summaries (§4). There's no `stopped` status any more [User 2026-11-23 Q12] |
+| F31 | Each stage records the schema version it was written in; the schema changes every year | [AssessmentTransfer L2678, L5–71] | ❌ | **Decided:** a `schema_version` field on `Stage`; stored stages are never migrated; a grace period applies after each annual change [User 2026-11-23 Q30–Q32] |
+| F32 | Countersignature of Explanations & Conclusions and of Pathways & Planning | [AssessmentTransfer L334–335, L454–472; AP02 L525 GE059] | ❌ | **Decided:** the v12 countersignature fields go in the `PUT` body, and the platform trusts them [User 2026-11-23 Q15]. The CMS locks the stage once a `PUT` is sent [Q16]; any fix or rebase needs a new sign-off [Q17, Q18] |
 
 **Adjacent (noted only):**
 - YOT↔YOT complete transfer: the same `Transfer` resource with `type: complete`, plus the YY017/YY004/YY013 rules [AP02 L849, L848, L868].
@@ -78,6 +80,8 @@ These are areas the current process depends on that neither `../swagger.yaml` no
    - No source lists the secure establishments. The schema only knows an establishment's *type* (SCH, STC or YOI) [SimpleTypes L823–829], plus a free-text establishment name on arrival in custody [AssessmentTransfer L230].
    - The AP03 list dates from 2014. YOTs have since merged and been renamed.
    > ⚠️ **Speculation:** the list is very likely out of date.
+
+   **Decided 2026-11-23:** YJB maintains the list in the platform. The API only reads it, and retired organisations stay readable with a status [User 2026-11-23 Q46]. When YOTs merge, everything the old YOT owned moves to the new one automatically [Q47, Q48]. Where the codes come from is still open (Q14).
 2. **Authorisation model.** Things that depend on organisation and role:
    - who may accept or reject [AP02 L891 SE009]
    - which stage types each organisation type may create [AP02 L520 GE034]
@@ -85,48 +89,81 @@ These are areas the current process depends on that neither `../swagger.yaml` no
    - proxy users [AP02 L523 GE071]
 
    The draft relies on "organisation making the request" [swagger.yaml L353] but defines no auth.
-3. **Stage status and lifecycle.** Covered in F4/F16. Without it, the API can't enforce any transfer precondition.
+
+   **Decided 2026-11-23:** CMS users authenticate to the platform as individuals [User 2026-11-23 Q14].
+3. **Stage status and lifecycle.** Covered in F4/F16. Without it, the API can't enforce any transfer precondition. **Decided 2026-11-23:** status changes happen implicitly through `POST`, `PATCH`, `PUT` and `DELETE`, and there's no separate transitions call [User 2026-11-23 Q8].
 4. **'Completed – awaiting Transfer' in a central store.** Today this status covers stages not yet sent, including when Connectivity fails [AP02 L857 YY025]. With a central store, sharing happens the moment a stage is completed, so the status has no clear meaning.
    > ⚠️ **Speculation:** a deliberate "complete now, share later" may still be wanted by practitioners. Confirm with users before dropping it.
+
+   **Decided 2026-11-23:** a stage that's signed off locally but not yet accepted by the platform is still partial. The platform's acceptance of the `PUT` is what completes it [User 2026-11-23 Q7].
 5. **What "delete on reject" becomes.** Today the rejecting YOT deletes the framework [AP02 L850 YY005] or stage [AP02 L863 YY009]. In a central store, does a rejected shared stage stay in the child's history? If so, who sees it, and does the next stage pre-populate from it? (See option B.)
+
+   **Decided 2026-11-23:** a rejected stage stays as a read-only record. It's replaced by a new stage that links to it with `supersedes`, with no content copied across [User 2026-11-23 Q11, Q24]. ⚠️ Inferred, not confirmed: it stays visible to every reader. Pre-population (item 6) is still open.
 6. **Pre-population across organisations.** New stages pre-populate from the last one [AP02 L532 GE005], using one of four rules per data item [AP03 'Data Item pre population rules' rows 3–9; AP03 'Data Items CONSOLIDATED' col O].
    - If the SE's stage is rejected by the YOT, which stage does the next YOT stage pre-populate from?
    - In a central store the server could apply these rules when it creates a stage, rather than every client implementing them.
    > ⚠️ **Speculation:** doing it on the server would make pre-population consistent across clients, but the API would then own a large rule set.
 7. **Concurrent stages across parties.** Today each CMS has its own "one stage in progress" rule. Cross-system locking was never built [AP02 L881 SE015 "W"]. The draft already allows partial stages per organisation and "rebases" them [swagger.yaml L353–355]. The interaction with caretaking review needs designing: what happens if the YOT has a partial stage open when the SE shares a stage?
+
+   **Decided 2026-11-23:** one partial stage per child per organisation [User 2026-11-23 Q28]. Overlapping changes are handled by the concurrency model in option J [Q3, Q4, Q18].
 8. **Three-way arrangements (Home YOT, Host YOT, SE).** These are real situations, but the routing rules were de-scoped [AP02 L894–897]. SE001 says updates go "between the Secure Establishment and Home YOT only" [AP02 L874]. In a central store, all three parties could see the same record. Who must review a shared stage? The v12 schema says the originating organisation is needed for three-way Home/Host/SE sharing [AssessmentTransfer L362], so this seems to happen in practice.
+
+   **Decided 2026-11-23:** the Home YOT is the hub. It reviews every stage completed by the Host YOT or the SE, and its own stages are reviewed by the active caretaker [User 2026-11-23 Q34]. Still open: if a Host YOT and an SE are both active caretakers, which of them reviews the Home YOT's stages?
 9. **Placement Service as a separate client.** Placements and the SE use the same client system today but may diverge [User 2026-11-19]. That needs its own role, a work queue, and a decision step.
    - The YOT's input to placement is stage data: an initial recommendation of establishment *type*, whether there's an establishment the child should not go to, and anything else Placements should know [AssessmentTransfer L1148–1186; PROTO 'Custody' rows 218–238].
    - The Placement Service's decision, meaning which establishment, appears nowhere in the schema.
+
+   **Decided 2026-11-23:** the Placement Service uses a web UI on an internal platform API, so its work queue and decision step are internal [User 2026-11-23 Q35, Q36]. See option D.
 10. **Secure estate → YOT direction.** No source describes the SE initiating anything other than sharing a stage. Transfers between secure establishments, such as moving a young person between a YOI and an STC, aren't covered.
     > ⚠️ **Speculation:** this happens in practice and would currently need the Home YOT to end one arrangement and start another, which SE020 forces [AP02 L877].
 11. **Release.** Ending caretaking is tied to leaving custody [AP02 L890 SE008]. The Leaving Custody module (Notice of Supervision/Licence, Release Arrangements) [AP02 L758 CO002] is the data that matters at that point.
 12. **Attachments and their access control.** These include sensitive scanned documents [AP02 L537 GE019], with virus scanning, size limits, retention, and visibility to the caretaker.
+
+    **Decided 2026-11-23:** attachments follow the stage's lifecycle and are signed off with it [User 2026-11-23 Q43]. Uploads are scanned asynchronously (`202 Accepted`, then poll) [Q44]. `section` stays free text, with the inconsistency risk documented [Q45]. Size limits and retention are still open.
 13. **Sensitive sections and restricted access.** Some sections may be restricted locally [AP02 L535 GE014]. How do these restrictions apply to a caretaker in another organisation?
 14. **Countersignature state.** Completion needs sign-off [AP02 L525 GE059], and later edits invalidate it [AP02 L563 QA013]. The schema has two countersignatures per stage, one for Explanations & Conclusions and one for Pathways & Planning, each with a name, job title and date [AssessmentTransfer L334–335, L454–472]. That needs fields or endpoints.
+
+    **Decided 2026-11-23:** the countersignatures are v12 fields in the `PUT` body, trusted by the platform [User 2026-11-23 Q15]. The CMS locks a stage once it sends the `PUT` [Q16]. Any fix after rejection, and any rebase, needs a new sign-off [Q17, Q18]. Cancelling also needs two people: the requester comes from the token, and the second signatory from an `X-Signoff-User` header [Q13, Q14].
 15. **Identifier stability inside stage data.**
     - Offence, ASB, disposal and episode IDs are unique within one document only [AP06 L239, L662, L670]. Episodes are renumbered on merge [AP02 L870 YY014]. A central store needs stable IDs across stages.
     - The case itself is identified by an Assessment ID that embeds the sending CMS's own young-person ID [AssessmentTransfer L348]. The central `ypid` replaces this.
     - Migration (option F) needs a mapping from each CMS's Assessment IDs to `ypid`.
 16. **Dynamic reference data.** Offence codes are validated by each CMS [AP06 L243]. Centrally, one service has to own the list and its versions. AP03 has a "Master List of Reference Data" for the static lists [AP03 'YJBDropDownLists' row 1]. But it dates from 2014, and the v12 schema has changed several lists since then (e.g. the remand decision and sentence type enumerations) [CaseTransfer L15–36].
 17. **Supplier data.** AP06 carries non-AssetPlus CMS data [AP06 L249], and AP03 defines 109 such items [AP03 'Data Dictionary Master' rows 1069–1177]. The v12 schema has no SupplierData structure (see current-process.md §3.3). Should the central store hold this data, pass it through, or drop it?
-18. **Notifications and reminders.** These are automatic today [AP02 L852 YY019, L887 SE014, L886 SE005]. The API needs an inbox, push notifications, or both (option C).
-19. **Migration and coexistence.** Some CMSs will still speak AP06 XML over Connectivity while others use the API (option F).
+18. **Notifications and reminders.** These are automatic today [AP02 L852 YY019, L887 SE014, L886 SE005]. The API needs an inbox, push notifications, or both (option C). **Decided 2026-11-23:** both (C3) [User 2026-11-23 Q38].
+19. **Migration and coexistence.** Some CMSs will still speak AP06 XML over Connectivity while others use the API (option F). **Decided 2026-11-23:** an AP06 adapter (F2) [User 2026-11-23 Q40].
 20. **Management information.** The YJMIS extract [AP02 L543 GE041] and the "Current Young Person ID" printed on plans [AP02 L697 PP016]. Transfer events are a likely MI need.
     > ⚠️ **Speculation.**
-21. **Non-functional requirements.** These were in a separate NFR document we don't have [AP02 L178]: availability, audit retention, data protection.
+21. **Non-functional requirements.** These were in a separate NFR document we don't have [AP02 L178]: availability, audit retention, data protection. Not covered in the 2026-11-23 session, by the user's choice.
 22. **Annual schema change and versioned stage data.**
     - The schema has had a major release most years since 2017, each tied to a financial year ("Various changes for 2027/28") [AssessmentTransfer L5–71].
     - Each entry in the stage index records the schema version of that stage [AssessmentTransfer L2678]. So one child's history mixes stages recorded under different schemas.
     - The API needs a way to version `Stage.data`, and to say whether old stages are migrated or kept as recorded.
-23. **Case type.** Every stage has a case type (Prevention, OOCD, Offending or a combination) [AssessmentTransfer L249; SimpleTypes L291–301]. The case type limits which stage types are allowed [AP03 'Data Items CONSOLIDATED' row 4 cols AH–AL] and which questions are shown [AP03 'Data Dictionary Master' cols U–Z]. `../swagger.yaml` has no case type.
-24. **What DELETE of a stage means.** `../swagger.yaml` now deletes stages that haven't been signed off [swagger.yaml L649–654]. Today a stage can't be deleted, only cancelled. Cancelling keeps the audit trail and needs a reason [AP02 L527 GE069], and cancelled stages still appear in the stage index sent to other parties [SimpleTypes L1731–1738]. See option I.
+
+    **Decided 2026-11-23:** stored stages are kept as recorded and never migrated [User 2026-11-23 Q30]. The version is a `schema_version` field in the `Stage` body; the user chose this over a media-type parameter [Q31]. A partial stage open across a schema change can be completed under its old version during a grace period set by YJB [Q32].
+23. **Case type.** Every stage has a case type (Prevention, OOCD, Offending or a combination) [AssessmentTransfer L249; SimpleTypes L291–301]. The case type limits which stage types are allowed [AP03 'Data Items CONSOLIDATED' row 4 cols AH–AL] and which questions are shown [AP03 'Data Dictionary Master' cols U–Z]. `../swagger.yaml` has no case type. **Decided 2026-11-23:** `POST …/stages` takes `case_type`, and the platform enforces the rules [User 2026-11-23 Q29].
+24. **What DELETE of a stage means.** `../swagger.yaml` now deletes stages that haven't been signed off [swagger.yaml L649–654]. Today a stage can't be deleted, only cancelled. Cancelling keeps the audit trail and needs a reason [AP02 L527 GE069], and cancelled stages still appear in the stage index sent to other parties [SimpleTypes L1731–1738]. See option I. **Decided 2026-11-23:** option I2, a soft cancel [User 2026-11-23 Q12].
+25. **Concurrency between the CMS copy and the platform copy.** *(Added 2026-11-23.)* Practitioners work in their CMS's local copy, which saves first and then pushes to the platform [User 2026-11-23 Q1, Q2]. So the API needs version tokens, a rule for stale pushes, and safe retries. See option J.
+26. **Abandoned partial stages.** *(Added 2026-11-23.)* With no stop, a partial stage that's never finished stays on the platform. **Decided:** keep it and report on stale ones; nothing expires [User 2026-11-23 Q23]. The staleness threshold, and who the report goes to, are still open.
 
 ---
 
 ## 3. Design options
 
-Each decision has two to four options. **★** marks a recommendation; all of them are open for discussion.
+Each decision has two to four options. **★** marks a recommendation. **Decided** marks a choice made on 2026-11-23; the rest are still open for discussion.
+
+| Option | Status after 2026-11-23 |
+| :-- | :-- |
+| A. Transfer model | Not discussed. A1 is still drafted |
+| B. Review | **Decided:** B1, which follows from the decisions on reopening and rejection [User 2026-11-23 Q10, Q11, Q33] |
+| C. Notifications | **Decided:** C3 [Q38] |
+| D. Placement Service | **Decided:** D4, a new option (below) [Q35–Q37] |
+| E. Stage payload | E1 not decided. The `schema_version` field and versioning rules are decided [Q30–Q32] |
+| F. Migration | **Decided:** F2 [Q40, Q41] |
+| G. Authorisation | Not decided. Users authenticate as individuals [Q14] |
+| H. Audit | Not formally decided. A public `/history` is decided [Q39] |
+| I. DELETE | **Decided:** I2, with the reason as a query-string code [Q12–Q14] |
+| J. Concurrency | **Decided** (new option, below) [Q2–Q4, Q18, Q20–Q22] |
 
 ### A. How to model a transfer or caretaking arrangement
 
@@ -146,6 +183,8 @@ A3 can also be used **only** as a migration adapter alongside A1 (see F).
 | B2 Proposed-change model | The other party's stage is a *proposal*. It joins the child's timeline only when accepted, like a merge request. | Rejected content never pollutes the record. Fits naturally with the draft's "rebase" idea [swagger.yaml L355]. | More complex. Changes what "completed" means for the author. |
 | B3 No review: single shared record | Any party with access completes stages straight into the record. Review becomes optional notification. | Simplest, and in the spirit of a central store. | **Policy change.** Removes a control YOTs rely on. Needs YJB/business sign-off. |
 
+**Decided 2026-11-23: B1.** A `completed_shared` stage is final: the organisation that completed it can't reopen it [User 2026-11-23 Q10]. While it's under review, every reader can see it, along with its review status [Q33]. A rejected stage stays as a read-only record and is replaced by a new stage that `supersedes` it [Q11, Q24].
+
 ### C. Notifications and reminders
 
 | Option | Description | Pros | Cons |
@@ -154,6 +193,8 @@ A3 can also be used **only** as a migration adapter alongside A1 (see F).
 | C2 Webhooks | `POST /subscriptions` with event types | Timely. Suits CMSs with back ends. | Needs callback hosting, security and retries. Harder for small suppliers. |
 | **C3 ★ Both** | The inbox is the source of truth; webhooks are optional hints | Robust. Lets suppliers adopt gradually. | Two mechanisms to maintain. |
 
+**Decided 2026-11-23: C3** [User 2026-11-23 Q38].
+
 ### D. Placement Service integration ⚠️ (neither source describes the mechanism)
 
 | Option | Description | Pros | Cons |
@@ -161,6 +202,7 @@ A3 can also be used **only** as a migration adapter alongside A1 (see F).
 | **D1 ★ Placement requests resource** | The YOT creates `/placement-requests`. The Placement Service records a decision, which creates the SE caretaking `Transfer`. This is what's drafted. | Matches SE001 "always via the Placement Service" [AP02 L874]. Works when Placements uses a different client from the SE [User 2026-11-19]. | Adds a resource. Needs the real placement workflow confirmed. |
 | D2 Placement Service as a transfer initiator | The Placement Service calls `POST /children/{ypid}/transfers` on the YOT's behalf. | Fewer resources. | Hides the placement decision. The YOT isn't the requester of its own transfer. |
 | D3 Out of the API | Placement stays in its own system and calls the API only to create the transfer. | Smallest scope. | Doesn't support separating the Placement and SE clients. |
+| **D4 Decided: internal placement UI, minimal public route** *(added 2026-11-23)* | The Placement Service uses a web UI on an internal platform API, not a third-party system calling the public API [User 2026-11-23 Q35, Q36]. A YOT's CMS starts a placement with `POST /children/{ypid}/placement-requests`, and follows it with a `GET` [Q37]. The decision, and the choice of establishment, happen internally, and they create the SE caretaking transfer. | The public API stays small. Placements and the SE can still use different clients. | The internal API needs its own design. The Placement Service's actual process is still unknown (Q1). |
 
 ### E. Shape of the stage payload (`Stage.data`)
 
@@ -178,6 +220,8 @@ A3 can also be used **only** as a migration adapter alongside A1 (see F).
 | **F2 ★ AP06 adapter** | A service translates AP06 XML from Connectivity into API calls (and back) until each CMS migrates | Gradual. Suppliers move at their own pace. | Must handle full-copy semantics against a central store. The adapter is throwaway. |
 | F3 Phased by organisation type | Placement and SE first (one shared client today [User 2026-11-19]), then YOTs | Starts with the smallest, most uniform group. | YOT↔SE flows are mixed-mode until the YOTs move. |
 
+**Decided 2026-11-23: F2** [User 2026-11-23 Q40]. When the platform answers `412` (option J) to a stage that came from an AP06 CMS, the adapter replies with an AP06 "Assessment Update Rejected" message and a reason such as "Conflict in stages" [Q41; AP02 L886 SE005].
+
 ### G. Authorisation (needed by F18 and §2 item 2)
 
 | Option | Description |
@@ -193,6 +237,8 @@ A3 can also be used **only** as a migration adapter alongside A1 (see F).
 | H2 Event sourcing for everything | The full history can be replayed. More engineering. |
 
 Under either option, the event log must record cancelled and deleted stages. GE069 requires the audit trail to be kept when a stage is cancelled [AP02 L527], and GE015 requires every change to be auditable [AP02 L536]. See option I.
+
+**Decided 2026-11-23:** the event log is exposed publicly as `GET …/stages/{stageid}/history`, subject to partial-stage privacy [User 2026-11-23 Q39]. H1 vs H2 hasn't been decided. ⚠️ Inferred, not confirmed: `/changes` stays alongside `/history`.
 
 ### I. What `DELETE …/stages/{stageid}` means
 
@@ -218,17 +264,54 @@ What today's process says:
 
 > ⚠️ **Speculation:** I3 is recommended because GE069's required reason and kept audit trail fit a status change much better than a delete. If the team wants to keep DELETE for client convenience, I2 is the next best. Whichever is chosen, the event log (option H) should record the action.
 
+**Decided 2026-11-23: I2, adapted.** I3 is ruled out because there's no transitions API [User 2026-11-23 Q8]. `DELETE` soft-cancels a **partial** stage [Q12]. It deals with I2's cons as follows:
+
+- **No request body.** The reason is a code in the query string, `?reason=<code>`, from `GET /reference-data/cancellation-reasons` [Q13]. That's allowed because a code isn't personal data [session-context.md L104].
+- **Two-person sign-off.** The requester comes from the auth token, and the second signatory goes in an `X-Signoff-User` header [Q14]. So anyone in the owning organisation may cancel, not just the owner [Q13].
+- **Completed stages can't be cancelled.** This departs from YY026 [AP02 L858]. ⚠️ Inferred from Q10–Q12, not confirmed.
+- **Gap:** no source gives the GE069 reasons as a list of codes.
+
+### J. Concurrency between CMS copies and the platform *(added 2026-11-23)*
+
+Practitioners work in their CMS's local copy. The CMS saves first, then pushes to the platform, and retries if the push fails [User 2026-11-23 Q1, Q2]. The platform's copy is what other organisations rely on. A change that hasn't been pushed doesn't exist for them, and the platform shows no flag for it [Q6].
+
+**Decided** (each option was offered with alternatives, and the one closest to standard REST was labelled):
+
+| Topic | Decision | Q |
+| :-- | :-- | :-- |
+| Version token | `ETag` on responses; `If-Match` on `PATCH` and `PUT` | Q20 |
+| Stale push | The platform rebases it | Q3 |
+| Conflict on the same field | The whole push is rejected. The later party resolves it in its CMS and pushes again; the CMS decides how to show this | Q4, Q5 |
+| Stale `PUT`, no conflict | Rebased but not accepted; needs a new sign-off | Q18 |
+| Status code | `412` for both outcomes, with `outcome: conflict` or `outcome: rebased` in the body; `409` keeps its single meaning | Q21 |
+| Lost responses | An `Idempotency-Key` header, reused on every retry | Q22 |
+
+⚠️ Inferred, not confirmed: a stale `PATCH` with no conflict is rebased and returns `200`.
+
 ---
 
 ## 4. Suggested changes to existing routes in `../swagger.yaml` (not made; that file is outside this folder)
+
+**Updated 2026-11-23.** The decided changes to the stage routes are listed under "Recommended changes to `../swagger.yaml`" in the description of `proposed-transfer-api.yaml`:
+
+- implicit status changes through `POST`, `PATCH`, `PUT` and `DELETE`
+- `ETag`, `If-Match` and `412`
+- `Idempotency-Key`
+- the soft `DELETE` with a reason code and an `X-Signoff-User` header
+- new `Stage` fields
+- schema-version rules
+- `308` for merged-away `ypid`s
+
+The list below is the original 2026-11-19 list, annotated where the decisions changed it.
 
 - `POST /children/{ypid}/stages`:
   - document the "one stage in progress" rule [AP02 L520 GE034]
   - restrict stage types by organisation type [AP02 L520] and by case type [AP03 'Data Items CONSOLIDATED' row 4 cols AH–AL]
   - return `422` with `rule` when a rule fails
+  - **Decided:** all three, with the rule as one partial stage per child *per organisation* [User 2026-11-23 Q28, Q29]. Also add `schema_version` [Q31] and an optional `supersedes` [Q24]
 - `GET /children/{ypid}/stages`:
   - add `type`, `status`, `completed_from` and `completed_to` filters for history [AP02 L528 GE003]
-  - consider returning stopped and cancelled stages as summary entries, as the stage index does today [AssessmentTransfer L2667–2681]
+  - consider returning stopped and cancelled stages as summary entries, as the stage index does today [AssessmentTransfer L2667–2681]. There's no `stopped` status any more [User 2026-11-23 Q12]
 - `Stage` schema: add these fields:
   - `stage_type`, with values from the v12 list [SimpleTypes L166–184]
   - `case_type` [SimpleTypes L291–301]
@@ -238,16 +321,19 @@ What today's process says:
   - `created_at` and `completed_at`
   - `schema_version` [AssessmentTransfer L2678]
   - the two countersignatures, each with name, job title and date [AssessmentTransfer L334–335, L454–472; AP02 L525 GE059]
-- `DELETE /children/{ypid}/stages/{stageid}` [swagger.yaml L649–701]: decide option I first. Whichever option is chosen, these are worth fixing:
+  - **Decided 2026-11-23:** also `supersedes` / `superseded_by` [User 2026-11-23 Q24] and `attachment_ids` [Q43]. The countersignatures are trusted, not checked [Q15]
+- `PUT …/stages/{stageid}` **(added 2026-11-23):** an accepted `PUT` completes the stage. Its `200` must return the new status; today it returns only an optional `Notification` [swagger.yaml L599–606] [User 2026-11-23 Q7, Q8]
+- `DELETE /children/{ypid}/stages/{stageid}` [swagger.yaml L649–701]: decide option I first. **Decided 2026-11-23: I2** (see option I). Whichever option is chosen, these are worth fixing:
   - The summary and description say "AssetPlus record", but the route deletes a Stage [swagger.yaml L650, L654].
   - The description says the identifier goes in the request body, but it's in the path [swagger.yaml L654].
   - It returns `200` with an empty body; `204 No Content` is the usual response for that.
   - "created by a user in their own organisation" reads awkwardly [swagger.yaml L654].
   - Typo: "succesfully".
-  - GE069 limits cancelling to the stage owner, not the organisation [AP02 L527].
+  - GE069 limits cancelling to the stage owner, not the organisation [AP02 L527]. **Decided:** keep the organisation-level rule, because the CMS runs a two-person sign-off first [User 2026-11-23 Q13].
+  - It should return the stage as `cancelled`, not remove it, and take `?reason=<code>` and an `X-Signoff-User` header [Q12–Q14].
 - `GET /children/{ypid}`: return active transfers, or a custody indicator, so CMSs can show the case flag [AP02 L875 SE026] and "in custody" [AP02 L874 SE001].
 - `PATCH`/`PUT …/stages/{stageid}`: the 403 rules [swagger.yaml L554, L622] need to cover the caretaker's rights during an accepted caretaking transfer.
-- Multiple AssetPlus records per child [todo.md L17]: decide between merging (`/merges`) and pushing stages down a level (`/children/{ypid}/assessments/{id}/stages`). This affects every stage route.
+- Multiple AssetPlus records per child [todo.md L17]: decide between merging (`/merges`) and pushing stages down a level (`/children/{ypid}/assessments/{id}/stages`). This affects every stage route. **Decided 2026-11-23:** merging. A second record is an accidental duplicate, and stages stay flat [User 2026-11-23 Q25].
 
 ---
 
@@ -255,19 +341,26 @@ What today's process says:
 
 | # | Question | Why it matters |
 | :-- | :-- | :-- |
-| Q1 | How does the Placement Service work today, and what system and messages does it use? | Option D is speculative without this. |
+| Q1 | How does the Placement Service work today, and what system and messages does it use? | Option D is speculative without this. **Partly answered:** in future the Placement Service will use a web UI on an internal API [User 2026-11-23 Q35, Q36]. How it works *today* is still unknown. |
 | Q2 | Can an SE reject an initial caretaking transfer, and on what grounds? | AP02 doesn't say; AP06 implies it can [current-process.md §4.2]. |
-| Q3 | Should the SE review YOT-shared stages, or only the YOT review SE-shared ones? | SE005 is one-directional [AP02 L886]. |
-| Q4 | In a central store, should rejected shared stages stay visible? | Option B choice; §2 items 5–6. |
-| Q5 | How should three-way Home/Host/SE cases work? | §2 item 8. |
+| Q3 | Should the SE review YOT-shared stages, or only the YOT review SE-shared ones? | SE005 is one-directional [AP02 L886]. **Answered:** both. The Home YOT reviews stages from the SE, and the active caretaker reviews the Home YOT's stages [User 2026-11-23 Q34]. |
+| Q4 | In a central store, should rejected shared stages stay visible? | Option B choice; §2 items 5–6. **Partly answered:** they stay as read-only records, replaced by a new stage [User 2026-11-23 Q11, Q24]. ⚠️ Visibility to everyone is inferred, not confirmed. |
+| Q5 | How should three-way Home/Host/SE cases work? | §2 item 8. **Answered:** the Home YOT is the hub [User 2026-11-23 Q34]. Still open: if a Host YOT and an SE are both caretaking, which reviews the Home YOT's stages? |
 | Q6 | Is supplier data (`sd*`) still needed? Was it deliberately dropped from the schema after v2.0? | AP03 defines 109 items [AP03 'Data Dictionary Master' rows 1069–1177]; v12 has no SupplierData schema [current-process.md §3.3]. |
 | Q7 | ~~Can we get the Data Items workbook 5.0 and the XSDs?~~ **Answered:** both supplied on 2026-11-19 [User 2026-11-19]. Follow-up: is there a data dictionary and "accompanying documentation" that matches schema v12? | AP03 is v5.0 (2014) and the Prototype goes "up to schema v11" [PROTO 'Please Read' row 5]; option E1 needs the current item definitions. |
 | Q8 | Is the EYE interim format (SE010) still in use anywhere? | [AP02 L892] |
 | Q9 | How do transfers between secure establishments happen today? | §2 item 10. |
-| Q10 | Do practitioners need "complete now, share later" ('Completed – awaiting Transfer')? | §2 item 4. |
+| Q10 | Do practitioners need "complete now, share later" ('Completed – awaiting Transfer')? | §2 item 4. **Answered:** no. A stage that's signed off but not yet accepted by the platform is simply partial [User 2026-11-23 Q7]. |
 | Q11 | Is the stage trigger table available elsewhere? | Empty in our copy [AP02 L919]. AP03 and the Prototype don't have it either [current-process.md §3.2]. |
 | Q12 | Which of today's live systems implement the case transfer schema, and at which version? | The v12 release history suggests live use ⚠️ [AssessmentTransfer L5–71], but no source names the CMSs. |
-| Q13 | Which option I behaviour do we want for `DELETE …/stages/{stageid}`? | GE069 requires a reason and a kept audit trail [AP02 L527]; the route as drafted does neither [swagger.yaml L654]. |
-| Q14 | Where can we get OU codes for secure establishments and the Placement Service, and a current YOT list? | `GET /organisations` needs them; AP03 has YOTs only, as of 2014 [AP03 'YOT Full List']. |
-| Q15 | How should the API handle the annual schema change: version `Stage.data`, migrate old stages, or both? | §2 item 22; [AssessmentTransfer L2678]. |
+| Q13 | Which option I behaviour do we want for `DELETE …/stages/{stageid}`? | GE069 requires a reason and a kept audit trail [AP02 L527]; the route as drafted does neither [swagger.yaml L654]. **Answered:** I2, a soft cancel [User 2026-11-23 Q12–Q14]. |
+| Q14 | Where can we get OU codes for secure establishments and the Placement Service, and a current YOT list? | `GET /organisations` needs them; AP03 has YOTs only, as of 2014 [AP03 'YOT Full List']. **Partly answered:** YJB will maintain the list in the platform [User 2026-11-23 Q46]. The initial data is still needed. |
+| Q15 | How should the API handle the annual schema change: version `Stage.data`, migrate old stages, or both? | §2 item 22; [AssessmentTransfer L2678]. **Answered:** version it, don't migrate, and allow a grace period [User 2026-11-23 Q30–Q32]. |
 | Q16 | Is the Assessment ID's "YJS 2-letter code" a part of the 7-character OU code, or a separate code? | The two formats don't match [AssessmentTransfer L348; AP03 'YOT Full List']. Matters for migrating IDs (§2 item 15). |
+| Q17 | What are the codes for cancelling a stage? *(Added 2026-11-23.)* | `DELETE` takes a reason code [User 2026-11-23 Q13], but today's reason seems to be free text [AP02 L527 GE069], and no source lists codes. |
+| Q18 | What are the thresholds and periods? *(Added 2026-11-23.)* | Staleness of partial stages, and who gets the report [Q23]; the schema-change grace period [Q32]; how long `Idempotency-Key`s are kept [Q22]. |
+| Q19 | If a Host YOT and an SE are both active caretakers, which reviews the Home YOT's stages? *(Added 2026-11-23.)* | Q34 covers stages *from* the caretakers, not this case. |
+| Q20 | What should downloading an attachment return before its scan finishes? *(Added 2026-11-23.)* | `proposed-transfer-api.yaml` uses `409` as a placeholder, which overlaps the identifier-mismatch meaning. |
+| Q21 | Can the seven inferences in the 2026-11-23 summary be confirmed? *(Added 2026-11-23.)* | They fill gaps the session didn't ask about directly. They're marked ⚠️ in `.grill-me/assetplus-api-design-20261123T1315-summary.md` and in this file. |
+| Q22 | What are the attachment size limits and retention period? *(Added 2026-11-23.)* | §2 item 12; not covered in the session. |
+| Q23 | What are the non-functional requirements? *(Added 2026-11-23.)* | §2 item 21; deliberately not covered in the session. |

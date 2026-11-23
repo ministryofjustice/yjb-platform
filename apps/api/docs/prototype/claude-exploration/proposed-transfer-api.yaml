@@ -6,9 +6,9 @@ info:
 
     > **⚠️ This is an illustrative draft of pseudocode for discussion, not a final spec.** It follows the conventions of `../swagger.yaml`.
 
-    This file contains **only new routes**. Existing routes (`/children`, `/children/search`, `/children/{ypid}`, `/children/{ypid}/stages`, and `/children/{ypid}/stages/{stageid}` including its new `DELETE`) are unchanged and remain in `../swagger.yaml`. `MinimalChild` is referenced from that file so there is a single source of truth.
+    This file contains **new routes**, plus a list of **recommended changes to existing routes** in `../swagger.yaml` (below). The existing routes themselves (`/children`, `/children/search`, `/children/{ypid}`, `/children/{ypid}/stages`, and `/children/{ypid}/stages/{stageid}`) remain in `../swagger.yaml`. `MinimalChild` is referenced from that file so there is a single source of truth.
 
-    Each operation cites the current-process requirement it replaces. Short refs (`AP02`, `AP03`, `AP06`, `PROTO`, and XSD file names such as `SimpleTypes`) are listed in `documents-list.md`. XSD citations are to the v12.0.0 files. Operations or properties marked `x-speculative: true` are not based on any source document.
+    Each operation cites the current-process requirement it replaces. Short refs (`AP02`, `AP03`, `AP06`, `PROTO`, and XSD file names such as `SimpleTypes`) are listed in `documents-list.md`. XSD citations are to the v12.0.0 files. Operations or properties marked `x-speculative: true` are not based on any source document. Design decisions made by the user in the design session on 2026-11-23 are cited as `(User 2026-11-23 Qn)`. The full record is in `.grill-me/assetplus-api-design-20261123T1315-summary.md`.
 
     **How the current concepts map to this API (see `api-scope-and-options.md` §3 for alternatives):**
 
@@ -17,13 +17,50 @@ info:
     | Data Transfer (sharing) | `POST /children/{ypid}/transfers` |
     | Acknowledge Data Transfer (an automatic Connectivity receipt; not a v12 message type) | The `201 Created` response; there is no separate message |
     | Transfer Acceptance / Rejection (v12: Data Transfer Accept / Reject, SimpleTypes L1119–1131) | `POST /transfers/{transferid}/acceptance` / `rejection` |
-    | Assessment Update | Completing a stage while a caretaking transfer is `accepted` (`POST …/stages/{stageid}/transitions`) creates a pending review for the other party |
+    | Assessment Update | Completing a stage (an accepted `PUT …/stages/{stageid}`) while a caretaking transfer is `accepted` creates a pending review for the other party |
     | Update Acceptance / Rejection (v12: Assessment Update Accept / Reject) | `POST /children/{ypid}/stages/{stageid}/reviews` |
     | Unstructured_Data (AP06) / stage attachment index (v12, AssessmentTransfer L2679–2690) + secure email | `…/stages/{stageid}/attachments` |
-    | Stage cancel (AP02 GE069) | `POST …/stages/{stageid}/transitions` `cancel`, or `DELETE …/stages/{stageid}` in `../swagger.yaml`. Undecided: see `api-scope-and-options.md` option I |
+    | Stage cancel (AP02 GE069) | Soft `DELETE …/stages/{stageid}?reason=<code>` (option I2; User 2026-11-23 Q12–Q14) |
+    | Stage stop (AP02 GE068) and re-open (AP02 L858 YY026) | **Dropped** (User 2026-11-23 Q10–Q12). See "Departures from the current process" |
+    | Duplicate records merged (AP02 L870 YY014) | `POST /children/{ypid}/duplicate-reports` by a CMS; merge by YJB only |
+
+    ## Recommended changes to `../swagger.yaml`
+
+    These come from the design session on 2026-11-23. They change routes that live in `../swagger.yaml`, so they're listed here rather than edited there.
+
+    **1. There's no transitions API; status changes happen implicitly (User 2026-11-23 Q8).** A client never makes a separate call just to change a stage's status:
+    - `POST /children/{ypid}/stages` creates a partial stage (`in_progress`). Add `stage_type`, `case_type`, `schema_version` and an optional `supersedes` (the URI of a `completed_rejected` stage it replaces) to the request body (Q24, Q29, Q31). The platform enforces which stage types each organisation type may create (AP02 L520 GE034) and which each case type allows (AP03 'Data Items CONSOLIDATED' row 4 cols AH–AL), and returns `422` with the rule ID otherwise (Q29). An organisation may have only one partial stage per child; a second `POST` from the same organisation gets `422` citing GE034 (Q28).
+    - `PATCH …/stages/{stageid}` saves a partial stage. Partial stages are stored on the platform and visible only to the organisation that saved them, as drafted (swagger.yaml L476; Q7).
+    - `PUT …/stages/{stageid}` **completes** the stage. **The platform's acceptance is what completes it** (Q7). The `200` response must return the new status (`completed`, or `completed_shared` if a caretaking transfer is `accepted`), for example with `StageStatusResponse` in this file. Today it returns only an optional `Notification` (swagger.yaml L599–606). The CMS must not mark its local copy complete until it receives that `200`; any other response, or none, means the stage is still partial (Q7). The body carries the two v12 countersignatures (Explanations & Conclusions, and Pathways & Planning; each a name, job title and date; AssessmentTransfer L334–335, L454–472), which the platform trusts (Q15), and the IDs of the attachments being signed off (Q43).
+    - `DELETE …/stages/{stageid}` becomes a **soft cancel** (option I2; Q12). It applies to partial stages only. The stage is hidden from default lists, kept in the audit trail and history, and returned with status `cancelled` (AP02 L527 GE069). The reason is a code in the query string, `?reason=<code>`, from `GET /reference-data/cancellation-reasons` (Q13). The requester comes from the auth token, and the second signatory goes in an `X-Signoff-User` header (Q14). Anyone in the owning organisation may cancel, because the CMS runs a two-person sign-off first (Q13). **Inconsistency to fix:** swagger.yaml L654 says the request body must include the record identifier, but the `stageid` is already in the path, and the reason now travels in the query string.
+
+    **2. Concurrency (User 2026-11-23 Q2–Q4, Q18, Q20–Q22).**
+    - Every `GET`, `PATCH` and `PUT` response on a stage returns an `ETag`. `PATCH` and `PUT` must send `If-Match` (Q20).
+    - If `If-Match` is stale, the platform rebases the change onto the current version (Q3).
+      - **Stale `PATCH`, no conflict:** rebased; `200` with a new `ETag`. ⚠️ Inferred from Q3 and Q18, not yet confirmed.
+      - **Any field changed on both sides:** the whole request is rejected with `412` and `outcome: conflict` (Q4, Q21). The organisation that pushed later resolves it in its CMS and pushes again (Q4).
+      - **Stale `PUT`, no conflict:** rebased but **not** accepted, because new information may change what should be signed off. `412` with `outcome: rebased`, the rebased stage and its new `ETag`. The stage stays partial and needs a new sign-off (Q18, Q21).
+    - Each logical push carries an `Idempotency-Key` header, reused on every retry. The platform replays the original result for a key it has already processed, so a retry after a lost response doesn't fail against the client's own write (Q22).
+    - A CMS locks a stage against edits once it has sent a `PUT` (Q16). Any fix after a rejected `PUT` needs both countersignatories to sign again (AP02 L563 QA013; Q17).
+    - `409` keeps its single meaning, an identifier mismatch (swagger.yaml L495–501).
+
+    **3. `Stage` schema.** Add `stageid`, `status` (`StageStatus`), `stage_type`, `case_type`, `schema_version` (Q31), `supersedes` / `superseded_by` (Q24), the countersignatures, and `attachment_ids`. `data` stays the stage content (swagger.yaml L961–963).
+
+    **4. Schema versions (Q30–Q32).** Stored stages are never migrated. `GET` returns each stage under the `schema_version` it was written in, and CMSs must be able to read older versions. After the annual schema change, a partial stage may still be completed under its original version for a grace period that YJB sets; after that, `422`.
+
+    **5. Merged children (Q26).** A request to a `ypid` that has been merged away returns `308 Permanent Redirect` to the surviving `ypid`. A redirected `PATCH` or `PUT` carries the old record's `ETag`, so it will get `412`; the CMS must fetch the stage again.
+
+    ## Departures from the current process
+
+    Each of these was decided on 2026-11-23, but YJB or the business should check them:
+    - **No stop.** Today a stage can be stopped, with a reason and a snapshot (AP02 L526 GE068). A partial stage that's never finished now does the same job, and stale partial stages are reported on rather than expired (Q12, Q23).
+    - **No reopen.** Today a stage can be reopened from the caretaking statuses (AP02 L858 YY026). `completed_shared` is now final, and a `completed_rejected` stage stays as a read-only record and is replaced by a new stage that `supersedes` it (Q10, Q11, Q24).
+    - **Anyone in the owning organisation can cancel**, not just the owner (AP02 L527 GE069), with two-person sign-off in the CMS (Q13).
+    - **Only partial stages can be cancelled.** Today the caretaking statuses can be cancelled too (AP02 L858 YY026). ⚠️ Inferred from Q10–Q12.
+    - **'Completed – awaiting Transfer' becomes "partial".** A stage that's signed off locally but not yet accepted by the platform is still partial (Q7).
 
     **Caller identity.** The caller's organisation (OU code) and role are assumed to come from the authentication token. Where a source says the YOT decides which roles may accept or reject (AP02 L891 SE009, L872 YY016), a caller without that role gets `403 Forbidden`.
-  version: 0.0.2-draft
+  version: 0.0.3-draft
 
 servers: []
 
@@ -33,13 +70,13 @@ tags:
   - name: Transfers and caretaking
     description: Requesting, accepting, rejecting and ending caretaking (and complete) transfers
   - name: Stage lifecycle and review
-    description: Completing, stopping, cancelling and re-opening stages, and reviewing stages shared by the other party
+    description: Reviewing stages shared by the other party, and reading a stage's history and changes. Status changes happen through the stage routes in `../swagger.yaml`; see "Recommended changes"
   - name: Attachments
     description: Files attached to a stage (replaces the Unstructured_Data list plus secure email)
   - name: Placements
     description: YJB Placement Service requests that lead to secure-estate caretaking
   - name: Records
-    description: Merging duplicate AssetPlus records
+    description: Reporting and merging duplicate AssetPlus records
   - name: Reference data
     description: Lists of controlled values
 
@@ -53,16 +90,20 @@ paths:
 
         Today the destination is chosen by the person starting the transfer (AP06 L272) and identified by OU code in the message header (AP06 L416–419; AssessmentTransfer L360–365, SimpleTypes L1889–1894).
 
+        **Who maintains the list.** YJB adds, renames and retires organisations through the platform's internal admin UI. This public API can only read the list (User 2026-11-23 Q46). A retired organisation stays readable, with `status: retired` and the OU code it was merged into, so that old stages and transfers still resolve (Q46).
+
+        **When two YOTs merge,** YJB retires one into the other, and the platform automatically moves ownership of everything the old YOT owned (partial stages, pending reviews, active transfers) to the new one. The new YOT's staff then see the old YOT's partial stages and inbox. If both YOTs had a partial stage for the same child, both carry on; the one-partial-stage-per-organisation rule applies only to new `POST`s (User 2026-11-23 Q47, Q48).
+
         **Source gap.** AP03 lists 258 YOTs with OU code, name and Connectivity name (AP03 'YOT Full List'), but only as of 2014. No source lists secure establishments or the Placement Service: the schema knows only the establishment type (SCH, STC or YOI; SimpleTypes L823–829) and a free-text establishment name (AssessmentTransfer L230). See `api-scope-and-options.md` Q14.
       parameters:
         - name: type
           in: query
           schema:
             $ref: "#/components/schemas/OrganisationType"
-        - name: ou_code
+        - name: status
           in: query
           schema:
-            type: string
+            $ref: "#/components/schemas/OrganisationStatus"
       responses:
         '200':
           description: Success
@@ -72,6 +113,34 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Organisation"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /organisations/{ou_code}:
+    parameters:
+      - name: ou_code
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Fetch one organisation by OU code
+      tags: [Organisations]
+      description: |
+        Returns the organisation, including retired ones (User 2026-11-23 Q46).
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Organisation"
+        '404':
+          description: No organisation has this OU code.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         '500':
           $ref: "#/components/responses/ServerError"
 
@@ -118,7 +187,7 @@ paths:
         - `YY017`: no complete transfer for a Looked After Child (AP02 L849)
         - `YY004` (Should): no complete transfer with breach proceedings pending (AP02 L848)
 
-        Transfers to a secure establishment must be `caretaking` (AP02 L874 SE001). They are normally created by the Placement Service via `POST /placement-requests/{placementrequestid}/decision` rather than directly. See `api-scope-and-options.md` option D for alternatives.
+        Transfers to a secure establishment must be `caretaking` (AP02 L874 SE001). They're normally created by the platform when the Placement Service records its decision in its own web UI, which runs on an internal platform API (User 2026-11-23 Q35, Q36). A YOT's CMS starts that process with `POST /children/{ypid}/placement-requests`.
 
         The `child` property confirms the request is for the expected child, following the `POST /children/{ypid}/stages` convention in `../swagger.yaml`. It mitigates the "Wrong AssetPlus" rejection reason (AP06 L339).
       requestBody:
@@ -294,46 +363,30 @@ paths:
         '500':
           $ref: "#/components/responses/ServerError"
 
-  /children/{ypid}/stages/{stageid}/transitions:
+  /children/{ypid}/stages/{stageid}/history:
     parameters:
       - $ref: "#/components/parameters/ypidParameter"
       - $ref: "#/components/parameters/stageidParameter"
-    post:
-      summary: Complete, stop, cancel or re-open a stage
+    get:
+      summary: The stage's audit history
       tags: [Stage lifecycle and review]
       description: |
-        `../swagger.yaml` lets clients create and edit stages, but has no explicit way to change a stage's status. Today's statuses and actions are:
-        - `complete`: needs managerial sign-off and all mandatory fields, and creates a snapshot (AP02 L525 GE059, L517 GE044). Sign-off means the two countersignatures, for Explanations & Conclusions and for Pathways & Planning (AssessmentTransfer L334–335, L454–472).
-        - `stop`: needs a reason and creates a snapshot (AP02 L526 GE068)
-        - `cancel`: needs a reason and can only be done by the owner who created the stage; hides the stage, keeps the audit trail, and reverts to the previous stage (AP02 L527 GE069). Allowed from `in_progress` and from the caretaking statuses (AP02 L858 YY026).
-        - `reopen`: only from the caretaking statuses; returns the stage to `in_progress` (AP02 L858 YY026)
+        Lists the stage's events in time order: created, saved, rebased, completed, shared, reviewed, superseded and cancelled. Each event records who did it and when (User 2026-11-23 Q39). This exposes the audit trail that every change must have (AP02 L536 GE015), including cancelled stages (AP02 L527 GE069).
 
-        **Overlap with `DELETE`.** `../swagger.yaml` now has `DELETE /children/{ypid}/stages/{stageid}` for stages that haven't been signed off (swagger.yaml L649–654). That overlaps with `cancel` from `in_progress`. `api-scope-and-options.md` option I recommends keeping `cancel` here as the only way to cancel (I3). If the team chooses I2 instead, `cancel` would be removed from this route.
+        The same privacy rule applies as for partial stages: events on a partial stage are visible only to the organisation that owns it (swagger.yaml L476).
 
-        **Sharing.** If an `accepted` caretaking transfer exists when a stage is completed, the stage is shared with the other party and gets status `completed_shared`, replacing 'Completed – Transferred' (AP02 L857 YY025, AP06 §6.5.1). The other party must then review it via `…/reviews`.
-
-        `422` is returned for rule failures, for example `complete` without sign-off, or `reopen` from a plain `completed` stage.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/StageTransition"
+        **Replaces the transitions route.** An earlier draft had `POST …/stages/{stageid}/transitions` for complete, stop, cancel and reopen. It was removed because status changes now happen implicitly through `POST`, `PATCH`, `PUT` and `DELETE` on the stage (User 2026-11-23 Q8). See "Recommended changes to `../swagger.yaml`" in the description at the top of this file.
       responses:
         '200':
-          description: Transition applied. Returns the new stage status.
+          description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StageStatusResponse"
-        '400':
-          $ref: "#/components/responses/BadRequest"
-        '403':
-          $ref: "#/components/responses/Forbidden"
+                type: array
+                items:
+                  $ref: "#/components/schemas/StageHistoryEvent"
         '409':
           $ref: "#/components/responses/ChildConflict"
-        '422':
-          $ref: "#/components/responses/RuleViolation"
         '500':
           $ref: "#/components/responses/ServerError"
 
@@ -367,7 +420,10 @@ paths:
 
         Before deciding, the reviewer can view the stage and its changes (`…/changes`) (AP02 L863 YY009, L888 SE006).
 
-        See `api-scope-and-options.md` option B for alternatives, including removing this step.
+        This is option B1 in `api-scope-and-options.md` §B, which follows from the 2026-11-23 decisions (User 2026-11-23 Q10, Q11):
+        - **While under review**, a `completed_shared` stage is visible to every reader, along with its review status, for example `review: pending` (Q33). The organisation that completed it can't reopen it (Q10).
+        - **A rejected stage** stays as a read-only record. To correct it, the originating organisation creates a new stage with `POST /children/{ypid}/stages`, giving `supersedes` as the URI of the rejected stage. The platform checks that the superseded stage is `completed_rejected` and belongs to the same child, and adds a `superseded_by` link to it. No content is copied across (Q11, Q24). ⚠️ Inferred, not confirmed: rejected stages stay visible to every reader, with their status and `superseded_by` link.
+        - **Three-way arrangements** (Home YOT, Host YOT and a Secure Estate): the Home YOT reviews every stage completed by the Host YOT or the Secure Estate, and the Home YOT's own stages are reviewed by the active caretaker (Q34), consistent with SE001 (AP02 L874). **Gap:** if a Host YOT and a Secure Estate are both active caretakers, it's not yet decided which of them reviews the Home YOT's stages.
       requestBody:
         required: true
         content:
@@ -453,6 +509,8 @@ paths:
       tags: [Attachments]
       description: |
         Replaces the `Unstructured_Data` list, which catalogued files sent "via alternate means e.g. secure email" because Connectivity could not carry them (AP06 L260–266). In the v12 schema that list became an attachment index for each stage, giving each file's section and document name (AssessmentTransfer L2679–2690). `Unstructured_Data` was removed in v3.0.1 (AssessmentTransfer L66). Attachments are uploaded at section level (AP02 L537 GE019).
+
+        **Attachments follow the stage's lifecycle (User 2026-11-23 Q43).** They're sub-resources of the stage. They can be added or removed only while the stage is partial; `POST` or `DELETE` on a completed stage gets `422`. The completing `PUT` lists the attachment IDs being signed off, so the countersignatories sign off the files too. A document that arrives after completion goes on a new stage. ⚠️ Inferred, not confirmed: attachments on a partial stage are visible only to the organisation that owns it, like the stage (swagger.yaml L476).
       responses:
         '200':
           description: Success
@@ -481,11 +539,25 @@ paths:
                   format: binary
                 section:
                   type: string
-                  description: The framework section the file belongs to (AP02 L537 GE019). Free text in the v12 schema (AssessmentTransfer L2689). Whether to restrict it to a list of sections is TBC.
+                  description: |
+                    The section of the assessment the file belongs to, for example "Explanations & Conclusions" (AP02 L537 GE019). This is free text, as it is in the v12 schema (AssessmentTransfer L2689). The platform stores whatever the CMS sends and doesn't check it against a list (User 2026-11-23).
+
+                    **Known weakness.** Free text means different CMSs can label the same section differently, for example "Explanations & Conclusions", "Explanations and Conclusions" or "E&C". A reader then sees three different sections, and can't reliably group or filter files by section. This was accepted to keep things unchanged for current CMSs and for the AP06 adapter.
+
+                    **Possible future change.** The platform could publish a fixed list of section names (for example `GET /reference-data/sections`) and reject anything else with `422`. Every CMS would then use the same labels. The list would need updating when the annual schema change alters the sections, and the AP06 adapter would need to map old free-text labels onto it (User 2026-11-23).
               required: [file]
+      description: |
+        Every upload is scanned for malware before anyone else can download it (`api-scope-and-options.md` item 12). Scanning can take seconds to minutes, so the upload is asynchronous (User 2026-11-23 Q44). The platform returns `202 Accepted`, with the attachment's URI in `Location` and `scan_status: pending`. The CMS polls `GET …/attachments/{attachmentid}` until `scan_status` is `clean` or `rejected`. A completing `PUT` that lists an attachment that isn't `clean` gets `422`.
+
+        Uploads support the `Idempotency-Key` header, as the stage routes do (Q22).
       responses:
-        '201':
-          description: Uploaded
+        '202':
+          description: Accepted for scanning. `Location` gives the attachment's URI.
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
           content:
             application/json:
               schema:
@@ -496,6 +568,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         '409':
           $ref: "#/components/responses/ChildConflict"
+        '422':
+          $ref: "#/components/responses/RuleViolation"
         '500':
           $ref: "#/components/responses/ServerError"
 
@@ -510,12 +584,17 @@ paths:
           type: string
           format: uuid
     get:
-      summary: Download an attachment
+      summary: Fetch an attachment's details, or download it
       tags: [Attachments]
+      description: |
+        With `Accept: application/json`, returns the attachment's details, including `scan_status` (User 2026-11-23 Q44). With `Accept: application/octet-stream`, returns the file, but only once `scan_status` is `clean`; until then the download gets `409`. ⚠️ The status code for "not yet scanned" wasn't discussed; `409` is a placeholder, and it overlaps the identifier-mismatch meaning.
       responses:
         '200':
-          description: The file
+          description: The attachment's details, or the file
           content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attachment"
             application/octet-stream:
               schema:
                 type: string
@@ -524,16 +603,33 @@ paths:
           $ref: "#/components/responses/ChildConflict"
         '500':
           $ref: "#/components/responses/ServerError"
+    delete:
+      summary: Remove an attachment from a partial stage
+      tags: [Attachments]
+      description: |
+        Allowed only while the stage is partial; `422` otherwise (User 2026-11-23 Q43). The removal is recorded in the stage's history (Q39).
+      responses:
+        '204':
+          description: Removed
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '422':
+          $ref: "#/components/responses/RuleViolation"
+        '500':
+          $ref: "#/components/responses/ServerError"
 
-  /placement-requests:
+  /children/{ypid}/placement-requests:
+    parameters:
+      - $ref: "#/components/parameters/ypidParameter"
     post:
       summary: Ask the Placement Service to place a child in the secure estate
       tags: [Placements]
-      x-speculative: true
       description: |
-        **⚠️ Speculative.** AP02 says a YOT→SE transfer "will always be via the YJB Placement Service" (AP02 L874 SE001), and the Custody module gives placements "appropriate information to make a placement" (AP02 L484). Neither document describes the Placement Service process.
+        AP02 says a YOT→SE transfer "will always be via the YJB Placement Service" (AP02 L874 SE001), and the Custody module gives placements "appropriate information to make a placement" (AP02 L484). Neither document describes the Placement Service process.
 
-        This models placement as a separate client, because Placements and the SE may in future use different client systems (User 2026-11-19).
+        **Decided 2026-11-23.** The Placement Service uses its own web UI, on an internal platform API, rather than a third-party system calling this API (User 2026-11-23 Q35, Q36). So the public API keeps only this minimal route, for the YOT's CMS to start a placement, and a `GET` to follow its status (Q37). The Placement Service's decision, and its choice of secure establishment, happen internally. When the decision is made, the platform creates a `caretaking` transfer from the YOT to the chosen establishment, with status `requested` (AP02 L874 SE001).
 
         The referenced stage would normally be a completed Placement Notification, Bail Recommendation, PSR (All options) or Post Court stage, which carry the Custody module (AP06 L365–369, AP02 L517 GE044).
 
@@ -546,7 +642,7 @@ paths:
               $ref: "#/components/schemas/PlacementRequestCreate"
       responses:
         '201':
-          description: Created
+          description: Created. `Location` gives the placement request's URI.
           content:
             application/json:
               schema:
@@ -561,80 +657,25 @@ paths:
           $ref: "#/components/responses/RuleViolation"
         '500':
           $ref: "#/components/responses/ServerError"
-    get:
-      summary: List placement requests (Placement Service work queue, or YOT's own)
-      tags: [Placements]
-      x-speculative: true
-      parameters:
-        - name: status
-          in: query
-          schema:
-            $ref: "#/components/schemas/PlacementRequestStatus"
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PlacementRequest"
-        '500':
-          $ref: "#/components/responses/ServerError"
 
-  /placement-requests/{placementrequestid}:
+  /children/{ypid}/placement-requests/{placementrequestid}:
     parameters:
+      - $ref: "#/components/parameters/ypidParameter"
       - $ref: "#/components/parameters/placementrequestidParameter"
     get:
-      summary: Fetch a placement request
+      summary: Follow a placement request's status
       tags: [Placements]
-      x-speculative: true
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PlacementRequest"
-        '404':
-          description: Not found, or not visible to the caller
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        '500':
-          $ref: "#/components/responses/ServerError"
-
-  /placement-requests/{placementrequestid}/decision:
-    parameters:
-      - $ref: "#/components/parameters/placementrequestidParameter"
-    post:
-      summary: Record the placement decision and start secure-estate caretaking
-      tags: [Placements]
-      x-speculative: true
       description: |
-        **⚠️ Speculative.** The Placement Service records which secure establishment the child is placed in. This creates a `caretaking` transfer from the requesting YOT to that establishment, with status `requested` (AP02 L874 SE001). The same preconditions as `POST /children/{ypid}/transfers` apply.
-
-        No source models this decision. The v12 schema has a recommendation by type and, after arrival, a free-text establishment name (AssessmentTransfer L1165, L230). It needs OU codes for secure establishments, which no source lists (`api-scope-and-options.md` Q14).
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PlacementDecision"
+        Lets the requesting YOT's CMS see whether the child has been placed, where, and the resulting transfer (User 2026-11-23 Q37). The Placement Service's own work queue is internal and isn't part of this API (Q36).
       responses:
         '200':
-          description: Decision recorded. Returns the placement request with the new transfer ID.
+          description: Success
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PlacementRequest"
-        '400':
-          $ref: "#/components/responses/BadRequest"
-        '403':
-          $ref: "#/components/responses/Forbidden"
-        '422':
-          $ref: "#/components/responses/RuleViolation"
+        '409':
+          $ref: "#/components/responses/ChildConflict"
         '500':
           $ref: "#/components/responses/ServerError"
 
@@ -647,7 +688,10 @@ paths:
       description: |
         Today two copies of the framework can be merged by combining all stages in completion-date order and renumbering episodes by creation date (AP02 L870 YY014). In a central store the copies are two `ypid`s for the same child. `../todo.md` L17 notes that a child can currently have more than one AssetPlus record.
 
-        The duplicate `ypid` is retired and resolves to this one.
+        **Decided 2026-11-23:**
+        - **One record per child.** A second record is an accidental duplicate to be merged, so stages stay flat under `/children/{ypid}/stages` and aren't pushed down a level (User 2026-11-23 Q25). That answers `../todo.md` L17.
+        - **Only YJB or a central team may merge.** CMS callers get `403` (Q27). CMSs report suspected duplicates with `POST /children/{ypid}/duplicate-reports` instead (Q42). In practice this route is used by YJB's internal admin UI.
+        - **The duplicate `ypid` is retired.** Afterwards, any request to it returns `308 Permanent Redirect` to the surviving `ypid` (Q26). A practitioner who asks for either `ypid` is entitled to learn that they're the same child, so the redirect isn't a disclosure concern (User 2026-11-23, Q26 discussion).
       requestBody:
         required: true
         content:
@@ -685,6 +729,60 @@ paths:
         '500':
           $ref: "#/components/responses/ServerError"
 
+  /children/{ypid}/duplicate-reports:
+    parameters:
+      - $ref: "#/components/parameters/ypidParameter"
+    post:
+      summary: Report a suspected duplicate record for this child
+      tags: [Records]
+      description: |
+        A CMS that thinks two `ypid`s are the same child reports it here. YJB works through the reports in its internal UI and, if they agree, merges the records with `POST /children/{ypid}/merges`. The CMS can follow the report's status, and once the merge is done, the retired `ypid` returns `308` (User 2026-11-23 Q26, Q27, Q42).
+
+        No source defines how duplicates are matched (AP02 L870 YY014).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DuplicateReportCreate"
+      responses:
+        '201':
+          description: Report created. `Location` gives its URI.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DuplicateReport"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
+  /children/{ypid}/duplicate-reports/{reportid}:
+    parameters:
+      - $ref: "#/components/parameters/ypidParameter"
+      - name: reportid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Follow a duplicate report's status
+      tags: [Records]
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DuplicateReport"
+        '409':
+          $ref: "#/components/responses/ChildConflict"
+        '500':
+          $ref: "#/components/responses/ServerError"
+
   /reference-data/{list}:
     parameters:
       - name: list
@@ -695,6 +793,8 @@ paths:
           enum:
             - transfer-rejection-reasons
             - update-rejection-reasons
+            - cancellation-reasons
+            - duplicate-report-reasons
             - stage-types
             - stage-statuses
             - case-types
@@ -706,7 +806,9 @@ paths:
       description: |
         Today these are enumerations fixed in the XSD (static lookups, AP06 L241) or in the requirements. Sources for each list:
         - rejection reasons: AP06 L336–347; SimpleTypes L1342–1353
-        - stage types: AP02 L520 GE034; SimpleTypes L166–184
+        - cancellation reasons: the codes for `DELETE …/stages/{stageid}?reason=` (User 2026-11-23 Q13). **Gap:** today the cancel reason seems to be free text (AP02 L527 GE069), and no source gives a list of codes, so the list needs defining.
+        - duplicate-report reasons: for `POST /children/{ypid}/duplicate-reports` (User 2026-11-23 Q42). ⚠️ Speculation: no source defines them.
+        - stage types: AP02 L520 GE034; SimpleTypes L166–184. Each item's `applies_to` says which organisation types and case types may create it; the platform enforces these (User 2026-11-23 Q29)
         - stage statuses: AP02 L524 GE058; SimpleTypes L1731–1738
         - case types: SimpleTypes L291–301
         - establishment types: SimpleTypes L823–829
@@ -730,9 +832,8 @@ paths:
     post:
       summary: Subscribe to transfer and review events (webhooks)
       tags: [Transfers and caretaking]
-      x-speculative: true
       description: |
-        **Option C2 in `api-scope-and-options.md`.** Push alternative to polling `/transfers` and `/reviews`. Replaces the automatic notifications sent today:
+        **Option C3 in `api-scope-and-options.md`, decided 2026-11-23** (User 2026-11-23 Q38). The polled inboxes (`GET /transfers`, `GET /reviews`) are the source of truth. Webhooks are optional hints that tell a CMS to poll now. A CMS that doesn't subscribe loses nothing but timeliness. Replaces the automatic notifications sent today:
         - acceptance of a transfer (AP02 L852 YY019)
         - acceptance of an update (AP02 L887 SE014)
         - rejection (AP02 L886 SE005)
@@ -758,8 +859,8 @@ paths:
                       - stage.shared
                       - review.accepted
                       - review.rejected
-                      - placement_request.created
                       - placement_request.decided
+                      - duplicate_report.resolved
               required: [callback_url, events]
       responses:
         '201':
@@ -843,6 +944,17 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/RuleViolation"
+    PreconditionFailed:
+      description: |
+        Precondition Failed. The `If-Match` `ETag` is stale: another organisation's change reached the platform first (User 2026-11-23 Q20, Q21). Intended for `PATCH` and `PUT …/stages/{stageid}` in `../swagger.yaml`; see "Recommended changes". `outcome` says which case applies:
+        - `conflict`: a field was changed on both sides. Nothing was applied. The later party resolves it in its CMS and sends it again (Q4).
+        - `rebased`: a `PUT` with no conflicting field. The platform has rebased it, but **hasn't accepted it as complete**, because the countersignatories haven't seen the merged content. The stage stays partial. The body has the rebased stage and its new `ETag`, ready for a new sign-off (Q18).
+
+        `409` isn't used for this, because it already means an identifier mismatch (swagger.yaml L495–501).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/StageOutcome"
     ServerError:
       description: Internal server error
       content:
@@ -880,7 +992,17 @@ components:
           type: string
         type:
           $ref: "#/components/schemas/OrganisationType"
-      required: [ou_code, name, type]
+        status:
+          $ref: "#/components/schemas/OrganisationStatus"
+        merged_into_ou_code:
+          type: string
+          nullable: true
+          description: For a retired YOT, the OU code of the YOT it was merged into (User 2026-11-23 Q46, Q47).
+      required: [ou_code, name, type, status]
+    OrganisationStatus:
+      type: string
+      enum: [active, retired]
+      description: Retired organisations stay readable so that old stages and transfers still resolve (User 2026-11-23 Q46).
 
     TransferType:
       type: string
@@ -979,25 +1101,18 @@ components:
       enum:
         - in_progress
         - completed
-        - stopped
         - cancelled
         - completed_shared
         - completed_rejected
       description: |
-        `in_progress`, `completed`, `stopped`, `cancelled` come from AP02 L524 GE058, and are the only statuses in the v12 stage index (SimpleTypes L1731–1738).
-        `completed_shared` and `completed_rejected` come from the caretaking statuses (AP02 L857 YY025, L883 SE016). Today these are local to each CMS and not in the schema.
-        'Completed – awaiting Transfer' is dropped because, in a central store, a completed stage is shared immediately. See `api-scope-and-options.md` §2.
-    StageTransition:
-      type: object
-      properties:
-        action:
-          type: string
-          enum: [complete, stop, cancel, reopen]
-        reason:
-          type: string
-          description: Required for `stop` and `cancel` (AP02 L526 GE068, L527 GE069).
-      required: [action]
+        `in_progress`, `completed` and `cancelled` come from AP02 L524 GE058, and are in the v12 stage index (SimpleTypes L1731–1738). `in_progress` is what this API calls a **partial** stage: anything the platform hasn't yet accepted as complete, even if every local sign-off is done (User 2026-11-23 Q7).
+        `completed_shared` and `completed_rejected` come from the caretaking statuses (AP02 L857 YY025, L883 SE016). Today these are local to each CMS and not in the schema. `completed_shared` is final: the organisation that completed it can't reopen it (Q10). `completed_rejected` is a read-only record, replaced by a new stage that `supersedes` it (Q11, Q24).
+        Dropped:
+        - `stopped` (AP02 L526 GE068). There's no stop (User 2026-11-23 Q12).
+        - 'Completed – awaiting Transfer'. In a central store, a stage that has been signed off but not yet accepted is still partial (Q7; `api-scope-and-options.md` §2).
     StageStatusResponse:
+      description: |
+        Proposed `200` body for an accepted `PUT …/stages/{stageid}` in `../swagger.yaml`. This response is the "update accepted" signal: the stage is now complete, and the CMS may mark its local copy complete (User 2026-11-23 Q7, Q8).
       type: object
       properties:
         stageid:
@@ -1010,6 +1125,49 @@ components:
           items:
             $ref: "#/components/schemas/Organisation"
           description: Organisations that must review this stage, if any.
+    StageOutcome:
+      description: Body of a `412` response (User 2026-11-23 Q21).
+      type: object
+      properties:
+        outcome:
+          type: string
+          enum: [conflict, rebased]
+        conflicting_fields:
+          type: array
+          items:
+            type: string
+          description: For `conflict`, the data-dictionary field references changed on both sides (AP06 L235).
+        stage:
+          description: For `rebased`, the rebased stage, ready for a new sign-off. Uses the `Stage` schema in `../swagger.yaml`.
+          allOf:
+            - $ref: "../swagger.yaml#/components/schemas/Stage"
+        etag:
+          type: string
+          description: The current `ETag`, to send as `If-Match` next time.
+      required: [outcome, etag]
+    StageHistoryEvent:
+      type: object
+      properties:
+        event:
+          type: string
+          enum: [created, saved, rebased, completed, shared, review_accepted, review_rejected, superseded, cancelled, attachment_added, attachment_removed]
+        at:
+          type: string
+          format: date-time
+        by:
+          type: string
+          description: The authenticated user who made the request (User 2026-11-23 Q14).
+        signed_off_by:
+          type: string
+          nullable: true
+          description: For `cancelled`, the second signatory from `X-Signoff-User` (Q14). For `completed`, see the countersignatures in the stage itself (Q15).
+        organisation:
+          $ref: "#/components/schemas/Organisation"
+        reason:
+          type: string
+          nullable: true
+          description: For `cancelled`, the reason code (Q13). For `review_rejected`, the rejection reason.
+      required: [event, at, by, organisation]
 
     ReviewDecision:
       type: object
@@ -1103,6 +1261,10 @@ components:
         uploaded_at:
           type: string
           format: date-time
+        scan_status:
+          type: string
+          enum: [pending, clean, rejected]
+          description: Malware scan result. Others can download the file only when `clean` (User 2026-11-23 Q44).
 
     PlacementRequestStatus:
       type: string
@@ -1110,20 +1272,17 @@ components:
       x-speculative: true
     PlacementRequestCreate:
       type: object
-      x-speculative: true
+      description: The `ypid` is in the path (User 2026-11-23 Q37).
       properties:
         child:
           $ref: "../swagger.yaml#/components/schemas/MinimalChild"
-        ypid:
-          type: integer
         stageid:
           type: string
           format: uuid
           description: The completed stage carrying the Custody module.
-      required: [child, ypid, stageid]
+      required: [child, stageid]
     PlacementRequest:
       type: object
-      x-speculative: true
       properties:
         placement_request_id:
           type: string
@@ -1145,13 +1304,43 @@ components:
           type: string
           format: uuid
           nullable: true
-    PlacementDecision:
+          description: The `caretaking` transfer the platform created when the Placement Service decided.
+
+    DuplicateReportCreate:
       type: object
-      x-speculative: true
       properties:
-        secure_establishment_ou_code:
+        suspected_duplicate_ypid:
+          type: integer
+          minimum: 1
+          maximum: 999999999
+        reason:
           type: string
-      required: [secure_establishment_ou_code]
+          description: A code from `GET /reference-data/duplicate-report-reasons`.
+        note:
+          type: string
+      required: [suspected_duplicate_ypid, reason]
+    DuplicateReport:
+      allOf:
+        - $ref: "#/components/schemas/DuplicateReportCreate"
+        - type: object
+          properties:
+            report_id:
+              type: string
+              format: uuid
+            ypid:
+              type: integer
+            status:
+              type: string
+              enum: [open, merged, not_duplicate]
+            reported_by:
+              type: string
+            reported_at:
+              type: string
+              format: date-time
+            surviving_ypid:
+              type: integer
+              nullable: true
+              description: Once `merged`, the `ypid` that the other now redirects to (User 2026-11-23 Q26).
 
     ReferenceItem:
       type: object

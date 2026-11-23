@@ -7,6 +7,8 @@ First written 2026-11-19 on branch `api-footprint-prototypes`. Updated twice lat
 - after the first commit and the arrival of new source documents
 - after those new sources and the new DELETE stage route had been worked into the outputs
 
+Updated again on 2026-11-23, after a design session (a "grill") that settled most of the open design options. See "Decisions from the design session (2026-11-23)".
+
 ## The task
 
 - Investigate how the AssetPlus transfer process can be improved.
@@ -31,6 +33,29 @@ First written 2026-11-19 on branch `api-footprint-prototypes`. Updated twice lat
 | Other source documents | Work only from the documents in `restricted-documents/` and the other files listed in `documents-list.md` |
 | Quotes from restricted documents | The quotes, phrases and controlled values committed in `2566f35` are **acceptable**. Don't raise them again. Keep using short quotes and citations in the same way |
 
+## Decisions from the design session (2026-11-23)
+
+The user answered 48 questions (Q1–Q48), one at a time. Where options were offered, the one closest to standard REST was labelled, because the user prefers standard HTTP means where possible. The full record is in `.grill-me/`, which git ignores:
+
+- `assetplus-api-design-20261123T1315-summary.md`: the readable summary
+- `assetplus-api-design-20261123T1315.json`: the design tree
+
+The headline decisions:
+
+| Topic | Decision |
+| :-- | :-- |
+| System of record | Central store, **agreed with YJB**. CMSs keep a local copy where practitioners work. The platform's copy is what other organisations rely on |
+| Writes | The CMS saves first, then pushes. `ETag`/`If-Match`; the platform rebases stale pushes; a conflict on the same field gets `412`; retries use `Idempotency-Key` |
+| Stage lifecycle | No transitions API. `POST` creates, `PATCH` saves a partial, and an **accepted `PUT` completes** the stage. A soft `DELETE` with a reason code cancels it. No stop and no reopen |
+| Sign-off | Two people, in the CMS. The v12 countersignatures are trusted. The CMS locks a stage once it sends the `PUT`. Any fix or rebase needs a new sign-off |
+| Records | One per child; stages stay flat. CMSs report duplicates; only YJB merges. A merged-away `ypid` returns `308` |
+| Schema versions | A `schema_version` field; no migration; a grace period after each annual change |
+| Review | Option B1. Stages under review are visible to all. The Home YOT is the hub in three-way cases |
+| Placement Service | Its own web UI on an internal API. The public API only lets a YOT start a placement and follow it |
+| Other | Inbox plus optional webhooks; a public `/history`; attachments follow the stage, with asynchronous scanning; an AP06 adapter for migration; YJB maintains the organisations list |
+
+Seven inferences in the summary are still to be confirmed (`api-scope-and-options.md` Q21). Non-functional requirements weren't covered, by the user's choice.
+
 ## Inputs
 
 - The restricted source documents are in `restricted-documents/`, which git ignores. `documents-list.md` lists them by title, with versions and locations:
@@ -53,23 +78,27 @@ First written 2026-11-19 on branch `api-footprint-prototypes`. Updated twice lat
 | :-- | :-- | :-- |
 | `documents-list.md` | Documents used, documents still missing, and gaps between the sources | Titles, versions and dates, plus a few counts and enumeration names |
 | `current-process.md` | Sourced description of today's process, with Mermaid diagrams, cross-checked against the v12 XSDs and AP 03 | **Yes**: paraphrases, short quotes and controlled values |
-| `api-scope-and-options.md` | Coverage table (F1–F32), missed scope (§2 items 1–24), design options A–I, suggested changes to `../swagger.yaml`, open questions Q1–Q16 | **Yes**: paraphrases and citations |
-| `proposed-transfer-api.yaml` | OpenAPI 3.0.4 draft (v0.0.2-draft) of **new routes only**. It references `MinimalChild` from `../swagger.yaml` and marks speculative parts `x-speculative: true` | **Yes**: short quotes and citations in descriptions |
+| `api-scope-and-options.md` | Coverage table (F1–F32), missed scope (§2 items 1–26), design options A–J, suggested changes to `../swagger.yaml`, open questions Q1–Q23. Annotated with the 2026-11-23 decisions | **Yes**: paraphrases and citations |
+| `proposed-transfer-api.yaml` | OpenAPI 3.0.4 draft (v0.0.3-draft) of new routes. Its description lists the recommended changes to `../swagger.yaml` and the departures from the current process. It references `MinimalChild` and `Stage` from `../swagger.yaml`, and marks speculative parts `x-speculative: true` | **Yes**: short quotes and citations in descriptions |
+| `.grill-me/` (git-ignored) | The 2026-11-23 design session: summary and JSON design tree | **Yes**: citations |
 | `session-context.md` | This file | No |
 
 ## Routes proposed (summary)
 
-All of these are in `proposed-transfer-api.yaml`. The recommended options from `api-scope-and-options.md` shape them:
-- organisations
+All of these are in `proposed-transfer-api.yaml`, revised on 2026-11-23 to match the design-session decisions:
+
+- organisations: list, and fetch one by OU code (read-only; YJB maintains them)
 - transfers: request, list, inbox, accept, reject, end
-- stage status changes: complete, stop, cancel, reopen
+- a stage's audit history
 - review of stages shared by the other party, plus a review inbox
 - a stage change comparison, as JSON or PDF
-- stage attachments
-- placement requests and decisions (speculative)
-- merging duplicate records
-- reference data lists, now including case types and establishment types
-- webhook subscriptions (optional)
+- stage attachments: list, upload (asynchronous scan), fetch or download, and remove
+- placement requests: start one and follow its status (the rest is internal)
+- duplicate reports, and merging (YJB only)
+- reference data lists, now including cancellation and duplicate-report reasons
+- webhook subscriptions (optional; the inboxes are the source of truth)
+
+The `…/transitions` route was **removed**. Status changes now happen through the stage routes in `../swagger.yaml`, as listed in the YAML's "Recommended changes".
 
 ## Main findings from the new sources (2026-11-19)
 
@@ -91,7 +120,7 @@ Detail and citations are in `current-process.md` §3–§6 and `api-scope-and-op
   - the non-functional requirements
   - the Interface Control Document (ICD)
   - the transfer flows document
-- **`DELETE …/stages/{stageid}`.** It overlaps with the GE069 "cancel" requirement but, as drafted, doesn't meet it. It has no reason, it's limited by organisation rather than by owner, and it's a hard delete where GE069 keeps the audit trail. Option I in `api-scope-and-options.md` sets out four approaches. The recommendation is I3: cancel only through `…/transitions`.
+- **`DELETE …/stages/{stageid}`.** It overlaps with the GE069 "cancel" requirement but, as drafted, doesn't meet it. It has no reason, it's limited by organisation rather than by owner, and it's a hard delete where GE069 keeps the audit trail. Option I in `api-scope-and-options.md` sets out four approaches. The recommendation was I3: cancel only through `…/transitions`. **Superseded 2026-11-23:** I2, a soft `DELETE` with a reason code [User 2026-11-23 Q12–Q14].
 
 ## Conventions used
 
@@ -100,12 +129,13 @@ Detail and citations are in `current-process.md` §3–§6 and `api-scope-and-op
   - Workbooks: `[AP03 '<sheet>' <row or column>]` and `[PROTO '<sheet>' <row>]`. Row numbers are the spreadsheet's own row numbers.
   - XSD files: the file name without the version suffix, e.g. `[SimpleTypes L166]` or `[AssessmentTransfer L113]`.
   - Team decisions: `[User 2026-11-19]`.
+  - Design-session decisions: `[User 2026-11-23 Qn]`, where `Qn` is the question number in the `.grill-me/` summary.
 - Speculation is marked with `⚠️ Speculation:` in markdown and `x-speculative: true` in the yaml.
 - New API conventions follow `../swagger.yaml`: integer `ypid`, GUID `stageid`, 409 instead of 404 for ID mismatches, and no personal data in query strings. They add a `422` response whose `rule` field gives the broken requirement ID.
 
 ## Verification done
 
-- I parsed `proposed-transfer-api.yaml` locally after the latest edits. It loads, and all 148 `$ref` occurrences resolve, including those into `../swagger.yaml`.
+- I parsed `proposed-transfer-api.yaml` locally after the 2026-11-23 revision. It loads, and all 161 `$ref` occurrences resolve, including those into `../swagger.yaml` (`MinimalChild` and `Stage`). One schema, `StageStatusResponse`, isn't referenced by a route in this file; it's the proposed `200` body for `PUT` in `../swagger.yaml`.
 - A full lint with `npx @redocly/cli` hasn't been run.
 - In the first session I spot-checked about 40 citations. On 2026-11-19 I re-checked 17 against the re-supplied AP02 and AP06.
 - Every new XSD line citation was checked by script against the file; three wrong line numbers were found and corrected.
@@ -115,17 +145,18 @@ Detail and citations are in `current-process.md` §3–§6 and `api-scope-and-op
 
 ## Outstanding items
 
-1. **Decisions needed from the team** (see `api-scope-and-options.md` §3 and §5):
-   - option I: what `DELETE …/stages/{stageid}` should mean (Q13)
-   - option B: how shared stages are reviewed in a central store
-   - option D: how the Placement Service actually works today (Q1)
-   - option E: the shape of the stage payload. This can now be worked out from the v12 XSDs, but it needs a decision on schema versioning (Q15)
+1. **Decisions still needed** (see `api-scope-and-options.md` §3 and §5). Options B, C, D, F, I and J were decided on 2026-11-23. Still open:
+   - option A (transfer model; A1 is still drafted), option E (the shape of `Stage.data`; E1 recommended), option G (authorisation) and option H (H1 vs H2)
+   - the seven unconfirmed inferences (Q21)
+   - cancellation reason codes (Q17), thresholds and periods (Q18), a Host YOT and an SE both caretaking (Q19), the response for a download before scanning finishes (Q20), attachment limits and retention (Q22)
+   - how the Placement Service works today (Q1)
+   - **Departures from the current process** to check with YJB or the business: no stop, no reopen, organisation-level cancel, and only partial stages can be cancelled. They're listed in the YAML's description
 2. **Documents to ask for:**
    - a data dictionary or release notes matching schema v12 (Q7)
    - OU codes for secure establishments and the Placement Service, and a current YOT list (Q14)
    - the stage trigger table (Q11)
-   - the non-functional requirements
-3. **Suggested changes to `../swagger.yaml`** are listed in `api-scope-and-options.md` §4, including fixes to the wording of the DELETE route. None has been made, since that file is outside this folder.
+   - the non-functional requirements (Q23)
+3. **Recommended changes to `../swagger.yaml`** are in two places: the YAML's description (decided on 2026-11-23) and `api-scope-and-options.md` §4 (the earlier list, annotated). None has been made, since that file is outside this folder. One inconsistency: `DELETE` expects the identifier in a request body [swagger.yaml L654], although it's in the path.
 4. **Possible next pieces of work:**
    - draft a `Stage.data` structure (option E1) from the v12 XSDs
    - run a full OpenAPI lint
