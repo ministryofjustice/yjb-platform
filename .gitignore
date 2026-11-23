@@ -155,3 +155,6 @@ tmp/
 
 #act 
 .act_config/secrets
+
+# grill-me design-tree session notes
+.grill-me/
