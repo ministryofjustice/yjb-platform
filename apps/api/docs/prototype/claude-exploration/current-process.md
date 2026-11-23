@@ -2,7 +2,7 @@
 
 A high-level description of the current AssetPlus case-transfer process. It focuses on **Youth Offending Team (YOT) ↔ Secure Estate (SE)** transfers, including the YJB Placement Service. YOT ↔ YOT and YOT → Probation (Y2A) are covered briefly at the end.
 
-**How to read this document**
+## How to read this document
 
 - Every factual statement cites its source. The short references are explained in [documents-list.md](documents-list.md).
   - `[AP02 L874 SE001]` means AP 02, line 874, requirement SE001.
@@ -197,6 +197,7 @@ flowchart LR
 ### 4.2 Starting caretaking with a secure establishment
 
 **Preconditions.** The YOT can start the transfer only if:
+
 - the last stage is completed and no stage is in progress [AP02 L876 SE002]
 - no caretaking arrangement with the SE already exists [AP02 L877 SE020]
 
@@ -207,6 +208,7 @@ This applies whether the YOT is the Home YOT or the Host YOT [AP02 L874 SE001].
 **Flagging.** The case is flagged from the moment the transfer is made. The flag distinguishes **requested** from **accepted**, and is removed if the transfer is rejected or ended [AP02 L875 SE026].
 
 **Response.** The receiving party acknowledges, then accepts or rejects [AP06 L391–393 §6.2]. Rejection reasons for an initial transfer are [AP06 L336–347 §6.1]:
+
 - No agreement to transfer in place
 - Wrong AssetPlus
 - Wrong YOT
@@ -230,12 +232,14 @@ AP06 marks the first three reasons as "applicable to initial transfer only" [AP0
 - The YOT decides which user roles may accept or reject SE transfers [AP02 L891 SE009].
 
 > ⚠️ **Speculation / gap:**
+>
 > - SE005, SE014 and SE006 describe only the **YOT** receiving an update from the SE. AP02 has no matching requirement for the SE accepting or rejecting an update from the YOT. The AP06 update flow is written for either party [AP06 L394–396], so the process is probably symmetrical in practice.
 > - YOT↔YOT says a rejected stage "is deleted from the rejecting YOT CMS" [AP02 L863 YY009]. SE005 doesn't say this.
 
 ### 4.4 Extra stage statuses during caretaking
 
 Caretaking adds three statuses [AP02 L883 SE016, L857 YY025]:
+
 - **'Completed – awaiting Transfer'**: completed but not sent. This is also the status if Connectivity fails.
 - **'Completed – Transferred'**: sent.
 - **'Completed – rejected'**: rejected by the other party.
@@ -334,6 +338,7 @@ sequenceDiagram
 | R15 | Show that the young person is in custody | [AP02 L874 SE001] |
 
 **Considered but not built ("Wont")** [AP02 L879–897]. These are **not** current functionality:
+
 - notifying the other side when a stage is created (SE012)
 - warning when a stage is open elsewhere (SE022)
 - cross-system locking (SE015)

@@ -1,12 +1,14 @@
 # AssetPlus transfer: API scope, gaps and options
 
 This document does four things:
+
 1. Lists the functions the **current** AssetPlus transfer process provides (described in [current-process.md](current-process.md)).
 2. Checks whether the **intended** API ([`../swagger.yaml`](../swagger.yaml)) covers each one.
 3. Proposes routes for the gaps, drafted in [proposed-transfer-api.yaml](proposed-transfer-api.yaml).
 4. Sets out design options for us to choose between.
 
 **Scope** [User 2026-11-19]:
+
 - YOT ↔ Secure Estate caretaking, including the YJB Placement Service, mapped in full.
 - YOT ↔ YOT and Y2A noted only.
 - The new API is a **central store**.
@@ -23,6 +25,7 @@ Citation format is as in [documents-list.md](documents-list.md) and [current-pro
 ## 1. Function inventory and coverage
 
 Coverage values:
+
 - ✅ covered by `../swagger.yaml`
 - 🟡 partly covered
 - ❌ not covered
@@ -65,6 +68,7 @@ Coverage values:
 | F32 | Countersignature of Explanations & Conclusions and of Pathways & Planning | [AssessmentTransfer L334–335, L454–472; AP02 L525 GE059] | ❌ | **Decided:** the v12 countersignature fields go in the `PUT` body, and the platform trusts them [User 2026-11-23 Q15]. The CMS locks the stage once a `PUT` is sent [Q16]; any fix or rebase needs a new sign-off [Q17, Q18] |
 
 **Adjacent (noted only):**
+
 - YOT↔YOT complete transfer: the same `Transfer` resource with `type: complete`, plus the YY017/YY004/YY013 rules [AP02 L849, L848, L868].
 - Y2A feed [AP02 L811 YA001].
 - YJMIS extract [AP02 L543 GE041].
