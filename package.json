@@ -12,6 +12,7 @@
     "build": "npm run build -w packages/shared-types && concurrently \"npm run build -w apps/frontend\" \"npm run build -w apps/api\"",
     "build:fe": "npm run build -w apps/frontend",
     "build:api": "npm run build -w apps/api",
+    "build-swagger": "redocly build-docs apps/api/docs/prototype/swagger.yaml --inlineBundle false --output apps/api/docs/prototype/swagger-doc.html",
     "lint": "npm run lint -w apps/frontend -w apps/api",
     "lint:fe": "npm run lint -w apps/frontend",
     "lint:api": "npm run lint -w apps/api",
@@ -34,6 +35,7 @@
   },
   "homepage": "https://github.com/ministryofjustice/yjb-platform#readme",
   "dependencies": {
+    "@redocly/cli": "^2.83.0",
     "http-errors": "^2.0.1"
   }
 }

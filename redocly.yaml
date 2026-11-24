@@ -1,0 +1,4 @@
+openapi:
+  layout: 'stacked'
+
+telemetry: off
