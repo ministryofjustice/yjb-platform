@@ -1,5 +1,5 @@
-// markdownlint configuration for apps/api/docs/prototype/claude-exploration/
-// and its subfolders (including .grill-me/).
+// markdownlint configuration, created for Claude exploration of the
+// YJP prototype API but available for wider use.
 // All default rules apply, except:
 {
   "default": true,
