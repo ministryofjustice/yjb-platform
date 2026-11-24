@@ -1,6 +1,6 @@
 openapi: 3.0.4
 info:
-  title: Prototype API
+  title: YJP Prototype API
   description: |
     This is a draft proposed API footprint for new AssetPlus API endpoints, created solely to make it easier to discuss the current recommended user flow with stakeholders. It is not intended to be a final specification, and should not be used as a reference for implementation.
 
@@ -21,7 +21,7 @@ info:
     - PNCID: Police National Computer identifier, in the format `YYYY/NNNNNNNA`, where `YYYY` is the year the individual was first recorded for an offence and `NNNNNNN` is a 7-digit serial part and `A` is a letter. Example: `2024/0236206A`. The dummy value `0000/0000000A` will lead to a 400 Bad Request response from any API here. In `GET` requests, the slash must be URL-encoded as `%2F`, for example `2024%2F0236206A`.
 
     It might also be useful for readers to be familiar with the [Person Standard](https://github.com/SocialCareData/person-standard) from [Data Standards for Social Care](https://github.com/SocialCareData/person-standard), sponsored by the Department for Education and the Department of Health and Social Care.
-  version: 0.0.2
+  version: 0.0.3
 
 servers: []
 
