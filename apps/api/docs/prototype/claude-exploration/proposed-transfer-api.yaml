@@ -192,7 +192,7 @@ paths:
         - `YY017`: no complete transfer for a Looked After Child (AP02 L849)
         - `YY004` (Should): no complete transfer with breach proceedings pending (AP02 L848)
 
-        Transfers to a secure establishment must be `caretaking` and always go via the YJB Placement Service (AP02 L874 SE001). So this route returns `422` with rule `SE001` if `to_ou_code` is a secure establishment. A YJS's CMS starts that process with `POST /children/{ypid}/placement-requests`.
+        Transfers to a secure establishment must be `caretaking` and always go via the YJB Placement Service (AP02 L874 SE001). So this route returns `422` with rule `SE001` if `to_ou_code` is a secure establishment (User 2026-11-24 grill Q11). A YJS's CMS starts that process with `POST /children/{ypid}/placement-requests`.
 
         The `child` property confirms the request is for the expected child, following the `POST /children/{ypid}/stages` convention in `../swagger.yaml`. It mitigates the "Wrong AssetPlus" rejection reason (AP06 L339).
       requestBody:
@@ -295,16 +295,21 @@ paths:
 
         **End** (`status: ended`, with `ending_outcome`). Only an `accepted` caretaking transfer can be ended. After this, stages are no longer shared and the caretaker loses write access (AP02 L890 SE008, L866 YY011).
         - For YJS↔YJS caretaking, only the Home YJS can end it. `complete_transfer_to_host` turns it into a complete transfer to the Host YJS (AP02 L866 YY011).
-        - **Open question: how secure-estate caretaking ends.** SE008 says the system must allow the Home YJS to end it, because the young person has left custody and returned to the YJS (AP02 L890). It doesn't rule out ending automatically on release, or the SE ending it. This needs YJB input (User 2026-11-24 grill Q5; `api-scope-and-options.md` Q24). Until then, the draft lets the Home YJS end it with `returned_to_home`.
+        - **⚠️ Speculative: ending secure-estate caretaking.** Until YJB decides how it should end (User 2026-11-24 grill Q5; `api-scope-and-options.md` Q24), the Home YJS can end it with `ending_outcome: returned_to_home` (User 2026-11-24 grill Q10). That meets SE008's minimum: the system must allow the Home YJS to end it, because the young person has left custody and returned to the YJS (AP02 L890). SE008 doesn't rule out ending automatically on release, or the SE ending it, so this may change.
 
-        **Concurrency.** Send `If-Match` with the `ETag` from `GET`.
-        > ⚠️ Inferred, not confirmed: a stale `If-Match` gets `412` and nothing is applied. Unlike stages, there's no rebase: the caller fetches the transfer again and decides whether its change still applies. `Idempotency-Key` works as on the stage routes (User 2026-11-23 Q22).
+        **Concurrency** (User 2026-11-24 grill Q9). `If-Match` is required, with the `ETag` from `GET`; without it the platform returns `428`. A stale `If-Match` gets `412` and nothing is applied. Unlike stages, there's no rebase and no `outcome` field: a transfer has only one real field, `status`. The caller fetches the transfer again and decides whether its change still applies. `412` means the caller's view was out of date; `422` means the change isn't allowed from the current status. `Idempotency-Key` works as on the stage routes (User 2026-11-23 Q22), so a retry after a lost response replays the original result rather than getting `412`.
       parameters:
         - name: If-Match
           in: header
           required: true
           schema:
             type: string
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Reused on every retry of the same change (User 2026-11-23 Q22; User 2026-11-24 grill Q9).
       requestBody:
         required: true
         content:
@@ -330,7 +335,14 @@ paths:
           $ref: "#/components/responses/TransferNotFound"
         '412':
           description: |
-            Precondition Failed. The transfer has changed since the caller read it. Nothing was applied; fetch it again. ⚠️ Inferred, not confirmed.
+            Precondition Failed. The transfer has changed since the caller read it. Nothing was applied; fetch it again (User 2026-11-24 grill Q9).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '428':
+          description: |
+            Precondition Required. The request had no `If-Match` header (RFC 6585 §3; User 2026-11-24 grill Q9).
           content:
             application/json:
               schema:
@@ -1260,7 +1272,7 @@ components:
       enum: [requested, placed, rejected_by_establishment, withdrawn]
       x-speculative: true
       description: |
-        `placed` means the Placement Service has decided and the platform has created a `caretaking` transfer to the chosen establishment. `rejected_by_establishment` means that establishment rejected the transfer, and the request is back with the Placement Service to choose again (User 2026-11-24 grill Q2). When it places the child again, the status returns to `placed` with the new establishment and transfer.
+        `placed` means the Placement Service has decided and the platform has created a `caretaking` transfer to the chosen establishment. `rejected_by_establishment` means that establishment rejected the transfer, and the request is back with the Placement Service to choose again (User 2026-11-24 grill Q2). When it places the child again, the status returns to `placed` with the new establishment and transfer (User 2026-11-24 grill Q12).
     PlacementRequestCreate:
       type: object
       description: The `ypid` is in the path (User 2026-11-23 Q37).
