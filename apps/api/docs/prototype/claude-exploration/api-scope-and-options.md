@@ -39,18 +39,18 @@ Coverage values:
 | F3 | Create a stage, edit it, only one in progress. Available stage types depend on organisation type and case type | [AP02 L520 GE034; AP03 'Data Items CONSOLIDATED' row 4 cols AH–AL; AssessmentTransfer L249] | 🟡 `POST/PATCH/PUT …/stages` [swagger.yaml L394–648]. The "one in progress" rule isn't stated; partial stages are per organisation [swagger.yaml L353–355]. There's no case type | **Decided:** one partial stage per child per organisation [User 2026-11-23 Q28]. `POST` takes `stage_type` and `case_type`, and the platform enforces both rules with `422` [Q29] (§4) |
 | F4 | Complete (with sign-off), stop, cancel, re-open a stage | [AP02 L525–527 GE059/68/69; L858 YY026] | 🟡 `DELETE …/stages/{stageid}` removes a stage that hasn't been signed off [swagger.yaml L649–654]. That is closest to GE069 "cancel", but it differs: there's no reason, it's limited by organisation rather than owner, and it's a hard delete rather than "hidden, audit trail retained". There's no way to complete, stop or re-open, and the Stage schema has no status [swagger.yaml L956–963] | **Decided:** no transitions API. An accepted `PUT` completes the stage; a soft `DELETE` cancels it (option I2). Stop and re-open are dropped [User 2026-11-23 Q7, Q8, Q10–Q12] |
 | F5 | Choose destination by organisation (OU code) | [AP06 L272, L416–419; AssessmentTransfer L360–365] | ❌ | `GET /organisations`, `GET /organisations/{ou_code}`. AP03 lists the 258 YJSs with OU codes [AP03 'YOT Full List']; no source lists SEs or the Placement Service. **Decided:** YJB maintains the list in the platform, and the API only reads it [User 2026-11-23 Q46] |
-| F6 | Request caretaking transfer to the SE (all completed stages, never stopped ones) | [AP02 L874 SE001; AP06 §6.3.1] | ❌ | `POST /children/{ypid}/transfers` |
+| F6 | Request caretaking transfer to the SE (all completed stages, never stopped ones) | [AP02 L874 SE001; AP06 §6.3.1] | ❌ | The platform creates it when the Placement Service decides [User 2026-11-23 Q35–Q37]. `POST /children/{ypid}/transfers` stays only as a speculative sketch for YJS↔YJS [User 2026-11-24 grill Q4] |
 | F7 | Transfer preconditions: last stage complete and none in progress; one arrangement at a time | [AP02 L876 SE002, L877 SE020] | ❌ | `422` + `rule` on `POST …/transfers` |
 | F8 | Flag case as requested / accepted / cleared | [AP02 L875 SE026] | ❌ | `Transfer.status`, `GET /children/{ypid}/transfers` |
 | F9 | Automatic acknowledgement | [AP06 §6.3.2, L400] | n/a | Synchronous `201` replaces it |
-| F10 | Person accepts or rejects a transfer, with a reason list | [AP06 §6.3.3, L336–347; SimpleTypes L1119–1131, L1342–1353] | ❌ | `POST /transfers/{id}/acceptance`, `/rejection` |
+| F10 | Person accepts or rejects a transfer, with a reason list | [AP06 §6.3.3, L336–347; SimpleTypes L1119–1131, L1342–1353] | ❌ | `PATCH /transfers/{id}` with `status: accepted` or `rejected` [User 2026-11-24 grill Q7]. **Decided:** an SE must accept or reject [Q1]; an SE rejection sends the placement request back to the Placement Service [Q2] and uses a separate reason list [Q8] |
 | F11 | View assessment before deciding | [AP02 L850 YY005] | 🟡 `GET …/stages` exists, but the recipient has no access rule before acceptance | Access rule in the `POST …/transfers` description |
 | F12 | No updates until accepted | [AP02 L878 SE019] | ❌ | Enforced by `Transfer.status` |
 | F13 | Either side completes and shares a stage | [AP02 L882 SE004; AP06 §6.5.1] | 🟡 Either org can create stages; no sharing concept | An accepted `PUT` while a caretaking transfer is `accepted` gives `completed_shared` [User 2026-11-23 Q8] |
 | F14 | Accept or reject a shared update, with a reason list, and reminders | [AP02 L886 SE005, L887 SE014] | ❌ | `POST …/stages/{stageid}/reviews`, `GET /reviews` |
 | F15 | Identify changes in a received stage, PDF/print | [AP02 L888 SE006] | ❌ | `GET …/stages/{stageid}/changes` (JSON or PDF) |
 | F16 | Caretaking statuses ('awaiting Transfer', 'Transferred', 'rejected') | [AP02 L883 SE016, L857 YY025] | ❌ | `StageStatus`. These statuses are local to each CMS today; they're not in the schema [SimpleTypes L1731–1738]. **Decided:** 'awaiting Transfer' becomes partial (`in_progress`) [User 2026-11-23 Q7]; `completed_shared` is final [Q10]; `completed_rejected` is a read-only record [Q11] |
-| F17 | Home YJS ends caretaking | [AP02 L890 SE008] | ❌ | `POST /transfers/{id}/ending` |
+| F17 | Home YJS ends caretaking | [AP02 L890 SE008] | ❌ | `PATCH /transfers/{id}` with `status: ended` [User 2026-11-24 grill Q7]. How SE caretaking ends needs YJB input (Q24) |
 | F18 | Role-based permission to accept or reject | [AP02 L891 SE009] | ❌ No auth model | `403` + token roles (§3 option G) |
 | F19 | Attachments listed and sent separately | [AP06 L260–266; AP02 L537 GE019; AssessmentTransfer L2679–2690] | ❌ | `…/stages/{stageid}/attachments`. v12 lists each file by section and document name. **Decided:** attachments follow the stage's lifecycle [User 2026-11-23 Q43], uploads are scanned asynchronously (`202`) [Q44], and `section` stays free text [Q45] |
 | F20 | Placement via the YJB Placement Service | [AP02 L874 SE001, L484; AssessmentTransfer L1148–1186] | 🟡 The placement recommendation (establishment type, exclusions, notes for Placements) is stage data, so it would sit in `Stage.data`. There's no placement decision | **Decided:** the Placement Service uses its own web UI on an internal API. The public API has only `POST /children/{ypid}/placement-requests` and a `GET` for its status [User 2026-11-23 Q35–Q37] |
@@ -120,7 +120,7 @@ These are areas the current process depends on that neither `../swagger.yaml` no
    **Decided 2026-11-23:** the Placement Service uses a web UI on an internal platform API, so its work queue and decision step are internal [User 2026-11-23 Q35, Q36]. See option D.
 10. **Secure estate → YJS direction.** No source describes the SE initiating anything other than sharing a stage. Transfers between secure establishments, such as moving a young person between a YOI and an STC, aren't covered.
     > ⚠️ **Speculation:** this happens in practice and would currently need the Home YJS to end one arrangement and start another, which SE020 forces [AP02 L877].
-11. **Release.** Ending caretaking is tied to leaving custody [AP02 L890 SE008]. The Leaving Custody module (Notice of Supervision/Licence, Release Arrangements) [AP02 L758 CO002] is the data that matters at that point.
+11. **Release.** Ending caretaking is tied to leaving custody [AP02 L890 SE008]. The Leaving Custody module (Notice of Supervision/Licence, Release Arrangements) [AP02 L758 CO002] is the data that matters at that point. Whether SE caretaking should end automatically on release, by the Home YJS, or by either party is open (Q24).
 12. **Attachments and their access control.** These include sensitive scanned documents [AP02 L537 GE019], with virus scanning, size limits, retention, and visibility to the caretaker.
 
     **Decided 2026-11-23:** attachments follow the stage's lifecycle and are signed off with it [User 2026-11-23 Q43]. Uploads are scanned asynchronously (`202 Accepted`, then poll) [Q44]. `section` stays free text, with the inconsistency risk documented [Q45]. Size limits and retention are still open.
@@ -158,7 +158,7 @@ Each decision has two to four options. **★** marks a recommendation. **Decided
 
 | Option | Status after 2026-11-23 |
 | :-- | :-- |
-| A. Transfer model | Not discussed. A1 is still drafted |
+| A. Transfer model | **Decided:** A1 [User 2026-11-24 grill Q3]. Status changes use `PATCH /transfers/{id}` rather than action routes [Q7] |
 | B. Review | **Decided:** B1, which follows from the decisions on reopening and rejection [User 2026-11-23 Q10, Q11, Q33] |
 | C. Notifications | **Decided:** C3 [Q38] |
 | D. Placement Service | **Decided:** D4, a new option (below) [Q35–Q37] |
@@ -173,7 +173,7 @@ Each decision has two to four options. **★** marks a recommendation. **Decided
 
 | Option | Description | Pros | Cons |
 | :-- | :-- | :-- | :-- |
-| **A1 ★ Transfer resource with a state machine** | `/children/{ypid}/transfers` and `/transfers/{id}` with `requested → accepted / rejected → ended`. This is what's drafted. | Keeps today's accept/reject step and reason codes, so it's familiar to users and CMS suppliers. Clear audit. Easy to build an inbox. | One more resource. Access rules are derived from transfer state. |
+| **A1 ★ Transfer resource with a state machine** | `/children/{ypid}/transfers` and `/transfers/{id}` with `requested → accepted / rejected → ended`. This is what's drafted. **Decided 2026-11-24** [User 2026-11-24 grill Q3]. | Keeps today's accept/reject step and reason codes, so it's familiar to users and CMS suppliers. Clear audit. Easy to build an inbox. | One more resource. Access rules are derived from transfer state. |
 | A2 Access grants on the child | `/children/{ypid}/access` grants with `role: home \| caretaker` and `status: pending \| active`. | Generic, and reusable for other sharing (e.g. probation, or read-only access for the Placement Service). | Loses the "transfer" vocabulary practitioners use. Accept/reject has to be layered on top. |
 | A3 Message-compatible endpoint | `POST /messages` takes AP06-style headers (Message_Type, Message_ID, Assessment_ID) as JSON or XML. | Easiest migration for existing CMS suppliers. | Carries the point-to-point model into a central store. Weak REST semantics. Duplicates state. |
 
@@ -346,7 +346,7 @@ The list below is the original 2026-11-19 list, annotated where the decisions ch
 | # | Question | Why it matters |
 | :-- | :-- | :-- |
 | Q1 | How does the Placement Service work today, and what system and messages does it use? | Option D is speculative without this. **Partly answered:** in future the Placement Service will use a web UI on an internal API [User 2026-11-23 Q35, Q36]. How it works *today* is still unknown. |
-| Q2 | Can an SE reject an initial caretaking transfer, and on what grounds? | AP02 doesn't say; AP06 implies it can [current-process.md §4.2]. |
+| Q2 | Can an SE reject an initial caretaking transfer, and on what grounds? | AP02 doesn't say; AP06 implies it can [current-process.md §4.2]. **Answered:** yes, it must accept or reject [User 2026-11-24 grill Q1]. A rejection sends the placement request back to the Placement Service [Q2]. The grounds are a separate list whose values YJB will set (Q25). |
 | Q3 | Should the SE review YJS-shared stages, or only the YJS review SE-shared ones? | SE005 is one-directional [AP02 L886]. **Answered:** both. The Home YJS reviews stages from the SE, and the active caretaker reviews the Home YJS's stages [User 2026-11-23 Q34]. |
 | Q4 | In a central store, should rejected shared stages stay visible? | Option B choice; §2 items 5–6. **Partly answered:** they stay as read-only records, replaced by a new stage [User 2026-11-23 Q11, Q24]. ⚠️ Visibility to everyone is inferred, not confirmed. |
 | Q5 | How should three-way Home/Host/SE cases work? | §2 item 8. **Answered:** the Home YJS is the hub [User 2026-11-23 Q34]. Still open: if a Host YJS and an SE are both caretaking, which reviews the Home YJS's stages? |
@@ -368,3 +368,5 @@ The list below is the original 2026-11-19 list, annotated where the decisions ch
 | Q21 | Can the seven inferences in the 2026-11-23 summary be confirmed? *(Added 2026-11-23.)* | They fill gaps the session didn't ask about directly. They're marked ⚠️ in `.grill-me/assetplus-api-design-20261123T1315-summary.md` and in this file. |
 | Q22 | What are the attachment size limits and retention period? *(Added 2026-11-23.)* | §2 item 12; not covered in the session. |
 | Q23 | What are the non-functional requirements? *(Added 2026-11-23.)* | §2 item 21; deliberately not covered in the session. |
+| Q24 | How should secure-estate caretaking end in a central store? *(Added 2026-11-24.)* | SE008 says the system must allow the Home YJS to end it when the young person leaves custody [AP02 L890], but doesn't rule out ending automatically on release or by the SE. Also: does the SE keep read access afterwards; what if the child leaves custody without returning to the YJS (§2 item 10); and what happens to an SE stage still in progress? Needs YJB input [User 2026-11-24 grill Q5]. |
+| Q25 | What are the reasons a secure establishment can give for rejecting a transfer? *(Added 2026-11-24.)* | Today's initial-transfer list [AP06 L336–347] has no reasons about the placement itself. A separate `se-transfer-rejection-reasons` list is decided; YJB is to set its values [User 2026-11-24 grill Q8]. |

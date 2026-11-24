@@ -211,7 +211,7 @@ This applies whether the YJS is the Home YJS or the Host YJS [AP02 L874 SE001].
 
 - No agreement to transfer in place
 - Wrong AssetPlus
-- Wrong YJS
+- Wrong YOT
 - Level of completeness
 - Other
 
