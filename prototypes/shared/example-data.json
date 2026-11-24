@@ -1,0 +1,174 @@
+{
+  "scenarios": {
+    "happy-path": {
+      "description": "11 month DTO from 29 June 2026, eligible for early release, no remand or tagged bail (from apps/api/routes/sentenceCalculator.test.ts)",
+      "formBody": {
+        "sentence-date-day": "29",
+        "sentence-date-month": "6",
+        "sentence-date-year": "2026",
+        "sentence-length-months": "11",
+        "remand-days": "",
+        "remand-start-date-day": "",
+        "remand-start-date-month": "",
+        "remand-start-date-year": "",
+        "tagged-bail-days": "",
+        "erd-eligibility": "true"
+      },
+      "apiOutput": {
+        "calculatedTerms": [
+          {
+            "inputSentence": {
+              "from": "2026-06-29",
+              "durationMonths": 11
+            },
+            "totalDaysInTerm": 334,
+            "totalDaysMTD": 167,
+            "sled": {
+              "data": "2027-05-28",
+              "metadata": {
+                "dayOfWeek": "Friday",
+                "message": "334 days from the beginning of the sentence (29 June 2026)"
+              }
+            },
+            "mtd": {
+              "data": "2026-12-12",
+              "metadata": {
+                "dayOfWeek": "Saturday",
+                "message": "167 days (custodial period) from the beginning of the sentence (29 June 2026)"
+              }
+            }
+          }
+        ],
+        "effectiveDates": {
+          "totalNumberOfRemandAndTaggedBailDays": 0,
+          "sled": {
+            "data": "2027-05-28",
+            "metadata": {
+              "dayOfWeek": "Friday",
+              "status": "no-adjustments-applied",
+              "message": " No adjustments applied"
+            }
+          },
+          "mtd": {
+            "data": "2026-12-12",
+            "metadata": {
+              "dayOfWeek": "Saturday",
+              "status": "no-adjustments-applied",
+              "message": " No adjustments applied"
+            }
+          },
+          "TUSED": "1970-01-01"
+        },
+        "effectiveDatesPastAdjustments": [],
+        "ltd": {
+          "data": "2027-01-12",
+          "metadata": {
+            "status": "1_month",
+            "message": "1 month away from the MTD for DTOs with terms from 8 to 18 months",
+            "dayOfWeek": "Tuesday"
+          }
+        },
+        "etd": {
+          "data": "2026-11-12",
+          "metadata": {
+            "status": "1_month",
+            "message": "1 month away from the MTD for DTOs with terms from 8 to 18 months",
+            "dayOfWeek": "Thursday"
+          }
+        },
+        "erd": {
+          "data": "2026-11-12",
+          "metadata": {
+            "status": "1_month",
+            "message": "1 month away from the MTD for DTOs with terms from 8 to 18 months",
+            "dayOfWeek": "Thursday"
+          }
+        },
+        "unusedAdjustmentDays": 0,
+        "remandPeriodDays": 0
+      }
+    },
+    "invalid": {
+      "description": "Sentence length of 1 month, sentence date of 33 March with no year, early release eligibility not answered",
+      "formBody": {
+        "sentence-date-day": "33",
+        "sentence-date-month": "3",
+        "sentence-date-year": "",
+        "sentence-length-months": "1",
+        "remand-days": "",
+        "remand-start-date-day": "",
+        "remand-start-date-month": "",
+        "remand-start-date-year": "",
+        "tagged-bail-days": ""
+      }
+    }
+  },
+  "pages": [
+    {
+      "file": "home.html",
+      "title": "Home",
+      "description": "Service start page",
+      "request": {
+        "method": "GET",
+        "path": "/"
+      },
+      "links": {
+        "/calculate": "calculate.html"
+      },
+      "compareIgnore": [
+        "[data-qa=timestamp]"
+      ]
+    },
+    {
+      "file": "calculate.html",
+      "title": "New calculation",
+      "description": "Empty DTO calculation form. Submitting it shows the happy-path results.",
+      "request": {
+        "method": "GET",
+        "path": "/calculate"
+      },
+      "formAction": "results.html"
+    },
+    {
+      "file": "calculate-invalid.html",
+      "title": "New calculation – validation errors",
+      "description": "The form after submitting the 'invalid' scenario",
+      "request": {
+        "method": "POST",
+        "path": "/calculate",
+        "scenario": "invalid"
+      },
+      "formAction": "calculate-invalid.html"
+    },
+    {
+      "file": "results.html",
+      "title": "Sentence calculation results",
+      "description": "Results for the happy-path scenario",
+      "request": {
+        "method": "POST",
+        "path": "/calculate",
+        "scenario": "happy-path"
+      },
+      "links": {
+        "/calculate?*": "calculate-edit.html",
+        "/calculate": "calculate.html"
+      }
+    },
+    {
+      "file": "calculate-edit.html",
+      "title": "New calculation – editing answers",
+      "description": "The form pre-filled from the results page's Back and Edit links",
+      "request": {
+        "method": "GET",
+        "followLink": {
+          "page": "results.html",
+          "selector": ".govuk-back-link"
+        }
+      },
+      "formAction": "results.html"
+    }
+  ],
+  "globalLinks": {
+    "/": "home.html"
+  }
+}

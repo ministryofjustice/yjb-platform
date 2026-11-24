@@ -1,0 +1,13 @@
+{
+  "view": "pages/new-calculation",
+  "context": {
+    "asset_path": "/assets/",
+    "applicationName": "Youth Justice Platform",
+    "environmentName": "",
+    "environmentNameColour": "",
+    "isValid": true,
+    "formData": {},
+    "errorSummary": [],
+    "errorsByField": {}
+  }
+}

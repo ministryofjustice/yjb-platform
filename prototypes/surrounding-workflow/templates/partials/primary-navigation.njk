@@ -1,0 +1,19 @@
+{# New. Set primaryNavigation to "caseload" or "notifications" to mark the current section. #}
+{% from "moj/components/primary-navigation/macro.njk" import mojPrimaryNavigation %}
+{% from "moj/components/notification-badge/macro.njk" import mojNotificationBadge %}
+
+{{ mojPrimaryNavigation({
+  label: "Primary navigation",
+  items: [
+    {
+      text: "Caseload",
+      href: "/",
+      active: primaryNavigation == "caseload"
+    },
+    {
+      html: "Notifications " + mojNotificationBadge({ text: unreadNotifications, visuallyHiddenText: "unread" }),
+      href: "/notifications",
+      active: primaryNavigation == "notifications"
+    }
+  ]
+}) }}

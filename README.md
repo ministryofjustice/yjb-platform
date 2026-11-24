@@ -41,3 +41,7 @@ A monorepo to contain applications running  the new Youth Justice Platform.
 Then your applications are available on <http://localhost:3000> for the UI and <http://localhost:3001> for the API.
 
 Running <http://localhost:3000/api-test-proxy> will confirm that the UI is able to connect to the API server and should return a JSON object.
+
+## Prototypes
+
+Clickable HTML prototypes of proposed changes live in [`prototypes/`](prototypes/README.md). They open straight from your computer, and you can share one by zipping its folder.
