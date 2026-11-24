@@ -1,0 +1,12 @@
+{# New. One tag per case status, so the caseload, case page and confirmations agree. #}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+
+{% macro caseStatusTag(status) %}
+  {%- set tags = {
+    "first-calculation-needed": { text: "First calculation needed", colour: "blue" },
+    "check-needed": { text: "Check needed", colour: "purple" },
+    "mismatch": { text: "Mismatch", colour: "red" },
+    "checked": { text: "Checked", colour: "green" }
+  } -%}
+  {{- govukTag({ text: tags[status].text, classes: "govuk-tag--" + tags[status].colour }) -}}
+{% endmacro %}

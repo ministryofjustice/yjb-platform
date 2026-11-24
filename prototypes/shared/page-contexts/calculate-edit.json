@@ -1,0 +1,20 @@
+{
+  "view": "pages/new-calculation",
+  "context": {
+    "asset_path": "/assets/",
+    "applicationName": "Youth Justice Platform",
+    "environmentName": "",
+    "environmentNameColour": "",
+    "isValid": true,
+    "formData": {
+      "sentenceLengthMonths": "11",
+      "taggedBailDays": "0",
+      "sentenceDateDay": 29,
+      "sentenceDateMonth": 6,
+      "sentenceDateYear": 2026,
+      "erdEligible": true
+    },
+    "errorSummary": [],
+    "errorsByField": {}
+  }
+}

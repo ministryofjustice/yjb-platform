@@ -1,0 +1,62 @@
+{
+  "view": "pages/check-comparison",
+  "context": {
+    "user": {
+      "name": "[Your name]",
+      "team": "[Your team]"
+    },
+    "unreadNotifications": 3,
+    "case": {
+      "id": "child-3",
+      "name": "[Child 3 name]"
+    },
+    "comparison": {
+      "firstBy": "[Colleague name]",
+      "checkBy": "[Your name]",
+      "rows": [
+        {
+          "key": "MTD",
+          "hint": "Mid Term Date",
+          "check": "Saturday, 12 December 2026",
+          "matches": false,
+          "first": "[First calculation’s date]"
+        },
+        {
+          "key": "SLED",
+          "hint": "Sentence and Licence Expiry Date",
+          "check": "Friday, 28 May 2027",
+          "matches": true,
+          "first": "Friday, 28 May 2027"
+        },
+        {
+          "key": "Final MTD",
+          "hint": null,
+          "check": "Saturday, 12 December 2026",
+          "matches": false,
+          "first": "[First calculation’s date]"
+        },
+        {
+          "key": "ETD",
+          "hint": "Early Transfer Date",
+          "check": "Thursday, 12 November 2026",
+          "matches": true,
+          "first": "Thursday, 12 November 2026"
+        },
+        {
+          "key": "LTD",
+          "hint": "Late Transfer Date",
+          "check": "Tuesday, 12 January 2027",
+          "matches": true,
+          "first": "Tuesday, 12 January 2027"
+        },
+        {
+          "key": "ERD",
+          "hint": "Early Release Date",
+          "check": "Thursday, 12 November 2026",
+          "matches": true,
+          "first": "Thursday, 12 November 2026"
+        }
+      ]
+    }
+  }
+}

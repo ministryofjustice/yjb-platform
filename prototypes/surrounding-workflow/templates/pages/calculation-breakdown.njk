@@ -1,0 +1,87 @@
+{% extends "../partials/layout.njk" %}
+
+{% set pageTitle = applicationName + " - Sentence calculation results" %}
+{% set mainClasses = "govuk-body" %}
+{# Changed: when the calculation is for a case, show the case navigation and say whose calculation it is #}
+{% if case %}
+  {% set primaryNavigation = "caseload" %}
+  {% set calculationLabel = "Check calculation" if case.calculation == "check" else "First calculation" %}
+{% endif %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/tabs/macro.njk" import govukTabs %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% set backHref = "/calculate?remandStartDate=" + inputData.remandStartDateBtnStr
+  + "&taggedBailDays=" + inputData.taggedBailDays
+  + "&sentenceLengthMonths=" + inputData.sentenceLengthMonths
+  + "&sentenceDate=" + inputData.sentenceDateBtnStr
+  + "&erdEligible=" + inputData.erdEligible
+%}
+{% if case %}
+  {% set backHref = case.editHref %}
+{% endif %}
+
+{% block content %}
+
+  {{ govukBackLink({
+    text: "Back",
+    href: backHref
+  }) }}
+
+  {% if case %}
+    <span class="govuk-caption-l">{{ calculationLabel }} for {{ case.name }}</span>
+  {% endif %}
+  <h1 class="govuk-heading-l">Sentence calculation results</h1>
+
+  <div class="govuk-grid-row" hidden>
+      {% call govukDetails({
+        summaryText: "Debug info"
+      }) %}
+        <h2>Payload</h2>
+        <p>{{ payloadString }}</p>
+        <h2>Result json</h2>
+        <p>{{ calculationResultString }}</p>
+      {% endcall %}
+  </div>
+  {% include "../partials/calculation-breakdown/view-B.njk" %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+
+      {{ govukSummaryList({
+        card: {
+          title: { text: "What you told us" },
+          actions: { items: [
+            {
+              text: "Edit",
+              href: backHref
+            }
+          ] }
+        },
+        rows: [
+          { key: { text: "Sentence date" }, value: { text: inputData.sentenceDateString } },
+          { key: { text: "Sentence length" }, value: { text: inputData.sentenceLengthMonths + " months" } },
+          { key: { text: "Remand start date" }, value: { text: inputData.remandStartDateString or "0" } },
+          { key: { text: "Days spent on tagged bail" }, value: { text: inputData.taggedBailDays } },
+          { key: { text: "Eligibility for early release" }, value: { text: inputData.erdEligibility } }
+        ]
+      }) }}
+    </div>
+  </div>
+  
+  {% if case %}
+    {# A first calculation is saved to the case; a check goes on to be compared with the first calculation #}
+    <form method="post" action="{{ case.continueAction }}">
+      <div class="govuk-button-group govuk-!-margin-top-4">
+        {{ govukButton({ text: "Compare with first calculation" if case.calculation == "check" else "Save to case" }) }}
+        <a class="govuk-link" href="/cases/{{ case.id }}">Cancel and return to case</a>
+      </div>
+    </form>
+  {% else %}
+    <div class="govuk-grid-row govuk-!-padding-left-3 govuk-!-padding-top-4">
+      <a id="new-calculation-link-b" href="/calculate">Start a new DTO calculation</a>
+    </div>
+  {% endif %}
+{% endblock %}
