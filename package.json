@@ -35,7 +35,9 @@
   },
   "homepage": "https://github.com/ministryofjustice/yjb-platform#readme",
   "dependencies": {
-    "@redocly/cli": "^2.83.0",
     "http-errors": "^2.0.1"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^2.83.0"
   }
 }
