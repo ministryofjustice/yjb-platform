@@ -9,8 +9,8 @@ This document does four things:
 
 **Scope** [User 2026-11-19]:
 
-- YOT ↔ Secure Estate caretaking, including the YJB Placement Service, mapped in full.
-- YOT ↔ YOT and Y2A noted only.
+- YJS ↔ Secure Estate caretaking, including the YJB Placement Service, mapped in full.
+- YJS ↔ YJS and Y2A noted only.
 - The new API is a **central store**.
 - `../swagger.yaml` is our intent for the new API. Requirements marked "Wont" in AP02 are *not* treated as current functionality.
 
@@ -38,7 +38,7 @@ Coverage values:
 | F2 | Create a record for an unknown young person | Unknown/Known process maps [AP02 L707–735] (images only) | ✅ `POST /children` [swagger.yaml L139] | — |
 | F3 | Create a stage, edit it, only one in progress. Available stage types depend on organisation type and case type | [AP02 L520 GE034; AP03 'Data Items CONSOLIDATED' row 4 cols AH–AL; AssessmentTransfer L249] | 🟡 `POST/PATCH/PUT …/stages` [swagger.yaml L394–648]. The "one in progress" rule isn't stated; partial stages are per organisation [swagger.yaml L353–355]. There's no case type | **Decided:** one partial stage per child per organisation [User 2026-11-23 Q28]. `POST` takes `stage_type` and `case_type`, and the platform enforces both rules with `422` [Q29] (§4) |
 | F4 | Complete (with sign-off), stop, cancel, re-open a stage | [AP02 L525–527 GE059/68/69; L858 YY026] | 🟡 `DELETE …/stages/{stageid}` removes a stage that hasn't been signed off [swagger.yaml L649–654]. That is closest to GE069 "cancel", but it differs: there's no reason, it's limited by organisation rather than owner, and it's a hard delete rather than "hidden, audit trail retained". There's no way to complete, stop or re-open, and the Stage schema has no status [swagger.yaml L956–963] | **Decided:** no transitions API. An accepted `PUT` completes the stage; a soft `DELETE` cancels it (option I2). Stop and re-open are dropped [User 2026-11-23 Q7, Q8, Q10–Q12] |
-| F5 | Choose destination by organisation (OU code) | [AP06 L272, L416–419; AssessmentTransfer L360–365] | ❌ | `GET /organisations`, `GET /organisations/{ou_code}`. AP03 lists the 258 YOTs with OU codes [AP03 'YOT Full List']; no source lists SEs or the Placement Service. **Decided:** YJB maintains the list in the platform, and the API only reads it [User 2026-11-23 Q46] |
+| F5 | Choose destination by organisation (OU code) | [AP06 L272, L416–419; AssessmentTransfer L360–365] | ❌ | `GET /organisations`, `GET /organisations/{ou_code}`. AP03 lists the 258 YJSs with OU codes [AP03 'YOT Full List']; no source lists SEs or the Placement Service. **Decided:** YJB maintains the list in the platform, and the API only reads it [User 2026-11-23 Q46] |
 | F6 | Request caretaking transfer to the SE (all completed stages, never stopped ones) | [AP02 L874 SE001; AP06 §6.3.1] | ❌ | `POST /children/{ypid}/transfers` |
 | F7 | Transfer preconditions: last stage complete and none in progress; one arrangement at a time | [AP02 L876 SE002, L877 SE020] | ❌ | `422` + `rule` on `POST …/transfers` |
 | F8 | Flag case as requested / accepted / cleared | [AP02 L875 SE026] | ❌ | `Transfer.status`, `GET /children/{ypid}/transfers` |
@@ -50,7 +50,7 @@ Coverage values:
 | F14 | Accept or reject a shared update, with a reason list, and reminders | [AP02 L886 SE005, L887 SE014] | ❌ | `POST …/stages/{stageid}/reviews`, `GET /reviews` |
 | F15 | Identify changes in a received stage, PDF/print | [AP02 L888 SE006] | ❌ | `GET …/stages/{stageid}/changes` (JSON or PDF) |
 | F16 | Caretaking statuses ('awaiting Transfer', 'Transferred', 'rejected') | [AP02 L883 SE016, L857 YY025] | ❌ | `StageStatus`. These statuses are local to each CMS today; they're not in the schema [SimpleTypes L1731–1738]. **Decided:** 'awaiting Transfer' becomes partial (`in_progress`) [User 2026-11-23 Q7]; `completed_shared` is final [Q10]; `completed_rejected` is a read-only record [Q11] |
-| F17 | Home YOT ends caretaking | [AP02 L890 SE008] | ❌ | `POST /transfers/{id}/ending` |
+| F17 | Home YJS ends caretaking | [AP02 L890 SE008] | ❌ | `POST /transfers/{id}/ending` |
 | F18 | Role-based permission to accept or reject | [AP02 L891 SE009] | ❌ No auth model | `403` + token roles (§3 option G) |
 | F19 | Attachments listed and sent separately | [AP06 L260–266; AP02 L537 GE019; AssessmentTransfer L2679–2690] | ❌ | `…/stages/{stageid}/attachments`. v12 lists each file by section and document name. **Decided:** attachments follow the stage's lifecycle [User 2026-11-23 Q43], uploads are scanned asynchronously (`202`) [Q44], and `section` stays free text [Q45] |
 | F20 | Placement via the YJB Placement Service | [AP02 L874 SE001, L484; AssessmentTransfer L1148–1186] | 🟡 The placement recommendation (establishment type, exclusions, notes for Placements) is stage data, so it would sit in `Stage.data`. There's no placement decision | **Decided:** the Placement Service uses its own web UI on an internal API. The public API has only `POST /children/{ypid}/placement-requests` and a `GET` for its status [User 2026-11-23 Q35–Q37] |
@@ -69,7 +69,7 @@ Coverage values:
 
 **Adjacent (noted only):**
 
-- YOT↔YOT complete transfer: the same `Transfer` resource with `type: complete`, plus the YY017/YY004/YY013 rules [AP02 L849, L848, L868].
+- YJS↔YJS complete transfer: the same `Transfer` resource with `type: complete`, plus the YY017/YY004/YY013 rules [AP02 L849, L848, L868].
 - Y2A feed [AP02 L811 YA001].
 - YJMIS extract [AP02 L543 GE041].
 
@@ -79,13 +79,13 @@ Coverage values:
 
 These are areas the current process depends on that neither `../swagger.yaml` nor the earlier draft addresses.
 
-1. **Organisations as first-class data.** Every transfer is addressed by OU code [AP06 L416; AssessmentTransfer L360–365]. We need an authoritative list of YOTs, SEs and the Placement Service, and a link between users and organisations.
-   - AP03 has the YOT list: OU code, organisation name and Connectivity name for 258 YOTs [AP03 'YOT Full List'].
+1. **Organisations as first-class data.** Every transfer is addressed by OU code [AP06 L416; AssessmentTransfer L360–365]. We need an authoritative list of YJSs, SEs and the Placement Service, and a link between users and organisations.
+   - AP03 has the YJS list: OU code, organisation name and Connectivity name for 258 YJSs [AP03 'YOT Full List'].
    - No source lists the secure establishments. The schema only knows an establishment's *type* (SCH, STC or YOI) [SimpleTypes L823–829], plus a free-text establishment name on arrival in custody [AssessmentTransfer L230].
-   - The AP03 list dates from 2014. YOTs have since merged and been renamed.
+   - The AP03 list dates from 2014. YJSs have since merged and been renamed.
    > ⚠️ **Speculation:** the list is very likely out of date.
 
-   **Decided 2026-11-23:** YJB maintains the list in the platform. The API only reads it, and retired organisations stay readable with a status [User 2026-11-23 Q46]. When YOTs merge, everything the old YOT owned moves to the new one automatically [Q47, Q48]. Where the codes come from is still open (Q14).
+   **Decided 2026-11-23:** YJB maintains the list in the platform. The API only reads it, and retired organisations stay readable with a status [User 2026-11-23 Q46]. When YJSs merge, everything the old YJS owned moves to the new one automatically [Q47, Q48]. Where the codes come from is still open (Q14).
 2. **Authorisation model.** Things that depend on organisation and role:
    - who may accept or reject [AP02 L891 SE009]
    - which stage types each organisation type may create [AP02 L520 GE034]
@@ -100,26 +100,26 @@ These are areas the current process depends on that neither `../swagger.yaml` no
    > ⚠️ **Speculation:** a deliberate "complete now, share later" may still be wanted by practitioners. Confirm with users before dropping it.
 
    **Decided 2026-11-23:** a stage that's signed off locally but not yet accepted by the platform is still partial. The platform's acceptance of the `PUT` is what completes it [User 2026-11-23 Q7].
-5. **What "delete on reject" becomes.** Today the rejecting YOT deletes the framework [AP02 L850 YY005] or stage [AP02 L863 YY009]. In a central store, does a rejected shared stage stay in the child's history? If so, who sees it, and does the next stage pre-populate from it? (See option B.)
+5. **What "delete on reject" becomes.** Today the rejecting YJS deletes the framework [AP02 L850 YY005] or stage [AP02 L863 YY009]. In a central store, does a rejected shared stage stay in the child's history? If so, who sees it, and does the next stage pre-populate from it? (See option B.)
 
    **Decided 2026-11-23:** a rejected stage stays as a read-only record. It's replaced by a new stage that links to it with `supersedes`, with no content copied across [User 2026-11-23 Q11, Q24]. ⚠️ Inferred, not confirmed: it stays visible to every reader. Pre-population (item 6) is still open.
 6. **Pre-population across organisations.** New stages pre-populate from the last one [AP02 L532 GE005], using one of four rules per data item [AP03 'Data Item pre population rules' rows 3–9; AP03 'Data Items CONSOLIDATED' col O].
-   - If the SE's stage is rejected by the YOT, which stage does the next YOT stage pre-populate from?
+   - If the SE's stage is rejected by the YJS, which stage does the next YJS stage pre-populate from?
    - In a central store the server could apply these rules when it creates a stage, rather than every client implementing them.
    > ⚠️ **Speculation:** doing it on the server would make pre-population consistent across clients, but the API would then own a large rule set.
-7. **Concurrent stages across parties.** Today each CMS has its own "one stage in progress" rule. Cross-system locking was never built [AP02 L881 SE015 "W"]. The draft already allows partial stages per organisation and "rebases" them [swagger.yaml L353–355]. The interaction with caretaking review needs designing: what happens if the YOT has a partial stage open when the SE shares a stage?
+7. **Concurrent stages across parties.** Today each CMS has its own "one stage in progress" rule. Cross-system locking was never built [AP02 L881 SE015 "W"]. The draft already allows partial stages per organisation and "rebases" them [swagger.yaml L353–355]. The interaction with caretaking review needs designing: what happens if the YJS has a partial stage open when the SE shares a stage?
 
    **Decided 2026-11-23:** one partial stage per child per organisation [User 2026-11-23 Q28]. Overlapping changes are handled by the concurrency model in option J [Q3, Q4, Q18].
-8. **Three-way arrangements (Home YOT, Host YOT, SE).** These are real situations, but the routing rules were de-scoped [AP02 L894–897]. SE001 says updates go "between the Secure Establishment and Home YOT only" [AP02 L874]. In a central store, all three parties could see the same record. Who must review a shared stage? The v12 schema says the originating organisation is needed for three-way Home/Host/SE sharing [AssessmentTransfer L362], so this seems to happen in practice.
+8. **Three-way arrangements (Home YJS, Host YJS, SE).** These are real situations, but the routing rules were de-scoped [AP02 L894–897]. SE001 says updates go "between the Secure Establishment and Home YJS only" [AP02 L874]. In a central store, all three parties could see the same record. Who must review a shared stage? The v12 schema says the originating organisation is needed for three-way Home/Host/SE sharing [AssessmentTransfer L362], so this seems to happen in practice.
 
-   **Decided 2026-11-23:** the Home YOT is the hub. It reviews every stage completed by the Host YOT or the SE, and its own stages are reviewed by the active caretaker [User 2026-11-23 Q34]. Still open: if a Host YOT and an SE are both active caretakers, which of them reviews the Home YOT's stages?
+   **Decided 2026-11-23:** the Home YJS is the hub. It reviews every stage completed by the Host YJS or the SE, and its own stages are reviewed by the active caretaker [User 2026-11-23 Q34]. Still open: if a Host YJS and an SE are both active caretakers, which of them reviews the Home YJS's stages?
 9. **Placement Service as a separate client.** Placements and the SE use the same client system today but may diverge [User 2026-11-19]. That needs its own role, a work queue, and a decision step.
-   - The YOT's input to placement is stage data: an initial recommendation of establishment *type*, whether there's an establishment the child should not go to, and anything else Placements should know [AssessmentTransfer L1148–1186; PROTO 'Custody' rows 218–238].
+   - The YJS's input to placement is stage data: an initial recommendation of establishment *type*, whether there's an establishment the child should not go to, and anything else Placements should know [AssessmentTransfer L1148–1186; PROTO 'Custody' rows 218–238].
    - The Placement Service's decision, meaning which establishment, appears nowhere in the schema.
 
    **Decided 2026-11-23:** the Placement Service uses a web UI on an internal platform API, so its work queue and decision step are internal [User 2026-11-23 Q35, Q36]. See option D.
-10. **Secure estate → YOT direction.** No source describes the SE initiating anything other than sharing a stage. Transfers between secure establishments, such as moving a young person between a YOI and an STC, aren't covered.
-    > ⚠️ **Speculation:** this happens in practice and would currently need the Home YOT to end one arrangement and start another, which SE020 forces [AP02 L877].
+10. **Secure estate → YJS direction.** No source describes the SE initiating anything other than sharing a stage. Transfers between secure establishments, such as moving a young person between a YOI and an STC, aren't covered.
+    > ⚠️ **Speculation:** this happens in practice and would currently need the Home YJS to end one arrangement and start another, which SE020 forces [AP02 L877].
 11. **Release.** Ending caretaking is tied to leaving custody [AP02 L890 SE008]. The Leaving Custody module (Notice of Supervision/Licence, Release Arrangements) [AP02 L758 CO002] is the data that matters at that point.
 12. **Attachments and their access control.** These include sensitive scanned documents [AP02 L537 GE019], with virus scanning, size limits, retention, and visibility to the caretaker.
 
@@ -185,7 +185,7 @@ A3 can also be used **only** as a migration adapter alongside A1 (see F).
 | :-- | :-- | :-- | :-- |
 | **B1 ★ Review resource per shared stage** | Completing a stage while caretaking is active creates a pending review for the other party (`…/reviews`, `GET /reviews`). Rejection marks it `completed_rejected`. | Same as today [AP02 L886 SE005]. Easy to audit. | A rejected stage still exists centrally, so visibility and pre-population rules are needed (§2 items 5–6). |
 | B2 Proposed-change model | The other party's stage is a *proposal*. It joins the child's timeline only when accepted, like a merge request. | Rejected content never pollutes the record. Fits naturally with the draft's "rebase" idea [swagger.yaml L355]. | More complex. Changes what "completed" means for the author. |
-| B3 No review: single shared record | Any party with access completes stages straight into the record. Review becomes optional notification. | Simplest, and in the spirit of a central store. | **Policy change.** Removes a control YOTs rely on. Needs YJB/business sign-off. |
+| B3 No review: single shared record | Any party with access completes stages straight into the record. Review becomes optional notification. | Simplest, and in the spirit of a central store. | **Policy change.** Removes a control YJSs rely on. Needs YJB/business sign-off. |
 
 **Decided 2026-11-23: B1.** A `completed_shared` stage is final: the organisation that completed it can't reopen it [User 2026-11-23 Q10]. While it's under review, every reader can see it, along with its review status [Q33]. A rejected stage stays as a read-only record and is replaced by a new stage that `supersedes` it [Q11, Q24].
 
@@ -203,10 +203,10 @@ A3 can also be used **only** as a migration adapter alongside A1 (see F).
 
 | Option | Description | Pros | Cons |
 | :-- | :-- | :-- | :-- |
-| **D1 ★ Placement requests resource** | The YOT creates `/placement-requests`. The Placement Service records a decision, which creates the SE caretaking `Transfer`. This is what's drafted. | Matches SE001 "always via the Placement Service" [AP02 L874]. Works when Placements uses a different client from the SE [User 2026-11-19]. | Adds a resource. Needs the real placement workflow confirmed. |
-| D2 Placement Service as a transfer initiator | The Placement Service calls `POST /children/{ypid}/transfers` on the YOT's behalf. | Fewer resources. | Hides the placement decision. The YOT isn't the requester of its own transfer. |
+| **D1 ★ Placement requests resource** | The YJS creates `/placement-requests`. The Placement Service records a decision, which creates the SE caretaking `Transfer`. This is what's drafted. | Matches SE001 "always via the Placement Service" [AP02 L874]. Works when Placements uses a different client from the SE [User 2026-11-19]. | Adds a resource. Needs the real placement workflow confirmed. |
+| D2 Placement Service as a transfer initiator | The Placement Service calls `POST /children/{ypid}/transfers` on the YJS's behalf. | Fewer resources. | Hides the placement decision. The YJS isn't the requester of its own transfer. |
 | D3 Out of the API | Placement stays in its own system and calls the API only to create the transfer. | Smallest scope. | Doesn't support separating the Placement and SE clients. |
-| **D4 Decided: internal placement UI, minimal public route** *(added 2026-11-23)* | The Placement Service uses a web UI on an internal platform API, not a third-party system calling the public API [User 2026-11-23 Q35, Q36]. A YOT's CMS starts a placement with `POST /children/{ypid}/placement-requests`, and follows it with a `GET` [Q37]. The decision, and the choice of establishment, happen internally, and they create the SE caretaking transfer. | The public API stays small. Placements and the SE can still use different clients. | The internal API needs its own design. The Placement Service's actual process is still unknown (Q1). |
+| **D4 Decided: internal placement UI, minimal public route** *(added 2026-11-23)* | The Placement Service uses a web UI on an internal platform API, not a third-party system calling the public API [User 2026-11-23 Q35, Q36]. A YJS's CMS starts a placement with `POST /children/{ypid}/placement-requests`, and follows it with a `GET` [Q37]. The decision, and the choice of establishment, happen internally, and they create the SE caretaking transfer. | The public API stays small. Placements and the SE can still use different clients. | The internal API needs its own design. The Placement Service's actual process is still unknown (Q1). |
 
 ### E. Shape of the stage payload (`Stage.data`)
 
@@ -222,7 +222,7 @@ A3 can also be used **only** as a migration adapter alongside A1 (see F).
 | :-- | :-- | :-- | :-- |
 | F1 Big bang | Every CMS moves to the API on one date | No dual running. | High risk across many suppliers. |
 | **F2 ★ AP06 adapter** | A service translates AP06 XML from Connectivity into API calls (and back) until each CMS migrates | Gradual. Suppliers move at their own pace. | Must handle full-copy semantics against a central store. The adapter is throwaway. |
-| F3 Phased by organisation type | Placement and SE first (one shared client today [User 2026-11-19]), then YOTs | Starts with the smallest, most uniform group. | YOT↔SE flows are mixed-mode until the YOTs move. |
+| F3 Phased by organisation type | Placement and SE first (one shared client today [User 2026-11-19]), then YJSs | Starts with the smallest, most uniform group. | YJS↔SE flows are mixed-mode until the YJSs move. |
 
 **Decided 2026-11-23: F2** [User 2026-11-23 Q40]. When the platform answers `412` (option J) to a stage that came from an AP06 CMS, the adapter replies with an AP06 "Assessment Update Rejected" message and a reason such as "Conflict in stages" [Q41; AP02 L886 SE005].
 
@@ -230,7 +230,7 @@ A3 can also be used **only** as a migration adapter alongside A1 (see F).
 
 | Option | Description |
 | :-- | :-- |
-| **G1 ★ Organisation and role claims in the token**, with the server enforcing relationships (party to the transfer, home vs caretaker) | Simple for clients. Matches "YOT decides roles" [AP02 L891 SE009] if roles are configured per organisation. |
+| **G1 ★ Organisation and role claims in the token**, with the server enforcing relationships (party to the transfer, home vs caretaker) | Simple for clients. Matches "YJS decides roles" [AP02 L891 SE009] if roles are configured per organisation. |
 | G2 Fine-grained policy service (e.g. ABAC) | Handles restricted sections [AP02 L535 GE014] and proxy/manager overrides cleanly. Heavier. |
 
 ### H. Audit and history
@@ -347,9 +347,9 @@ The list below is the original 2026-11-19 list, annotated where the decisions ch
 | :-- | :-- | :-- |
 | Q1 | How does the Placement Service work today, and what system and messages does it use? | Option D is speculative without this. **Partly answered:** in future the Placement Service will use a web UI on an internal API [User 2026-11-23 Q35, Q36]. How it works *today* is still unknown. |
 | Q2 | Can an SE reject an initial caretaking transfer, and on what grounds? | AP02 doesn't say; AP06 implies it can [current-process.md §4.2]. |
-| Q3 | Should the SE review YOT-shared stages, or only the YOT review SE-shared ones? | SE005 is one-directional [AP02 L886]. **Answered:** both. The Home YOT reviews stages from the SE, and the active caretaker reviews the Home YOT's stages [User 2026-11-23 Q34]. |
+| Q3 | Should the SE review YJS-shared stages, or only the YJS review SE-shared ones? | SE005 is one-directional [AP02 L886]. **Answered:** both. The Home YJS reviews stages from the SE, and the active caretaker reviews the Home YJS's stages [User 2026-11-23 Q34]. |
 | Q4 | In a central store, should rejected shared stages stay visible? | Option B choice; §2 items 5–6. **Partly answered:** they stay as read-only records, replaced by a new stage [User 2026-11-23 Q11, Q24]. ⚠️ Visibility to everyone is inferred, not confirmed. |
-| Q5 | How should three-way Home/Host/SE cases work? | §2 item 8. **Answered:** the Home YOT is the hub [User 2026-11-23 Q34]. Still open: if a Host YOT and an SE are both caretaking, which reviews the Home YOT's stages? |
+| Q5 | How should three-way Home/Host/SE cases work? | §2 item 8. **Answered:** the Home YJS is the hub [User 2026-11-23 Q34]. Still open: if a Host YJS and an SE are both caretaking, which reviews the Home YJS's stages? |
 | Q6 | Is supplier data (`sd*`) still needed? Was it deliberately dropped from the schema after v2.0? | AP03 defines 109 items [AP03 'Data Dictionary Master' rows 1069–1177]; v12 has no SupplierData schema [current-process.md §3.3]. |
 | Q7 | ~~Can we get the Data Items workbook 5.0 and the XSDs?~~ **Answered:** both supplied on 2026-11-19 [User 2026-11-19]. Follow-up: is there a data dictionary and "accompanying documentation" that matches schema v12? | AP03 is v5.0 (2014) and the Prototype goes "up to schema v11" [PROTO 'Please Read' row 5]; option E1 needs the current item definitions. |
 | Q8 | Is the EYE interim format (SE010) still in use anywhere? | [AP02 L892] |
@@ -358,12 +358,12 @@ The list below is the original 2026-11-19 list, annotated where the decisions ch
 | Q11 | Is the stage trigger table available elsewhere? | Empty in our copy [AP02 L919]. AP03 and the Prototype don't have it either [current-process.md §3.2]. |
 | Q12 | Which of today's live systems implement the case transfer schema, and at which version? | The v12 release history suggests live use ⚠️ [AssessmentTransfer L5–71], but no source names the CMSs. |
 | Q13 | Which option I behaviour do we want for `DELETE …/stages/{stageid}`? | GE069 requires a reason and a kept audit trail [AP02 L527]; the route as drafted does neither [swagger.yaml L654]. **Answered:** I2, a soft cancel [User 2026-11-23 Q12–Q14]. |
-| Q14 | Where can we get OU codes for secure establishments and the Placement Service, and a current YOT list? | `GET /organisations` needs them; AP03 has YOTs only, as of 2014 [AP03 'YOT Full List']. **Partly answered:** YJB will maintain the list in the platform [User 2026-11-23 Q46]. The initial data is still needed. |
+| Q14 | Where can we get OU codes for secure establishments and the Placement Service, and a current YJS list? | `GET /organisations` needs them; AP03 has YJSs only, as of 2014 [AP03 'YOT Full List']. **Partly answered:** YJB will maintain the list in the platform [User 2026-11-23 Q46]. The initial data is still needed. |
 | Q15 | How should the API handle the annual schema change: version `Stage.data`, migrate old stages, or both? | §2 item 22; [AssessmentTransfer L2678]. **Answered:** version it, don't migrate, and allow a grace period [User 2026-11-23 Q30–Q32]. |
 | Q16 | Is the Assessment ID's "YJS 2-letter code" a part of the 7-character OU code, or a separate code? | The two formats don't match [AssessmentTransfer L348; AP03 'YOT Full List']. Matters for migrating IDs (§2 item 15). |
 | Q17 | What are the codes for cancelling a stage? *(Added 2026-11-23.)* | `DELETE` takes a reason code [User 2026-11-23 Q13], but today's reason seems to be free text [AP02 L527 GE069], and no source lists codes. |
 | Q18 | What are the thresholds and periods? *(Added 2026-11-23.)* | Staleness of partial stages, and who gets the report [Q23]; the schema-change grace period [Q32]; how long `Idempotency-Key`s are kept [Q22]. |
-| Q19 | If a Host YOT and an SE are both active caretakers, which reviews the Home YOT's stages? *(Added 2026-11-23.)* | Q34 covers stages *from* the caretakers, not this case. |
+| Q19 | If a Host YJS and an SE are both active caretakers, which reviews the Home YJS's stages? *(Added 2026-11-23.)* | Q34 covers stages *from* the caretakers, not this case. |
 | Q20 | What should downloading an attachment return before its scan finishes? *(Added 2026-11-23.)* | `proposed-transfer-api.yaml` uses `409` as a placeholder, which overlaps the identifier-mismatch meaning. |
 | Q21 | Can the seven inferences in the 2026-11-23 summary be confirmed? *(Added 2026-11-23.)* | They fill gaps the session didn't ask about directly. They're marked ⚠️ in `.grill-me/assetplus-api-design-20261123T1315-summary.md` and in this file. |
 | Q22 | What are the attachment size limits and retention period? *(Added 2026-11-23.)* | §2 item 12; not covered in the session. |

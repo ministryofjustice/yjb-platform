@@ -1,6 +1,6 @@
 # How AssetPlus transfer works today
 
-A high-level description of the current AssetPlus case-transfer process. It focuses on **Youth Offending Team (YOT) ↔ Secure Estate (SE)** transfers, including the YJB Placement Service. YOT ↔ YOT and YOT → Probation (Y2A) are covered briefly at the end.
+A high-level description of the current AssetPlus case-transfer process. It focuses on **Youth Justice Service (YJS) ↔ Secure Estate (SE)** transfers, including the YJB Placement Service. YJS ↔ YJS and YJS → Probation (Y2A) are covered briefly at the end.
 
 ## How to read this document
 
@@ -22,10 +22,10 @@ A high-level description of the current AssetPlus case-transfer process. It focu
 
 ## 1. Summary
 
-1. Each YOT and each secure establishment keeps its own copy of a young person's AssetPlus assessment in its own case management system (CMS) [AP06 L193, L274].
+1. Each YJS and each secure establishment keeps its own copy of a young person's AssetPlus assessment in its own case management system (CMS) [AP06 L193, L274].
 2. To move or share that assessment, the sending CMS builds an XML message to the AssetPlus Case Transfer Schema. It sends the message to the receiving CMS over **"Connectivity"**, a YJB platform that lets YJB systems talk to each other [AP06 L193, L260].
 3. A transfer is either:
-   - a **complete transfer**: ownership moves to another YOT, and sharing stops; or
+   - a **complete transfer**: ownership moves to another YJS, and sharing stops; or
    - a temporary **"caretaking" (home/host) arrangement**: both sides keep a copy and send each other completed stages as they go [AP02 L844 YY002; AP06 L334].
 4. A transfer to a secure establishment is **always caretaking** and **always goes via the YJB Placement Service** [AP02 L874 SE001].
 5. Each transfer or update is acknowledged automatically by the receiving system. A **person** at the receiving end then accepts or rejects it, choosing a reason from a standard list if they reject it [AP06 L400; AP02 L850 YY005, L886 SE005].
@@ -33,8 +33,8 @@ A high-level description of the current AssetPlus case-transfer process. It focu
 
 ```mermaid
 flowchart LR
-  subgraph YOT["Home YOT"]
-    YCMS[(YOT CMS<br/>own copy of AssetPlus)]
+  subgraph YJS["Home YJS"]
+    YCMS[(YJS CMS<br/>own copy of AssetPlus)]
   end
   subgraph YJB["YJB"]
     CONN{{Connectivity}}
@@ -60,9 +60,9 @@ flowchart LR
 
 | Actor / system | Role in transfer | Source |
 | :-- | :-- | :-- |
-| YOT (Youth Offending Team / Youth Justice Service) and its CMS | Owns the case. Starts transfers and chooses the destination. Can be the "Home" or "Host" YOT. | [AP06 L270–272 §4; AP02 L874 SE001] |
+| YJS (Youth Justice Service; called Youth Offending Team, or YOT, in the source documents) and its CMS | Owns the case. Starts transfers and chooses the destination. Can be the "Home" or "Host" YJS. | [AP06 L270–272 §4; AP02 L874 SE001] |
 | Secure establishment (SE) and its CMS | Receives a caretaking copy when a young person goes into custody. Can complete stages and send updates back. | [AP02 L874 SE001, L882 SE004] |
-| YJB Placement Service | All YOT→SE transfers go through it. Its custody-module information is used "to make a placement". The v12 schema carries the YOT's placement recommendation: an establishment *type* (SCH, STC or YOI), whether there is an establishment the child should not go to, and anything else "Placements" should know. | [AP02 L874 SE001, L484; AssessmentTransfer L1148–1186, L1155, L1165, L1170; SimpleTypes L823–829; PROTO 'Custody' rows 218–238] |
+| YJB Placement Service | All YJS→SE transfers go through it. Its custody-module information is used "to make a placement". The v12 schema carries the YJS's placement recommendation: an establishment *type* (SCH, STC or YOI), whether there is an establishment the child should not go to, and anything else "Placements" should know. | [AP02 L874 SE001, L484; AssessmentTransfer L1148–1186, L1155, L1165, L1170; SimpleTypes L823–829; PROTO 'Custody' rows 218–238] |
 | Connectivity | YJB messaging platform between systems. Sends the automatic "acknowledge". Cannot carry unstructured data (files). | [AP06 L260, L400] |
 | Y2A portal | Receives data feeds for transfers to probation (adjacent scope). | [AP02 L811 YA001] |
 | YJMIS | Receives a data extract for management information (adjacent scope). | [AP02 L543 GE041] |
@@ -89,15 +89,15 @@ flowchart LR
   - Leaving Custody
   - Referrals
   - Restorative Justice
-  - transfers (YOT to YOT, YOT to Probation) [AP02 L961]
+  - transfers (YJS to YJS, YJS to Probation) [AP02 L961]
 - The Custody module "aims to provide placements with appropriate information to make a placement and secure establishments with key information when a young person arrives at custody" [AP02 L484].
 
 ### 3.2 Stages: the unit of change
 
 - All edits happen inside an **assessment stage**, and **only one stage can be in progress at a time**. Between stages, the framework is read-only [AP02 L520 GE034].
 - Which stage types a user can create depends on their organisation [AP02 L520 GE034]:
-  - **YOT only:** Referral in (Prevention), Referral in (OOCD), Placement Notification, Bail Recommendation, Post Court, Pre-Sentence Report, Pre-Sentence Report (All Options), Sentenced (no report), Referral Order Report, Transfer to Probation, Transfer YOT to YOT, Case closure.
-  - **YOT or SE:** Pre-release from custody, Review.
+  - **YJS only:** Referral in (Prevention), Referral in (OOCD), Placement Notification, Bail Recommendation, Post Court, Pre-Sentence Report, Pre-Sentence Report (All Options), Sentenced (no report), Referral Order Report, Transfer to Probation, Transfer YOT to YOT, Case closure.
+  - **YJS or SE:** Pre-release from custody, Review.
   - **SE only:** Entry to custody.
 - The v12 schema has the same 15 stage types, but some names differ: "Entering into Custody", "Pre-Release from Custody", "Post Court Report" and "Pre Sentence Report" [SimpleTypes L166–184]. This document uses the GE034 names unless it is quoting the schema.
 - Each stage also has a **case type**: Prevention, OOCD, Offending, or a combination of these [AssessmentTransfer L249; SimpleTypes L291–301]. This was added to the schema in v2.2.1 (2015) [AssessmentTransfer L75–76].
@@ -141,7 +141,7 @@ flowchart LR
 - **Stage index.** A stage can carry an index of the case's stages [AssessmentTransfer L336, L2667–2681]. Each entry gives:
   - the stage type and date
   - the stage's status: In progress, Completed, Stopped or Cancelled [SimpleTypes L1731–1738]
-  - the YOT
+  - the YJS
   - the schema version the stage was recorded in
   - an attachment index
   - So a receiver learns that stopped, cancelled and in-progress stages exist, even though it doesn't receive their content.
@@ -163,7 +163,7 @@ flowchart LR
   - None of the v12 XSD files has a SupplierData structure or any `sd`-prefixed element. Only 14 of the 109 item names appear anywhere in them, and most of those are generic names such as `Notes`, `Location` and `Status`.
   > ⚠️ **Speculation:** a few supplier items, such as arrest date and address dates, now appear in the CaseTransfer and SimpleTypes structures [CaseTransfer L68; SimpleTypes L1861–1882]. Supplier data may have been partly absorbed into the main schema and partly dropped. No source says so.
 - **Attachments.**
-  - In AP06, attachments are listed in an `Unstructured_Data` structure and sent another way. The receiving YOT uses the list to check it got the expected files [AP06 L260–266].
+  - In AP06, attachments are listed in an `Unstructured_Data` structure and sent another way. The receiving YJS uses the list to check it got the expected files [AP06 L260–266].
   - In v12, `Unstructured_Data` has been removed (from the header in v3.0.1) [AssessmentTransfer L66; SimpleTypes L56]. Attachments are now listed per stage in the stage index, each as a section and a document name [AssessmentTransfer L2679–2690].
   - The schema still carries no file content.
 - AP06 said schema v2-0 **"has not been tested with data from existing case management systems"** [AP06 L300–302].
@@ -178,8 +178,8 @@ flowchart LR
 - **Message types:** Data Transfer, Data Transfer Acknowledged, Data Transfer Rejected, Assessment Update, Assessment Update Acknowledged, Assessment Update Rejected [AP06 L325–332]. These cover both complete and caretaking transfers. "Caretaking" includes caretaking by the SE [AP06 L334].
   - In v12 the types are Data Transfer, Data Transfer **Accept**, Data Transfer **Reject**, Assessment Update, Assessment Update **Accept** and Assessment Update **Reject** [SimpleTypes L1119–1131].
   - So acceptance is now an explicit message, and there's no "Acknowledged" message type. This fits AP06's description of acknowledgement as an automatic receipt by Connectivity rather than a user action [AP06 L400].
-- **Header:** every message has a header. It holds the message ID, version, type, response, rejection reason, originating YOT (OU code), receiving YOT, and a globally unique **Assessment ID** assigned by the CMS [AP06 L310–323, L406–422].
-  - In v12 the originating and receiving parties are "organisations" rather than YOTs. The receiving organisation is optional [AssessmentTransfer L360–365].
+- **Header:** every message has a header. It holds the message ID, version, type, response, rejection reason, originating YJS (OU code), receiving YJS, and a globally unique **Assessment ID** assigned by the CMS [AP06 L310–323, L406–422].
+  - In v12 the originating and receiving parties are "organisations" rather than YJSs. The receiving organisation is optional [AssessmentTransfer L360–365].
   - The schema notes that the originating organisation "is needed in a 3 way sharing arrangment between Home YJS, Host YJS and SE" [AssessmentTransfer L362]. See §6 item 4.
   - The Message ID and Assessment ID stay the same for every message in one exchange [AP06 L280–282].
 - **Payload rules:**
@@ -189,19 +189,19 @@ flowchart LR
   - Incomplete stages are not sent [AP06 L237].
   - Stopped stages are not transferred [AP02 L874 SE001].
 - **Who decides:**
-  - A **YOT worker** starts the transfer and chooses the destination [AP06 L270–272].
+  - A **YJS worker** starts the transfer and chooses the destination [AP06 L270–272].
   - The **sending CMS** checks that the stage is fit to transfer [AP06 L276].
   - The parties are expected to **agree transfers and the timing of updates "off-system"** [AP06 L399].
 - **Acknowledge vs accept:** "Acknowledge" is the automatic receipt through Connectivity. Accepting or rejecting is done by a user [AP06 L400]. For updates, "systems will not be able to do this automatically so a YOT user will need to update the status of their case manually" [AP06 L556].
 
 ### 4.2 Starting caretaking with a secure establishment
 
-**Preconditions.** The YOT can start the transfer only if:
+**Preconditions.** The YJS can start the transfer only if:
 
 - the last stage is completed and no stage is in progress [AP02 L876 SE002]
 - no caretaking arrangement with the SE already exists [AP02 L877 SE020]
 
-This applies whether the YOT is the Home YOT or the Host YOT [AP02 L874 SE001].
+This applies whether the YJS is the Home YJS or the Host YJS [AP02 L874 SE001].
 
 **What is sent.** The whole framework with all completed stages, but no stopped stages. The CMS must show that the young person is now in custody [AP02 L874 SE001].
 
@@ -211,30 +211,30 @@ This applies whether the YOT is the Home YOT or the Host YOT [AP02 L874 SE001].
 
 - No agreement to transfer in place
 - Wrong AssetPlus
-- Wrong YOT
+- Wrong YJS
 - Level of completeness
 - Other
 
 AP06 marks the first three reasons as "applicable to initial transfer only" [AP06 L347]. The v12 schema has a single list of all eight reasons (initial and update) and doesn't enforce that restriction [SimpleTypes L1342–1353].
 
-> ⚠️ **Speculation:** AP02 doesn't say whether the **SE** can reject an initial caretaking transfer. YY005 covers YOT↔YOT [AP02 L850]. However, the AP06 flows list the SE as a possible "B" that accepts or rejects a sharing transfer [AP06 L391–393], so we assume it can.
+> ⚠️ **Speculation:** AP02 doesn't say whether the **SE** can reject an initial caretaking transfer. YY005 covers YJS↔YJS [AP02 L850]. However, the AP06 flows list the SE as a possible "B" that accepts or rejects a sharing transfer [AP06 L391–393], so we assume it can.
 
 **Updates.** Updates may be sent only once acceptance has been received and the arrangement exists [AP02 L878 SE019].
 
 ### 4.3 Sharing updates during caretaking
 
-- Either the YOT or the SE can complete a new stage and send it to the other [AP02 L882 SE004]. The update is a single-stage **Assessment Update** message [AP06 L486–504 §6.5.1].
-- **The YOT accepts or rejects an update from the SE.** It is reminded until it decides [AP02 L886 SE005].
+- Either the YJS or the SE can complete a new stage and send it to the other [AP02 L882 SE004]. The update is a single-stage **Assessment Update** message [AP06 L486–504 §6.5.1].
+- **The YJS accepts or rejects an update from the SE.** It is reminded until it decides [AP02 L886 SE005].
   - Rejection reasons: Level of completeness, Errors of fact, Conflict in stages, Caretaking has ended, Other [AP02 L886 SE005; AP06 L336–347].
   - A rejected stage becomes 'Completed – rejected' [AP02 L886 SE005].
 - On acceptance, the SE is notified automatically and the stage becomes 'Completed' [AP02 L887 SE014].
-- The receiving YOT can see what changed in the stage, and can export the changes to PDF or print them [AP02 L888 SE006].
-- The YOT decides which user roles may accept or reject SE transfers [AP02 L891 SE009].
+- The receiving YJS can see what changed in the stage, and can export the changes to PDF or print them [AP02 L888 SE006].
+- The YJS decides which user roles may accept or reject SE transfers [AP02 L891 SE009].
 
 > ⚠️ **Speculation / gap:**
 >
-> - SE005, SE014 and SE006 describe only the **YOT** receiving an update from the SE. AP02 has no matching requirement for the SE accepting or rejecting an update from the YOT. The AP06 update flow is written for either party [AP06 L394–396], so the process is probably symmetrical in practice.
-> - YOT↔YOT says a rejected stage "is deleted from the rejecting YOT CMS" [AP02 L863 YY009]. SE005 doesn't say this.
+> - SE005, SE014 and SE006 describe only the **YJS** receiving an update from the SE. AP02 has no matching requirement for the SE accepting or rejecting an update from the YJS. The AP06 update flow is written for either party [AP06 L394–396], so the process is probably symmetrical in practice.
+> - YJS↔YJS says a rejected stage "is deleted from the rejecting YOT CMS" [AP02 L863 YY009]. SE005 doesn't say this.
 
 ### 4.4 Extra stage statuses during caretaking
 
@@ -273,15 +273,15 @@ stateDiagram-v2
 
 ### 4.5 Ending caretaking
 
-The **Home YOT** ends the arrangement when the young person leaves custody and returns to the YOT. After that, no more stage updates are shared [AP02 L890 SE008].
+The **Home YJS** ends the arrangement when the young person leaves custody and returns to the YJS. After that, no more stage updates are shared [AP02 L890 SE008].
 
-### 4.6 End-to-end sequence (YOT → SE)
+### 4.6 End-to-end sequence (YJS → SE)
 
 ```mermaid
 sequenceDiagram
   autonumber
-  actor YW as YOT worker
-  participant Y as Home YOT CMS
+  actor YW as YJS worker
+  participant Y as Home YJS CMS
   participant P as YJB Placement Service
   participant C as Connectivity
   participant S as SE CMS
@@ -317,7 +317,7 @@ sequenceDiagram
 
 ---
 
-## 5. Rules and checks summary (YOT ↔ SE)
+## 5. Rules and checks summary (YJS ↔ SE)
 
 | # | Rule | Source |
 | :-- | :-- | :-- |
@@ -331,7 +331,7 @@ sequenceDiagram
 | R8 | A person accepts or rejects, using a standard reason list. Remind until they decide | [AP02 L886 SE005; AP06 L400] |
 | R9 | Notify the sender on acceptance; the stage becomes 'Completed' | [AP02 L887 SE014] |
 | R10 | Show changes in a received stage, with PDF/print | [AP02 L888 SE006] |
-| R11 | Only the Home YOT can end caretaking (on leaving custody) | [AP02 L890 SE008] |
+| R11 | Only the Home YJS can end caretaking (on leaving custody) | [AP02 L890 SE008] |
 | R12 | Roles allowed to accept or reject are configured locally | [AP02 L891 SE009] |
 | R13 | One case per message. Message ID and Assessment ID stay the same across an exchange | [AP06 L278–282] |
 | R14 | Files travel outside the message. They are listed in `Unstructured_Data` (AP06), or in v12 in each stage's attachment index | [AP06 L260–266; AssessmentTransfer L2679–2690] |
@@ -344,7 +344,7 @@ sequenceDiagram
 - cross-system locking (SE015)
 - repeated reminders to send (SE021)
 - recall (SE017)
-- notifying the SE when the Host YOT changes (SE007)
+- notifying the SE when the Host YJS changes (SE007)
 - notifying on Connectivity failure (SE027)
 - three-way Home/Host/SE routing (SE018, SE023–SE025)
 
@@ -359,7 +359,7 @@ sequenceDiagram
    - AP06 uses "Entering into Custody" [AP06 L377].
    - The v12 schema uses "Entering into Custody" and "Pre-Release from Custody", and has no "Post-release" stage [SimpleTypes L166–184]. The schema list is the one a CMS must send, so it's the most reliable of the four.
 3. **YY030 is used twice**, once marked "Wont" and once "Must", for different requirements [AP02 L854, L862].
-4. **Three-way arrangements.** SE001 says updates go between the SE and the **Home** YOT only [AP02 L874]. SE018–SE025 describe Home→Host→SE routing, but they are all "Wont" [AP02 L894–897]. So when a Host YOT transfers to the SE, the routing is unclear. The v12 schema, though, says the originating organisation is needed for three-way sharing between Home YOT, Host YOT and SE [AssessmentTransfer L362]. This suggests three-way sharing does happen.
+4. **Three-way arrangements.** SE001 says updates go between the SE and the **Home** YJS only [AP02 L874]. SE018–SE025 describe Home→Host→SE routing, but they are all "Wont" [AP02 L894–897]. So when a Host YJS transfers to the SE, the routing is unclear. The v12 schema, though, says the originating organisation is needed for three-way sharing between Home YJS, Host YJS and SE [AssessmentTransfer L362]. This suggests three-way sharing does happen.
 5. **Interim format.** SE010 requires output in the older "EYE" format until every SE has AssetPlus [AP02 L892]. Whether that still applies is unknown.
 6. **Message type naming.**
    - The acknowledge header uses "Acknowledge Ownership Transfer Request" [AP06 L444], which isn't in AP06's message type list [AP06 L327–332].
@@ -377,7 +377,7 @@ sequenceDiagram
     - So no source we hold describes the data items of v12 in full.
 11. **Supplier data.** AP03 defines 109 supplier-data items for transfer [AP03 'Data Dictionary Master' rows 1069–1177], but v12 has no SupplierData schema (§3.3).
 12. **Organisation codes.**
-    - AP03 lists 258 YOTs with 7-character OU codes, e.g. `F00BK00` [AP03 'YOT Full List' rows 2–259].
+    - AP03 lists 258 YJSs with 7-character OU codes, e.g. `F00BK00` [AP03 'YOT Full List' rows 2–259].
     - The Assessment ID expects a "YJS 2-letter code" [AssessmentTransfer L348].
     - No source lists OU codes for secure establishments or the Placement Service.
 13. **GE069 wording.** The cancel requirement asks for "a reason why the stage has been stopped" and says users are notified "if a stage has been stopped" [AP02 L527 GE069]. This looks like text copied from GE068 (stop). We read it as a reason for cancelling.
@@ -386,14 +386,14 @@ sequenceDiagram
 
 ## 7. Adjacent flows (brief)
 
-- **YOT ↔ YOT complete transfer.**
+- **YJS ↔ YJS complete transfer.**
   - Ownership moves and sharing stops [AP02 L844 YY002].
   - Not allowed for a Looked After Child [AP02 L849 YY017]. It "should" also be blocked while breach proceedings are pending [AP02 L848 YY004].
-  - A rejected framework is deleted at the rejecting YOT [AP02 L850 YY005].
-  - A Host YOT cannot transfer the case on to another YOT [AP02 L868 YY013].
+  - A rejected framework is deleted at the rejecting YJS [AP02 L850 YY005].
+  - A Host YJS cannot transfer the case on to another YJS [AP02 L868 YY013].
   - Two copies can be merged by ordering stages by completion date [AP02 L870 YY014].
-- **YOT ↔ YOT caretaking** follows the same pattern as YOT ↔ SE: YY008/YY009/YY010/YY011 [AP02 L856–866]. Ending caretaking can instead turn into a complete transfer to the Host [AP02 L866 YY011].
-- **YOT → Probation (Y2A).**
+- **YJS ↔ YJS caretaking** follows the same pattern as YJS ↔ SE: YY008/YY009/YY010/YY011 [AP02 L856–866]. Ending caretaking can instead turn into a complete transfer to the Host [AP02 L866 YY011].
+- **YJS → Probation (Y2A).**
   - Triggered by a "Transfer to Probation" stage [AP02 L813 YA003].
   - Data goes to the Y2A portal as a feed "using the new AssetPlus XML schema" [AP02 L811 YA001].
   - Transfers from a YOI to an adult prison use printed documents, marked "TBC" [AP02 L812 YA002].

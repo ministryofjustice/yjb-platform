@@ -2,7 +2,7 @@ openapi: 3.0.4
 info:
   title: Prototype API – transfer and caretaking extensions
   description: |
-    Draft **additions** to the prototype AssetPlus API (`../swagger.yaml`). They cover the functions of today's AssetPlus case-transfer process for **YOT ↔ Secure Estate caretaking**, including the YJB Placement Service, on the assumption of a **central store** rather than CMS-to-CMS messaging.
+    Draft **additions** to the prototype AssetPlus API (`../swagger.yaml`). They cover the functions of today's AssetPlus case-transfer process for **YJS ↔ Secure Estate caretaking**, including the YJB Placement Service, on the assumption of a **central store** rather than CMS-to-CMS messaging.
 
     > **⚠️ This is an illustrative draft of pseudocode for discussion, not a final spec.** It follows the conventions of `../swagger.yaml`.
 
@@ -59,14 +59,14 @@ info:
     - **Only partial stages can be cancelled.** Today the caretaking statuses can be cancelled too (AP02 L858 YY026). ⚠️ Inferred from Q10–Q12.
     - **'Completed – awaiting Transfer' becomes "partial".** A stage that's signed off locally but not yet accepted by the platform is still partial (Q7).
 
-    **Caller identity.** The caller's organisation (OU code) and role are assumed to come from the authentication token. Where a source says the YOT decides which roles may accept or reject (AP02 L891 SE009, L872 YY016), a caller without that role gets `403 Forbidden`.
+    **Caller identity.** The caller's organisation (OU code) and role are assumed to come from the authentication token. Where a source says the YJS decides which roles may accept or reject (AP02 L891 SE009, L872 YY016), a caller without that role gets `403 Forbidden`.
   version: 0.0.3-draft
 
 servers: []
 
 tags:
   - name: Organisations
-    description: YOTs, secure establishments and the Placement Service, addressed by OU code
+    description: YJSs, secure establishments and the Placement Service, addressed by OU code
   - name: Transfers and caretaking
     description: Requesting, accepting, rejecting and ending caretaking (and complete) transfers
   - name: Stage lifecycle and review
@@ -86,15 +86,15 @@ paths:
       summary: List organisations that can send or receive transfers
       tags: [Organisations]
       description: |
-        Returns YOTs, secure establishments and the Placement Service, so a client can choose a transfer destination by OU code.
+        Returns YJSs, secure establishments and the Placement Service, so a client can choose a transfer destination by OU code.
 
         Today the destination is chosen by the person starting the transfer (AP06 L272) and identified by OU code in the message header (AP06 L416–419; AssessmentTransfer L360–365, SimpleTypes L1889–1894).
 
         **Who maintains the list.** YJB adds, renames and retires organisations through the platform's internal admin UI. This public API can only read the list (User 2026-11-23 Q46). A retired organisation stays readable, with `status: retired` and the OU code it was merged into, so that old stages and transfers still resolve (Q46).
 
-        **When two YOTs merge,** YJB retires one into the other, and the platform automatically moves ownership of everything the old YOT owned (partial stages, pending reviews, active transfers) to the new one. The new YOT's staff then see the old YOT's partial stages and inbox. If both YOTs had a partial stage for the same child, both carry on; the one-partial-stage-per-organisation rule applies only to new `POST`s (User 2026-11-23 Q47, Q48).
+        **When two YJSs merge,** YJB retires one into the other, and the platform automatically moves ownership of everything the old YJS owned (partial stages, pending reviews, active transfers) to the new one. The new YJS's staff then see the old YJS's partial stages and inbox. If both YJSs had a partial stage for the same child, both carry on; the one-partial-stage-per-organisation rule applies only to new `POST`s (User 2026-11-23 Q47, Q48).
 
-        **Source gap.** AP03 lists 258 YOTs with OU code, name and Connectivity name (AP03 'YOT Full List'), but only as of 2014. No source lists secure establishments or the Placement Service: the schema knows only the establishment type (SCH, STC or YOI; SimpleTypes L823–829) and a free-text establishment name (AssessmentTransfer L230). See `api-scope-and-options.md` Q14.
+        **Source gap.** AP03 lists 258 YJSs with OU code, name and Connectivity name (AP03 'YOT Full List'), but only as of 2014. No source lists secure establishments or the Placement Service: the schema knows only the establishment type (SCH, STC or YOI; SimpleTypes L823–829) and a free-text establishment name (AssessmentTransfer L230). See `api-scope-and-options.md` Q14.
       parameters:
         - name: type
           in: query
@@ -183,11 +183,11 @@ paths:
         The server enforces the current preconditions and returns `422` with the rule ID if one fails:
         - `SE002` / `YY003`: the last stage is completed and no stage is in progress (AP02 L876, L846)
         - `SE020` / `YY023`: no existing caretaking arrangement (AP02 L877, L847)
-        - `YY013`: a Host YOT cannot transfer on to another YOT (AP02 L868)
+        - `YY013`: a Host YJS cannot transfer on to another YJS (AP02 L868)
         - `YY017`: no complete transfer for a Looked After Child (AP02 L849)
         - `YY004` (Should): no complete transfer with breach proceedings pending (AP02 L848)
 
-        Transfers to a secure establishment must be `caretaking` (AP02 L874 SE001). They're normally created by the platform when the Placement Service records its decision in its own web UI, which runs on an internal platform API (User 2026-11-23 Q35, Q36). A YOT's CMS starts that process with `POST /children/{ypid}/placement-requests`.
+        Transfers to a secure establishment must be `caretaking` (AP02 L874 SE001). They're normally created by the platform when the Placement Service records its decision in its own web UI, which runs on an internal platform API (User 2026-11-23 Q35, Q36). A YJS's CMS starts that process with `POST /children/{ypid}/placement-requests`.
 
         The `child` property confirms the request is for the expected child, following the `POST /children/{ypid}/stages` convention in `../swagger.yaml`. It mitigates the "Wrong AssetPlus" rejection reason (AP06 L339).
       requestBody:
@@ -336,9 +336,9 @@ paths:
       summary: End a caretaking arrangement
       tags: [Transfers and caretaking]
       description: |
-        Only the Home YOT can end caretaking (AP02 L890 SE008, L866 YY011). For an SE this happens when the young person leaves custody. After this, stages are no longer shared and the caretaker loses write access.
+        Only the Home YJS can end caretaking (AP02 L890 SE008, L866 YY011). For an SE this happens when the young person leaves custody. After this, stages are no longer shared and the caretaker loses write access.
 
-        For YOT↔YOT caretaking, the outcome `complete_transfer_to_host` turns the arrangement into a complete transfer to the Host YOT (AP02 L866 YY011). This option is not valid for an SE.
+        For YJS↔YJS caretaking, the outcome `complete_transfer_to_host` turns the arrangement into a complete transfer to the Host YJS (AP02 L866 YY011). This option is not valid for an SE.
       requestBody:
         required: true
         content:
@@ -423,7 +423,7 @@ paths:
         This is option B1 in `api-scope-and-options.md` §B, which follows from the 2026-11-23 decisions (User 2026-11-23 Q10, Q11):
         - **While under review**, a `completed_shared` stage is visible to every reader, along with its review status, for example `review: pending` (Q33). The organisation that completed it can't reopen it (Q10).
         - **A rejected stage** stays as a read-only record. To correct it, the originating organisation creates a new stage with `POST /children/{ypid}/stages`, giving `supersedes` as the URI of the rejected stage. The platform checks that the superseded stage is `completed_rejected` and belongs to the same child, and adds a `superseded_by` link to it. No content is copied across (Q11, Q24). ⚠️ Inferred, not confirmed: rejected stages stay visible to every reader, with their status and `superseded_by` link.
-        - **Three-way arrangements** (Home YOT, Host YOT and a Secure Estate): the Home YOT reviews every stage completed by the Host YOT or the Secure Estate, and the Home YOT's own stages are reviewed by the active caretaker (Q34), consistent with SE001 (AP02 L874). **Gap:** if a Host YOT and a Secure Estate are both active caretakers, it's not yet decided which of them reviews the Home YOT's stages.
+        - **Three-way arrangements** (Home YJS, Host YJS and a Secure Estate): the Home YJS reviews every stage completed by the Host YJS or the Secure Estate, and the Home YJS's own stages are reviewed by the active caretaker (Q34), consistent with SE001 (AP02 L874). **Gap:** if a Host YJS and a Secure Estate are both active caretakers, it's not yet decided which of them reviews the Home YJS's stages.
       requestBody:
         required: true
         content:
@@ -627,13 +627,13 @@ paths:
       summary: Ask the Placement Service to place a child in the secure estate
       tags: [Placements]
       description: |
-        AP02 says a YOT→SE transfer "will always be via the YJB Placement Service" (AP02 L874 SE001), and the Custody module gives placements "appropriate information to make a placement" (AP02 L484). Neither document describes the Placement Service process.
+        AP02 says a YJS→SE transfer "will always be via the YJB Placement Service" (AP02 L874 SE001), and the Custody module gives placements "appropriate information to make a placement" (AP02 L484). Neither document describes the Placement Service process.
 
-        **Decided 2026-11-23.** The Placement Service uses its own web UI, on an internal platform API, rather than a third-party system calling this API (User 2026-11-23 Q35, Q36). So the public API keeps only this minimal route, for the YOT's CMS to start a placement, and a `GET` to follow its status (Q37). The Placement Service's decision, and its choice of secure establishment, happen internally. When the decision is made, the platform creates a `caretaking` transfer from the YOT to the chosen establishment, with status `requested` (AP02 L874 SE001).
+        **Decided 2026-11-23.** The Placement Service uses its own web UI, on an internal platform API, rather than a third-party system calling this API (User 2026-11-23 Q35, Q36). So the public API keeps only this minimal route, for the YJS's CMS to start a placement, and a `GET` to follow its status (Q37). The Placement Service's decision, and its choice of secure establishment, happen internally. When the decision is made, the platform creates a `caretaking` transfer from the YJS to the chosen establishment, with status `requested` (AP02 L874 SE001).
 
         The referenced stage would normally be a completed Placement Notification, Bail Recommendation, PSR (All options) or Post Court stage, which carry the Custody module (AP06 L365–369, AP02 L517 GE044).
 
-        The YOT's recommendation is already in that stage's data: the initial placement recommendation as an establishment type (SCH, STC or YOI), whether there's an establishment the child should not go to, and anything else Placements should know (AssessmentTransfer L1148–1186; SimpleTypes L823–829; PROTO 'Custody' rows 218–238). So this request doesn't repeat it.
+        The YJS's recommendation is already in that stage's data: the initial placement recommendation as an establishment type (SCH, STC or YOI), whether there's an establishment the child should not go to, and anything else Placements should know (AssessmentTransfer L1148–1186; SimpleTypes L823–829; PROTO 'Custody' rows 218–238). So this request doesn't repeat it.
       requestBody:
         required: true
         content:
@@ -666,7 +666,7 @@ paths:
       summary: Follow a placement request's status
       tags: [Placements]
       description: |
-        Lets the requesting YOT's CMS see whether the child has been placed, where, and the resulting transfer (User 2026-11-23 Q37). The Placement Service's own work queue is internal and isn't part of this API (Q36).
+        Lets the requesting YJS's CMS see whether the child has been placed, where, and the resulting transfer (User 2026-11-23 Q37). The Placement Service's own work queue is internal and isn't part of this API (Q36).
       responses:
         '200':
           description: Success
@@ -981,7 +981,7 @@ components:
 
     OrganisationType:
       type: string
-      enum: [yot, secure_establishment, placement_service, probation]
+      enum: [yjs, secure_establishment, placement_service, probation]
     Organisation:
       type: object
       properties:
@@ -997,7 +997,7 @@ components:
         merged_into_ou_code:
           type: string
           nullable: true
-          description: For a retired YOT, the OU code of the YOT it was merged into (User 2026-11-23 Q46, Q47).
+          description: For a retired YJS, the OU code of the YJS it was merged into (User 2026-11-23 Q46, Q47).
       required: [ou_code, name, type, status]
     OrganisationStatus:
       type: string
@@ -1093,7 +1093,7 @@ components:
         outcome:
           type: string
           enum: [returned_to_home, complete_transfer_to_host]
-          description: '`complete_transfer_to_host` is valid for YOT↔YOT only (AP02 L866 YY011).'
+          description: '`complete_transfer_to_host` is valid for YJS↔YJS only (AP02 L866 YY011).'
       required: [outcome]
 
     StageStatus:
@@ -1292,7 +1292,7 @@ components:
         stageid:
           type: string
           format: uuid
-        requesting_yot:
+        requesting_yjs:
           $ref: "#/components/schemas/Organisation"
         status:
           $ref: "#/components/schemas/PlacementRequestStatus"

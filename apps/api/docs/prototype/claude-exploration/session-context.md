@@ -26,7 +26,7 @@ Updated again on 2026-11-23, after a design session (a "grill") that settled mos
 | :-- | :-- |
 | Output format | Markdown with Mermaid diagrams |
 | Target architecture | **Central store**: the YJB platform holds the record, rather than case management systems (CMSs) messaging each other |
-| Parties in scope | **YOT ↔ Secure Estate** mapped in full. YOT ↔ YOT and YOT → Probation noted as adjacent scope only |
+| Parties in scope | **YJS ↔ Secure Estate** mapped in full. YJS ↔ YJS and YJS → Probation noted as adjacent scope only |
 | De-scoped legacy requirements | Not treated as current functionality. `../swagger.yaml` is the statement of intent for the new API |
 | Relationship to `../swagger.yaml` | Draft the new routes in a separate OpenAPI file in this folder. Don't edit `../swagger.yaml` |
 | YJB Placement Service | **In scope.** Placements and the Secure Estate currently use the same AssetPlus client system. In future we'd like them to be able to use different client systems |
@@ -50,8 +50,8 @@ The headline decisions:
 | Sign-off | Two people, in the CMS. The v12 countersignatures are trusted. The CMS locks a stage once it sends the `PUT`. Any fix or rebase needs a new sign-off |
 | Records | One per child; stages stay flat. CMSs report duplicates; only YJB merges. A merged-away `ypid` returns `308` |
 | Schema versions | A `schema_version` field; no migration; a grace period after each annual change |
-| Review | Option B1. Stages under review are visible to all. The Home YOT is the hub in three-way cases |
-| Placement Service | Its own web UI on an internal API. The public API only lets a YOT start a placement and follow it |
+| Review | Option B1. Stages under review are visible to all. The Home YJS is the hub in three-way cases |
+| Placement Service | Its own web UI on an internal API. The public API only lets a YJS start a placement and follow it |
 | Other | Inbox plus optional webhooks; a public `/history`; attachments follow the stage, with asynchronous scanning; an AP06 adapter for migration; YJB maintains the organisations list |
 
 Seven inferences in the summary are still to be confirmed (`api-scope-and-options.md` Q21). Non-functional requirements weren't covered, by the user's choice.
@@ -112,8 +112,8 @@ Detail and citations are in `current-process.md` §3–§6 and `api-scope-and-op
 - **Caretaking statuses aren't in the schema.** 'Completed – awaiting Transfer', 'Completed – Transferred' and 'Completed – rejected' are local to each CMS.
 - **Supplier data.** AP 03 defines 109 supplier-data items, but the v12 schema has no SupplierData structure.
 - **Countersignatures and case types.** Each stage has two countersignatures, and a case type that limits which stage types are allowed.
-- **Placement data.** The schema carries the YOT's placement *recommendation* by establishment type. It has no field for the Placement Service's decision.
-- **Organisations.** Only YOT OU codes are listed (AP 03, as of 2014). Secure establishments and the Placement Service have no codes in any source.
+- **Placement data.** The schema carries the YJS's placement *recommendation* by establishment type. It has no field for the Placement Service's decision.
+- **Organisations.** Only YJS OU codes are listed (AP 03, as of 2014). Secure establishments and the Placement Service have no codes in any source.
 - **Still missing:**
   - the stage→module trigger table
   - a data dictionary that matches v12
@@ -148,12 +148,12 @@ Detail and citations are in `current-process.md` §3–§6 and `api-scope-and-op
 1. **Decisions still needed** (see `api-scope-and-options.md` §3 and §5). Options B, C, D, F, I and J were decided on 2026-11-23. Still open:
    - option A (transfer model; A1 is still drafted), option E (the shape of `Stage.data`; E1 recommended), option G (authorisation) and option H (H1 vs H2)
    - the seven unconfirmed inferences (Q21)
-   - cancellation reason codes (Q17), thresholds and periods (Q18), a Host YOT and an SE both caretaking (Q19), the response for a download before scanning finishes (Q20), attachment limits and retention (Q22)
+   - cancellation reason codes (Q17), thresholds and periods (Q18), a Host YJS and an SE both caretaking (Q19), the response for a download before scanning finishes (Q20), attachment limits and retention (Q22)
    - how the Placement Service works today (Q1)
    - **Departures from the current process** to check with YJB or the business: no stop, no reopen, organisation-level cancel, and only partial stages can be cancelled. They're listed in the YAML's description
 2. **Documents to ask for:**
    - a data dictionary or release notes matching schema v12 (Q7)
-   - OU codes for secure establishments and the Placement Service, and a current YOT list (Q14)
+   - OU codes for secure establishments and the Placement Service, and a current YJS list (Q14)
    - the stage trigger table (Q11)
    - the non-functional requirements (Q23)
 3. **Recommended changes to `../swagger.yaml`** are in two places: the YAML's description (decided on 2026-11-23) and `api-scope-and-options.md` §4 (the earlier list, annotated). None has been made, since that file is outside this folder. One inconsistency: `DELETE` expects the identifier in a request body [swagger.yaml L654], although it's in the path.
