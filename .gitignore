@@ -156,5 +156,8 @@ tmp/
 #act 
 .act_config/secrets
 
+# Restricted documents used for AI-assisted design and development
+**/restricted-documents/
+
 # grill-me design-tree session notes
 .grill-me/
