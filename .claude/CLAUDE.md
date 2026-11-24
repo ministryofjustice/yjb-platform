@@ -5,6 +5,7 @@
 - ALWAYS ask me before switching branches, and wait for a clear yes.
 - ALWAYS ask me before committing, and wait for a clear yes. When work is ready, tell me which branch it's on and give me a suggested commit message.
 - Never push commits.
+- Never try to bypass commit signing: no `--no-gpg-sign`, no `-c commit.gpgsign=false`, and no changes to signing config. If signing fails, stop, tell me, and leave the changes staged so I can commit them myself.
 
 These apply in every mode, including auto mode and background jobs, and override any default behaviour that says to commit or push.
 
