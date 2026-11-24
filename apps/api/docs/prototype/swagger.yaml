@@ -95,16 +95,7 @@ paths:
                 items:
                   $ref:  "#/components/schemas/CompleteChild"
         '400':
-          description: |
-            Bad request
-
-            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (OYPID, SUI or PNCID).
-
-            Alternatively, some other unexpected error was found in the request data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequestChildDetails"
         '405':
           description: |
             Method Not Allowed
@@ -117,25 +108,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '409':
-          description: |
-            Conflict
-
-            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same OYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
-
-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ChildIdentifierConflict"
         '500':
-          description: |
-            Internal server error
-
-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ServerError"
     post:
       summary:  Create a new child in AssetPlus, in order to subsequently create Stages
       tags:
@@ -143,7 +118,7 @@ paths:
       description: |
         Create a new child in AssetPlus, in order to subsequently create Stages
 
-        The `ypid` in the `MinimalChild` object in the request body must be null or zero. Any other value will be disregarded.
+        The `ypid` in the `MinimalChild` object in the request body must be absent or null, because the platform assigns it. Any other value, including `0`, gives `400 Bad Request`.
       requestBody:
         required: true
         content:
@@ -160,10 +135,7 @@ paths:
                 type: object
                 properties:
                   ypid:
-                    type: integer
-                    minimum: 1
-                    maximum: 999999999
-                    # NHS numbers are 10 digits, so YPIDs must not collide — and are unlikely to, given that this is over 10✕ the population of the UK
+                    $ref: "#/components/schemas/Ypid"
                   identifier_array:
                     type: object
                     $ref: "#/components/schemas/IdentifierArray"
@@ -172,7 +144,7 @@ paths:
           description: |
             Bad request
 
-            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object contained a non-null `ypid`.
+            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object contained a `ypid` that wasn't null.
 
             Alternatively, some other unexpected error was found in the request data.
           content:
@@ -180,25 +152,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         '409':
-          description: |
-            Conflict
-
-            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same OYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
-
-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ChildIdentifierConflict"
         '500':
-          description: |
-            Internal server error
-
-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ServerError"
 
   /children/search:
     post:
@@ -236,17 +192,7 @@ paths:
                   format: date
                   description: The date of birth of the child, provided as an [ISO 8601](https://www.w3.org/QA/Tips/iso-date) formatted date of birth (`YYYY-MM-DD`).
                 date_of_birth_accuracy:
-                  type: string
-                  enum: [
-                    "AAA", "AAE", "AAU", "AEA", "AEE", "AEU", "AUA", "AUE", "AUU",
-                    "EAA", "EAE", "EAU", "EEA", "EEE", "EEU", "EUA", "EUE", "EUU",
-                    "UAA", "UAE", "UAU", "UEA", "UEE", "UEU", "UUA", "UUE", "UUU" ]
-                  description: |
-                    Optionally indicates which parts of the date are known to be accurate (`A`), estimated (`E`) or unknown (`U`).
-
-                    This should be provided as a string of three characters, where the first character indicates the accuracy of the day, the second character indicates the accuracy of the month, and the third character indicates the accuracy of the year. For example, `AAU` indicates that the day and month are known to be accurate, but the year is unknown.
-
-                    This aligns with the FHIR Extension [“Date Accuracy Indicator”](https://hl7.org/fhir/extension-datetime-accuracy.html), which is used in the FHIR UK Core [Person.dateOfBirth](https://www.datadictionary.nhs.uk/data_elements/person_date_of_birth.html) data element.
+                  $ref: "#/components/schemas/DateOfBirthAccuracy"
                 postcode:
                   type: string
                   description: The postal code of the child's address.
@@ -265,36 +211,11 @@ paths:
                 items:
                   $ref: "#/components/schemas/CompleteChild"
         '400':
-          description: |
-            Bad request
-
-            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (OYPID, SUI or PNCID).
-
-            Alternatively, some other unexpected error was found in the request data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequestChildDetails"
         '409':
-          description: |
-            Conflict
-
-            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same CYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
-
-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ChildIdentifierConflict"
         '500':
-          description: |
-            Internal server error
-
-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ServerError"
 
   /children/{ypid}/:
     get:
@@ -315,32 +236,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/CompleteChild"
         '400':
-          description: |
-            Bad request
-
-            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequestYpid"
         '404':
-          description: |
-            Not Found
-
-            The provided `ypid` does not exist or is not associated with any child in the system.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ChildNotFound"
         '500':
-          description: |
-            Internal server error
-
-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ServerError"
 
   /children/{ypid}/stages/:
     parameters:
@@ -350,7 +250,7 @@ paths:
       tags:
         - Find, create and update Stages
       description: |
-        Fetch all Stages for the givin child. The response will be an array of `Stage` objects showing all signed-off Stages for the child specified in the path `ypid` parameter, and any partial Stages that have been saved for that child by the organisation making the request.
+        Fetch all Stages for the given child. The response will be an array of `Stage` objects showing all signed-off Stages for the child specified in the path `ypid` parameter, and any partial Stages that have been saved for that child by the organisation making the request.
 
         Note that this method will return different results depending on the organisation and user making the request, and the current state of the Stages. For example, a user from an organisation with a saved partial Stage and an updated Stage received from another organisation will receive a “rebased” Stage, containing the updates from the other organisation, but with their own partial Stage changes applied thereafter. Other organisations requesting Stages for the same child would not see the saved partial Stage, which is only available to the organisation that saved it.
 
@@ -365,38 +265,25 @@ paths:
                 items:
                   $ref: "#/components/schemas/Stage"
         '400':
-          description: |
-            Bad request
-
-            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequestYpid"
         '404':
-          description: |
-            Not Found
-
-            The provided `ypid` does not exist or is not associated with any child in the system.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ChildNotFound"
         '500':
-          description: |
-            Internal server error
-
-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ServerError"
     post:
       summary: Create a new AssetPlus Stage for the specified child
       tags:
         - Find, create and update Stages
       description: |
-        This endpoint creates a new AssetPlus record-stub for the child specified in the path `ypid` parameter. The request body must include a `MinimalChild` object, which will be used to confirm that the new Stage is being created for the expected child. The response will include the `stageid` of the newly-created Stage, which can then be used to subsequently update that Stage.
+        This endpoint creates a new partial Stage for the child specified in the path `ypid` parameter. The request body must include a `MinimalChild` object, which will be used to confirm that the new Stage is being created for the expected child, and the Stage's `stage_type`, `case_type` and `schema_version`. The response will include the `stageid` of the newly-created Stage, which can then be used to subsequently update that Stage.
+
+        The platform enforces these rules, and returns `422 Unprocessable Content` with the ID of the broken rule if one fails:
+
+        - Which stage types an organisation may create depends on its organisation type (requirement GE034).
+        - Which stage types are allowed depends on the case type.
+        - An organisation may have only one partial Stage for each child at a time. A second request from the same organisation is refused, citing GE034.
+
+        To replace a Stage that was rejected during caretaking review, set `supersedes` to the URI of the rejected Stage.
 
         It is not possible to create a Stage for a child who is not already known to be in the system. If the child's `ypid` is not known, then the client must first search for the child using `GET /children` or `POST /children/search`, and if the child is not found, create the child using `POST /children`. Once the child is created, the client can then create a Stage for that child using this endpoint.
       requestBody:
@@ -408,6 +295,25 @@ paths:
               properties:
                 child:
                   $ref: "#/components/schemas/MinimalChild"
+                stage_type:
+                  $ref: "#/components/schemas/StageType"
+                case_type:
+                  $ref: "#/components/schemas/CaseType"
+                schema_version:
+                  type: string
+                  description: The AssetPlus schema version the Stage is written in, for example `12.0.0`.
+                supersedes:
+                  type: string
+                  format: uri
+                  nullable: true
+                  description: The URI of a `completed_rejected` Stage that this Stage replaces.
+              required:
+                - child
+                - stage_type
+                - case_type
+                - schema_version
+      parameters:
+        - $ref: "#/components/parameters/idempotencyKeyHeaderParameter"
       responses:
         '200':
           description: |
@@ -420,27 +326,11 @@ paths:
                 type: object
                 properties:
                   stage_id:
-                    $ref: "#/components/parameters/stageidParameter"
+                    $ref: "#/components/schemas/StageId"
         '400':
-          description: |
-            Bad request
-
-            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (OYPID, SUI or PNCID).
-
-            Alternatively, some other unexpected error was found in the request data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequestChildDetails"
         '404':
-          description: |
-            Not Found
-
-            The provided `ypid` does not exist or is not associated with any child in the system.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ChildNotFound"
         '409':
           description: |
             Conflict
@@ -452,15 +342,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        '500':
+        '422':
           description: |
-            Internal server error
+            Unprocessable Content
 
-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+            The request was well-formed, but breaks a business rule: the stage type isn't allowed for the organisation type or the case type, or the organisation already has a partial Stage for this child. `rule` gives the ID of the rule that was broken.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/RuleViolation"
+        '500':
+          $ref: "#/components/responses/ServerError"
 
   /children/{ypid}/stages/{stageid}:
     parameters:
@@ -474,9 +366,14 @@ paths:
         This endpoint retrieves an existing AssetPlus Stage, which may be a full Stage or a partial Stage.
 
         Partial Stages will only be provided to a user from the organisation that created the partial Stage. Other organisations requesting a `stageid` that corresponds to a partial Stage will receive a 409 Conflict response, as if the `stageid` does not exist.
+
+        The response includes an `ETag` header. Send it as `If-Match` when you next `PATCH` or `PUT` the Stage.
       responses:
         '200':
           description: Success response, including the requested Stage, including a `MinimalChild` object, which must be used to confirm that the response relates to the expected child.
+          headers:
+            ETag:
+              $ref: "#/components/headers/ETag"
           content:
             application/json:
               schema:
@@ -484,40 +381,27 @@ paths:
                 minimumItems: 1
                 maximumItems: 1
         '400':
-          description: |
-            Bad Request
-            
-            Some unexpected error occurred with the request data, unrelated to any mismatch between the child and the `stageid`. For example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequestStageIdentifiers"
         '409':
-          description: |
-            Conflict
-
-            The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
-
-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/StageIdentifierConflict"
         '500':
-          description: |
-            Internal server error
-
-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ServerError"
     patch:
       summary: Save a partial update to an existing AssetPlus Stage
       tags:
         - Find, create and update Stages
       description: |
-        This endpoint saves a partial update to an existing AssetPlus record. The request body must include at least one property to update. The response will just be an acknowledgement of the update, with no content, or an error response. The response may optionally include a notification message saying that someone else also has a partial Stage open for this child.
+        This endpoint saves a partial update to an existing partial Stage. The request body must include at least one property to update. The response will just be an acknowledgement of the update, with no content, or an error response. The response may optionally include a notification message saying that someone else also has a partial Stage open for this child.
+
+        **Concurrency.** The request must include an `If-Match` header with the Stage's current `ETag`. If the `ETag` is out of date because another organisation's change reached the platform first, the platform rebases this change onto the current version:
+
+        - If no field was changed on both sides, the change is applied, and the response has the new `ETag`. ⚠️ This case is inferred and not yet confirmed.
+        - If any field was changed on both sides, nothing is applied, and the platform returns `412 Precondition Failed` with `outcome: conflict`. The organisation that pushed later resolves the conflict in its CMS and pushes again.
+
+        Send an `Idempotency-Key` header, and reuse it on every retry of the same change. The platform returns the original result for a key it has already processed, so a retry after a lost response doesn't fail against your own earlier write.
+      parameters:
+        - $ref: "#/components/parameters/ifMatchHeaderParameter"
+        - $ref: "#/components/parameters/idempotencyKeyHeaderParameter"
       requestBody:
         required: true
         content:
@@ -530,6 +414,9 @@ paths:
       responses:
         '200':
           description: Success response, optionally containing a notification message saying that someone else also has a partial Stage open for this child.
+          headers:
+            ETag:
+              $ref: "#/components/headers/ETag"
           content:
             application/json:
               schema:
@@ -537,55 +424,44 @@ paths:
                 minimumItems: 0
                 maximumItems: 1
         '400':
-          description: |
-            Bad request
-
-            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
-
-            Alternatively, some other unexpected error was found in the request data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequestStageIdentifiers"
         '403':
-          description: |
-            Forbidden
-
-            The user is attempting to PATCH a Stage that has been signed off and is no longer available for editing. Alternatively, the user may be attempting to PATCH a Stage that was created by another organisation.
-
-            Alternatively, some other unexpected error was found in the request data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/StageNotEditable"
         '409':
-          description: |
-            Conflict
-
-            The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
-
-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/StageIdentifierConflict"
+        '412':
+          $ref: "#/components/responses/PreconditionFailed"
+        '428':
+          $ref: "#/components/responses/PreconditionRequired"
         '500':
-          description: |
-            Internal server error
-
-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ServerError"
     put:
-      summary: Save a complete update to an existing AssetPlus record
+      summary: Complete an existing partial Stage
       tags:
         - Find, create and update Stages
       description: |
-        This endpoint saves a complete update to an existing AssetPlus record. The request body must include the unique AssetPlus record identifier, and all properties to update.
+        This endpoint saves a complete update to an existing partial Stage and completes it. The request body must include all properties of the Stage.
 
-        As might be expected, this will replace any existing record with the new data, and any properties not included in the request body will be removed from the record, irrespective of whether or not they were sent in a previous PATCH request. The response will just be an acknowledgement of the update, with no content, or an error response. The response may optionally include a notification message saying that someone else also has a partial Stage open for this child.
+        As might be expected, this will replace the existing Stage with the new data, and any properties not included in the request body will be removed from the Stage, irrespective of whether or not they were sent in a previous PATCH request.
+
+        **The platform's acceptance is what completes the Stage.** The `200` response gives the Stage's new status: `completed`, or `completed_shared` if a caretaking arrangement is in place and the Stage must be reviewed by another organisation. The CMS must not mark its own copy of the Stage as complete until it receives that `200`. Any other response, or no response, means the Stage is still partial.
+
+        The Stage must include:
+
+        - both countersignatures, for Explanations & Conclusions and for Pathways & Planning, each with a name, job title and date. The platform records them as given; it doesn't check them.
+        - `attachment_ids`: the attachments being signed off with the Stage.
+
+        **Concurrency.** The request must include an `If-Match` header with the Stage's current `ETag`. If the `ETag` is out of date because another organisation's change reached the platform first:
+
+        - If any field was changed on both sides, nothing is applied, and the platform returns `412 Precondition Failed` with `outcome: conflict`.
+        - Otherwise the platform rebases the change, but **doesn't** complete the Stage, because the countersignatories haven't seen the merged content. It returns `412 Precondition Failed` with `outcome: rebased`, the rebased Stage and its new `ETag`. The Stage stays partial and needs a new sign-off.
+
+        Once a CMS has sent a `PUT`, it should lock the Stage against further edits until it has a response.
+
+        Send an `Idempotency-Key` header, and reuse it on every retry of the same change. The platform returns the original result for a key it has already processed.
+      parameters:
+        - $ref: "#/components/parameters/ifMatchHeaderParameter"
+        - $ref: "#/components/parameters/idempotencyKeyHeaderParameter"
       requestBody:
         required: true
         content:
@@ -597,108 +473,66 @@ paths:
                   $ref: "#/components/schemas/Stage"
       responses:
         '200':
-          description: Success response, optionally containing a notification message saying that someone else also has a partial Stage open for this child.
+          description: The platform has accepted the Stage as complete. The response gives the Stage's new status, and the new `ETag`.
+          headers:
+            ETag:
+              $ref: "#/components/headers/ETag"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Notification"
-                minimumItems: 0
-                maximumItems: 1
+                $ref: "#/components/schemas/StageStatusResponse"
         '400':
-          description: |
-            Bad request
-
-            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
-
-            Alternatively, some other unexpected error was found in the request data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequestStageIdentifiers"
         '403':
-          description: |
-            Forbidden
-
-            The user is attempting to PUT a Stage that has been signed off and is no longer available for editing. Alternatively, the user may be attempting to PUT a Stage that was created by another organisation.
-
-            Alternatively, some other unexpected error was found in the request data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/StageNotEditable"
         '409':
-          description: |
-            Conflict
-
-            The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
-
-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/StageIdentifierConflict"
+        '412':
+          $ref: "#/components/responses/PreconditionFailed"
+        '428':
+          $ref: "#/components/responses/PreconditionRequired"
         '500':
-          description: |
-            Internal server error
-
-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ServerError"
     delete:
-      summary: Delete an existing AssetPlus record
+      summary: Cancel an existing partial Stage
       tags:
         - Find, create and update Stages
       description: |
-        This endpoint deletes an existing AssetPlus record. The request body must include the unique AssetPlus record identifier. Users can only delete Stages that they have created by a user in their own organisation and that have not yet been signed off.
+        This endpoint cancels a partial Stage. It doesn't delete it: the Stage is hidden from default lists, but kept in its history and audit trail, with status `cancelled`.
 
-        The response will just be an acknowledgement of the deletion, with no content, or an error response.
+        Only partial Stages can be cancelled, and only by a user in the organisation that created the Stage. Cancelling needs two people: the user making the request, identified by their authentication token, and a second signatory, given in the `X-Signoff-User` header. The CMS is expected to run the two-person sign-off before it sends the request.
+
+        The `reason` query parameter gives the reason for cancelling, as a code.
+
+        This endpoint intentionally doesn't take an `Idempotency-Key` header, unlike `POST`, `PATCH` and `PUT`. Repeating a cancel is harmless: the Stage is simply still cancelled.
+      parameters:
+        - name: reason
+          in: query
+          required: true
+          schema:
+            type: string
+          description: The reason for cancelling the Stage, as a code from the list of cancellation reasons.
+        - name: X-Signoff-User
+          in: header
+          required: true
+          schema:
+            type: string
+          description: The second signatory who approved the cancellation.
       responses:
         '200':
-          description: Success response — the Stage was succesfully deleted, and the response body will be empty.
+          description: Success response — the Stage was successfully cancelled. The response is the Stage, with status `cancelled`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stage"
         '400':
-          description: |
-            Bad request
-
-            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
-
-            Alternatively, some other unexpected error was found in the request data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/BadRequestStageIdentifiers"
         '403':
-          description: |
-            Forbidden
-
-            The user is attempting to DELETE a Stage that has been signed off and is no longer available for editing. Alternatively, the user may be attempting to DELETE a Stage that was created by another organisation.
-
-            Alternatively, some other unexpected error was found in the request data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/StageNotEditable"
         '409':
-          description: |
-            Conflict
-
-            The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
-
-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/StageIdentifierConflict"
         '500':
-          description: |
-            Internal server error
-
-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#/components/responses/ServerError"
 
 components:
   parameters:
@@ -706,20 +540,30 @@ components:
       name: ypid
       in: path
       schema:
-        type: integer
-        minimum: 1
-        maximum: 999999999
-        # NHS numbers are 10 digits, so YPIDs must not collide — and are unlikely to, given that this is over 10✕ the population of the UK
+        $ref: "#/components/schemas/Ypid"
       required: true
       description: The internal AssetPlus identifier for a child.
     stageidParameter:
       name: stageid
       in: path
       schema:
-        type: string
-        format: guid
+        $ref: "#/components/schemas/StageId"
       required: true
       description: The internal identifier for an AssetPlus Stage
+    ifMatchHeaderParameter:
+      name: If-Match
+      in: header
+      required: true
+      schema:
+        type: string
+      description: The Stage's current `ETag`, from the last response that returned it.
+    idempotencyKeyHeaderParameter:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+      description: A unique key for this change, reused on every retry of the same change. The platform returns the original result for a key it has already processed.
     familyNameHeaderParameter:
         name: family_name
         in: header
@@ -752,17 +596,8 @@ components:
       name: date_of_birth_accuracy
       in: header
       schema:
-        type: string
-        enum: [
-          "AAA", "AAE", "AAU", "AEA", "AEE", "AEU", "AUA", "AUE", "AUU",
-          "EAA", "EAE", "EAU", "EEA", "EEE", "EEU", "EUA", "EUE", "EUU",
-          "UAA", "UAE", "UAU", "UEA", "UEE", "UEU", "UUA", "UUE", "UUU" ]
-      description: |
-          Optionally indicates which parts of the date are known to be accurate (`A`), estimated (`E`) or unknown (`U`).
-
-          This should be provided as a string of three characters, where the first character indicates the accuracy of the day, the second character indicates the accuracy of the month, and the third character indicates the accuracy of the year. For example, `AAU` indicates that the day and month are known to be accurate, but the year is unknown.
-
-          This aligns with the FHIR Extension [“Date Accuracy Indicator”](https://hl7.org/fhir/extension-datetime-accuracy.html), which is used in the FHIR UK Core [Person.dateOfBirth](https://www.datadictionary.nhs.uk/data_elements/person_date_of_birth.html) data element.
+        $ref: "#/components/schemas/DateOfBirthAccuracy"
+      description: Optionally indicates which parts of the date of birth are known to be accurate, estimated or unknown. See the `DateOfBirthAccuracy` schema for the format.
     postcodeHeaderParameter:
       name: postcode
       in: header
@@ -772,6 +607,119 @@ components:
           The postal code of the child's address.
           
           **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead.
+  headers:
+    ETag:
+      description: The version of the Stage. Send it as `If-Match` in the next `PATCH` or `PUT`.
+      schema:
+        type: string
+  responses:
+    BadRequestChildDetails:
+      description: |
+        Bad request
+
+        The request was invalid, for example it didn't include at least one identifier (OYPID, SUI or PNCID) or search details.
+
+        Alternatively, some other unexpected error was found in the request data.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    BadRequestStageIdentifiers:
+      description: |
+        Bad request
+
+        The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
+
+        Alternatively, some other unexpected error was found in the request data.
+
+        A mismatch between the child and the `stageid` gives `409 Conflict` instead.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    BadRequestYpid:
+      description: |
+        Bad request
+
+        The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ChildIdentifierConflict:
+      description: |
+        Conflict
+
+        The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same OYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+
+        An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ChildNotFound:
+      description: |
+        Not Found
+
+        The provided `ypid` does not exist or is not associated with any child in the system.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    PreconditionFailed:
+      description: |
+        Precondition Failed
+
+        The `If-Match` `ETag` is out of date: another organisation's change reached the platform first. `outcome` says which case applies:
+
+        - `conflict`: a field was changed on both sides. Nothing was applied. Resolve the conflict in the CMS and send the change again.
+        - `rebased`: a `PUT` with no conflicting field. The platform has rebased it, but hasn't accepted it as complete, because the countersignatories haven't seen the merged content. The Stage stays partial. The body has the rebased Stage and its new `ETag`, ready for a new sign-off.
+
+        `409 Conflict` isn't used for this, because it already means that identifiers don't match.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/StageOutcome"
+    PreconditionRequired:
+      description: |
+        Precondition Required
+
+        The request had no `If-Match` header.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ServerError:
+      description: |
+        Internal server error
+
+        An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    StageIdentifierConflict:
+      description: |
+        Conflict
+
+        The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
+
+        An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    StageNotEditable:
+      description: |
+        Forbidden
+
+        The user is attempting to change a Stage that has been signed off and is no longer available for editing, or a Stage that was created by another organisation.
+
+        Alternatively, some other unexpected error was found in the request data.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
   schemas:
     Address:
       type: object
@@ -803,6 +751,9 @@ components:
         - line1
         - city
         - postcode
+    CaseType:
+      type: string
+      description: The Stage's case type, for example Prevention, Out of Court Disposal or Offending, or a combination of these. Values come from the list of case types.
     CompleteChild:
       description: |
         A more-complete set of the properties of a child.
@@ -845,6 +796,20 @@ components:
               nullable: true
               description: |
                 The person's stated ethnicity, according to [ONS 18+1](https://www.ons.gov.uk/census/census2021dictionary/variablesbytopic/ethnicgroupnationalidentitylanguageandreligionvariablescensus2021/ethnicgroup/classifications#:~:text=Ethnic%20group%20classification%2020b) (the categories used in the 2021 census).
+    Countersignature:
+      type: object
+      properties:
+        name:
+          type: string
+        job_title:
+          type: string
+        date:
+          type: string
+          format: date
+      required:
+        - name
+        - job_title
+        - date
     DateOfBirth:
       type: object
       properties:
@@ -854,19 +819,23 @@ components:
           description: The date of birth of the child, provided as an [ISO 8601](https://www.w3.org/QA/Tips/iso-date) formatted date of birth (`YYYY-MM-DD`)
         accuracyIndicator:
           type: string
-          enum: [
-            "AAA", "AAE", "AAU", "AEA", "AEE", "AEU", "AUA", "AUE", "AUU",
-            "EAA", "EAE", "EAU", "EEA", "EEE", "EEU", "EUA", "EUE", "EUU",
-            "UAA", "UAE", "UAU", "UEA", "UEE", "UEU", "UUA", "UUE", "UUU" ]
+          allOf:
+            - $ref: "#/components/schemas/DateOfBirthAccuracy"
           nullable: true
-          description: |
-            Optionally indicates which parts of the date are known to be accurate (`A`), estimated (`E`) or unknown (`U`).
-            
-            This should be provided as a string of three characters, where the first character indicates the accuracy of the day, the second character indicates the accuracy of the month, and the third character indicates the accuracy of the year. For example, `AAU` indicates that the day and month are known to be accurate, but the year is unknown.
-
-            This aligns with the FHIR Extension [“Date Accuracy Indicator”](https://hl7.org/fhir/extension-datetime-accuracy.html), which is used in the FHIR UK Core [Person.dateOfBirth](https://www.datadictionary.nhs.uk/data_elements/person_date_of_birth.html) data element.
       required:
         - date
+    DateOfBirthAccuracy:
+      type: string
+      enum: [
+        "AAA", "AAE", "AAU", "AEA", "AEE", "AEU", "AUA", "AUE", "AUU",
+        "EAA", "EAE", "EAU", "EEA", "EEE", "EEU", "EUA", "EUE", "EUU",
+        "UAA", "UAE", "UAU", "UEA", "UEE", "UEU", "UUA", "UUE", "UUU" ]
+      description: |
+        Optionally indicates which parts of the date are known to be accurate (`A`), estimated (`E`) or unknown (`U`).
+
+        This should be provided as a string of three characters, where the first character indicates the accuracy of the day, the second character indicates the accuracy of the month, and the third character indicates the accuracy of the year. For example, `AAU` indicates that the day and month are known to be accurate, but the year is unknown.
+
+        This aligns with the FHIR Extension [“Date Accuracy Indicator”](https://hl7.org/fhir/extension-datetime-accuracy.html), which is used in the FHIR UK Core [Person.dateOfBirth](https://www.datadictionary.nhs.uk/data_elements/person_date_of_birth.html) data element.
     ErrorResponse:
       type: object
       properties:
@@ -898,9 +867,11 @@ components:
         These properties are aligned to the [Person Standard](https://github.com/SocialCareData/person-standard) from [Data Standards for Social Care](https://github.com/SocialCareData/person-standard), sponsored by the Department for Education and the Department of Health and Social Care.
       properties:
         ypid:
-          type: number
-          format: integer
-          description: The internal AssetPlus identifer for a child
+          type: integer
+          allOf:
+            - $ref: "#/components/schemas/Ypid"
+          nullable: true
+          description: The internal AssetPlus identifier for a child. Absent or null when creating a new child with `POST /children`.
         Identifier:
           $ref: "#/components/schemas/IdentifierArray"
           description: "An array of identifiers for the child. At least one identifier must be provided: either an OYPID, a SUI or a PNCID."
@@ -953,11 +924,143 @@ components:
           type: string
           format: email
           description: A contact email address for the notification.
+    RuleViolation:
+      allOf:
+        - $ref: "#/components/schemas/ErrorResponse"
+        - type: object
+          properties:
+            rule:
+              type: string
+              description: The ID of the rule that was broken, for example `GE034`.
+              example: GE034
     Stage:
       type: object
       properties:
+        stageid:
+          type: string
+          allOf:
+            - $ref: "#/components/schemas/StageId"
+          readOnly: true
         child:
           $ref: "#/components/schemas/MinimalChild"
+        status:
+          $ref: "#/components/schemas/StageStatus"
+        stage_type:
+          $ref: "#/components/schemas/StageType"
+        case_type:
+          $ref: "#/components/schemas/CaseType"
+        schema_version:
+          type: string
+          description: The AssetPlus schema version the Stage is written in, for example `12.0.0`.
+        organisation:
+          type: string
+          readOnly: true
+          description: The Organisational Unit (OU) code of the organisation that owns the Stage.
+        owner:
+          type: string
+          description: The person who started the Stage, or for whom it was started.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+          readOnly: true
+        supersedes:
+          type: string
+          format: uri
+          nullable: true
+          description: The URI of a `completed_rejected` Stage that this Stage replaces.
+        superseded_by:
+          type: string
+          format: uri
+          nullable: true
+          readOnly: true
+          description: The URI of the Stage that replaced this one, if it was rejected and replaced.
+        explanations_and_conclusions_countersignature:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/Countersignature"
+          nullable: true
+          description: Countersignature of the Explanations & Conclusions section. Required to complete the Stage.
+        pathways_and_planning_countersignature:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/Countersignature"
+          nullable: true
+          description: Countersignature of the Pathways & Planning section. Required to complete the Stage.
+        attachment_ids:
+          type: array
+          items:
+            type: string
+            format: guid
+          description: The attachments signed off with the Stage.
         data:
           type: object
           description: The rest of the Stage, structure TBC
+    StageId:
+      type: string
+      format: guid
+      description: The internal identifier for an AssetPlus Stage.
+    StageOutcome:
+      type: object
+      description: Body of a `412 Precondition Failed` response.
+      properties:
+        outcome:
+          type: string
+          enum: [conflict, rebased]
+        conflicting_fields:
+          type: array
+          items:
+            type: string
+          description: For `conflict`, the fields that were changed on both sides.
+        stage:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/Stage"
+          nullable: true
+          description: For `rebased`, the rebased Stage, ready for a new sign-off.
+        etag:
+          type: string
+          description: The current `ETag`, to send as `If-Match` next time.
+      required:
+        - outcome
+        - etag
+    StageStatus:
+      type: string
+      enum:
+        - in_progress
+        - completed
+        - cancelled
+        - completed_shared
+        - completed_rejected
+      description: |
+        - `in_progress`: a partial Stage. A Stage stays partial until the platform accepts it as complete, even if every sign-off in the CMS is done.
+        - `completed`: complete, and not shared with another organisation.
+        - `cancelled`: cancelled while partial. Kept in history, but hidden from default lists.
+        - `completed_shared`: completed during a caretaking arrangement, and shared with the other organisation for review. This is final: it can't be reopened.
+        - `completed_rejected`: rejected in caretaking review. Kept as a read-only record, and replaced by a new Stage that `supersedes` it.
+    StageStatusResponse:
+      type: object
+      description: Body of the `200` response to a `PUT` that completes a Stage.
+      properties:
+        stageid:
+          $ref: "#/components/schemas/StageId"
+        status:
+          $ref: "#/components/schemas/StageStatus"
+        shared_with:
+          type: array
+          items:
+            type: string
+          description: The OU codes of organisations that must review this Stage, if any.
+    StageType:
+      type: string
+      description: The Stage's type, for example Placement Notification or Pre-Sentence Report. Values come from the list of stage types.
+    Ypid:
+      type: integer
+      minimum: 1
+      maximum: 999999999
+      # NHS numbers are 10 digits, so YPIDs must not collide — and are unlikely to, given that this is over 10✕ the population of the UK
+      description: The internal AssetPlus identifier for a child.
