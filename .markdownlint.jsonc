@@ -1,0 +1,9 @@
+// markdownlint configuration, created for Claude exploration of the
+// YJP prototype API but available for wider use.
+// All default rules apply, except:
+{
+  "default": true,
+  // MD013/line-length: off. These documents use long table rows that can't be
+  // wrapped, and unwrapped prose keeps diffs readable.
+  "MD013": false
+}

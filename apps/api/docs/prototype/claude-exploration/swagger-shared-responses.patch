@@ -1,0 +1,596 @@
+Use shared response components in apps/api/docs/prototype/swagger.yaml
+
+Generated on 2026-11-24. Apply AFTER swagger-recommended-changes.patch,
+from the repository root:
+
+  git apply apps/api/docs/prototype/claude-exploration/swagger-recommended-changes.patch
+  git apply apps/api/docs/prototype/claude-exploration/swagger-shared-responses.patch
+
+Replaces 32 inline response blocks with $ref links to 8 new
+#/components/responses/ items, as in proposed-transfer-api.yaml:
+
+- BadRequestChildDetails (400): GET /children, POST /children/search,
+  POST /children/{ypid}/stages/
+- BadRequestStageIdentifiers (400): GET, PATCH, PUT and DELETE on
+  /children/{ypid}/stages/{stageid}
+- BadRequestYpid (400): GET /children/{ypid}/, GET /children/{ypid}/stages/
+- ChildIdentifierConflict (409): GET /children, POST /children,
+  POST /children/search
+- ChildNotFound (404): GET /children/{ypid}/, GET and POST
+  /children/{ypid}/stages/
+- ServerError (500): all 10 operations
+- StageIdentifierConflict (409): GET, PATCH, PUT and DELETE on
+  /children/{ypid}/stages/{stageid}
+- StageNotEditable (403): PATCH, PUT and DELETE on
+  /children/{ypid}/stages/{stageid}
+
+Wording changes, agreed with the user on 2026-11-24:
+
+- POST /children/search 409: "CYPID" corrected to "OYPID", matching
+  the other two routes.
+- BadRequestChildDetails no longer refers to "the request body", since
+  GET /children has none.
+- BadRequestStageIdentifiers adds GET's note that a mismatch between
+  the child and the stageid gives 409 instead.
+- StageNotEditable says "change" instead of naming PATCH, PUT or DELETE.
+
+- POST /children: the ypid in the request body must be absent or null;
+  any other value, including 0, gives 400. Previously the description
+  said null or zero, with other values "disregarded", while the 400 said
+  any non-null ypid was rejected.
+
+Kept inline because each has its own meaning: POST /children 400 and
+POST /children/{ypid}/stages/ 409.
+
+diff --git a/apps/api/docs/prototype/swagger.yaml b/apps/api/docs/prototype/swagger.yaml
+index 2d4325b..a8ad47e 100644
+--- a/apps/api/docs/prototype/swagger.yaml
++++ b/apps/api/docs/prototype/swagger.yaml
+@@ -95,16 +95,7 @@ paths:
+                 items:
+                   $ref:  "#/components/schemas/CompleteChild"
+         '400':
+-          description: |
+-            Bad request
+-
+-            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (OYPID, SUI or PNCID).
+-
+-            Alternatively, some other unexpected error was found in the request data.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/BadRequestChildDetails"
+         '405':
+           description: |
+             Method Not Allowed
+@@ -117,25 +108,9 @@ paths:
+               schema:
+                 $ref: "#/components/schemas/ErrorResponse"
+         '409':
+-          description: |
+-            Conflict
+-
+-            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same OYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+-
+-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ChildIdentifierConflict"
+         '500':
+-          description: |
+-            Internal server error
+-
+-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ServerError"
+     post:
+       summary:  Create a new child in AssetPlus, in order to subsequently create Stages
+       tags:
+@@ -143,7 +118,7 @@ paths:
+       description: |
+         Create a new child in AssetPlus, in order to subsequently create Stages
+ 
+-        The `ypid` in the `MinimalChild` object in the request body must be null or zero. Any other value will be disregarded.
++        The `ypid` in the `MinimalChild` object in the request body must be absent or null, because the platform assigns it. Any other value, including `0`, gives `400 Bad Request`.
+       requestBody:
+         required: true
+         content:
+@@ -172,7 +147,7 @@ paths:
+           description: |
+             Bad request
+ 
+-            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object contained a non-null `ypid`.
++            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object contained a `ypid` that wasn't null.
+ 
+             Alternatively, some other unexpected error was found in the request data.
+           content:
+@@ -180,25 +155,9 @@ paths:
+               schema:
+                 $ref: "#/components/schemas/ErrorResponse"
+         '409':
+-          description: |
+-            Conflict
+-
+-            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same OYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+-
+-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ChildIdentifierConflict"
+         '500':
+-          description: |
+-            Internal server error
+-
+-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ServerError"
+ 
+   /children/search:
+     post:
+@@ -265,36 +224,11 @@ paths:
+                 items:
+                   $ref: "#/components/schemas/CompleteChild"
+         '400':
+-          description: |
+-            Bad request
+-
+-            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (OYPID, SUI or PNCID).
+-
+-            Alternatively, some other unexpected error was found in the request data.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/BadRequestChildDetails"
+         '409':
+-          description: |
+-            Conflict
+-
+-            The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same CYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
+-
+-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ChildIdentifierConflict"
+         '500':
+-          description: |
+-            Internal server error
+-
+-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ServerError"
+ 
+   /children/{ypid}/:
+     get:
+@@ -315,32 +249,11 @@ paths:
+               schema:
+                 $ref: "#/components/schemas/CompleteChild"
+         '400':
+-          description: |
+-            Bad request
+-
+-            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/BadRequestYpid"
+         '404':
+-          description: |
+-            Not Found
+-
+-            The provided `ypid` does not exist or is not associated with any child in the system.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ChildNotFound"
+         '500':
+-          description: |
+-            Internal server error
+-
+-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ServerError"
+ 
+   /children/{ypid}/stages/:
+     parameters:
+@@ -365,32 +278,11 @@ paths:
+                 items:
+                   $ref: "#/components/schemas/Stage"
+         '400':
+-          description: |
+-            Bad request
+-
+-            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/BadRequestYpid"
+         '404':
+-          description: |
+-            Not Found
+-
+-            The provided `ypid` does not exist or is not associated with any child in the system.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ChildNotFound"
+         '500':
+-          description: |
+-            Internal server error
+-
+-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ServerError"
+     post:
+       summary: Create a new AssetPlus Stage for the specified child
+       tags:
+@@ -449,25 +341,9 @@ paths:
+                   stage_id:
+                     $ref: "#/components/parameters/stageidParameter"
+         '400':
+-          description: |
+-            Bad request
+-
+-            The request body was invalid, for example if it did not include a `MinimalChild` object, or if the `MinimalChild` object did not include at least one identifier (OYPID, SUI or PNCID).
+-
+-            Alternatively, some other unexpected error was found in the request data.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/BadRequestChildDetails"
+         '404':
+-          description: |
+-            Not Found
+-
+-            The provided `ypid` does not exist or is not associated with any child in the system.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ChildNotFound"
+         '409':
+           description: |
+             Conflict
+@@ -489,14 +365,7 @@ paths:
+               schema:
+                 $ref: "#/components/schemas/RuleViolation"
+         '500':
+-          description: |
+-            Internal server error
+-
+-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ServerError"
+ 
+   /children/{ypid}/stages/{stageid}:
+     parameters:
+@@ -525,34 +394,11 @@ paths:
+                 minimumItems: 1
+                 maximumItems: 1
+         '400':
+-          description: |
+-            Bad Request
+-            
+-            Some unexpected error occurred with the request data, unrelated to any mismatch between the child and the `stageid`. For example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/BadRequestStageIdentifiers"
+         '409':
+-          description: |
+-            Conflict
+-
+-            The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
+-
+-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/StageIdentifierConflict"
+         '500':
+-          description: |
+-            Internal server error
+-
+-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ServerError"
+     patch:
+       summary: Save a partial update to an existing AssetPlus Stage
+       tags:
+@@ -591,51 +437,17 @@ paths:
+                 minimumItems: 0
+                 maximumItems: 1
+         '400':
+-          description: |
+-            Bad request
+-
+-            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
+-
+-            Alternatively, some other unexpected error was found in the request data.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/BadRequestStageIdentifiers"
+         '403':
+-          description: |
+-            Forbidden
+-
+-            The user is attempting to PATCH a Stage that has been signed off and is no longer available for editing. Alternatively, the user may be attempting to PATCH a Stage that was created by another organisation.
+-
+-            Alternatively, some other unexpected error was found in the request data.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/StageNotEditable"
+         '409':
+-          description: |
+-            Conflict
+-
+-            The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
+-
+-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/StageIdentifierConflict"
+         '412':
+           $ref: "#/components/responses/PreconditionFailed"
+         '428':
+           $ref: "#/components/responses/PreconditionRequired"
+         '500':
+-          description: |
+-            Internal server error
+-
+-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ServerError"
+     put:
+       summary: Complete an existing partial Stage
+       tags:
+@@ -683,51 +495,17 @@ paths:
+               schema:
+                 $ref: "#/components/schemas/StageStatusResponse"
+         '400':
+-          description: |
+-            Bad request
+-
+-            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
+-
+-            Alternatively, some other unexpected error was found in the request data.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/BadRequestStageIdentifiers"
+         '403':
+-          description: |
+-            Forbidden
+-
+-            The user is attempting to PUT a Stage that has been signed off and is no longer available for editing. Alternatively, the user may be attempting to PUT a Stage that was created by another organisation.
+-
+-            Alternatively, some other unexpected error was found in the request data.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/StageNotEditable"
+         '409':
+-          description: |
+-            Conflict
+-
+-            The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
+-
+-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/StageIdentifierConflict"
+         '412':
+           $ref: "#/components/responses/PreconditionFailed"
+         '428':
+           $ref: "#/components/responses/PreconditionRequired"
+         '500':
+-          description: |
+-            Internal server error
+-
+-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ServerError"
+     delete:
+       summary: Cancel an existing partial Stage
+       tags:
+@@ -761,47 +539,13 @@ paths:
+               schema:
+                 $ref: "#/components/schemas/Stage"
+         '400':
+-          description: |
+-            Bad request
+-
+-            The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
+-
+-            Alternatively, some other unexpected error was found in the request data.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/BadRequestStageIdentifiers"
+         '403':
+-          description: |
+-            Forbidden
+-
+-            The user is attempting to DELETE a Stage that has been signed off and is no longer available for editing. Alternatively, the user may be attempting to DELETE a Stage that was created by another organisation.
+-
+-            Alternatively, some other unexpected error was found in the request data.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/StageNotEditable"
+         '409':
+-          description: |
+-            Conflict
+-
+-            The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
+-
+-            An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/StageIdentifierConflict"
+         '500':
+-          description: |
+-            Internal server error
+-
+-            An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
+-          content:
+-            application/json:
+-              schema:
+-                $ref: "#/components/schemas/ErrorResponse"
++          $ref: "#/components/responses/ServerError"
+ 
+ components:
+   parameters:
+@@ -895,6 +639,59 @@ components:
+       schema:
+         type: string
+   responses:
++    BadRequestChildDetails:
++      description: |
++        Bad request
++
++        The request was invalid, for example it didn't include at least one identifier (OYPID, SUI or PNCID) or search details.
++
++        Alternatively, some other unexpected error was found in the request data.
++      content:
++        application/json:
++          schema:
++            $ref: "#/components/schemas/ErrorResponse"
++    BadRequestStageIdentifiers:
++      description: |
++        Bad request
++
++        The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999, or the `stageid` parameter was invalid, being something other than a valid GUID.
++
++        Alternatively, some other unexpected error was found in the request data.
++
++        A mismatch between the child and the `stageid` gives `409 Conflict` instead.
++      content:
++        application/json:
++          schema:
++            $ref: "#/components/schemas/ErrorResponse"
++    BadRequestYpid:
++      description: |
++        Bad request
++
++        The request was invalid, for example the `ypid` parameter was invalid, being something other than an integer between 1 and 999999999.
++      content:
++        application/json:
++          schema:
++            $ref: "#/components/schemas/ErrorResponse"
++    ChildIdentifierConflict:
++      description: |
++        Conflict
++
++        The request format was valid, but identifiers in the request body conflicted with existing records in the system. For example, if a child with the same OYPID already exists, but the SUI or PNCID provided in the request body does not match that existing record. Another example might be if more than one identifier (or an identifier and name, address or DOB) was provided in the request body, and those details do not match — the identifier corresponds to a different child from the biographical details or the multiple identifiers correspond to different children.
++
++        An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
++      content:
++        application/json:
++          schema:
++            $ref: "#/components/schemas/ErrorResponse"
++    ChildNotFound:
++      description: |
++        Not Found
++
++        The provided `ypid` does not exist or is not associated with any child in the system.
++      content:
++        application/json:
++          schema:
++            $ref: "#/components/schemas/ErrorResponse"
+     PreconditionFailed:
+       description: |
+         Precondition Failed
+@@ -918,6 +715,37 @@ components:
+         application/json:
+           schema:
+             $ref: "#/components/schemas/ErrorResponse"
++    ServerError:
++      description: |
++        Internal server error
++
++        An unexpected error occurred on the server. The request may have been valid, but the server was unable to process it.
++      content:
++        application/json:
++          schema:
++            $ref: "#/components/schemas/ErrorResponse"
++    StageIdentifierConflict:
++      description: |
++        Conflict
++
++        The request format was valid, but the `stageid` parameter does not correspond to the child indicated by the `ypid` parameter. This might be because the `ypid` or the `stageid` are invalid and do not exist. A `409 Conflict` will be returned in both these cases, rather than a `404 Not Found`, to avoid revealing information about which identifiers are valid.
++
++        An error response is provided here, but no information will be provided about the children identified by the conflicting request details.
++      content:
++        application/json:
++          schema:
++            $ref: "#/components/schemas/ErrorResponse"
++    StageNotEditable:
++      description: |
++        Forbidden
++
++        The user is attempting to change a Stage that has been signed off and is no longer available for editing, or a Stage that was created by another organisation.
++
++        Alternatively, some other unexpected error was found in the request data.
++      content:
++        application/json:
++          schema:
++            $ref: "#/components/schemas/ErrorResponse"
+   schemas:
+     Address:
+       type: object

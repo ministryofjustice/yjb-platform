@@ -1,0 +1,204 @@
+Use shared schemas in apps/api/docs/prototype/swagger.yaml
+
+Generated on 2026-11-24. Apply AFTER the other two patches, from the
+repository root:
+
+  git apply apps/api/docs/prototype/claude-exploration/swagger-recommended-changes.patch
+  git apply apps/api/docs/prototype/claude-exploration/swagger-shared-responses.patch
+  git apply apps/api/docs/prototype/claude-exploration/swagger-shared-schemas.patch
+
+Adds 3 schemas to #/components/schemas/ and refers to them with $ref:
+
+- DateOfBirthAccuracy: the 27-value list and its 3-paragraph
+  description, previously copied in the POST /children/search body,
+  dobAccuracyHeaderParameter and DateOfBirth.accuracyIndicator. The
+  header parameter's own description is shortened to point to the
+  schema.
+- StageId: used by stageidParameter, Stage.stageid and
+  StageStatusResponse.stageid. Also fixes POST /children/{ypid}/stages/,
+  whose response pointed stage_id at a parameter instead of a schema.
+- Ypid: used by ypidParameter and the POST /children response.
+  MinimalChild.ypid now uses it too, so it changes from
+  `type: number, format: integer` to an integer from 1 to 999999999,
+  nullable for POST /children. Fixes the typo "identifer".
+
+Not included (by the user's choice): sharing schema_version and
+supersedes between the POST .../stages/ body and Stage, and a shared
+search-criteria schema. attachment_ids items are attachment IDs, not
+stage IDs, so they don't use StageId.
+
+diff --git a/apps/api/docs/prototype/swagger.yaml b/apps/api/docs/prototype/swagger.yaml
+index a8ad47e..f41aef5 100644
+--- a/apps/api/docs/prototype/swagger.yaml
++++ b/apps/api/docs/prototype/swagger.yaml
+@@ -135,10 +135,7 @@ paths:
+                 type: object
+                 properties:
+                   ypid:
+-                    type: integer
+-                    minimum: 1
+-                    maximum: 999999999
+-                    # NHS numbers are 10 digits, so YPIDs must not collide — and are unlikely to, given that this is over 10✕ the population of the UK
++                    $ref: "#/components/schemas/Ypid"
+                   identifier_array:
+                     type: object
+                     $ref: "#/components/schemas/IdentifierArray"
+@@ -195,17 +192,7 @@ paths:
+                   format: date
+                   description: The date of birth of the child, provided as an [ISO 8601](https://www.w3.org/QA/Tips/iso-date) formatted date of birth (`YYYY-MM-DD`).
+                 date_of_birth_accuracy:
+-                  type: string
+-                  enum: [
+-                    "AAA", "AAE", "AAU", "AEA", "AEE", "AEU", "AUA", "AUE", "AUU",
+-                    "EAA", "EAE", "EAU", "EEA", "EEE", "EEU", "EUA", "EUE", "EUU",
+-                    "UAA", "UAE", "UAU", "UEA", "UEE", "UEU", "UUA", "UUE", "UUU" ]
+-                  description: |
+-                    Optionally indicates which parts of the date are known to be accurate (`A`), estimated (`E`) or unknown (`U`).
+-
+-                    This should be provided as a string of three characters, where the first character indicates the accuracy of the day, the second character indicates the accuracy of the month, and the third character indicates the accuracy of the year. For example, `AAU` indicates that the day and month are known to be accurate, but the year is unknown.
+-
+-                    This aligns with the FHIR Extension [“Date Accuracy Indicator”](https://hl7.org/fhir/extension-datetime-accuracy.html), which is used in the FHIR UK Core [Person.dateOfBirth](https://www.datadictionary.nhs.uk/data_elements/person_date_of_birth.html) data element.
++                  $ref: "#/components/schemas/DateOfBirthAccuracy"
+                 postcode:
+                   type: string
+                   description: The postal code of the child's address.
+@@ -339,7 +326,7 @@ paths:
+                 type: object
+                 properties:
+                   stage_id:
+-                    $ref: "#/components/parameters/stageidParameter"
++                    $ref: "#/components/schemas/StageId"
+         '400':
+           $ref: "#/components/responses/BadRequestChildDetails"
+         '404':
+@@ -553,18 +540,14 @@ components:
+       name: ypid
+       in: path
+       schema:
+-        type: integer
+-        minimum: 1
+-        maximum: 999999999
+-        # NHS numbers are 10 digits, so YPIDs must not collide — and are unlikely to, given that this is over 10✕ the population of the UK
++        $ref: "#/components/schemas/Ypid"
+       required: true
+       description: The internal AssetPlus identifier for a child.
+     stageidParameter:
+       name: stageid
+       in: path
+       schema:
+-        type: string
+-        format: guid
++        $ref: "#/components/schemas/StageId"
+       required: true
+       description: The internal identifier for an AssetPlus Stage
+     ifMatchHeaderParameter:
+@@ -613,17 +596,8 @@ components:
+       name: date_of_birth_accuracy
+       in: header
+       schema:
+-        type: string
+-        enum: [
+-          "AAA", "AAE", "AAU", "AEA", "AEE", "AEU", "AUA", "AUE", "AUU",
+-          "EAA", "EAE", "EAU", "EEA", "EEE", "EEU", "EUA", "EUE", "EUU",
+-          "UAA", "UAE", "UAU", "UEA", "UEE", "UEU", "UUA", "UUE", "UUU" ]
+-      description: |
+-          Optionally indicates which parts of the date are known to be accurate (`A`), estimated (`E`) or unknown (`U`).
+-
+-          This should be provided as a string of three characters, where the first character indicates the accuracy of the day, the second character indicates the accuracy of the month, and the third character indicates the accuracy of the year. For example, `AAU` indicates that the day and month are known to be accurate, but the year is unknown.
+-
+-          This aligns with the FHIR Extension [“Date Accuracy Indicator”](https://hl7.org/fhir/extension-datetime-accuracy.html), which is used in the FHIR UK Core [Person.dateOfBirth](https://www.datadictionary.nhs.uk/data_elements/person_date_of_birth.html) data element.
++        $ref: "#/components/schemas/DateOfBirthAccuracy"
++      description: Optionally indicates which parts of the date of birth are known to be accurate, estimated or unknown. See the `DateOfBirthAccuracy` schema for the format.
+     postcodeHeaderParameter:
+       name: postcode
+       in: header
+@@ -845,19 +819,23 @@ components:
+           description: The date of birth of the child, provided as an [ISO 8601](https://www.w3.org/QA/Tips/iso-date) formatted date of birth (`YYYY-MM-DD`)
+         accuracyIndicator:
+           type: string
+-          enum: [
+-            "AAA", "AAE", "AAU", "AEA", "AEE", "AEU", "AUA", "AUE", "AUU",
+-            "EAA", "EAE", "EAU", "EEA", "EEE", "EEU", "EUA", "EUE", "EUU",
+-            "UAA", "UAE", "UAU", "UEA", "UEE", "UEU", "UUA", "UUE", "UUU" ]
++          allOf:
++            - $ref: "#/components/schemas/DateOfBirthAccuracy"
+           nullable: true
+-          description: |
+-            Optionally indicates which parts of the date are known to be accurate (`A`), estimated (`E`) or unknown (`U`).
+-            
+-            This should be provided as a string of three characters, where the first character indicates the accuracy of the day, the second character indicates the accuracy of the month, and the third character indicates the accuracy of the year. For example, `AAU` indicates that the day and month are known to be accurate, but the year is unknown.
+-
+-            This aligns with the FHIR Extension [“Date Accuracy Indicator”](https://hl7.org/fhir/extension-datetime-accuracy.html), which is used in the FHIR UK Core [Person.dateOfBirth](https://www.datadictionary.nhs.uk/data_elements/person_date_of_birth.html) data element.
+       required:
+         - date
++    DateOfBirthAccuracy:
++      type: string
++      enum: [
++        "AAA", "AAE", "AAU", "AEA", "AEE", "AEU", "AUA", "AUE", "AUU",
++        "EAA", "EAE", "EAU", "EEA", "EEE", "EEU", "EUA", "EUE", "EUU",
++        "UAA", "UAE", "UAU", "UEA", "UEE", "UEU", "UUA", "UUE", "UUU" ]
++      description: |
++        Optionally indicates which parts of the date are known to be accurate (`A`), estimated (`E`) or unknown (`U`).
++
++        This should be provided as a string of three characters, where the first character indicates the accuracy of the day, the second character indicates the accuracy of the month, and the third character indicates the accuracy of the year. For example, `AAU` indicates that the day and month are known to be accurate, but the year is unknown.
++
++        This aligns with the FHIR Extension [“Date Accuracy Indicator”](https://hl7.org/fhir/extension-datetime-accuracy.html), which is used in the FHIR UK Core [Person.dateOfBirth](https://www.datadictionary.nhs.uk/data_elements/person_date_of_birth.html) data element.
+     ErrorResponse:
+       type: object
+       properties:
+@@ -889,9 +867,11 @@ components:
+         These properties are aligned to the [Person Standard](https://github.com/SocialCareData/person-standard) from [Data Standards for Social Care](https://github.com/SocialCareData/person-standard), sponsored by the Department for Education and the Department of Health and Social Care.
+       properties:
+         ypid:
+-          type: number
+-          format: integer
+-          description: The internal AssetPlus identifer for a child
++          type: integer
++          allOf:
++            - $ref: "#/components/schemas/Ypid"
++          nullable: true
++          description: The internal AssetPlus identifier for a child. Absent or null when creating a new child with `POST /children`.
+         Identifier:
+           $ref: "#/components/schemas/IdentifierArray"
+           description: "An array of identifiers for the child. At least one identifier must be provided: either an OYPID, a SUI or a PNCID."
+@@ -958,7 +938,8 @@ components:
+       properties:
+         stageid:
+           type: string
+-          format: guid
++          allOf:
++            - $ref: "#/components/schemas/StageId"
+           readOnly: true
+         child:
+           $ref: "#/components/schemas/MinimalChild"
+@@ -1019,6 +1000,10 @@ components:
+         data:
+           type: object
+           description: The rest of the Stage, structure TBC
++    StageId:
++      type: string
++      format: guid
++      description: The internal identifier for an AssetPlus Stage.
+     StageOutcome:
+       type: object
+       description: Body of a `412 Precondition Failed` response.
+@@ -1062,8 +1047,7 @@ components:
+       description: Body of the `200` response to a `PUT` that completes a Stage.
+       properties:
+         stageid:
+-          type: string
+-          format: guid
++          $ref: "#/components/schemas/StageId"
+         status:
+           $ref: "#/components/schemas/StageStatus"
+         shared_with:
+@@ -1074,3 +1058,9 @@ components:
+     StageType:
+       type: string
+       description: The Stage's type, for example Placement Notification or Pre-Sentence Report. Values come from the list of stage types.
++    Ypid:
++      type: integer
++      minimum: 1
++      maximum: 999999999
++      # NHS numbers are 10 digits, so YPIDs must not collide — and are unlikely to, given that this is over 10✕ the population of the UK
++      description: The internal AssetPlus identifier for a child.
