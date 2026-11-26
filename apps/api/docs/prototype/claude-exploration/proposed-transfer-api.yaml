@@ -45,12 +45,14 @@ info:
 
     ## Departures from the current process
 
-    Each of these was decided on 2026-11-23, but YJB or the business should check them:
+    Each of these was decided on 2026-11-23 or 2026-11-26, but YJB or the business should check them:
     - **No stop.** Today a stage can be stopped, with a reason and a snapshot (AP02 L526 GE068). A partial stage that's never finished now does the same job, and stale partial stages are reported on rather than expired (Q12, Q23).
     - **No reopen.** Today a stage can be reopened from the caretaking statuses (AP02 L858 YY026). `completed_shared` is now final, and a `completed_rejected` stage stays as a read-only record and is replaced by a new stage that `supersedes` it (Q10, Q11, Q24).
     - **Anyone in the owning organisation can cancel**, not just the owner (AP02 L527 GE069), with two-person sign-off in the CMS (Q13).
     - **Only partial stages can be cancelled.** Today the caretaking statuses can be cancelled too (AP02 L858 YY026). ⚠️ Inferred from Q10–Q12.
     - **'Completed – awaiting Transfer' becomes "partial".** A stage that's signed off locally but not yet accepted by the platform is still partial (Q7).
+    - **A rejected stage isn't deleted at the rejecting end.** Today the rejecting YJS deletes it (AP02 L863 YY009). Now it stays in the record, marked `completed_rejected`, and the reviewer's next stage takes it in (User 2026-11-26).
+    - **Completing a stage waits for the other party's stages.** An organisation can't complete its open stage until it has reviewed, and rebased onto, every stage the other party has completed. Today each CMS has its own one-stage-in-progress rule and nothing coordinates them (AP02 L881 SE015). Decided 2026-11-26 (User 2026-11-26; DSYNC p1).
 
     **Caller identity.** The caller's organisation (OU code) and role are assumed to come from the authentication token. Where a source says the YJS decides which roles may accept or reject (AP02 L891 SE009, L872 YY016), a caller without that role gets `403 Forbidden`.
   version: 0.0.4-draft
@@ -404,6 +406,12 @@ paths:
         - **While under review**, a `completed_shared` stage is visible to every reader, along with its review status, for example `review: pending` (Q33). The organisation that completed it can't reopen it (Q10).
         - **A rejected stage** stays as a read-only record. To correct it, the originating organisation creates a new stage with `POST /children/{ypid}/stages`, giving `supersedes` as the URI of the rejected stage. The platform checks that the superseded stage is `completed_rejected` and belongs to the same child, and adds a `superseded_by` link to it. No content is copied across (Q11, Q24). ⚠️ Inferred, not confirmed: rejected stages stay visible to every reader, with their status and `superseded_by` link.
         - **Three-way arrangements** (Home YJS, Host YJS and a Secure Estate): the Home YJS reviews every stage completed by the Host YJS or the Secure Estate, and the Home YJS's own stages are reviewed by the active caretaker (Q34), consistent with SE001 (AP02 L874). **Gap:** if a Host YJS and a Secure Estate are both active caretakers, it's not yet decided which of them reviews the Home YJS's stages.
+
+        **Extended 2026-11-26** (User 2026-11-26; DSYNC p1; `api-scope-and-options.md` option B):
+        - **A decision is final.** A reviewer won't turn a rejection into an acceptance; the originator may issue a new stage that `supersedes` the rejected one. ⚠️ Inferred, not confirmed: a second decision on the same stage gets `422`.
+        - **The reviewer can't complete its own open stage until it has decided**, and has rebased that stage onto the reviewed stage, rejected or not. It then sets `based_on` on its stage. `PUT …/stages/{stageid}` returns `422` until then. This applies in both directions. See `swagger-review-rebase.patch`.
+        - **A rejected stage stays in the reviewer's record**, unlike today's deletion at the rejecting end (AP02 L863 YY009). The reviewer's own stage can record where it disagrees.
+        - ⚠️ Not confirmed: whether the decision needs the same two-person sign-off as completing a stage (`api-scope-and-options.md` Q26, for YJB).
       requestBody:
         required: true
         content:

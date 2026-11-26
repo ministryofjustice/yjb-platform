@@ -1,0 +1,96 @@
+Block completing a Stage until the other party's Stages are reviewed and
+taken in, and add `Stage.based_on`, in apps/api/docs/prototype/swagger.yaml
+
+Generated on 2026-11-26, against the swagger.yaml committed in 7248bc2.
+Apply from the repository root:
+
+  git apply apps/api/docs/prototype/claude-exploration/swagger-review-rebase.patch
+
+These come from the user's decisions on 2026-11-26, after reading the
+data-sync slide (`data-sync-api-path.pdf`, cited as DSYNC p1):
+
+1. `PUT …/stages/{stageid}` (`completeStage`) gets a blocking rule and a
+   `422` response. The platform won't complete a Stage until every Stage
+   another organisation has completed for the child has been reviewed
+   (accepted or rejected) by this organisation and rebased in. The rule
+   applies in both directions: Home YJS and caretaker.
+2. `Stage` gets `based_on`: the `stageid` of the latest completed Stage
+   this Stage has been rebased onto, rejected Stages included. Naming the
+   latest one stands for every Stage before it, so the list doesn't grow
+   with the child's history. The user chose this over the last 3 Stages
+   or a version number for the child's list of Stages.
+3. `PATCH …/stages/{stageid}` (`updateStage`) says to set `based_on` when
+   rebasing.
+
+The review itself stays as designed in option B1: `POST …/reviews` in
+`claude-exploration/proposed-transfer-api.yaml`, with a reason from the
+standard update list, which notifies the originator.
+
+Not decided, and marked ⚠️ in the patch:
+
+- the order of Stages, inferred to be by `completed_at`
+- the `rule` ID that the new `422` returns, because no existing
+  requirement covers this rule
+
+Note that "rebase" now has two senses in this file: merging a stale push
+of the same Stage (the concurrency model), and taking in another
+organisation's completed Stage (this patch, and DSYNC).
+
+--- a/apps/api/docs/prototype/swagger.yaml
++++ b/apps/api/docs/prototype/swagger.yaml
+@@ -399,6 +399,8 @@
+         - If any field was changed on both sides, nothing is applied, and the platform returns `412 Precondition Failed` with `outcome: conflict`. The organisation that pushed later resolves the conflict in its CMS and pushes again.
+ 
+         Send an `Idempotency-Key` header, and reuse it on every retry of the same change. The platform returns the original result for a key it has already processed, so a retry after a lost response doesn't fail against your own earlier write.
++
++        **Taking in other organisations' Stages.** When another organisation completes a Stage for this child, the CMS rebases this partial Stage onto it, and sets `based_on` to that Stage's `stageid`. See `PUT` for why this is needed before the Stage can be completed.
+       parameters:
+         - $ref: "#/components/parameters/ifMatchHeaderParameter"
+         - $ref: "#/components/parameters/idempotencyKeyHeaderParameter"
+@@ -459,7 +461,14 @@
+ 
+         - If any field was changed on both sides, nothing is applied, and the platform returns `412 Precondition Failed` with `outcome: conflict`.
+         - Otherwise the platform rebases the change, but **doesn't** complete the Stage, because the countersignatories haven't seen the merged content. It returns `412 Precondition Failed` with `outcome: rebased`, the rebased Stage and its new `ETag`. The Stage stays partial and needs a new sign-off.
++
++        **Other organisations' completed Stages.** The platform refuses to complete this Stage, with `422 Unprocessable Content`, until it has taken in every Stage that another organisation has completed for this child. This applies in both directions: to the Home YJS and to the caretaker. Before sending the `PUT`, the CMS must:
+ 
++        1. accept or reject each of those Stages that is waiting for this organisation's review. A rejected Stage stays in the record as `completed_rejected`, and its originator replaces it with a new Stage that `supersedes` it.
++        2. rebase this Stage onto each of them, rejected ones included, and set `based_on` to the `stageid` of the latest. Where this organisation rejected a Stage, its own Stage can record where it disagrees.
++
++        The platform refuses the `PUT` if another organisation has completed a Stage for this child after the one named in `based_on`, or if a review by this organisation is still pending. A Stage that supersedes a rejected one counts as a new Stage, so it must be reviewed and taken in too.
++
+         Once a CMS has sent a `PUT`, it should lock the Stage against further edits until it has a response.
+ 
+         Send an `Idempotency-Key` header, and reuse it on every retry of the same change. The platform returns the original result for a key it has already processed.
+@@ -493,6 +502,15 @@
+           $ref: "#/components/responses/StageIdentifierConflict"
+         '412':
+           $ref: "#/components/responses/PreconditionFailed"
++        '422':
++          description: |
++            Unprocessable Content
++
++            The Stage can't be completed yet, because another organisation has completed a Stage for this child that this Stage hasn't taken in: either a review by this organisation is still pending, or a Stage was completed after the one named in `based_on`. `rule` identifies the rule. ⚠️ The rule's ID isn't defined yet, because no existing requirement covers it.
++          content:
++            application/json:
++              schema:
++                $ref: "#/components/schemas/RuleViolation"
+         '428':
+           $ref: "#/components/responses/PreconditionRequired"
+         '500':
+@@ -976,6 +994,15 @@
+           nullable: true
+           readOnly: true
+           description: The URI of the Stage that replaced this one, if it was rejected and replaced.
++        based_on:
++          type: string
++          allOf:
++            - $ref: "#/components/schemas/StageId"
++          nullable: true
++          description: |
++            The `stageid` of the latest completed Stage for this child that this Stage has been rebased onto, including Stages that this organisation rejected. Naming the latest Stage stands for every Stage completed before it. Null if no Stage has been completed for the child yet.
++
++            ⚠️ Inferred, not confirmed: Stages are ordered by when the platform accepted their completion (`completed_at`).
+         explanations_and_conclusions_countersignature:
+           type: object
+           allOf:

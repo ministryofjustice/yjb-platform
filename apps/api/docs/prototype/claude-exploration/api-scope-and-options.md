@@ -37,7 +37,7 @@ Coverage values:
 | F1 | Identify and find a young person | [AP06 L209, L323] | ✅ `GET /children`, `POST /children/search`, `GET /children/{ypid}` [swagger.yaml L35–242] | — |
 | F2 | Create a record for an unknown young person | Unknown/Known process maps [AP02 L707–735] (images only) | ✅ `POST /children` [swagger.yaml L111] | — |
 | F3 | Create a stage, edit it, only one in progress. Available stage types depend on organisation type and case type | [AP02 L520 GE034; AP03 'Data Items CONSOLIDATED' row 4 cols AH–AL; AssessmentTransfer L249] | ✅ since 2026-11-24: `POST` takes `stage_type` and `case_type` and returns `422` when a rule fails [swagger.yaml L272–355, L280]; partial stages are per organisation [swagger.yaml L252–254]. Before then, the rule wasn't stated and there was no case type [swagger.yaml@2234377 L394–648] | **Decided:** one partial stage per child per organisation [User 2026-11-23 Q28]. `POST` takes `stage_type` and `case_type`, and the platform enforces both rules with `422` [Q29] (§4) |
-| F4 | Complete (with sign-off), stop, cancel, re-open a stage | [AP02 L525–527 GE059/68/69; L858 YY026] | ✅ since 2026-11-24 for complete and cancel: an accepted `PUT` completes a stage [swagger.yaml L451], `DELETE` is a soft cancel with a reason code [swagger.yaml L500–506], and `Stage` has a `status` [swagger.yaml L933]. Stop and re-open were dropped. Before then, `DELETE` was a hard delete with no reason, and `Stage` had no status [swagger.yaml@2234377 L649–654, L956–963] | **Decided:** no transitions API. An accepted `PUT` completes the stage; a soft `DELETE` cancels it (option I2). Stop and re-open are dropped [User 2026-11-23 Q7, Q8, Q10–Q12] |
+| F4 | Complete (with sign-off), stop, cancel, re-open a stage | [AP02 L525–527 GE059/68/69; L858 YY026] | ✅ since 2026-11-24 for complete and cancel: an accepted `PUT` completes a stage [swagger.yaml L453], `DELETE` is a soft cancel with a reason code [swagger.yaml L518–524], and `Stage` has a `status` [swagger.yaml L951]. Stop and re-open were dropped. Before then, `DELETE` was a hard delete with no reason, and `Stage` had no status [swagger.yaml@2234377 L649–654, L956–963] | **Decided:** no transitions API. An accepted `PUT` completes the stage; a soft `DELETE` cancels it (option I2). Stop and re-open are dropped [User 2026-11-23 Q7, Q8, Q10–Q12] |
 | F5 | Choose destination by organisation (OU code) | [AP06 L272, L416–419; AssessmentTransfer L360–365] | ❌ | `GET /organisations`, `GET /organisations/{ou_code}`. AP03 lists the 258 YJSs with OU codes [AP03 'YOT Full List']; no source lists SEs or the Placement Service. **Decided:** YJB maintains the list in the platform, and the API only reads it [User 2026-11-23 Q46] |
 | F6 | Request caretaking transfer to the SE (all completed stages, never stopped ones) | [AP02 L874 SE001; AP06 §6.3.1] | ❌ | The platform creates it when the Placement Service decides [User 2026-11-23 Q35–Q37]. `POST /children/{ypid}/transfers` stays only as a speculative sketch for YJS↔YJS [User 2026-11-24 grill Q4] |
 | F7 | Transfer preconditions: last stage complete and none in progress; one arrangement at a time | [AP02 L876 SE002, L877 SE020] | ❌ | `422` + `rule` on `POST …/transfers` |
@@ -47,7 +47,7 @@ Coverage values:
 | F11 | View assessment before deciding | [AP02 L850 YY005] | 🟡 `GET …/stages` exists, but the recipient has no access rule before acceptance | Access rule in the `POST …/transfers` description |
 | F12 | No updates until accepted | [AP02 L878 SE019] | ❌ | Enforced by `Transfer.status` |
 | F13 | Either side completes and shares a stage | [AP02 L882 SE004; AP06 §6.5.1] | 🟡 Either org can create stages; no sharing concept | An accepted `PUT` while a caretaking transfer is `accepted` gives `completed_shared` [User 2026-11-23 Q8] |
-| F14 | Accept or reject a shared update, with a reason list, and reminders | [AP02 L886 SE005, L887 SE014] | ❌ | `POST …/stages/{stageid}/reviews`, `GET /reviews` |
+| F14 | Accept or reject a shared update, with a reason list, and reminders | [AP02 L886 SE005, L887 SE014] | ❌ | `POST …/stages/{stageid}/reviews`, `GET /reviews`. **Since 2026-11-26:** the decision must be made before the reviewer can complete its own open stage (see option B) [User 2026-11-26] |
 | F15 | Identify changes in a received stage, PDF/print | [AP02 L888 SE006] | ❌ | `GET …/stages/{stageid}/changes` (JSON or PDF) |
 | F16 | Caretaking statuses ('awaiting Transfer', 'Transferred', 'rejected') | [AP02 L883 SE016, L857 YY025] | ❌ | `StageStatus`. These statuses are local to each CMS today; they're not in the schema [SimpleTypes L1731–1738]. **Decided:** 'awaiting Transfer' becomes partial (`in_progress`) [User 2026-11-23 Q7]; `completed_shared` is final [Q10]; `completed_rejected` is a read-only record [Q11] |
 | F17 | Home YJS ends caretaking | [AP02 L890 SE008] | ❌ | `PATCH /transfers/{id}` with `status: ended` [User 2026-11-24 grill Q7]. How SE caretaking ends needs YJB input (Q24) |
@@ -55,7 +55,7 @@ Coverage values:
 | F19 | Attachments listed and sent separately | [AP06 L260–266; AP02 L537 GE019; AssessmentTransfer L2679–2690] | ❌ | `…/stages/{stageid}/attachments`. v12 lists each file by section and document name. **Decided:** attachments follow the stage's lifecycle [User 2026-11-23 Q43], uploads are scanned asynchronously (`202`) [Q44], and `section` stays free text [Q45] |
 | F20 | Placement via the YJB Placement Service | [AP02 L874 SE001, L484; AssessmentTransfer L1148–1186] | 🟡 The placement recommendation (establishment type, exclusions, notes for Placements) is stage data, so it would sit in `Stage.data`. There's no placement decision | **Decided:** the Placement Service uses its own web UI on an internal API. The public API has only `POST /children/{ypid}/placement-requests` and a `GET` for its status [User 2026-11-23 Q35–Q37] |
 | F21 | Show that the young person is in custody | [AP02 L874 SE001] | ❌ | **Decided:** the CMS works it out from `GET /children/{ypid}/transfers`: an `accepted` caretaking transfer to a secure establishment. There's no indicator on the child [User 2026-11-24]. AP03 has a system-calculated "Young person currently in custody" item that is *not* transferred [AP03 'Data Dictionary Master' row 1026], which supports deriving it rather than storing it |
-| F22 | Stage payload: core + triggered modules | [AP06 L361–378 Rule 4, L506–548; AssessmentTransfer L294–338] | 🟡 `Stage.data` is "structure TBC" [swagger.yaml L999] | Option E. Now possible to work out from the v12 XSDs and AP03 |
+| F22 | Stage payload: core + triggered modules | [AP06 L361–378 Rule 4, L506–548; AssessmentTransfer L294–338] | 🟡 `Stage.data` is "structure TBC" [swagger.yaml L1026] | Option E. Now possible to work out from the v12 XSDs and AP03 |
 | F23 | History / snapshots by date or stage type | [AP02 L528 GE003] | 🟡 `GET …/stages` lists stages, with no date or type filters | Add `type`, `completed_from`, `completed_to` query params (§4) |
 | F24 | Audit: who changed what and when | [AP02 L536 GE015; AP06 L256] | ❌ Not described. The new DELETE route risks losing audit history (option I) | Option H. **Decided:** a public `GET …/stages/{stageid}/history` [User 2026-11-23 Q39] |
 | F25 | Merge duplicate AssetPlus records | [AP02 L870 YY014; todo.md L17] | ❌ | **Decided:** one record per child [User 2026-11-23 Q25]. CMSs report suspects with `POST /children/{ypid}/duplicate-reports` [Q42]; only YJB merges, with `POST /children/{ypid}/merges` [Q27]; a merged-away `ypid` returns `308` [Q26] |
@@ -103,13 +103,17 @@ These are areas the current process depends on that neither `../swagger.yaml` no
 5. **What "delete on reject" becomes.** Today the rejecting YJS deletes the framework [AP02 L850 YY005] or stage [AP02 L863 YY009]. In a central store, does a rejected shared stage stay in the child's history? If so, who sees it, and does the next stage pre-populate from it? (See option B.)
 
    **Decided 2026-11-23:** a rejected stage stays as a read-only record. It's replaced by a new stage that links to it with `supersedes`, with no content copied across [User 2026-11-23 Q11, Q24]. ⚠️ Inferred, not confirmed: it stays visible to every reader. Pre-population (item 6) is still open.
+
+   **Confirmed 2026-11-26:** the rejected stage stays in the rejecting organisation's record too, unlike YY009's deletion, and the originator replaces it with a new stage that `supersedes` it [User 2026-11-26].
 6. **Pre-population across organisations.** New stages pre-populate from the last one [AP02 L532 GE005], using one of four rules per data item [AP03 'Data Item pre population rules' rows 3–9; AP03 'Data Items CONSOLIDATED' col O].
-   - If the SE's stage is rejected by the YJS, which stage does the next YJS stage pre-populate from?
+   - If the SE's stage is rejected by the YJS, which stage does the next YJS stage pre-populate from? **Partly answered 2026-11-26:** the YJS's open stage is rebased onto the rejected stage, and can record where it disagrees [User 2026-11-26]. Pre-population of a *new* stage is still open.
    - In a central store the server could apply these rules when it creates a stage, rather than every client implementing them.
    > ⚠️ **Speculation:** doing it on the server would make pre-population consistent across clients, but the API would then own a large rule set.
 7. **Concurrent stages across parties.** Today each CMS has its own "one stage in progress" rule. Cross-system locking was never built [AP02 L881 SE015 "W"]. The draft already allows partial stages per organisation and "rebases" them [swagger.yaml L252–254]. The interaction with caretaking review needs designing: what happens if the YJS has a partial stage open when the SE shares a stage?
 
    **Decided 2026-11-23:** one partial stage per child per organisation [User 2026-11-23 Q28]. Overlapping changes are handled by the concurrency model in option J [Q3, Q4, Q18].
+
+   **Decided 2026-11-26:** an organisation can't complete its open stage until it has reviewed every stage the other party has completed for the child, and rebased onto it. See option B [User 2026-11-26; DSYNC p1].
 8. **Three-way arrangements (Home YJS, Host YJS, SE).** These are real situations, but the routing rules were de-scoped [AP02 L894–897]. SE001 says updates go "between the Secure Establishment and Home YOT only" [AP02 L874], that is, the Home YJS. In a central store, all three parties could see the same record. Who must review a shared stage? The v12 schema says the originating organisation is needed for three-way Home/Host/SE sharing [AssessmentTransfer L362], so this seems to happen in practice.
 
    **Decided 2026-11-23:** the Home YJS is the hub. It reviews every stage completed by the Host YJS or the SE, and its own stages are reviewed by the active caretaker [User 2026-11-23 Q34]. Still open: if a Host YJS and an SE are both active caretakers, which of them reviews the Home YJS's stages?
@@ -146,7 +150,7 @@ These are areas the current process depends on that neither `../swagger.yaml` no
 
     **Decided 2026-11-23:** stored stages are kept as recorded and never migrated [User 2026-11-23 Q30]. The version is a `schema_version` field in the `Stage` body; the user chose this over a media-type parameter [Q31]. A partial stage open across a schema change can be completed under its old version during a grace period set by YJB [Q32].
 23. **Case type.** Every stage has a case type (Prevention, OOCD, Offending or a combination) [AssessmentTransfer L249; SimpleTypes L291–301]. The case type limits which stage types are allowed [AP03 'Data Items CONSOLIDATED' row 4 cols AH–AL] and which questions are shown [AP03 'Data Dictionary Master' cols U–Z]. `../swagger.yaml` has no case type. **Decided 2026-11-23:** `POST …/stages` takes `case_type`, and the platform enforces the rules [User 2026-11-23 Q29].
-24. **What DELETE of a stage means.** `../swagger.yaml` deleted stages that hadn't been signed off [swagger.yaml@2234377 L649–654]. Today a stage can't be deleted, only cancelled. Cancelling keeps the audit trail and needs a reason [AP02 L527 GE069], and cancelled stages still appear in the stage index sent to other parties [SimpleTypes L1731–1738]. See option I. **Decided 2026-11-23:** option I2, a soft cancel [User 2026-11-23 Q12]. **Made 2026-11-24** [swagger.yaml L500–506].
+24. **What DELETE of a stage means.** `../swagger.yaml` deleted stages that hadn't been signed off [swagger.yaml@2234377 L649–654]. Today a stage can't be deleted, only cancelled. Cancelling keeps the audit trail and needs a reason [AP02 L527 GE069], and cancelled stages still appear in the stage index sent to other parties [SimpleTypes L1731–1738]. See option I. **Decided 2026-11-23:** option I2, a soft cancel [User 2026-11-23 Q12]. **Made 2026-11-24** [swagger.yaml L518–524].
 25. **Concurrency between the CMS copy and the platform copy.** *(Added 2026-11-23.)* Practitioners work in their CMS's local copy, which saves first and then pushes to the platform [User 2026-11-23 Q1, Q2]. So the API needs version tokens, a rule for stale pushes, and safe retries. See option J.
 26. **Abandoned partial stages.** *(Added 2026-11-23.)* With no stop, a partial stage that's never finished stays on the platform. **Decided:** keep it and report on stale ones; nothing expires [User 2026-11-23 Q23]. The staleness threshold, and who the report goes to, are still open.
 
@@ -189,6 +193,17 @@ A3 can also be used **only** as a migration adapter alongside A1 (see F).
 
 **Decided 2026-11-23: B1.** A `completed_shared` stage is final: the organisation that completed it can't reopen it [User 2026-11-23 Q10]. While it's under review, every reader can see it, along with its review status [Q33]. A rejected stage stays as a read-only record and is replaced by a new stage that `supersedes` it [Q11, Q24].
 
+**Extended 2026-11-26**, after the data-sync slide [DSYNC p1; User 2026-11-26]:
+
+- **The decision stays a separate act by a person**, recorded with `POST …/stages/{stageid}/reviews`, as today [AP06 L400; AP02 L886 SE005]. A rejection takes a reason from the update list and an optional description, and the originator is notified with it [AP02 L886 SE005]. The user chose this over putting the decision in the reviewer's own `PATCH`/`PUT`, or having the reviewer set a marker on the other organisation's stage.
+- **A decision is final.** A YJS won't turn a rejection into an acceptance. The originator may instead issue a new, amended stage that `supersedes` the rejected one.
+- **Completing is blocked until the other party's stages are taken in.** The platform refuses `PUT` with `422` while the caller has a review pending, or while the other party has completed a stage that the caller's open stage hasn't been rebased onto. Rejected stages are rebased onto too, and the caller's stage can record where it disagrees. The rule applies in both directions. A superseding stage counts as new, so it must be reviewed and taken in as well.
+- **`based_on`** on the stage names the single latest stage it has been rebased onto, and stands for every stage before it. The user chose this over naming the last 3 stages or using a version number for the child's list of stages. ⚠️ Inferred, not confirmed: stages are ordered by when the platform accepted their completion (`completed_at`).
+- **The stage type after a review isn't fixed.** The slide shows a "Review" stage, an existing type [current-process.md L100], but the API doesn't require it (Q27).
+- **Two-person sign-off for the decision** is unconfirmed (Q26).
+
+> **Inconsistency:** "rebase" now has two senses. Option J uses it for merging a stale push of the *same* stage. The slide and this section use it for taking in *another organisation's* completed stage.
+
 ### C. Notifications and reminders
 
 | Option | Description | Pros | Cons |
@@ -213,7 +228,7 @@ A3 can also be used **only** as a migration adapter alongside A1 (see F).
 | Option | Description | Pros | Cons |
 | :-- | :-- | :-- | :-- |
 | **E1 ★ JSON that mirrors the v12 XSD structures** | One object per `Assessment_StageStructure` child (`Young_Persons_Details`, `Placement_Recommendation`, `Arrival_In_Custody`, …) [AssessmentTransfer L294–338]. Keyed by the data-dictionary field IDs that the XSD already gives in each element's documentation [e.g. AssessmentTransfer L246; AP03 'Data Dictionary Master' col B]. Each stage carries a `schema_version` [AssessmentTransfer L2678] | Direct mapping from today's schema; we now hold the XSDs and the data dictionary. Easy migration and adapter (F2). Field IDs give a stable key for `…/changes` | Inherits naming from 2014 onwards. Changes every year (§2 item 22). AP03 is v5.0 (2014), so newer items can only be described from the XSD |
-| E2 Aligned to Person Standard / FHIR | Continue the draft's alignment [swagger.yaml L23, L766] down into the stage data | Interoperable with health and social care. | Big mapping effort. Much of AssetPlus has no FHIR equivalent. |
+| E2 Aligned to Person Standard / FHIR | Continue the draft's alignment [swagger.yaml L23, L784] down into the stage data | Interoperable with health and social care. | Big mapping effort. Much of AssetPlus has no FHIR equivalent. |
 | E3 Section sub-resources | `…/stages/{stageid}/sections/{section}` | Partial reads and writes. Fine-grained access control (§2 item 13). | Many more routes. Harder to keep stages atomic. |
 
 ### F. Migration and coexistence with AP06 CMSs
@@ -252,7 +267,7 @@ Before 2026-11-24, `../swagger.yaml` had a `DELETE /children/{ypid}/stages/{stag
 - returned `403` for a signed-off stage or another organisation's stage [swagger.yaml@2234377 L675]
 - returned `200` with an empty body
 
-**Since 2026-11-24** it's a soft cancel, as option I2 [swagger.yaml L500–506].
+**Since 2026-11-24** it's a soft cancel, as option I2 [swagger.yaml L518–524].
 
 What today's process says:
 
@@ -294,6 +309,8 @@ Practitioners work in their CMS's local copy. The CMS saves first, then pushes t
 
 ⚠️ Inferred, not confirmed: a stale `PATCH` with no conflict is rebased and returns `200`.
 
+Since 2026-11-26, "rebase" is also used for taking in another organisation's completed stage (option B). The two senses are different.
+
 ---
 
 ## 4. Suggested changes to existing routes in `../swagger.yaml`
@@ -333,9 +350,9 @@ The list below is the original 2026-11-19 list, annotated where the decisions ch
   - `schema_version` [AssessmentTransfer L2678]
   - the two countersignatures, each with name, job title and date [AssessmentTransfer L334–335, L454–472; AP02 L525 GE059]
   - **Decided 2026-11-23:** also `supersedes` / `superseded_by` [User 2026-11-23 Q24] and `attachment_ids` [Q43]. The countersignatures are trusted, not checked [Q15]
-  - **Made 2026-11-24**, except `proxy_owner` [swagger.yaml L933–999; User 2026-11-24]
-- `PUT …/stages/{stageid}` **(added 2026-11-23):** an accepted `PUT` completes the stage. Its `200` must return the new status; before 2026-11-24 it returned only an optional `Notification` [swagger.yaml@2234377 L599–606] [User 2026-11-23 Q7, Q8]. **Made 2026-11-24**; the `Notification` was dropped from `PUT` [swagger.yaml L441–499; User 2026-11-24]
-- `DELETE /children/{ypid}/stages/{stageid}` [swagger.yaml@2234377 L649–701]: decide option I first. **Decided 2026-11-23: I2** (see option I). Whichever option is chosen, these are worth fixing. **All made 2026-11-24** [swagger.yaml L500–541]:
+  - **Made 2026-11-24**, except `proxy_owner` [swagger.yaml L951–1026; User 2026-11-24]
+- `PUT …/stages/{stageid}` **(added 2026-11-23):** an accepted `PUT` completes the stage. Its `200` must return the new status; before 2026-11-24 it returned only an optional `Notification` [swagger.yaml@2234377 L599–606] [User 2026-11-23 Q7, Q8]. **Made 2026-11-24**; the `Notification` was dropped from `PUT` [swagger.yaml L443–517; User 2026-11-24]
+- `DELETE /children/{ypid}/stages/{stageid}` [swagger.yaml@2234377 L649–701]: decide option I first. **Decided 2026-11-23: I2** (see option I). Whichever option is chosen, these are worth fixing. **All made 2026-11-24** [swagger.yaml L518–559]:
   - The summary and description say "AssetPlus record", but the route deletes a Stage [swagger.yaml@2234377 L650, L654].
   - The description says the identifier goes in the request body, but it's in the path [swagger.yaml@2234377 L654].
   - It returns `200` with an empty body; `204 No Content` is the usual response for that.
@@ -344,7 +361,8 @@ The list below is the original 2026-11-19 list, annotated where the decisions ch
   - GE069 limits cancelling to the stage owner, not the organisation [AP02 L527]. **Decided:** keep the organisation-level rule, because the CMS runs a two-person sign-off first [User 2026-11-23 Q13].
   - It should return the stage as `cancelled`, not remove it, and take `?reason=<code>` and an `X-Signoff-User` header [Q12–Q14].
 - ~~`GET /children/{ypid}`: return active transfers, or a custody indicator, so CMSs can show the case flag [AP02 L875 SE026] and "in custody" [AP02 L874 SE001].~~ **Superseded 2026-11-24:** the child resource carries neither. CMSs work out the case flag and "in custody" from `GET /children/{ypid}/transfers` [User 2026-11-24 grill Q6; User 2026-11-24].
-- `PATCH`/`PUT …/stages/{stageid}`: the 403 rules [swagger.yaml L717] need to cover the caretaker's rights during an accepted caretaking transfer. **Not made** [User 2026-11-24]
+- `PATCH`/`PUT …/stages/{stageid}`: the 403 rules [swagger.yaml L735] need to cover the caretaker's rights during an accepted caretaking transfer. **Not made** [User 2026-11-24]
+- `PATCH`/`PUT …/stages/{stageid}` **(added 2026-11-26):** the blocking rule and `422` on `PUT`, and a `based_on` field on `Stage` (option B, extended 2026-11-26) [User 2026-11-26]. **Made 2026-11-26** through `swagger-review-rebase.patch` [swagger.yaml L443–517, L997–1005; User 2026-11-26].
 - Multiple AssetPlus records per child [todo.md L17]: decide between merging (`/merges`) and pushing stages down a level (`/children/{ypid}/assessments/{id}/stages`). This affects every stage route. **Decided 2026-11-23:** merging. A second record is an accidental duplicate, and stages stay flat [User 2026-11-23 Q25].
 
 ---
@@ -378,3 +396,5 @@ The list below is the original 2026-11-19 list, annotated where the decisions ch
 | Q23 | What are the non-functional requirements? *(Added 2026-11-23.)* | §2 item 21; deliberately not covered in the session. |
 | Q24 | How should secure-estate caretaking end in a central store? *(Added 2026-11-24.)* | SE008 says the system must allow the Home YJS to end it when the young person leaves custody [AP02 L890], but doesn't rule out ending automatically on release or by the SE. Also: does the SE keep read access afterwards; what if the child leaves custody without returning to the YJS (§2 item 10); and what happens to an SE stage still in progress? Needs YJB input [User 2026-11-24 grill Q5]. |
 | Q25 | What are the reasons a secure establishment can give for rejecting a transfer? *(Added 2026-11-24.)* | Today's initial-transfer list [AP06 L336–347] has no reasons about the placement itself. A separate `se-transfer-rejection-reasons` list is decided; YJB is to set its values [User 2026-11-24 grill Q8]. |
+| Q26 | Does accepting or rejecting a stage shared by the other party need the same two-person sign-off as completing a stage? *(Added 2026-11-26.)* | Completing a stage needs two-person sign-off in the CMS [User 2026-11-23 Q15]. Today the YJS sets which roles may accept or reject [AP02 L891 SE009], but no source says whether two people must sign off the decision. The user believes it's needed but isn't certain. **For YJB** [User 2026-11-26]. |
+| Q27 | After accepting a stage from a caretaker, which stage type does the YJS normally create next? Is it always "Review"? *(Added 2026-11-26.)* | The data-sync slide shows the YJS creating a "Review Stage" after accepting the SE's stage [DSYNC p1]. "Review" is one of the existing stage types that a YJS or SE can create [current-process.md L100; AP02 L520 GE034]. The API won't require a particular type after a review decision; this is to confirm practice. **For YJB** [User 2026-11-26]. |

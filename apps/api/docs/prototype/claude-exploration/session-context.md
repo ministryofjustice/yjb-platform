@@ -7,7 +7,7 @@ First written 2026-11-19 on branch `api-footprint-prototypes`. Updated:
 - twice more on 2026-11-19, after the first commit and the arrival of new source documents, and after working them into the outputs
 - on 2026-11-23, after a design session (a "grill") that settled most of the open design options
 - on 2026-11-24, after a terminology change, a second design session on the transfer routes, and changes to `../swagger.yaml`. See "Work on 2026-11-24"
-- on 2026-11-26, after a fourth patch to `../swagger.yaml` (`operationId`s and Redocly fixes). See "Work on 2026-11-26"
+- on 2026-11-26, after a fourth patch to `../swagger.yaml` (`operationId`s and Redocly fixes), and decisions on the review flow from the data-sync slide. See "Work on 2026-11-26"
 
 ## The task
 
@@ -94,6 +94,8 @@ The user chose, item by item, which recommendations to apply. Three patches in t
 
 ## Work on 2026-11-26
 
+### Fourth patch to `../swagger.yaml`
+
 The user asked for a fourth patch, `swagger-operation-ids.patch`, and applied it to `../swagger.yaml`. It was generated against `swagger.yaml@cb7e26e` (v0.0.3). The user chose each change [User 2026-11-26]:
 
 1. **`operationId`s** on all 10 operations, camelCase verb-noun: `findChildren` (`GET /children`), `createChild`, `searchChildren` (`POST /children/search`), `getChild`, `listStages`, `createStage`, `getStage`, `updateStage` (`PATCH`), `completeStage` (`PUT`) and `cancelStage` (`DELETE`). `PUT` and `DELETE` are named for what they do in this API, not after the HTTP method.
@@ -104,6 +106,26 @@ The user asked for a fourth patch, `swagger-operation-ids.patch`, and applied it
 4. **The unused `MinimalChildWithFieldNames` schema was removed.** Nothing has used it since `82f3ce4`.
 
 The `swagger.yaml` line citations in `api-scope-and-options.md` and `proposed-transfer-api.yaml` were updated to the patched file, and both now mention the patch.
+
+### The data-sync slide and the review flow
+
+The user added `data-sync-api-path.pdf` (short ref DSYNC): one slide, "The recommendation we're taking forward", showing the flow between a YJS, the Placement Service, an SE and the platform. `documents-list.md` records it, with the user's guidance on how to read it [User 2026-11-26].
+
+Decisions from discussing it [User 2026-11-26]:
+
+| Topic | Decision |
+| :-- | :-- |
+| The review decision | Stays a separate act by a person: `POST …/stages/{stageid}/reviews`, with a reason from the update list, which notifies the originator (option B1). Chosen over carrying the decision in the reviewer's own `PATCH`/`PUT`, or a marker on the other organisation's stage |
+| Rejected stages | Stay in the reviewer's record as `completed_rejected` and are rebased onto too; the reviewer's stage can record where it disagrees. The originator supersedes them |
+| Decisions are final | A YJS won't turn a rejection into an acceptance. The originator may issue a new, amended stage that `supersedes` the rejected one |
+| Blocking rule | An organisation can't complete (`PUT`) its open stage until it has decided on, and rebased onto, every stage the other party has completed for the child. `422` otherwise. Applies in both directions |
+| `based_on` | A field on `Stage` naming the single latest stage it has been rebased onto. Chosen over the last 3 stages, or a version number for the child's list of stages |
+| Stage type after a review | Not fixed by the API. The slide's "Review Stage" is an existing type, but the user isn't sure it's always the one used (Q27) |
+| "Rebase" | Means taking in another organisation's completed stage before completing an open partial stage. This is a second sense, alongside option J's merge of a stale push |
+
+New questions for YJB: Q26 (two-person sign-off for the decision) and Q27 (the stage type after a review).
+
+Written up in `api-scope-and-options.md` (option B, §2 items 5–7, F14, §4) and `proposed-transfer-api.yaml` (the review route and "Departures from the current process"). The `../swagger.yaml` changes were applied by the user through `swagger-review-rebase.patch`.
 
 ## Inputs
 
@@ -132,6 +154,8 @@ The `swagger.yaml` line citations in `api-scope-and-options.md` and `proposed-tr
 | `proposed-transfer-api.yaml` | OpenAPI 3.0.4 draft (v0.0.4-draft) of new routes. Its description summarises the changes made to `../swagger.yaml`, those still recommended, and the departures from the current process. It refers to `MinimalChild`, `Stage` and `StageStatus` in `../swagger.yaml`, and marks speculative parts `x-speculative: true` | **Yes**: short quotes and citations in descriptions |
 | `swagger-recommended-changes.patch`, `swagger-shared-responses.patch`, `swagger-shared-schemas.patch` | The three patches applied to `../swagger.yaml` in `6feec52`, each with notes at the top | No |
 | `swagger-operation-ids.patch` | The fourth patch, applied on 2026-11-26: `operationId`s and Redocly fixes, with notes at the top | No |
+| `swagger-review-rebase.patch` | The fifth patch, applied on 2026-11-26: the blocking rule and `422` on `PUT`, and `Stage.based_on` | No |
+| `data-sync-api-path.pdf` | The data-sync slide (DSYNC), added by the user on 2026-11-26 | No: marked "OFFICIAL - FOR PUBLIC RELEASE" |
 | `.grill-me/` (git-ignored) | The 2026-11-23 and 2026-11-24 design sessions: summaries and JSON design trees | **Yes**: citations |
 | `session-context.md` | This file | No |
 
@@ -201,9 +225,9 @@ Detail and citations are in `current-process.md` §3–§6 and `api-scope-and-op
 
 ## Outstanding items
 
-1. **Questions for YJB:** Q17 (cancellation codes), Q19 (three-way review), Q22 (attachment limits and retention), Q24 (how SE caretaking ends), Q25 (SE rejection reasons); and the "Departures from the current process" in the YAML's description (no stop, no reopen, organisation-level cancel, only partial stages can be cancelled).
+1. **Questions for YJB:** Q17 (cancellation codes), Q19 (three-way review), Q22 (attachment limits and retention), Q24 (how SE caretaking ends), Q25 (SE rejection reasons), Q26 (two-person sign-off for accepting or rejecting a shared stage), Q27 (which stage type follows accepting a caretaker's stage); and the "Departures from the current process" in the YAML's description (no stop, no reopen, organisation-level cancel, only partial stages can be cancelled, rejected stages kept at the rejecting end, and completing blocked until the other party's stages are taken in).
 2. **Facts someone needs to supply** (owner not yet decided): how the Placement Service works today (Q1), supplier data (Q6), a v12 data dictionary (Q7), the EYE format (Q8), transfers between secure establishments (Q9), the stage trigger table (Q11), live CMS versions (Q12), OU codes (Q14), the "YJS 2-letter code" (Q16).
-3. **Design decisions still open:** option E (the shape of `Stage.data`; E1 recommended), option G (authorisation) and access control per child, option H (H1 vs H2), the seven inferences from 2026-11-23 (Q21), the download response before scanning finishes (Q20), thresholds and periods (Q18), and non-functional requirements (Q23).
+3. **Design decisions still open:** how stages are ordered for `based_on` (inferred: by `completed_at`) and the `rule` ID for the new `422`; whether "rebase" needs a second word for its new sense; option E (the shape of `Stage.data`; E1 recommended), option G (authorisation) and access control per child, option H (H1 vs H2), the seven inferences from 2026-11-23 (Q21), the download response before scanning finishes (Q20), thresholds and periods (Q18), and non-functional requirements (Q23).
 4. **Recommendations for `../swagger.yaml` not yet made:** schema-version rules, `308` for merged children, `GET …/stages` filters, `403` wording for caretakers.
 5. **Possible next pieces of work:**
    - draft a `Stage.data` structure (option E1) from the v12 XSDs
