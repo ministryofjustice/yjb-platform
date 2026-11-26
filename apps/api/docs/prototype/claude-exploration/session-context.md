@@ -121,11 +121,15 @@ Decisions from discussing it [User 2026-11-26]:
 | Blocking rule | An organisation can't complete (`PUT`) its open stage until it has decided on, and rebased onto, every stage the other party has completed for the child. `422` otherwise. Applies in both directions |
 | `based_on` | A field on `Stage` naming the single latest stage it has been rebased onto. Chosen over the last 3 stages, or a version number for the child's list of stages |
 | Stage type after a review | Not fixed by the API. The slide's "Review Stage" is an existing type, but the user isn't sure it's always the one used (Q27) |
+| Notifications | The `PATCH` `Notification` is sent when the other party's partial stage is new to the caller, or saved since the caller was last told. Chosen over "since your own last save", which misses idle stages |
+| Review stage alongside | A Review stage may be open alongside the organisation's other partial stage while it takes in another organisation's stage, an exception to Q28 (one partial stage per organisation). ⚠️ At most one at a time is inferred |
 | "Rebase" | Means taking in another organisation's completed stage before completing an open partial stage. This is a second sense, alongside option J's merge of a stale push |
 
 New questions for YJB: Q26 (two-person sign-off for the decision) and Q27 (the stage type after a review).
 
-Written up in `api-scope-and-options.md` (option B, §2 items 5–7, F14, §4) and `proposed-transfer-api.yaml` (the review route and "Departures from the current process"). The `../swagger.yaml` changes were applied by the user through `swagger-review-rebase.patch`.
+Written up in `api-scope-and-options.md` (option B, §2 items 5–7, F14, §4) and `proposed-transfer-api.yaml` (the review route and "Departures from the current process"). The `../swagger.yaml` changes were applied by the user through `swagger-review-rebase.patch`. The notification and Review-stage decisions came later, while drawing `data-sync-sequence.md`, and were applied by the user through `swagger-notifications-review-stage.patch`.
+
+`data-sync-sequence.md` draws the slide's flow as a Mermaid sequence diagram with every API call, one coloured `box` per organisation. Placement is kept as simple as on the slide [User 2026-11-26].
 
 ## Inputs
 
@@ -155,6 +159,8 @@ Written up in `api-scope-and-options.md` (option B, §2 items 5–7, F14, §4) a
 | `swagger-recommended-changes.patch`, `swagger-shared-responses.patch`, `swagger-shared-schemas.patch` | The three patches applied to `../swagger.yaml` in `6feec52`, each with notes at the top | No |
 | `swagger-operation-ids.patch` | The fourth patch, applied on 2026-11-26: `operationId`s and Redocly fixes, with notes at the top | No |
 | `swagger-review-rebase.patch` | The fifth patch, applied on 2026-11-26: the blocking rule and `422` on `PUT`, and `Stage.based_on` | No |
+| `swagger-notifications-review-stage.patch` | The sixth patch, applied on 2026-11-26: when `PATCH` notifications are sent, and the Review-stage exception on `POST …/stages` | No |
+| `data-sync-sequence.md` | The data-sync flow as a Mermaid sequence diagram, with every API call | Citations only |
 | `data-sync-api-path.pdf` | The data-sync slide (DSYNC), added by the user on 2026-11-26 | No: marked "OFFICIAL - FOR PUBLIC RELEASE" |
 | `.grill-me/` (git-ignored) | The 2026-11-23 and 2026-11-24 design sessions: summaries and JSON design trees | **Yes**: citations |
 | `session-context.md` | This file | No |

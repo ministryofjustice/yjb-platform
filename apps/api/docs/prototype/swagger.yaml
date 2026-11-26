@@ -281,7 +281,7 @@ paths:
 
         - Which stage types an organisation may create depends on its organisation type (requirement GE034).
         - Which stage types are allowed depends on the case type.
-        - An organisation may have only one partial Stage for each child at a time. A second request from the same organisation is refused, citing GE034.
+        - An organisation may have only one partial Stage for each child at a time. A second request from the same organisation is refused, citing GE034. The one exception is a Stage of the Review type, which the organisation may open alongside its partial Stage while it is taking in a Stage that another organisation has completed. It completes the Review Stage first, then rebases its other partial Stage onto it. ⚠️ Inferred, not confirmed: at most one such Review Stage at a time, and only while another organisation's completed Stage is still to be taken in.
 
         To replace a Stage that was rejected during caretaking review, set `supersedes` to the URI of the rejected Stage.
 
@@ -391,7 +391,9 @@ paths:
       tags:
         - Find, create and update Stages
       description: |
-        This endpoint saves a partial update to an existing partial Stage. The request body must include at least one property to update. The response will be `204 No Content`, or `200 OK` with a notification message saying that someone else also has a partial Stage open for this child, or an error response.
+        This endpoint saves a partial update to an existing partial Stage. The request body must include at least one property to update. The response will be `204 No Content`, or `200 OK` with a notification message about another organisation's partial Stage for this child, or an error response.
+
+        **Notifications.** The platform sends a notification when another organisation's partial Stage for this child is new to the caller's organisation, or has been saved since the caller's organisation was last told about it. Once told, the caller hears nothing more about that Stage until it's saved again. A notification says that the Stage exists or has changed, never what's in it. `PUT` responses carry no notification.
 
         **Concurrency.** The request must include an `If-Match` header with the Stage's current `ETag`. If the `ETag` is out of date because another organisation's change reached the platform first, the platform rebases this change onto the current version:
 
@@ -415,7 +417,7 @@ paths:
                   $ref: "#/components/schemas/Stage"
       responses:
         '200':
-          description: Success response, containing a notification message saying that someone else also has a partial Stage open for this child.
+          description: Success response, containing a notification message saying that another organisation has a partial Stage open for this child that is new to the caller, or has saved changes to it since the caller was last told.
           headers:
             ETag:
               $ref: "#/components/headers/ETag"
