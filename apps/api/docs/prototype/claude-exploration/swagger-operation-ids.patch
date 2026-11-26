@@ -1,0 +1,251 @@
+Add `operationId`s to apps/api/docs/prototype/swagger.yaml, and fix
+Redocly's trailing-slash, `$ref`-sibling and unused-component warnings
+
+Generated on 2026-11-26, against the swagger.yaml on branch
+api-footprint-prototypes at b89bd04. Apply from the repository root:
+
+  git apply apps/api/docs/prototype/claude-exploration/swagger-operation-ids.patch
+
+After this patch, Redocly's `recommended` rules report only the missing
+security scheme, the empty `servers` list and the missing `info.license`
+(left for later, by the user's choice on 2026-11-26).
+
+1. Adds a camelCase verb-noun `operationId` to each of the 10 operations:
+
+  GET    /children                          findChildren
+  POST   /children                          createChild
+  POST   /children/search                   searchChildren
+  GET    /children/{ypid}                   getChild
+  GET    /children/{ypid}/stages            listStages
+  POST   /children/{ypid}/stages            createStage
+  GET    /children/{ypid}/stages/{stageid}  getStage
+  PATCH  /children/{ypid}/stages/{stageid}  updateStage
+  PUT    /children/{ypid}/stages/{stageid}  completeStage
+  DELETE /children/{ypid}/stages/{stageid}  cancelStage
+
+`PUT` and `DELETE` are named for what they do in this API (an accepted
+`PUT` completes a stage; `DELETE` is a soft cancel), not after the HTTP
+method. `GET /children` and `POST /children/search` run the same search,
+so they need distinct names: `findChildren` and `searchChildren`.
+
+2. Removes the trailing slashes from `/children/{ypid}/` and
+`/children/{ypid}/stages/` (`no-path-trailing-slash`). No `$ref` or
+prose in swagger.yaml or claude-exploration/ refers to the old forms.
+
+3. Fixes the 11 `spec-ref-siblings` warnings. In OpenAPI 3.0, properties
+next to a `$ref` are ignored (OpenAPI 3.0.4, Reference Object):
+
+  - `GET /children`: removes the leftover `in`, `schema` and
+    `description` beside the `postcodeHeaderParameter` `$ref`. The shared
+    parameter already defines them.
+  - `POST /children`: removes the redundant `type: object` beside the
+    `MinimalChild` request body and the `IdentifierArray` in the `200`
+    response.
+  - `GET` stage: removes `minimumItems`/`maximumItems` (not keywords;
+    the schema is a single `Stage`).
+  - `PATCH` stage: the `Notification` is optional (user, 2026-11-26).
+    The response is now `204 No Content` when there's no notification
+    and `200` with a `Notification` when there is one, both with the new
+    `ETag`. The operation description is updated to match.
+  - `MinimalChild.Identifier`: wraps the `$ref` in `allOf` so its
+    description is kept.
+  - `MinimalChild.DateOfBirth`: should be nullable (user, 2026-11-26).
+    Uses the `type` + `allOf` + `nullable: true` pattern that `ypid`
+    already uses. Strictly, OAS 3.0.3+ says `nullable` doesn't carry
+    through `allOf`, so a strict validator may still reject null; `ypid`
+    has the same issue.
+
+4. Removes the unused `MinimalChildWithFieldNames` schema
+(`no-unused-components`). Nothing has used it since 82f3ce4.
+
+--- a/apps/api/docs/prototype/swagger.yaml
++++ b/apps/api/docs/prototype/swagger.yaml
+@@ -34,6 +34,7 @@
+ paths:
+   /children:
+     get:
++      operationId: findChildren
+       summary: Search for a child's record from AssetPlus, either from an identifier or from biographical details
+       tags:
+         - Find and create children
+@@ -76,10 +77,6 @@
+         - $ref: "#/components/parameters/dobHeaderParameter"
+         - $ref: "#/components/parameters/dobAccuracyHeaderParameter"
+         - $ref: "#/components/parameters/postcodeHeaderParameter"
+-          in: header
+-          schema:
+-            type: string
+-          description: The postal code of the child's address. **Note:** This is personally-identifiable information and should not be sent in the querystring. Use the `X-Parameters` header instead, or use a `POST` request to `/children/search` with the same parameters in the request body.
+       responses:
+         '200':
+           description: |
+@@ -112,6 +109,7 @@
+         '500':
+           $ref: "#/components/responses/ServerError"
+     post:
++      operationId: createChild
+       summary:  Create a new child in AssetPlus, in order to subsequently create Stages
+       tags:
+         - Find and create children
+@@ -124,8 +122,7 @@
+         content:
+           application/json:
+             schema:
+-              type: object
+-              $ref:  "#/components/schemas/MinimalChild"
++              $ref: "#/components/schemas/MinimalChild"
+       responses:
+         '200':
+           description: Successful response
+@@ -137,7 +134,6 @@
+                   ypid:
+                     $ref: "#/components/schemas/Ypid"
+                   identifier_array:
+-                    type: object
+                     $ref: "#/components/schemas/IdentifierArray"
+                     # Repeat the identifier in the array here, but with the additional properties that confirm which identifier type (SUI / NHS number or YPID) we are returning here.
+         '400':
+@@ -158,6 +154,7 @@
+ 
+   /children/search:
+     post:
++      operationId: searchChildren
+       summary: Search for a child's record from AssetPlus, either from an identifier or from biographical details
+       tags:
+         - Find and create children
+@@ -217,8 +214,9 @@
+         '500':
+           $ref: "#/components/responses/ServerError"
+ 
+-  /children/{ypid}/:
++  /children/{ypid}:
+     get:
++      operationId: getChild
+       summary: Fetch the full AssetPlus data packet for the specified child
+       tags:
+         - Find and create children
+@@ -242,10 +240,11 @@
+         '500':
+           $ref: "#/components/responses/ServerError"
+ 
+-  /children/{ypid}/stages/:
++  /children/{ypid}/stages:
+     parameters:
+       - $ref: "#/components/parameters/ypidParameter"
+     get:
++      operationId: listStages
+       summary: Fetch all Stages for the specified child
+       tags:
+         - Find, create and update Stages
+@@ -271,6 +270,7 @@
+         '500':
+           $ref: "#/components/responses/ServerError"
+     post:
++      operationId: createStage
+       summary: Create a new AssetPlus Stage for the specified child
+       tags:
+         - Find, create and update Stages
+@@ -359,6 +359,7 @@
+       - $ref: "#/components/parameters/ypidParameter"
+       - $ref: "#/components/parameters/stageidParameter"
+     get:
++      operationId: getStage
+       summary: Fetch an AssetPlus Stage (or partial Stage)
+       tags:
+         - Find, create and update Stages
+@@ -378,8 +379,6 @@
+             application/json:
+               schema:
+                 $ref: "#/components/schemas/Stage"
+-                minimumItems: 1
+-                maximumItems: 1
+         '400':
+           $ref: "#/components/responses/BadRequestStageIdentifiers"
+         '409':
+@@ -387,11 +386,12 @@
+         '500':
+           $ref: "#/components/responses/ServerError"
+     patch:
++      operationId: updateStage
+       summary: Save a partial update to an existing AssetPlus Stage
+       tags:
+         - Find, create and update Stages
+       description: |
+-        This endpoint saves a partial update to an existing partial Stage. The request body must include at least one property to update. The response will just be an acknowledgement of the update, with no content, or an error response. The response may optionally include a notification message saying that someone else also has a partial Stage open for this child.
++        This endpoint saves a partial update to an existing partial Stage. The request body must include at least one property to update. The response will be `204 No Content`, or `200 OK` with a notification message saying that someone else also has a partial Stage open for this child, or an error response.
+ 
+         **Concurrency.** The request must include an `If-Match` header with the Stage's current `ETag`. If the `ETag` is out of date because another organisation's change reached the platform first, the platform rebases this change onto the current version:
+ 
+@@ -413,7 +413,7 @@
+                   $ref: "#/components/schemas/Stage"
+       responses:
+         '200':
+-          description: Success response, optionally containing a notification message saying that someone else also has a partial Stage open for this child.
++          description: Success response, containing a notification message saying that someone else also has a partial Stage open for this child.
+           headers:
+             ETag:
+               $ref: "#/components/headers/ETag"
+@@ -421,8 +421,11 @@
+             application/json:
+               schema:
+                 $ref: "#/components/schemas/Notification"
+-                minimumItems: 0
+-                maximumItems: 1
++        '204':
++          description: Success response, with no notification.
++          headers:
++            ETag:
++              $ref: "#/components/headers/ETag"
+         '400':
+           $ref: "#/components/responses/BadRequestStageIdentifiers"
+         '403':
+@@ -436,6 +439,7 @@
+         '500':
+           $ref: "#/components/responses/ServerError"
+     put:
++      operationId: completeStage
+       summary: Complete an existing partial Stage
+       tags:
+         - Find, create and update Stages
+@@ -494,6 +498,7 @@
+         '500':
+           $ref: "#/components/responses/ServerError"
+     delete:
++      operationId: cancelStage
+       summary: Cancel an existing partial Stage
+       tags:
+         - Find, create and update Stages
+@@ -873,28 +878,20 @@
+           nullable: true
+           description: The internal AssetPlus identifier for a child. Absent or null when creating a new child with `POST /children`.
+         Identifier:
+-          $ref: "#/components/schemas/IdentifierArray"
++          allOf:
++            - $ref: "#/components/schemas/IdentifierArray"
+           description: "An array of identifiers for the child. At least one identifier must be provided: either an OYPID, a SUI or a PNCID."
+         Name:
+           $ref: "#/components/schemas/Name"
+         DateOfBirth:
++          type: object
++          allOf:
++            - $ref: "#/components/schemas/DateOfBirth"
+           nullable: true
+-          $ref: "#/components/schemas/DateOfBirth"
+         Address:
+           $ref: "#/components/schemas/Address"
+       required:
+         - Identifier
+-    MinimalChildWithFieldNames:
+-      allOf:
+-        - $ref: "#/components/schemas/MinimalChild"
+-        - type: object
+-          properties:
+-            fieldNames:
+-              type: array
+-              items:
+-                type: string
+-              description: "An array of the names of the fields that are being edited in this Stage. (TODO: To be defined)"
+-              minItems: 1
+     Name:
+       type: object
+       properties:

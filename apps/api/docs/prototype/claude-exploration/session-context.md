@@ -7,6 +7,7 @@ First written 2026-11-19 on branch `api-footprint-prototypes`. Updated:
 - twice more on 2026-11-19, after the first commit and the arrival of new source documents, and after working them into the outputs
 - on 2026-11-23, after a design session (a "grill") that settled most of the open design options
 - on 2026-11-24, after a terminology change, a second design session on the transfer routes, and changes to `../swagger.yaml`. See "Work on 2026-11-24"
+- on 2026-11-26, after a fourth patch to `../swagger.yaml` (`operationId`s and Redocly fixes). See "Work on 2026-11-26"
 
 ## The task
 
@@ -91,6 +92,19 @@ The user chose, item by item, which recommendations to apply. Three patches in t
 - Open questions Q17 (cancellation codes), Q19 (three-way review), Q22 (attachment limits), Q24 (ending SE caretaking) and Q25 (SE rejection reasons) are marked for YJB.
 - `proposed-transfer-api.yaml` now refers to `StageStatus` and `Stage` in `../swagger.yaml`, instead of keeping its own copies.
 
+## Work on 2026-11-26
+
+The user asked for a fourth patch, `swagger-operation-ids.patch`, and applied it to `../swagger.yaml`. It was generated against `swagger.yaml@cb7e26e` (v0.0.3). The user chose each change [User 2026-11-26]:
+
+1. **`operationId`s** on all 10 operations, camelCase verb-noun: `findChildren` (`GET /children`), `createChild`, `searchChildren` (`POST /children/search`), `getChild`, `listStages`, `createStage`, `getStage`, `updateStage` (`PATCH`), `completeStage` (`PUT`) and `cancelStage` (`DELETE`). `PUT` and `DELETE` are named for what they do in this API, not after the HTTP method.
+2. **No trailing slashes** on `/children/{ypid}` and `/children/{ypid}/stages`.
+3. **No properties beside `$ref`s.** OpenAPI 3.0 ignores them. Leftover or meaningless ones were removed (the inline postcode parameter properties, two `type: object`s, and `minimumItems`/`maximumItems`), and `MinimalChild.Identifier` wraps its `$ref` in `allOf` so its description is kept. Two of these fixes change behaviour:
+   - **`PATCH` of a stage:** the `Notification` is optional. The response is `204 No Content` when there's no notification, and `200` with a `Notification` when someone else also has a partial stage open for the child. Both carry the new `ETag`. Chosen as the closest to REST, over a wrapper object, a nullable body, or an empty `{}`.
+   - **`MinimalChild.DateOfBirth`** is nullable, using `type` + `allOf` + `nullable: true`, as `ypid` already does. Chosen over making the shared `DateOfBirth` schema nullable, or `oneOf` with null.
+4. **The unused `MinimalChildWithFieldNames` schema was removed.** Nothing has used it since `82f3ce4`.
+
+The `swagger.yaml` line citations in `api-scope-and-options.md` and `proposed-transfer-api.yaml` were updated to the patched file, and both now mention the patch.
+
 ## Inputs
 
 - The restricted source documents are in `restricted-documents/`, which git ignores. `documents-list.md` lists them by title, with versions and locations:
@@ -100,7 +114,7 @@ The user chose, item by item, which recommendations to apply. Three patches in t
   - AssetPlus Prototype workbook (v8.4.1 DRAFT)
   - the 11 AssetPlus XSD files (v12.0.0)
 - The user has said that Claude may read the restricted originals directly when it needs them.
-- `../swagger.yaml` (v0.0.2, changed in `6feec52`) is the draft of the intended API. Its routes are:
+- `../swagger.yaml` (v0.0.3, changed in `6feec52`, `cb7e26e` and on 2026-11-26) is the draft of the intended API. Its routes are:
   - `/children` (GET, POST)
   - `/children/search`
   - `/children/{ypid}`
@@ -117,6 +131,7 @@ The user chose, item by item, which recommendations to apply. Three patches in t
 | `api-scope-and-options.md` | Coverage table (F1–F32), missed scope (§2 items 1–26), design options A–J, changes to `../swagger.yaml` (§4, marked made or not made), open questions Q1–Q25 | **Yes**: paraphrases and citations |
 | `proposed-transfer-api.yaml` | OpenAPI 3.0.4 draft (v0.0.4-draft) of new routes. Its description summarises the changes made to `../swagger.yaml`, those still recommended, and the departures from the current process. It refers to `MinimalChild`, `Stage` and `StageStatus` in `../swagger.yaml`, and marks speculative parts `x-speculative: true` | **Yes**: short quotes and citations in descriptions |
 | `swagger-recommended-changes.patch`, `swagger-shared-responses.patch`, `swagger-shared-schemas.patch` | The three patches applied to `../swagger.yaml` in `6feec52`, each with notes at the top | No |
+| `swagger-operation-ids.patch` | The fourth patch, applied on 2026-11-26: `operationId`s and Redocly fixes, with notes at the top | No |
 | `.grill-me/` (git-ignored) | The 2026-11-23 and 2026-11-24 design sessions: summaries and JSON design trees | **Yes**: citations |
 | `session-context.md` | This file | No |
 
@@ -165,17 +180,20 @@ Detail and citations are in `current-process.md` §3–§6 and `api-scope-and-op
   - AP02 and AP06: `[<doc short ref> L<line> <requirement ID or §section>]`. Line numbers refer to the `.md` copies.
   - Workbooks: `[AP03 '<sheet>' <row or column>]` and `[PROTO '<sheet>' <row>]`. Row numbers are the spreadsheet's own row numbers.
   - XSD files: the file name without the version suffix, e.g. `[SimpleTypes L166]` or `[AssessmentTransfer L113]`.
-  - `../swagger.yaml`: `[swagger.yaml L<line>]` for the current version, and `[swagger.yaml@2234377 L<line>]` for the version before 2026-11-24.
+  - `../swagger.yaml`: `[swagger.yaml L<line>]` for the current version, and `[swagger.yaml@2234377 L<line>]` for the version before 2026-11-24. The line numbers of the version before 2026-11-26 are the same as at `cb7e26e`; if one is needed, pin it as `[swagger.yaml@cb7e26e L<line>]`.
   - Team decisions: `[User 2026-11-19]`.
-  - Design-session decisions: `[User 2026-11-23 Qn]` and `[User 2026-11-24 grill Qn]`, where `Qn` is the question number in the `.grill-me/` summaries. Other decisions from 2026-11-24: `[User 2026-11-24]`.
+  - Design-session decisions: `[User 2026-11-23 Qn]` and `[User 2026-11-24 grill Qn]`, where `Qn` is the question number in the `.grill-me/` summaries. Other decisions: `[User 2026-11-24]` and `[User 2026-11-26]`.
 - Speculation is marked with `⚠️ Speculation:` in markdown and `x-speculative: true` in the yaml.
 - New API conventions follow `../swagger.yaml`: integer `ypid`, GUID `stageid`, 409 instead of 404 for ID mismatches, and no personal data in query strings. They add a `422` response whose `rule` field gives the broken requirement ID.
 
 ## Verification done
 
-- `proposed-transfer-api.yaml` and `../swagger.yaml` both pass Redocly's `spec` rule (`npx @redocly/cli@1.25.0 lint`), and every `$ref` resolves, including those from `proposed-transfer-api.yaml` into `../swagger.yaml`. The remaining Redocly findings are the same in both files and were there before: no security scheme, no `operationId`s, empty `servers`, and (in `../swagger.yaml`) trailing slashes on two paths.
-- Each patch was checked with `git apply --check`, and applying all three in order to `swagger.yaml@2234377` gives exactly the version committed in `6feec52`.
-- `swagger.yaml` line citations were updated or pinned to `2234377` on 2026-11-24; the current ones were checked against the file.
+- `proposed-transfer-api.yaml` and `../swagger.yaml` both pass Redocly's `spec` rule (`npx @redocly/cli@1.25.0 lint`), and every `$ref` resolves, including those from `proposed-transfer-api.yaml` into `../swagger.yaml`.
+- On 2026-11-26, with Redocly's `recommended` rules (`--extends recommended`):
+  - `../swagger.yaml` reports only no security scheme (one error per operation), empty `servers`, and no `info.license`. The user has deferred the licence.
+  - `proposed-transfer-api.yaml` still reports no security scheme, no `operationId`s (23), empty `servers`, no `info.license`, and 3 operations with no `4xx` response.
+- Each of the first three patches was checked with `git apply --check`, and applying all three in order to `swagger.yaml@2234377` gives exactly the version committed in `6feec52`. `swagger-operation-ids.patch` was checked the same way against `cb7e26e`, and the applied result matches the copy that was linted.
+- `swagger.yaml` line citations were updated or pinned to `2234377` on 2026-11-24, and updated again to the patched file on 2026-11-26 by mapping each cited line through a diff.
 - All Markdown in this folder passes markdownlint with the repo-root `.markdownlint.jsonc`.
 - In the first session about 40 citations were spot-checked; 17 more against the re-supplied AP02 and AP06 on 2026-11-19. Every XSD line citation was checked by script.
 - No file from `restricted-documents/` has ever been committed.
@@ -191,3 +209,7 @@ Detail and citations are in `current-process.md` §3–§6 and `api-scope-and-op
    - draft a `Stage.data` structure (option E1) from the v12 XSDs
    - a grill-me session on authorisation (option G)
    - render the Mermaid diagrams
+6. **Redocly findings left** (2026-11-26):
+   - `../swagger.yaml`: `info.license` (deferred by the user), the security scheme (depends on option G), and empty `servers`.
+   - `proposed-transfer-api.yaml`: the same, plus no `operationId`s and 3 operations with no `4xx` response.
+   - `ypid` and `MinimalChild.DateOfBirth` both use `type` + `allOf` + `nullable: true`. OpenAPI 3.0.3 and later say `nullable` doesn't carry through `allOf`, so a strict validator may still reject null for either.
