@@ -275,7 +275,7 @@ paths:
       tags:
         - Find, create and update Stages
       description: |
-        This endpoint creates a new partial Stage for the child specified in the path `ypid` parameter. The request body must include a `MinimalChild` object, which will be used to confirm that the new Stage is being created for the expected child, and the Stage's `stage_type`, `case_type` and `schema_version`. The response will include the `stageid` of the newly-created Stage, which can then be used to subsequently update that Stage.
+        This endpoint creates a new partial Stage for the child specified in the path `ypid` parameter. The request body must include a `MinimalChild` object, which will be used to confirm that the new Stage is being created for the expected child, and the Stage's `stage_type`, `case_type` and `schema_version`. The response will include the `stageid` of the newly-created Stage, which can then be used to subsequently update that Stage, and its first `ETag`, to send as `If-Match` on the first `PATCH`.
 
         The platform enforces these rules, and returns `422 Unprocessable Content` with the ID of the broken rule if one fails:
 
@@ -315,17 +315,25 @@ paths:
       parameters:
         - $ref: "#/components/parameters/idempotencyKeyHeaderParameter"
       responses:
-        '200':
+        '201':
           description: |
-            Success response
+            Created
 
             For a child who is already known to the system, this will return the `stageid` of the newly-created Stage, which can then be used to subsequently update that Stage.
+          headers:
+            ETag:
+              $ref: "#/components/headers/ETag"
+            Location:
+              description: The URI of the new Stage, `/children/{ypid}/stages/{stageid}`.
+              schema:
+                type: string
+                format: uri
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  stage_id:
+                  stageid:
                     $ref: "#/components/schemas/StageId"
         '400':
           $ref: "#/components/responses/BadRequestChildDetails"

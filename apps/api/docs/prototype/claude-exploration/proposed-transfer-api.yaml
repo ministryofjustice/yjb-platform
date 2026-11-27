@@ -355,7 +355,7 @@ paths:
       description: |
         Lists the stage's events in time order: created, saved, rebased, completed, shared, reviewed, superseded and cancelled. Each event records who did it and when (User 2026-11-23 Q39). This exposes the audit trail that every change must have (AP02 L536 GE015), including cancelled stages (AP02 L527 GE069).
 
-        The same privacy rule applies as for partial stages: events on a partial stage are visible only to the organisation that owns it (swagger.yaml L369).
+        The same privacy rule applies as for partial stages: events on a partial stage are visible only to the organisation that owns it (swagger.yaml L377).
 
         **Replaces the transitions route.** An earlier draft had `POST …/stages/{stageid}/transitions` for complete, stop, cancel and reopen. It was removed because status changes now happen implicitly through `POST`, `PATCH`, `PUT` and `DELETE` on the stage (User 2026-11-23 Q8). See `PUT` and `DELETE` on `/children/{ypid}/stages/{stageid}` in `../swagger.yaml`.
       responses:
@@ -498,7 +498,7 @@ paths:
       description: |
         Replaces the `Unstructured_Data` list, which catalogued files sent "via alternate means e.g. secure email" because Connectivity could not carry them (AP06 L260–266). In the v12 schema that list became an attachment index for each stage, giving each file's section and document name (AssessmentTransfer L2679–2690). `Unstructured_Data` was removed in v3.0.1 (AssessmentTransfer L66). Attachments are uploaded at section level (AP02 L537 GE019).
 
-        **Attachments follow the stage's lifecycle (User 2026-11-23 Q43).** They're sub-resources of the stage. They can be added or removed only while the stage is partial; `POST` or `DELETE` on a completed stage gets `422`. The completing `PUT` lists the attachment IDs being signed off, so the countersignatories sign off the files too. A document that arrives after completion goes on a new stage. ⚠️ Inferred, not confirmed: attachments on a partial stage are visible only to the organisation that owns it, like the stage (swagger.yaml L369).
+        **Attachments follow the stage's lifecycle (User 2026-11-23 Q43).** They're sub-resources of the stage. They can be added or removed only while the stage is partial; `POST` or `DELETE` on a completed stage gets `422`. The completing `PUT` lists the attachment IDs being signed off, so the countersignatories sign off the files too. A document that arrives after completion goes on a new stage. ⚠️ Inferred, not confirmed: attachments on a partial stage are visible only to the organisation that owns it, like the stage (swagger.yaml L377).
       responses:
         '200':
           description: Success

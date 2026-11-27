@@ -1,0 +1,61 @@
+Return `201 Created` with an `ETag` and `Location` from `POST …/stages`,
+in apps/api/docs/prototype/swagger.yaml
+
+Generated on 2026-11-27, against the swagger.yaml committed in d6a23eb.
+Apply from the repository root:
+
+  git apply apps/api/docs/prototype/claude-exploration/api-patch-007-create-stage-etag.patch
+
+Found while checking `data-sync-sequence.md` against swagger.yaml.
+`PATCH` and `PUT` require `If-Match` with the Stage's current `ETag`
+(`428` without it), but `POST …/stages` (`createStage`) returned no
+`ETag`. A CMS would have had to `GET` every new Stage before its first
+save. The user chose to fix the spec instead (User 2026-11-27):
+
+1. `createStage` returns `201 Created`, not `200`, with an `ETag` header
+   (the shared `ETag` header component) and a `Location` header giving
+   the new Stage's URI. The description says to send the `ETag` as
+   `If-Match` on the first `PATCH`.
+2. The response body's `stage_id` is renamed `stageid`, matching the
+   rest of the file.
+
+--- a/apps/api/docs/prototype/swagger.yaml
++++ b/apps/api/docs/prototype/swagger.yaml
+@@ -275,7 +275,7 @@
+       tags:
+         - Find, create and update Stages
+       description: |
+-        This endpoint creates a new partial Stage for the child specified in the path `ypid` parameter. The request body must include a `MinimalChild` object, which will be used to confirm that the new Stage is being created for the expected child, and the Stage's `stage_type`, `case_type` and `schema_version`. The response will include the `stageid` of the newly-created Stage, which can then be used to subsequently update that Stage.
++        This endpoint creates a new partial Stage for the child specified in the path `ypid` parameter. The request body must include a `MinimalChild` object, which will be used to confirm that the new Stage is being created for the expected child, and the Stage's `stage_type`, `case_type` and `schema_version`. The response will include the `stageid` of the newly-created Stage, which can then be used to subsequently update that Stage, and its first `ETag`, to send as `If-Match` on the first `PATCH`.
+ 
+         The platform enforces these rules, and returns `422 Unprocessable Content` with the ID of the broken rule if one fails:
+ 
+@@ -315,17 +315,25 @@
+       parameters:
+         - $ref: "#/components/parameters/idempotencyKeyHeaderParameter"
+       responses:
+-        '200':
++        '201':
+           description: |
+-            Success response
++            Created
+ 
+             For a child who is already known to the system, this will return the `stageid` of the newly-created Stage, which can then be used to subsequently update that Stage.
++          headers:
++            ETag:
++              $ref: "#/components/headers/ETag"
++            Location:
++              description: The URI of the new Stage, `/children/{ypid}/stages/{stageid}`.
++              schema:
++                type: string
++                format: uri
+           content:
+             application/json:
+               schema:
+                 type: object
+                 properties:
+-                  stage_id:
++                  stageid:
+                     $ref: "#/components/schemas/StageId"
+         '400':
+           $ref: "#/components/responses/BadRequestChildDetails"

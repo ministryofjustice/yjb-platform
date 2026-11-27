@@ -123,6 +123,7 @@ Decisions from discussing it [User 2026-11-26]:
 | Stage type after a review | Not fixed by the API. The slide's "Review Stage" is an existing type, but the user isn't sure it's always the one used (Q27) |
 | Notifications | The `PATCH` `Notification` is sent when the other party's partial stage is new to the caller, or saved since the caller was last told. Chosen over "since your own last save", which misses idle stages |
 | Review stage alongside | A Review stage may be open alongside the organisation's other partial stage while it takes in another organisation's stage, an exception to Q28 (one partial stage per organisation). ⚠️ At most one at a time is inferred |
+| First `ETag` (2026-11-27) | `POST …/stages` returns `201 Created` with the new Stage's `ETag` and `Location`, so the first `PATCH` doesn't need a `GET` first. Found while checking the diagram against `../swagger.yaml`. Also renames `stage_id` to `stageid` |
 | "Rebase" | Means taking in another organisation's completed stage before completing an open partial stage. This is a second sense, alongside option J's merge of a stale push |
 
 New questions for YJB: Q26 (two-person sign-off for the decision) and Q27 (the stage type after a review).
@@ -160,6 +161,7 @@ Written up in `api-scope-and-options.md` (option B, §2 items 5–7, F14, §4) a
 | `api-patch-004-operation-ids.patch` | The fourth patch, applied on 2026-11-26: `operationId`s and Redocly fixes, with notes at the top | No |
 | `api-patch-005-review-rebase.patch` | The fifth patch, applied on 2026-11-26: the blocking rule and `422` on `PUT`, and `Stage.based_on` | No |
 | `api-patch-006-notifications-review-stage.patch` | The sixth patch, applied on 2026-11-26: when `PATCH` notifications are sent, and the Review-stage exception on `POST …/stages` | No |
+| `api-patch-007-create-stage-etag.patch` | The seventh patch, applied on 2026-11-27: `201 Created` with `ETag` and `Location` from `POST …/stages` | No |
 | `data-sync-sequence.md` | The data-sync flow as a Mermaid sequence diagram, with every API call | Citations only |
 | `data-sync-api-path.pdf` | The data-sync slide (DSYNC), added by the user on 2026-11-26 | No: marked "OFFICIAL - FOR PUBLIC RELEASE" |
 | `.grill-me/` (git-ignored) | The 2026-11-23 and 2026-11-24 design sessions: summaries and JSON design trees | **Yes**: citations |
