@@ -130,7 +130,7 @@ New questions for YJB: Q26 (two-person sign-off for the decision) and Q27 (the s
 
 Written up in `api-scope-and-options.md` (option B, §2 items 5–7, F14, §4) and `proposed-transfer-api.yaml` (the review route and "Departures from the current process"). The `../swagger.yaml` changes were applied by the user through `api-patch-005-review-rebase.patch`. The notification and Review-stage decisions came later, while drawing `data-sync-sequence.md`, and were applied by the user through `api-patch-006-notifications-review-stage.patch`.
 
-`data-sync-sequence.md` draws the slide's flow as a Mermaid sequence diagram with every API call, one coloured `box` per organisation. Placement is kept as simple as on the slide [User 2026-11-26].
+`data-sync-sequence.md` draws the slide's flow as a Mermaid sequence diagram with every API call, one coloured vertical per organisation (revised 2026-11-27). Placement is kept as simple as on the slide [User 2026-11-26].
 
 ## Inputs
 
@@ -162,7 +162,7 @@ Written up in `api-scope-and-options.md` (option B, §2 items 5–7, F14, §4) a
 | `api-patch-005-review-rebase.patch` | The fifth patch, applied on 2026-11-26: the blocking rule and `422` on `PUT`, and `Stage.based_on` | No |
 | `api-patch-006-notifications-review-stage.patch` | The sixth patch, applied on 2026-11-26: when `PATCH` notifications are sent, and the Review-stage exception on `POST …/stages` | No |
 | `api-patch-007-create-stage-etag.patch` | The seventh patch, applied on 2026-11-27: `201 Created` with `ETag` and `Location` from `POST …/stages` | No |
-| `data-sync-sequence.md` | The data-sync flow as a Mermaid sequence diagram, with every API call | Citations only |
+| `data-sync-sequence.md`, `.png`, `.svg` | The data-sync flow as a Mermaid sequence diagram, with every API call, and its PNG and SVG exports | Citations only |
 | `data-sync-api-path.pdf` | The data-sync slide (DSYNC), added by the user on 2026-11-26 | No: marked "OFFICIAL - FOR PUBLIC RELEASE" |
 | `.grill-me/` (git-ignored) | The 2026-11-23 and 2026-11-24 design sessions: summaries and JSON design trees | **Yes**: citations |
 | `session-context.md` | This file | No |
