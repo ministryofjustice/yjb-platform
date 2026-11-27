@@ -3,9 +3,9 @@ Use shared schemas in apps/api/docs/prototype/swagger.yaml
 Generated on 2026-11-24. Apply AFTER the other two patches, from the
 repository root:
 
-  git apply apps/api/docs/prototype/claude-exploration/swagger-recommended-changes.patch
-  git apply apps/api/docs/prototype/claude-exploration/swagger-shared-responses.patch
-  git apply apps/api/docs/prototype/claude-exploration/swagger-shared-schemas.patch
+  git apply apps/api/docs/prototype/claude-exploration/api-patch-001-recommended-changes.patch
+  git apply apps/api/docs/prototype/claude-exploration/api-patch-002-shared-responses.patch
+  git apply apps/api/docs/prototype/claude-exploration/api-patch-003-shared-schemas.patch
 
 Adds 3 schemas to #/components/schemas/ and refers to them with $ref:
 

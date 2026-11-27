@@ -81,9 +81,9 @@ The user answered 12 questions on whether the transfer routes in `proposed-trans
 
 The user chose, item by item, which recommendations to apply. Three patches in this folder hold them, and were applied in commit `6feec52`:
 
-1. `swagger-recommended-changes.patch`: the stage-route decisions of 2026-11-23 (fields and `422` on `POST`, completing `PUT`, soft-cancel `DELETE`, concurrency headers and responses, new `Stage` fields, wording fixes).
-2. `swagger-shared-responses.patch`: 8 shared response components; "CYPID" corrected to "OYPID"; `POST /children` rejects any `ypid` that isn't absent or null.
-3. `swagger-shared-schemas.patch`: shared `DateOfBirthAccuracy`, `StageId` and `Ypid` schemas; fixes Redocly's `spec` errors.
+1. `api-patch-001-recommended-changes.patch`: the stage-route decisions of 2026-11-23 (fields and `422` on `POST`, completing `PUT`, soft-cancel `DELETE`, concurrency headers and responses, new `Stage` fields, wording fixes).
+2. `api-patch-002-shared-responses.patch`: 8 shared response components; "CYPID" corrected to "OYPID"; `POST /children` rejects any `ypid` that isn't absent or null.
+3. `api-patch-003-shared-schemas.patch`: shared `DateOfBirthAccuracy`, `StageId` and `Ypid` schemas; fixes Redocly's `spec` errors.
 
 **Not applied**, by the user's choice: schema-version rules, `308` for merged children, `GET …/stages` filters, `403` wording for caretakers, and `proxy_owner`. They're listed in `proposed-transfer-api.yaml` ("Changes made to `../swagger.yaml`") and `api-scope-and-options.md` §4.
 
@@ -96,7 +96,7 @@ The user chose, item by item, which recommendations to apply. Three patches in t
 
 ### Fourth patch to `../swagger.yaml`
 
-The user asked for a fourth patch, `swagger-operation-ids.patch`, and applied it to `../swagger.yaml`. It was generated against `swagger.yaml@cb7e26e` (v0.0.3). The user chose each change [User 2026-11-26]:
+The user asked for a fourth patch, `api-patch-004-operation-ids.patch`, and applied it to `../swagger.yaml`. It was generated against `swagger.yaml@cb7e26e` (v0.0.3). The user chose each change [User 2026-11-26]:
 
 1. **`operationId`s** on all 10 operations, camelCase verb-noun: `findChildren` (`GET /children`), `createChild`, `searchChildren` (`POST /children/search`), `getChild`, `listStages`, `createStage`, `getStage`, `updateStage` (`PATCH`), `completeStage` (`PUT`) and `cancelStage` (`DELETE`). `PUT` and `DELETE` are named for what they do in this API, not after the HTTP method.
 2. **No trailing slashes** on `/children/{ypid}` and `/children/{ypid}/stages`.
@@ -127,7 +127,7 @@ Decisions from discussing it [User 2026-11-26]:
 
 New questions for YJB: Q26 (two-person sign-off for the decision) and Q27 (the stage type after a review).
 
-Written up in `api-scope-and-options.md` (option B, §2 items 5–7, F14, §4) and `proposed-transfer-api.yaml` (the review route and "Departures from the current process"). The `../swagger.yaml` changes were applied by the user through `swagger-review-rebase.patch`. The notification and Review-stage decisions came later, while drawing `data-sync-sequence.md`, and were applied by the user through `swagger-notifications-review-stage.patch`.
+Written up in `api-scope-and-options.md` (option B, §2 items 5–7, F14, §4) and `proposed-transfer-api.yaml` (the review route and "Departures from the current process"). The `../swagger.yaml` changes were applied by the user through `api-patch-005-review-rebase.patch`. The notification and Review-stage decisions came later, while drawing `data-sync-sequence.md`, and were applied by the user through `api-patch-006-notifications-review-stage.patch`.
 
 `data-sync-sequence.md` draws the slide's flow as a Mermaid sequence diagram with every API call, one coloured `box` per organisation. Placement is kept as simple as on the slide [User 2026-11-26].
 
@@ -156,10 +156,10 @@ Written up in `api-scope-and-options.md` (option B, §2 items 5–7, F14, §4) a
 | `current-process.md` | Sourced description of today's process, with Mermaid diagrams, cross-checked against the v12 XSDs and AP 03 | **Yes**: paraphrases, short quotes and controlled values |
 | `api-scope-and-options.md` | Coverage table (F1–F32), missed scope (§2 items 1–26), design options A–J, changes to `../swagger.yaml` (§4, marked made or not made), open questions Q1–Q25 | **Yes**: paraphrases and citations |
 | `proposed-transfer-api.yaml` | OpenAPI 3.0.4 draft (v0.0.4-draft) of new routes. Its description summarises the changes made to `../swagger.yaml`, those still recommended, and the departures from the current process. It refers to `MinimalChild`, `Stage` and `StageStatus` in `../swagger.yaml`, and marks speculative parts `x-speculative: true` | **Yes**: short quotes and citations in descriptions |
-| `swagger-recommended-changes.patch`, `swagger-shared-responses.patch`, `swagger-shared-schemas.patch` | The three patches applied to `../swagger.yaml` in `6feec52`, each with notes at the top | No |
-| `swagger-operation-ids.patch` | The fourth patch, applied on 2026-11-26: `operationId`s and Redocly fixes, with notes at the top | No |
-| `swagger-review-rebase.patch` | The fifth patch, applied on 2026-11-26: the blocking rule and `422` on `PUT`, and `Stage.based_on` | No |
-| `swagger-notifications-review-stage.patch` | The sixth patch, applied on 2026-11-26: when `PATCH` notifications are sent, and the Review-stage exception on `POST …/stages` | No |
+| `api-patch-001-recommended-changes.patch`, `api-patch-002-shared-responses.patch`, `api-patch-003-shared-schemas.patch` | The three patches applied to `../swagger.yaml` in `6feec52`, each with notes at the top | No |
+| `api-patch-004-operation-ids.patch` | The fourth patch, applied on 2026-11-26: `operationId`s and Redocly fixes, with notes at the top | No |
+| `api-patch-005-review-rebase.patch` | The fifth patch, applied on 2026-11-26: the blocking rule and `422` on `PUT`, and `Stage.based_on` | No |
+| `api-patch-006-notifications-review-stage.patch` | The sixth patch, applied on 2026-11-26: when `PATCH` notifications are sent, and the Review-stage exception on `POST …/stages` | No |
 | `data-sync-sequence.md` | The data-sync flow as a Mermaid sequence diagram, with every API call | Citations only |
 | `data-sync-api-path.pdf` | The data-sync slide (DSYNC), added by the user on 2026-11-26 | No: marked "OFFICIAL - FOR PUBLIC RELEASE" |
 | `.grill-me/` (git-ignored) | The 2026-11-23 and 2026-11-24 design sessions: summaries and JSON design trees | **Yes**: citations |
@@ -222,7 +222,7 @@ Detail and citations are in `current-process.md` §3–§6 and `api-scope-and-op
 - On 2026-11-26, with Redocly's `recommended` rules (`--extends recommended`):
   - `../swagger.yaml` reports only no security scheme (one error per operation), empty `servers`, and no `info.license`. The user has deferred the licence.
   - `proposed-transfer-api.yaml` still reports no security scheme, no `operationId`s (23), empty `servers`, no `info.license`, and 3 operations with no `4xx` response.
-- Each of the first three patches was checked with `git apply --check`, and applying all three in order to `swagger.yaml@2234377` gives exactly the version committed in `6feec52`. `swagger-operation-ids.patch` was checked the same way against `cb7e26e`, and the applied result matches the copy that was linted.
+- Each of the first three patches was checked with `git apply --check`, and applying all three in order to `swagger.yaml@2234377` gives exactly the version committed in `6feec52`. `api-patch-004-operation-ids.patch` was checked the same way against `cb7e26e`, and the applied result matches the copy that was linted.
 - `swagger.yaml` line citations were updated or pinned to `2234377` on 2026-11-24, and updated again to the patched file on 2026-11-26 by mapping each cited line through a diff.
 - All Markdown in this folder passes markdownlint with the repo-root `.markdownlint.jsonc`.
 - In the first session about 40 citations were spot-checked; 17 more against the re-supplied AP02 and AP06 on 2026-11-19. Every XSD line citation was checked by script.

@@ -4,7 +4,7 @@ taken in, and add `Stage.based_on`, in apps/api/docs/prototype/swagger.yaml
 Generated on 2026-11-26, against the swagger.yaml committed in 7248bc2.
 Apply from the repository root:
 
-  git apply apps/api/docs/prototype/claude-exploration/swagger-review-rebase.patch
+  git apply apps/api/docs/prototype/claude-exploration/api-patch-005-review-rebase.patch
 
 These come from the user's decisions on 2026-11-26, after reading the
 data-sync slide (`data-sync-api-path.pdf`, cited as DSYNC p1):

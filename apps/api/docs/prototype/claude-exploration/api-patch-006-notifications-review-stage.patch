@@ -4,7 +4,7 @@ alongside another partial Stage, in apps/api/docs/prototype/swagger.yaml
 Generated on 2026-11-26, against the swagger.yaml committed in 854c9e2.
 Apply from the repository root:
 
-  git apply apps/api/docs/prototype/claude-exploration/swagger-notifications-review-stage.patch
+  git apply apps/api/docs/prototype/claude-exploration/api-patch-006-notifications-review-stage.patch
 
 These come from the user's decisions on 2026-11-26, made while drawing
 `data-sync-sequence.md` from the data-sync slide (DSYNC p1):

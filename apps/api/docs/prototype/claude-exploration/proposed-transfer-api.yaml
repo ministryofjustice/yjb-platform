@@ -28,12 +28,12 @@ info:
 
     ## Changes made to `../swagger.yaml`
 
-    The decisions from the design session on 2026-11-23 that change routes in `../swagger.yaml` were applied on 2026-11-24, in commit `6feec52`, through three patches in this folder: `swagger-recommended-changes.patch`, `swagger-shared-responses.patch` and `swagger-shared-schemas.patch`. The user chose each change (User 2026-11-24). `../swagger.yaml` is now the reference for:
+    The decisions from the design session on 2026-11-23 that change routes in `../swagger.yaml` were applied on 2026-11-24, in commit `6feec52`, through three patches in this folder: `api-patch-001-recommended-changes.patch`, `api-patch-002-shared-responses.patch` and `api-patch-003-shared-schemas.patch`. The user chose each change (User 2026-11-24). `../swagger.yaml` is now the reference for:
 
     - **Implicit status changes; no transitions API** (User 2026-11-23 Q8). `POST …/stages` creates a partial stage and takes `stage_type`, `case_type`, `schema_version` and an optional `supersedes`, with `422` for broken rules (Q24, Q28, Q29, Q31). An accepted `PUT` completes the stage and returns its new status in `StageStatusResponse`; the old optional `Notification` was dropped from `PUT` (Q7; User 2026-11-24). `DELETE` is a soft cancel of a partial stage, with `?reason=<code>` and an `X-Signoff-User` header (option I2; Q12–Q14).
     - **Concurrency** (Q2–Q4, Q16, Q18, Q20–Q22): `ETag`, a required `If-Match`, `412` with `StageOutcome`, `428`, and `Idempotency-Key` on `POST`, `PATCH` and `PUT` (not on `DELETE`, where a repeated cancel is harmless; User 2026-11-24). ⚠️ The rebase of a stale `PATCH` with no conflict is still inferred, not confirmed.
     - **`Stage` fields** (Q15, Q24, Q31, Q43): `stageid`, `status` (`StageStatus`), `stage_type`, `case_type`, `schema_version`, `supersedes` / `superseded_by`, the two countersignatures, `attachment_ids`, `organisation`, `owner`, `created_at` and `completed_at`. `proxy_owner` was left out (User 2026-11-24).
-    - **Since 2026-11-26**, through a fourth patch, `swagger-operation-ids.patch` (User 2026-11-26): every operation has an `operationId`; `/children/{ypid}` and `/children/{ypid}/stages` have no trailing slash; a `PATCH` of a stage returns `204 No Content`, or `200` with a `Notification` when someone else also has a partial stage open for the child; and `MinimalChild.DateOfBirth` is nullable.
+    - **Since 2026-11-26**, through a fourth patch, `api-patch-004-operation-ids.patch` (User 2026-11-26): every operation has an `operationId`; `/children/{ypid}` and `/children/{ypid}/stages` have no trailing slash; a `PATCH` of a stage returns `204 No Content`, or `200` with a `Notification` when someone else also has a partial stage open for the child; and `MinimalChild.DateOfBirth` is nullable.
 
     This file refers to `StageStatus` and `Stage` in `../swagger.yaml` rather than defining its own copies.
 
@@ -409,7 +409,7 @@ paths:
 
         **Extended 2026-11-26** (User 2026-11-26; DSYNC p1; `api-scope-and-options.md` option B):
         - **A decision is final.** A reviewer won't turn a rejection into an acceptance; the originator may issue a new stage that `supersedes` the rejected one. ⚠️ Inferred, not confirmed: a second decision on the same stage gets `422`.
-        - **The reviewer can't complete its own open stage until it has decided**, and has rebased that stage onto the reviewed stage, rejected or not. It then sets `based_on` on its stage. `PUT …/stages/{stageid}` returns `422` until then. This applies in both directions. See `swagger-review-rebase.patch`.
+        - **The reviewer can't complete its own open stage until it has decided**, and has rebased that stage onto the reviewed stage, rejected or not. It then sets `based_on` on its stage. `PUT …/stages/{stageid}` returns `422` until then. This applies in both directions. See `api-patch-005-review-rebase.patch`.
         - **A rejected stage stays in the reviewer's record**, unlike today's deletion at the rejecting end (AP02 L863 YY009). The reviewer's own stage can record where it disagrees.
         - ⚠️ Not confirmed: whether the decision needs the same two-person sign-off as completing a stage (`api-scope-and-options.md` Q26, for YJB).
       requestBody:

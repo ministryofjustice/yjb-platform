@@ -4,7 +4,7 @@ Redocly's trailing-slash, `$ref`-sibling and unused-component warnings
 Generated on 2026-11-26, against the swagger.yaml on branch
 api-footprint-prototypes at b89bd04. Apply from the repository root:
 
-  git apply apps/api/docs/prototype/claude-exploration/swagger-operation-ids.patch
+  git apply apps/api/docs/prototype/claude-exploration/api-patch-004-operation-ids.patch
 
 After this patch, Redocly's `recommended` rules report only the missing
 security scheme, the empty `servers` list and the missing `info.license`

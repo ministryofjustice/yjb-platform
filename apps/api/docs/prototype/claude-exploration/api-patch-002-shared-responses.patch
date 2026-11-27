@@ -1,10 +1,10 @@
 Use shared response components in apps/api/docs/prototype/swagger.yaml
 
-Generated on 2026-11-24. Apply AFTER swagger-recommended-changes.patch,
+Generated on 2026-11-24. Apply AFTER api-patch-001-recommended-changes.patch,
 from the repository root:
 
-  git apply apps/api/docs/prototype/claude-exploration/swagger-recommended-changes.patch
-  git apply apps/api/docs/prototype/claude-exploration/swagger-shared-responses.patch
+  git apply apps/api/docs/prototype/claude-exploration/api-patch-001-recommended-changes.patch
+  git apply apps/api/docs/prototype/claude-exploration/api-patch-002-shared-responses.patch
 
 Replaces 32 inline response blocks with $ref links to 8 new
 #/components/responses/ items, as in proposed-transfer-api.yaml:

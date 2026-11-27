@@ -5,7 +5,7 @@ in claude-exploration/proposed-transfer-api.yaml and section 4 of
 claude-exploration/api-scope-and-options.md. Design decisions are from
 the user's design session on 2026-11-23, cited as (User 2026-11-23 Qn),
 and the follow-up review on 2026-11-24. Apply from the repository root
-with: git apply apps/api/docs/prototype/claude-exploration/swagger-recommended-changes.patch
+with: git apply apps/api/docs/prototype/claude-exploration/api-patch-001-recommended-changes.patch
 
 Included:
 1. POST /children/{ypid}/stages: stage_type, case_type, schema_version,
